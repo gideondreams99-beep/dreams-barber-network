@@ -38,6 +38,11 @@
     .input-group {
       margin-bottom: 18px;
     }
+    .dynamic-section {
+      border-left: 2px solid #D4AF37;
+      padding-left: 12px;
+      margin-bottom: 18px;
+    }
     label {
       display: block;
       color: #A9A9A9;
@@ -59,6 +64,22 @@
     input:focus, select:focus, textarea:focus {
       border-color: #D4AF37;
       outline: none;
+    }
+    .currency-wrap {
+      display: flex;
+      align-items: center;
+    }
+    .currency-label {
+      background-color: #333333;
+      padding: 12px;
+      border: 1px solid #444444;
+      border-right: none;
+      border-radius: 6px 0 0 6px;
+      color: #D4AF37;
+      font-weight: bold;
+    }
+    .currency-wrap input {
+      border-radius: 0 6px 6px 0;
     }
     button {
       width: 100%;
@@ -115,6 +136,64 @@
         </select>
       </div>
 
+      <!-- BARBER EXTRA FIELDS SECTION (Shows when role is Barber) -->
+      <div id="barberSection" class="dynamic-section">
+        <div class="input-group">
+          <label for="profilePic">Profile Picture</label>
+          <input type="file" id="profilePic" accept="image/*">
+        </div>
+
+        <div class="input-group">
+          <label for="experienceYears">Working Experience (Years)</label>
+          <input type="number" id="experienceYears" placeholder="e.g. 3" min="0">
+        </div>
+
+        <div class="input-group">
+          <label for="portfolioPhotos">Pictures of Your Works</label>
+          <input type="file" id="portfolioPhotos" accept="image/*" multiple>
+        </div>
+
+        <div class="input-group">
+          <label for="education">Level of Education</label>
+          <select id="education">
+            <option value="Apprenticeship">Apprenticeship / Practical Training</option>
+            <option value="JHS/SHS">High School / JHS / SHS</option>
+            <option value="Certificate">Vocational / Barbering Certificate</option>
+            <option value="Diploma">Diploma / Higher Education</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="payoutPreference">Payment Mode Preference</label>
+          <select id="payoutPreference">
+            <option value="Salary">Monthly Salary</option>
+            <option value="Commission">Commission Basis</option>
+            <option value="Chair Rent">Chair Rent / Sales Fee</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label id="amountLabel" for="payoutAmount">Salary Amount</label>
+          <div class="currency-wrap">
+            <span id="cediSign" class="currency-label">GH₵</span>
+            <input type="number" id="payoutAmount" placeholder="e.g. 1500" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- SHOP OWNER EXTRA FIELDS SECTION (Shows when role is Shop Owner) -->
+      <div id="shopOwnerSection" class="dynamic-section" style="display: none;">
+        <div class="input-group">
+          <label for="shopPhotos">Pictures of Your Shop</label>
+          <input type="file" id="shopPhotos" accept="image/*" multiple>
+        </div>
+
+        <div class="input-group">
+          <label for="shopVideo">Video Tour of Your Shop</label>
+          <input type="file" id="shopVideo" accept="video/*">
+        </div>
+      </div>
+
       <div class="input-group">
         <label for="city">City (Location)</label>
         <input type="text" id="city" value="Accra" required>
@@ -131,30 +210,61 @@
     <a href="feed.html" class="skip-link">Skip to Marketplace Feed →</a>
   </div>
 
-  <!-- Connect the Form Actions directly to our Firebase configuration file -->
+  <!-- Form Actions and Dynamic Show/Hide Logic -->
   <script type="module">
     import { createUserProfile } from './firebase-config.js';
 
-    document.getElementById('profileForm').addEventListener('submit', async (e) => {
-      e.preventDefault(); // Stop page from reloading
+    const roleSelect = document.getElementById('role');
+    const barberSection = document.getElementById('barberSection');
+    const shopOwnerSection = document.getElementById('shopOwnerSection');
+    const payoutPreference = document.getElementById('payoutPreference');
+    const amountLabel = document.getElementById('amountLabel');
+    const cediSign = document.getElementById('cediSign');
 
-      // Gather input data from fields
+    // Automatically change visible input options when user picks Barber or Shop Owner
+    roleSelect.addEventListener('change', () => {
+      if (roleSelect.value === 'barber') {
+        barberSection.style.display = 'block';
+        shopOwnerSection.style.display = 'none';
+      } else {
+        barberSection.style.display = 'none';
+        shopOwnerSection.style.display = 'block';
+      }
+    });
+
+    // Dynamically change text labels if they choose Commission (%) instead of Salary (GH₵)
+    payoutPreference.addEventListener('change', () => {
+      if (payoutPreference.value === 'Commission') {
+        amountLabel.textContent = "Commission Percentage (%)";
+        cediSign.textContent = "%";
+      } else if (payoutPreference.value === 'Chair Rent') {
+        amountLabel.textContent = "Chair Rent Amount Fee";
+        cediSign.textContent = "GH₵";
+      } else {
+        amountLabel.textContent = "Salary Amount";
+        cediSign.textContent = "GH₵";
+      }
+    });
+
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
       const fullName = document.getElementById('fullName').value;
       const phone = document.getElementById('phone').value;
       const role = document.getElementById('role').value;
       const city = document.getElementById('city').value;
       const bio = document.getElementById('bio').value;
 
-      // Create a temporary layout ID for testing before full Authentication is wired
+      // Temporary placeholder ID for testing layout
       const temporaryUserId = "test_user_" + Math.floor(Math.random() * 10000);
 
-      // 1. Trigger the backend file to upload this directly to your database cloud
+      // Trigger standard save
       await createUserProfile(temporaryUserId, fullName, phone, role, city, bio);
 
-      // 2. Automatically redirect straight to the marketplace feed screen
       window.location.href = "feed.html";
     });
   </script>
 
 </body>
 </html>
+
