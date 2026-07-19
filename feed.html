@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dreams Barbering Network Feed</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #FFFFFF;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .feed-container {
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      color: #D4AF37; /* Metallic Gold */
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    p.subtitle {
+      color: #A9A9A9; /* Ash Gray */
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    /* Toggle Tabs Styling */
+    .toggle-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 12px;
+      background-color: #1E1E1E;
+      border: 1px solid #333333;
+      color: #A9A9A9;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .toggle-btn.active {
+      border-color: #D4AF37;
+      color: #D4AF37;
+      background-color: #2A2A2A;
+    }
+    /* Filter Styling */
+    .filter-group {
+      margin-bottom: 20px;
+      background-color: #1E1E1E;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #333333;
+    }
+    .filter-group label {
+      display: block;
+      color: #A9A9A9;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .filter-group select {
+      width: 100%;
+      padding: 10px;
+      background-color: #2A2A2A;
+      border: 1px solid #444444;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
+    .listing-card {
+      background-color: #1E1E1E;
+      border: 1px solid #333333;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .shop-title {
+      color: #D4AF37;
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0 0 5px 0;
+    }
+    .location {
+      color: #A9A9A9;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .price-tag {
+      display: inline-block;
+      background-color: #2A2A2A;
+      color: #FFF;
+      border: 1px solid #D4AF37;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .barber-role-tag {
+      display: inline-block;
+      background-color: #2A2A2A;
+      color: #D4AF37;
+      border: 1px solid #444444;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .description {
+      font-size: 14px;
+      color: #E0E0E0;
+      line-height: 1.4;
+      margin-bottom: 15px;
+    }
+    .button-row {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .btn-whatsapp {
+      background-color: #25D366;
+      color: white;
+    }
+    .btn-call {
+      background-color: #A9A9A9;
+      color: #121212;
+    }
+    .nav-links {
+      text-align: center;
+      margin-top: 20px;
+    }
+    a {
+      color: #A9A9A9;
+      text-decoration: none;
+      font-size: 14px;
+      margin: 0 10px;
+    }
+    a:hover {
+      color: #D4AF37;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="feed-container">
+    <h2>DREAMS MARKETPLACE</h2>
+    <p class="subtitle">Connecting Top Barbering Talent & Premium Shops</p>
+
+    <!-- Master Toggle Tabs -->
+    <div class="toggle-container">
+      <div id="tabChairs" class="toggle-btn active" onclick="switchMode('chairs')">Chairs Available</div>
+      <div id="tabBarbers" class="toggle-btn" onclick="switchMode('barbers')">Barbers Looking</div>
+    </div>
+
+    <!-- Dynamic Location Filter -->
+    <div class="filter-group">
+      <label for="cityFilter">Filter By City Location:</label>
+      <select id="cityFilter">
+        <option value="all">All Locations</option>
+        <option value="accra">Accra</option>
+        <option value="kotoku">Kotoku</option>
+      </select>
+    </div>
+
+    <div id="listingsFeed">Loading marketplace data...</div>
+
+    <div class="nav-links">
+      <a href="index.html">← Register Profile</a> | 
+      <a href="add-chair.html">Post an Open Chair →</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
+      authDomain: "dreamssmartapp.firebaseapp.com",
+      projectId: "dreamssmartapp",
+      storageBucket: "dreamssmartapp.firebasestorage.app",
+      messagingSenderId: "679648849916",
+      appId: "1:679648849916:web:9ad24dbfd209dd266a8c79"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Track active application view states globally
+    let currentMode = "chairs"; 
+
+    async function loadMarketplace() {
+      const feedElement = document.getElementById('listingsFeed');
+      const selectedCity = document.getElementById('cityFilter').value;
+      feedElement.innerHTML = "Fetching cloud data...";
+
+      try {
+        let collectionName = currentMode === "chairs" ? "chair_listings" : "users";
+        let q = query(collection(db, collectionName), orderBy(currentMode === "chairs" ? "posted_at" : "created_at", "desc"));
+        
+        const querySnapshot = await getDocs(q);
+        feedElement.innerHTML = "";
+        let matchCount = 0;
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          
+          // Filter handling based on active view mode
+          let locationText = currentMode === "chairs" ? (data.location_address || "") : (data.location?.city || "");
+          if (selectedCity !== "all" && !locationText.toLowerCase().includes(selectedCity)) {
+            return;
+          }
+
+          matchCount++;
+          const rawPhone = data.contact_phone || data.phone || "";
+          const cleanPhone = rawPhone.replace(/\s+/g, '');
+          
+          let cardHtml = "";
+
+          if (currentMode === "chairs") {
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=Hello!%20I%20saw%20your%20station%20listing%20for%20${encodeURIComponent(data.shop_name)}%20on%20the%20app.%20Is%20it%20still%20available?`;
+            
+            cardHtml = `
+              <div class="listing-card">
+                <div class="shop-title">${data.shop_name}</div>
+                <div class="location">📍 ${data.location_address}</div>
+                <div class="price-tag">${data.price_per_day} ${data.currency} / day</div>
+                <div class="description">${data.description}</div>
+                <div class="button-row">
+                  <a href="${whatsappUrl}" target="_blank" class="btn btn-whatsapp">Chat WhatsApp</a>
+                  <a href="tel:${cleanPhone}" onclick="alert('Shop Contact Number: ' + '${rawPhone}');" class="btn btn-call">Call Shop</a>
+                </div>
+              </div>
+            `;
+          } else {
+            // Barber data card rendering format
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=Hello%20${encodeURIComponent(data.full_name)}!%20I%20saw%20your%20profile%20on%20the%20app%20and%20have%20an%20open%20barber%20chair%20available.`;
+            
+            cardHtml = `
+              <div class="listing-card">
+                <div class="shop-title">${data.full_name}</div>
+                <div class="location">📍 Based in ${data.location?.city || "Accra"}, Ghana</div>
+                <div class="barber-role-tag">✂️ Professional Barber</div>
+                <div class="description">${data.bio || "No bio provided yet."}</div>
+                <div class="button-row">
+                  <a href="${whatsappUrl}" target="_blank" class="btn btn-whatsapp">Message Barber</a>
+                  <a href="tel:${cleanPhone}" onclick="alert('Barber Contact Number: ' + '${rawPhone}');" class="btn btn-call">Call Barber</a>
+                </div>
+              </div>
+            `;
+          }
+          
+          feedElement.innerHTML += cardHtml;
+        });
+
+        if (matchCount === 0) {
+          feedElement.innerHTML = `<p style='text-align:center; color:#A9A9A9;'>No active postings here matching this city filter.</p>`;
+        }
+
+      } catch (error) {
+        console.error(error);
+        feedElement.innerHTML = "<p style='color:red;'>Failed to load marketplace items.</p>";
+      }
+    }
+
+    // Expose functional switch state changer directly onto the window system context
+    window.switchMode = function(mode) {
+      currentMode = mode;
+      document.getElementById('tabChairs').classList.toggle('active', mode === 'chairs');
+      document.getElementById('tabBarbers').classList.toggle('active', mode === 'barbers');
+      loadMarketplace();
+    }
+
+    // Bind selection drop changes to the loading system
+    document.getElementById('cityFilter').addEventListener('change', loadMarketplace);
+
+    // Initial launch query load trigger
+    loadMarketplace();
+  </script>
+
+</body>
+</html>

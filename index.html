@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barber Connect Platform</title>
+  <style>
+    /* Premium Dark/Gold Aesthetic Styles */
+    body {
+      background-color: #121212;
+      color: #FFFFFF;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .form-container {
+      background-color: #1E1E1E;
+      border: 1px solid #333333;
+      border-radius: 12px;
+      padding: 25px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    h2 {
+      color: #D4AF37; /* Metallic Gold Accent */
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    p.subtitle {
+      color: #A9A9A9; /* Ash Accent */
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+    .input-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      color: #A9A9A9;
+      font-size: 13px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      background-color: #2A2A2A;
+      border: 1px solid #444444;
+      border-radius: 6px;
+      color: white;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #D4AF37;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #D4AF37;
+      color: #121212;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: #AA882C;
+    }
+    .skip-link {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      color: #A9A9A9;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .skip-link:hover {
+      color: #D4AF37;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>DREAMS SMART APP</h2>
+    <p class="subtitle">Create Your Professional Barbering Network Profile</p>
+
+    <!-- Registration Form Fields -->
+    <form id="profileForm">
+      <div class="input-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="e.g. Gideon Dreams" required>
+      </div>
+
+      <div class="input-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" placeholder="e.g. +233XXXXXXXXX" required>
+      </div>
+
+      <div class="input-group">
+        <label for="role">I am a:</label>
+        <select id="role" required>
+          <option value="barber">Barber (Looking for a chair/work)</option>
+          <option value="shop_owner">Shop Owner (Have chairs to rent out)</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="city">City (Location)</label>
+        <input type="text" id="city" value="Accra" required>
+      </div>
+
+      <div class="input-group">
+        <label for="bio">Bio / Experience</label>
+        <textarea id="bio" rows="3" placeholder="Tell shops or barbers about your work, specialties, or chair availability..."></textarea>
+      </div>
+
+      <button type="submit">CREATE PROFILE</button>
+    </form>
+    
+    <a href="feed.html" class="skip-link">Skip to Marketplace Feed →</a>
+  </div>
+
+  <!-- Connect the Form Actions directly to our Firebase configuration file -->
+  <script type="module">
+    import { createUserProfile } from './firebase-config.js';
+
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); // Stop page from reloading
+
+      // Gather input data from fields
+      const fullName = document.getElementById('fullName').value;
+      const phone = document.getElementById('phone').value;
+      const role = document.getElementById('role').value;
+      const city = document.getElementById('city').value;
+      const bio = document.getElementById('bio').value;
+
+      // Create a temporary layout ID for testing before full Authentication is wired
+      const temporaryUserId = "test_user_" + Math.floor(Math.random() * 10000);
+
+      // 1. Trigger the backend file to upload this directly to your database cloud
+      await createUserProfile(temporaryUserId, fullName, phone, role, city, bio);
+
+      // 2. Automatically redirect straight to the marketplace feed screen
+      window.location.href = "feed.html";
+    });
+  </script>
+
+</body>
+</html>
