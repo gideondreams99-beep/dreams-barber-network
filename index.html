@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barber Me App</title>
+  <!-- Tailwind CSS via CDN for fast phone styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Smooth transition for the bottom profile modal sheet sliding up */
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slideUp 0.3s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased text-gray-900 pb-24">
+
+  <!-- ================= 1. AUTH LOGIN SCREEN ================= -->
+  <div id="auth-screen" class="min-h-screen flex flex-col justify-center items-center p-6 bg-white">
+    <div class="w-full max-w-sm text-center">
+      <h1 class="text-4xl font-extrabold text-amber-600 mb-2 tracking-tight">Barber Me</h1>
+      <p class="text-gray-500 mb-8 text-sm">Connecting Ghana's finest barbers & shop owners</p>
+      
+      <button id="btn-login" class="w-full bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:bg-amber-700 transition flex items-center justify-center gap-3">
+        <span>Sign in with Google</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= 2. ONBOARDING ROLE SELECTION ================= -->
+  <div id="role-screen" class="hidden min-h-screen flex flex-col justify-center items-center p-6 bg-gray-50">
+    <div class="w-full max-w-sm text-center">
+      <h2 class="text-2xl font-black text-gray-900 mb-2">Create Your Profile</h2>
+      <p class="text-gray-500 text-sm mb-6">Which best describes you?</p>
+      
+      <div class="flex flex-col gap-4">
+        <button id="choose-barber" class="p-5 bg-white border-2 border-amber-500 rounded-2xl shadow-sm text-left hover:bg-amber-50/50 transition">
+          <span class="block text-lg font-bold text-amber-600">I am a Barber</span>
+          <span class="text-xs text-gray-500 block mt-1">I want to offer home services or find a salon/shop to work in Ghana.</span>
+        </button>
+        
+        <button id="choose-owner" class="p-5 bg-white border-2 border-gray-200 rounded-2xl shadow-sm text-left hover:bg-amber-50/50 transition">
+          <span class="block text-lg font-bold text-gray-800">I am a Shop Owner</span>
+          <span class="text-xs text-gray-500 block mt-1">I am looking for professional barbers to join my shop or setup.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 3. JIJI-STYLE MAIN MARKETPLACE FEED ================= -->
+  <div id="main-app" class="hidden max-w-md mx-auto p-4">
+    <!-- Header Area -->
+    <header class="flex justify-between items-center mb-5 pt-2">
+      <h1 class="text-2xl font-black text-amber-600 tracking-tight">Barber Me</h1>
+      <button id="btn-logout" class="text-xs font-bold text-red-500 bg-red-50 px-3 py-1.5 rounded-lg">Logout</button>
+    </header>
+
+    <!-- Jiji-Style Search Toggle Tabs -->
+    <div class="flex bg-gray-200 p-1 rounded-xl mb-5">
+      <button id="tab-barbers" class="flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition">
+        Find Barbers
+      </button>
+      <button id="tab-shops" class="flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition">
+        Find Jobs / Shops
+      </button>
+    </div>
+
+    <!-- Feed Grid List Container -->
+    <div id="feed-container" class="grid grid-cols-1 gap-3">
+      <!-- Generated Cards load here directly -->
+    </div>
+  </div>
+
+  <!-- ================= 4. USER MANAGEMENT DASHBOARD SCREEN ================= -->
+  <div id="dashboard-screen" class="hidden max-w-md mx-auto p-4">
+    <header class="flex justify-between items-center mb-6 pt-2">
+      <h1 class="text-2xl font-black text-gray-900">My Dashboard</h1>
+      <button id="btn-save-profile" class="bg-amber-600 text-white font-bold px-5 py-2 rounded-xl text-sm shadow-md hover:bg-amber-700 transition">Save Profile</button>
+    </header>
+
+    <form id="profile-form" class="space-y-4" onsubmit="event.preventDefault();">
+      <!-- Public Phone Call Line -->
+      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Phone Number (For Client Calls)</label>
+        <input type="tel" id="input-phone" placeholder="e.g. +233 50 123 4567" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 text-sm">
+      </div>
+
+      <!-- Regional Location Setup -->
+      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Location in Ghana (City, Subregion)</label>
+        <input type="text" id="input-location" placeholder="e.g. Accra, East Legon or Kumasi, Adum" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 text-sm">
+      </div>
+
+      <!-- DYNAMIC CONFIGURATION ROW: Swaps form fields based on Barber/Owner designation -->
+      <div id="dynamic-fields" class="space-y-4">
+        <!-- Injected automatically by script backend -->
+      </div>
+
+      <!-- IMAGE PORTFOLIO UPLOAD BLOCK -->
+      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Upload Work / Shop Photos</label>
+        <div class="flex items-center justify-center w-full mt-1">
+          <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition relative">
+            <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-2">
+              <span class="text-2xl mb-1">📸</span>
+              <p class="text-xs text-gray-500 font-bold">Tap to upload photos from phone</p>
+              <p id="upload-status-text" class="text-[10px] text-gray-400 mt-1">Supports PNG, JPG</p>
+            </div>
+            <input type="file" id="portfolio-file-input" accept="image/*" class="hidden" />
+          </label>
+        </div>
+        <!-- Mini gallery grid preview inside your dashboard -->
+        <div id="dashboard-gallery-preview" class="grid grid-cols-4 gap-2 mt-4">
+          <!-- Live uploaded photos display here with delete options -->
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- ================= 5. INTERACTIVE PROFILE POPUP MODAL SHEET ================= -->
+  <div id="profile-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-end justify-center p-0">
+    <!-- Bottom Sheet Content Area -->
+    <div class="bg-white w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto p-6 animate-slide-up shadow-2xl relative">
+      <!-- Close Window Button -->
+      <button id="btn-close-modal" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold p-2 h-8 w-8 rounded-full flex items-center justify-center text-xs">✕</button>
+      
+      <!-- User Summary Identity Badge Card -->
+      <div class="flex gap-4 items-center mb-5 mt-2">
+        <img id="modal-img" src="https://via.placeholder.com/150" class="w-16 h-16 rounded-xl object-cover bg-gray-50 border border-gray-100" alt="Avatar">
+        <div>
+          <h2 id="modal-title" class="text-xl font-black text-gray-900 leading-tight">User Display Title</h2>
+          <p id="modal-location" class="text-xs font-bold text-amber-600 mt-0.5">📍 Location Field</p>
+          <span id="modal-badge" class="inline-block mt-1.5 bg-amber-50 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">Role Type</span>
+        </div>
+      </div>
+
+      <hr class="border-gray-100 my-4" />
+
+      <!-- Detailed Metrics Data Specifications Row Layout -->
+      <div class="space-y-3">
+        <h3 class="text-[11px] font-black uppercase text-gray-400 tracking-wider">Details & Requirements</h3>
+        <div id="modal-details" class="grid grid-cols-1 gap-2.5 text-sm">
+          <!-- Data rows injected here dynamically -->
+        </div>
+      </div>
+
+      <hr class="border-gray-100 my-4" />
+
+      <!-- Gallery Showcase Layout -->
+      <div class="space-y-3">
+        <h3 class="text-[11px] font-black uppercase text-gray-400 tracking-wider">Workplace & Portfolio Photos</h3>
+        <div id="modal-gallery" class="grid grid-cols-3 gap-2">
+          <!-- Rendered items loop -->
+        </div>
+        <p id="gallery-empty-msg" class="text-xs text-gray-400 italic py-1">No portfolio photos uploaded to this profile yet.</p>
+      </div>
+
+      <!-- Action Footer Communication Buttons -->
+      <div class="mt-6">
+        <a id="modal-call-action" href="tel:" class="w-full bg-emerald-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2 text-center text-sm">
+          <span>📞 Place Direct Phone Call</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= BOTTOM APPMENU SELECTION NAVIGATION FOOTER BAR ================= -->
+  <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 flex justify-around max-w-md mx-auto shadow-xl z-40">
+    <button id="nav-feed" class="flex flex-col items-center text-amber-600 font-bold text-[11px] w-1/2 gap-0.5">
+      <span class="text-lg">📋</span>
+      <span>Browse Feed</span>
+    </button>
+    <button id="nav-dash" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/2 gap-0.5">
+      <span class="text-lg">👤</span>
+      <span>My Profile</span>
+    </button>
+  </nav>
+
+  <!-- ================= BACKEND MODULE LOGIC INTERACTION SCRIPTS ================= -->
+  <script type="module">
+    // Load Firebase Modular dependencies directly into the web layout browser engine environment
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Your live verified dreamssmartapp configuration keys injected
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
+      authDomain: "dreamssmartapp.firebaseapp.com",
+      projectId: "dreamssmartapp",
+      storageBucket: "dreamssmartapp.firebasestorage.app",
+      messagingSenderId: "679648849916",
+      appId: "1:679648849916:web:9ad24dbfd209dd266a8c79"
+    };
+
+    // Instantiate core services loops
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // DOM Target Screen Objects
+    const authScreen = document.getElementById('auth-screen');
+    const roleScreen = document.getElementById('role-screen');
+    const mainApp = document.getElementById('main-app');
+    const dashboardScreen = document.getElementById('dashboard-screen');
+    const bottomNav = document.getElementById('bottom-nav');
+    const feedContainer = document.getElementById('feed-container');
+    const dynamicFields = document.getElementById('dynamic-fields');
+    const navFeed = document.getElementById('nav-feed');
+    const navDash = document.getElementById('nav-dash');
+
+    // Portfolio Elements
+    const portfolioFileInput = document.getElementById('portfolio-file-input');
+    const uploadStatusText = document.getElementById('upload-status-text');
+    const dashboardGalleryPreview = document.getElementById('dashboard-gallery-preview');
+
+    // Profile popup item configurations selections references
+    const profileModal = document.getElementById('profile-modal');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalLocation = document.getElementById('modal-location');
+    const modalBadge = document.getElementById('modal-badge');
+    const modalDetails = document.getElementById('modal-details');
+    const modalGallery = document.getElementById('modal-gallery');
+    const galleryEmptyMsg = document.getElementById('gallery-empty-msg');
+    const modalCallAction = document.getElementById('modal-call-action');
+
+    let currentUser = null;
+    let userProfileData = null; // Memory state caching system reference 
+    let currentTab = 'barber'; // Marketplace standard list filters
+    let temporaryPortfolioUrls = []; // Keeps track of uploaded images locally
+
+    // Core User Logged Monitor Hooks Loops loops
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        
+        if (!userDoc.exists()) {
+          showScreen('role');
+        } else {
+          userProfileData = userDoc.data();
+          if (!userProfileData.role) {
+            showScreen('role');
+          } else {
+            temporaryPortfolioUrls = userProfileData.portfolioImages || [];
+            showScreen('app');
+            loadFeed();
+          }
+        }
+      } else {
+        currentUser = null;
+        userProfileData = null;
+        temporaryPortfolioUrls = [];
+        showScreen('auth');
+      }
+    });
+
+    // Screen Router Switchboard
+    function showScreen(screen) {
+      authScreen.classList.add('hidden');
+      roleScreen.classList.add('hidden');
+      mainApp.classList.add('hidden');
+      dashboardScreen.classList.add('hidden');
+      bottomNav.classList.add('hidden');
+
+      if (screen === 'auth') authScreen.classList.remove('hidden');
+      if (screen === 'role') roleScreen.classList.remove('hidden');
+      if (screen === 'app') {
+        mainApp.classList.remove('hidden');
+        bottomNav.classList.remove('hidden');
+        setActiveNav('feed');
+      }
+      if (screen === 'dashboard') {
+        dashboardScreen.classList.remove('hidden');
+        bottomNav.classList.remove('hidden');
+        setActiveNav('dash');
+      }
+    }
+
+    // Toggle styling colors for menu bar navigation icons 
+    function setActiveNav(active) {
+      if (active === 'feed') {
+        navFeed.className = "flex flex-col items-center text-amber-600 font-bold text-[11px] w-1/2 gap-0.5";
+        navDash.className = "flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/2 gap-0.5";
+      } else {
+        navDash.className = "flex flex-col items-center text-amber-600 font-bold text-[11px] w-1/2 gap-0.5";
+        navFeed.className = "flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/2 gap-0.5";
+      }
+    }
+
+    // Bottom App Bar Click Event Handlers
+    navFeed.addEventListener('click', () => { showScreen('app'); loadFeed(); });
+    navDash.addEventListener('click', () => { showScreen('dashboard'); populateDashboard(); });
+
+    // Handle Google Popup authentication actions triggers
+    document.getElementById('btn-login').addEventListener('click', () => {
+      signInWithPopup(auth, googleProvider).catch(err => alert("Google sign in issue: " + err.message));
+    });
+
+    // Sign out action trigger event 
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      signOut(auth);
+    });
+
+    // Assign account designation payload records maps fields
+    async function assignRole(roleName) {
+      if (!currentUser) return;
+      try {
+        const freshProfile = {
+          uid: currentUser.uid,
+          name: currentUser.displayName,
+          email: currentUser.email,
+          profilePic: currentUser.photoURL,
+          role: roleName,
+          portfolioImages: [],
+          createdAt: new Date().toISOString()
+        };
+        await setDoc(doc(db, "users", currentUser.uid), freshProfile, { merge: true });
+        userProfileData = freshProfile;
+        temporaryPortfolioUrls = [];
+        showScreen('app');
+        loadFeed();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById('choose-barber').addEventListener('click', () => assignRole('barber'));
+    document.getElementById('choose-owner').addEventListener('click', () => assignRole('owner'));
+
+    // Dynamic Edit Dashboard Form Inputs Controller 
+    function populateDashboard() {
+      if (!userProfileData) return;
+      
+      document.getElementById('input-phone').value = userProfileData.phone || "";
+      document.getElementById('input-location').value = userProfileData.location || "";
+      
+      if (userProfileData.role === 'barber') {
+        dynamicFields.innerHTML = `
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Years of Barbering Experience</label>
+            <input type="number" id="input-experience" value="${userProfileData.experienceYears || ''}" placeholder="e.g. 4" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 text-sm">
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Education / Certification Level</label>
+            <input type="text" id="input-education" value="${userProfileData.education || ''}" placeholder="e.g. High School or NVTI Professional Cert" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 text-sm">
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Preferred Payment (Salary / Commission split)</label>
+            <input type="text" id="input-payment" value="${userProfileData.preferredPayment || ''}" placeholder="e.g. ₵3,500 monthly target or 60/40 Split" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 text-sm">
+          </div>
+        `;
+      } else if (userProfileData.role === 'owner') {
+        dynamicFields.innerHTML = `
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Shop / Barbershop Studio Name</label>
+            <input type="text" id="input-shopname" value="${userProfileData.shopName || ''}" placeholder="e.g. Premium Cuts Studio GH" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 text-sm">
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Salary or Commission Offered to Barbers</label>
+            <input type="text" id="input-salarybudget" value="${userProfileData.salaryBudget || ''}" placeholder="e.g. ₵4,000 monthly or 50/50 basis splits" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 text-sm">
+          </div>
+        `;
+      }
+
+      renderDashboardGalleryPreview();
+    }
+
+    // Handles picking and instantly hosting photo streams directly from the mobile UI view
+    portfolioFileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      uploadStatusText.textContent = "Uploading image...";
+      uploadStatusText.className = "text-[10px] text-amber-600 font-bold mt-1 animate-pulse";
+
+      // Convert image to Base64 data chunks to pass safely over web environments
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        const base64Data = reader.result.split(',')[1];
+
+        // Package request structure to secure direct CDN hosting links
+        const formData = new FormData();
+        formData.append("image", base64Data);
+
+        try {
+          // Send to ImgBB open image engine platform API
+          const response = await fetch("https://api.imgbb.com/1/upload?key=67018d9600a9fa93e25d259c76b92f7e", {
+            method: "POST",
+            body: formData
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            const hostedUrl = result.data.url;
+            temporaryPortfolioUrls.push(hostedUrl);
+            renderDashboardGalleryPreview();
+            
+            uploadStatusText.textContent = "Upload successful!";
+            uploadStatusText.className = "text-[10px] text-emerald-600 font-bold mt-1";
+          } else {
+            throw new Error("Hosting failed");
+          }
+        } catch (error) {
+          uploadStatusText.textContent = "Upload failed. Try again.";
+          uploadStatusText.className = "text-[10px] text-red-500 font-bold mt-1";
+        }
+      };
+    });
+
+    // Renders the tiny thumbnail photos inside your dashboard view
+    function renderDashboardGalleryPreview() {
+      dashboardGalleryPreview.innerHTML = "";
+      temporaryPortfolioUrls.forEach((url, index) => {
+        const itemContainer = document.createElement('div');
+        itemContainer.className = "relative h-16 w-full group";
+        itemContainer.innerHTML = `
+          <img src="${url}" class="w-full h-full object-cover rounded-lg border border-gray-200" />
+          <button type="button" class="absolute -top-1 -right-1 bg-red-500 text-white font-bold rounded-full w-4 h-4 text-[9px] flex items-center justify-center shadow-md focus:outline-none">✕</button>
+        `;
+        // Handle removing an unwanted photo before clicking Save
+        itemContainer.querySelector('button').addEventListener('click', () => {
+          temporaryPortfolioUrls.splice(index, 1);
+          renderDashboardGalleryPreview();
+        });
+        dashboardGalleryPreview.appendChild(itemContainer);
+      });
+    }
+
+    // Capture and Save form info fields data sets to Firebase Firestore instances cloud collections
+    document.getElementById('btn-save-profile').addEventListener('click', async () => {
+      if (!currentUser || !userProfileData) return;
+      
+      const updatedData = {
+        phone: document.getElementById('input-phone').value,
+        location: document.getElementById('input-location').value,
+        portfolioImages: temporaryPortfolioUrls // Saves image URLs straight to user account block
+      };
+
+      if (userProfileData.role === 'barber') {
+        updatedData.experienceYears = document.getElementById('input-experience').value;
+        updatedData.education = document.getElementById('input-education').value;
+        updatedData.preferredPayment = document.getElementById('input-payment').value;
+      } else if (userProfileData.role === 'owner') {
+        updatedData.shopName = document.getElementById('input-shopname').value;
+        updatedData.salaryBudget = document.getElementById('input-salarybudget').value;
+      }
+
+      try {
+        await setDoc(doc(db, "users", currentUser.uid), updatedData, { merge: true });
+        userProfileData = { ...userProfileData, ...updatedData };
+        alert("Profile saved successfully!");
+        showScreen('app');
+        loadFeed();
+      } catch (err) {
+        alert("Error updating profile instance documents: " + err.message);
+      }
+    });
+
+    // Jiji Marketplace Feed Component Content Assembly Engine
+    async function loadFeed() {
+      feedContainer.innerHTML = `<p class="text-center text-gray-500 my-8 text-sm">Loading market feed items...</p>`;
+      
+      try {
+        const q = query(collection(db, "users"), where("role", "==", currentTab));
+        const querySnapshot = await getDocs(q);
+        feedContainer.innerHTML = "";
+
+        if (querySnapshot.empty) {
+          feedContainer.innerHTML = `<p class="text-center text-gray-400 my-8 text-sm">No profiles found in this section yet.</p>`;
+          return;
+        }
+
+        querySnapshot.forEach((docSnap) => {
+          const user = docSnap.data();
+          const card = document.createElement('div');
+          card.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4 items-start";
+          
+          const displayName = user.role === 'owner' && user.shopName ? user.shopName : user.name;
+          const displayPayment = user.role === 'barber' ? 
+            `Preferred Pay: ${user.preferredPayment || 'Negotiable'}` : 
+            `Manager: ${user.name} | Budget: ${user.salaryBudget || 'Negotiable'}`;
+
+          card.innerHTML = `
+            <img src="${user.profilePic || 'https://via.placeholder.com/150'}" class="w-16 h-16 rounded-xl object-cover bg-gray-50 border border-gray-100" alt="Avatar">
+            <div class="flex-1">
+              <h3 class="font-bold text-base text-gray-900 leading-snug">${displayName}</h3>
+              <p class="text-xs text-amber-600 font-bold mt-0.5">📍 ${user.location || 'Location Not Set'}</p>
+              <p class="text-xs text-gray-500 line-clamp-1 mt-1.5">${displayPayment}</p>
+              <div class="flex gap-2 mt-3">
+                <a href="tel:${user.phone || ''}" class="bg-gray-100 text-gray-800 text-xs font-bold px-3 py-2 rounded-lg hover:bg-gray-200 text-center flex-1 transition">Call</a>
+                <button class="btn-trigger-details bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-amber-700 flex-1 transition">View Details</button>
+              </div>
+            </div>
+          `;
+
+          // Inject detailed interactive screen sheet triggers
+          card.querySelector('.btn-trigger-details').addEventListener('click', () => openProfileDetails(user));
+          feedContainer.appendChild(card);
+        });
+      } catch (error) {
+        feedContainer.innerHTML = `<p class="text-center text-red-500 my-8 text-sm">Database connection timeout error states.</p>`;
+      }
+    }
+
+    // Open Profile Dialog Engine Logic Handler 
+    function openProfileDetails(user) {
+      modalImg.src = user.profilePic || 'https://via.placeholder.com/150';
+      modalTitle.textContent = user.role === 'owner' && user.shopName ? user.shopName : user.name;
+      modalLocation.textContent = `📍 ${user.location || 'Location Not Set'}`;
+      modalBadge.textContent = user.role === 'barber' ? 'Professional Barber' : 'Shop Owner / Manager';
+      
+      if (user.phone) {
+        modalCallAction.href = `tel:${user.phone}`;
+        modalCallAction.classList.remove('opacity-50', 'pointer-events-none');
+      } else {
+        modalCallAction.removeAttribute('href');
+        modalCallAction.classList.add('opacity-50', 'pointer-events-none');
+      }
+
+      if (user.role === 'barber') {
+        modalDetails.innerHTML = `
+          <div class="bg-gray-50 p-3 rounded-xl"><span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Experience</span><span class="font-bold text-gray-800 text-sm">${user.experienceYears || '0'} Years in service</span></div>
+          <div class="bg-gray-50 p-3 rounded-xl"><span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Education Credentials</span><span class="font-bold text-gray-800 text-sm">${user.education || 'Not Provided'}</span></div>
+          <div class="bg-gray-50 p-3 rounded-xl"><span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Expected Salary Package</span><span class="font-bold text-amber-600 text-sm">${user.preferredPayment || 'Negotiable'}</span></div>
+        `;
+      } else {
+        modalDetails.innerHTML = `
+          <div class="bg-gray-50 p-3 rounded-xl"><span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Hiring Shop Contact Person</span><span class="font-bold text-gray-800 text-sm">${user.name}</span></div>
+          <div class="bg-gray-50 p-3 rounded-xl"><span class="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Salary / Commission Offers</span><span class="font-bold text-amber-600 text-sm">${user.salaryBudget || 'Negotiable Package Rates'}</span></div>
+        `;
+      }
+
+      // Renders images inside the popup modal view when clicked from the feed stream
+      modalGallery.innerHTML = "";
+      if (user.portfolioImages && user.portfolioImages.length > 0) {
+        galleryEmptyMsg.classList.add('hidden');
+        user.portfolioImages.forEach(imgUrl => {
+          const imgElement = document.createElement('img');
+          imgElement.src = imgUrl;
+          imgElement.className = "w-full h-24 object-cover rounded-xl border border-gray-100 shadow-sm";
+          modalGallery.appendChild(imgElement);
+        });
+      } else {
+        galleryEmptyMsg.classList.remove('hidden');
+      }
+
+      profileModal.classList.remove('hidden');
+    }
+
+    // Modal Sheet dismiss handlers 
+    btnCloseModal.addEventListener('click', () => profileModal.classList.add('hidden'));
+    profileModal.addEventListener('click', (e) => { if (e.target === profileModal) profileModal.classList.add('hidden'); });
+
+    // Header Toggle Navigation Swappers listeners Configuration
+    const tabBarbers = document.getElementById('tab-barbers');
+    const tabShops = document.getElementById('tab-shops');
+
+    tabBarbers.addEventListener('click', () => {
+      currentTab = 'barber';
+      tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition";
+      tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition";
+      loadFeed();
+    });
+
+    tabShops.addEventListener('click', () => {
+      currentTab = 'owner';
+      tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition";
+      tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition";
+      loadFeed();
+    });
+  </script>
+</body>
+</html>
