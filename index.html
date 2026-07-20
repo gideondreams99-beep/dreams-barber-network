@@ -14,7 +14,7 @@
     .feed-container-snap { scroll-snap-type: y mandatory; }
   </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased text-gray-900 pb-24">
+<body class="bg-gray-100 font-sans antialiased text-gray-900 pb-24 select-none">
 
   <!-- ================= 1. AUTH LOGIN SCREEN ================= -->
   <div id="auth-screen" class="min-h-screen flex flex-col justify-center items-center p-6 bg-white">
@@ -67,7 +67,7 @@
       <button id="social-tab-following" class="opacity-60 transition">Following</button>
       <button id="social-tab-foryou" class="border-b-2 border-white pb-1">For You</button>
       <button id="btn-social-post" class="ml-4 bg-amber-600 text-xs px-2.5 py-1 rounded-full">+ Post</button>
-      <button id="btn-social-live" class="bg-red-600 text-xs px-2.5 py-1 rounded-full animation-pulse">● Live</button>
+      <button id="btn-social-live" class="bg-red-600 text-xs px-2.5 py-1 rounded-full animate-pulse">● Live</button>
     </div>
 
     <!-- Scrollable Snap Media Panel Container -->
@@ -85,7 +85,7 @@
     <header class="bg-white border-b border-gray-200 p-3 flex items-center gap-3 shadow-sm">
       <button id="btn-back-to-chats" class="text-gray-600 font-bold px-2 py-1">←</button>
       <div class="relative">
-        <img id="chat-window-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-gray-200 clickable-pic" />
+        <img id="chat-window-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-gray-200 clickable-pic cursor-pointer" />
         <span id="chat-presence-indicator" class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-gray-400 border-2 border-white rounded-full"></span>
       </div>
       <div class="flex-1">
@@ -97,13 +97,14 @@
 
     <div id="chat-messages-box" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
 
-    <div class="bg-white border-t border-gray-200 p-3 flex items-center gap-2">
+    <!-- Standard HTML Form Wrap to Force Mobile Keyboard Activation Pop-up -->
+    <form id="chat-input-form" class="bg-white border-t border-gray-200 p-3 flex items-center gap-2" onsubmit="event.preventDefault();">
       <label class="bg-gray-100 p-2.5 rounded-xl cursor-pointer text-center text-sm hover:bg-gray-200 transition">
         📸<input type="file" id="chat-image-input" accept="image/*" class="hidden" />
       </label>
-      <input type="text" id="chat-message-input" placeholder="Type your message here..." class="flex-1 p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm" />
-      <button id="btn-send-message" class="bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow">Send</button>
-    </div>
+      <input type="text" id="chat-message-input" placeholder="Type your message here..." class="flex-1 p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm text-gray-900" />
+      <button type="submit" id="btn-send-message" class="bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow">Send</button>
+    </form>
   </div>
 
   <!-- ================= 7. USER PROFILE & EDIT DASHBOARD ================= -->
@@ -114,12 +115,24 @@
     </header>
 
     <form id="profile-form" class="space-y-4" onsubmit="event.preventDefault();">
-      <!-- Complete Profile Identity Data Management Box -->
+      <!-- TikTok Metrics Tracker Data Display Widget Card -->
+      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-around text-center py-5">
+        <div>
+          <span id="my-followers-count" class="block font-black text-lg text-gray-900">0</span>
+          <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Followers</span>
+        </div>
+        <div class="border-r border-gray-100"></div>
+        <div>
+          <span id="my-following-count" class="block font-black text-lg text-gray-900">0</span>
+          <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Following</span>
+        </div>
+      </div>
+
       <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-4">
         <h3 class="text-xs font-black uppercase text-gray-400 tracking-wider">Primary Account Details</h3>
         <div class="flex items-center gap-4">
           <div class="relative">
-            <img id="dashboard-avatar-preview" src="https://via.placeholder.com/150" class="w-20 h-20 rounded-xl object-cover border border-gray-200 clickable-pic" />
+            <img id="dashboard-avatar-preview" src="https://via.placeholder.com/150" class="w-20 h-20 rounded-xl object-cover border border-gray-200 clickable-pic cursor-pointer" />
             <label class="absolute -bottom-1 -right-1 bg-amber-600 text-white p-1 rounded-full text-xs cursor-pointer shadow-md">
               ✏️<input type="file" id="avatar-file-input" accept="image/*" class="hidden" />
             </label>
@@ -131,25 +144,23 @@
         </div>
       </div>
 
-      <!-- Public Contact Line & Regional Placement -->
       <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-3">
         <div>
-          <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Phone Number (For Direct Calls)</label>
+          <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Phone Number</label>
           <input type="tel" id="input-phone" placeholder="e.g. +233 50 123 4567" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm">
         </div>
         <div>
-          <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Location in Ghana (City, Region)</label>
+          <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Location in Ghana</label>
           <input type="text" id="input-location" placeholder="e.g. Accra, East Legon" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm">
         </div>
       </div>
 
-      <!-- Accommodation System Selector Option -->
       <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
         <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-2">Accommodation Facility Status</label>
         <div class="flex gap-3">
           <label class="flex-1 flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold transition select-none" id="label-acc-yes">
             <input type="radio" name="accommodation" value="yes" id="acc-yes" class="hidden" />
-            <span>🏡 Available / Provided</span>
+            <span>🏡 Available</span>
           </label>
           <label class="flex-1 flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold transition select-none" id="label-acc-no">
             <input type="radio" name="accommodation" value="no" id="acc-no" class="hidden" checked />
@@ -160,7 +171,6 @@
 
       <div id="dynamic-fields" class="space-y-4"></div>
 
-      <!-- IMAGE PORTFOLIO UPLOAD BLOCK -->
       <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
         <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Upload Work / Shop Photos</label>
         <div class="flex items-center justify-center w-full mt-1">
@@ -182,12 +192,25 @@
   <div id="social-post-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4">
       <h3 class="font-bold text-lg">Create Creative Post</h3>
-      <input type="text" id="input-post-caption" placeholder="Write a description or hashtag..." class="w-full p-2.5 border border-gray-200 rounded-xl text-sm" />
-      <input type="text" id="input-post-sound" placeholder="Add sound track name (e.g., Shatta Wale - King)" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm" />
+      <input type="text" id="input-post-caption" placeholder="Write a description or hashtag..." class="w-full p-2.5 border border-gray-200 rounded-xl text-sm text-gray-900" />
+      <input type="text" id="input-post-sound" placeholder="Add sound track name (e.g., Shatta Wale)" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm text-gray-900" />
+      
+      <!-- Content Visibility Audience Privacy Engine Switch Container -->
+      <div>
+        <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Who can view this post</label>
+        <select id="select-post-privacy" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700">
+          <option value="public" selected>🌎 Public (Everyone can discover & go viral)</option>
+          <option value="followers">👥 Followers Only</option>
+          <option value="private">🔒 Private (Only Me)</option>
+        </select>
+      </div>
+
       <label class="block border-2 border-dashed p-4 text-center rounded-xl cursor-pointer bg-gray-50 text-xs font-bold text-gray-600">
-        📸 Attach Video snapshot or Work Photo
+        📸 Mobile Photo or Video Clip Upload
         <input type="file" id="input-post-file" accept="image/*,video/*" class="hidden" />
       </label>
+      <div id="upload-progress-log" class="text-xs text-amber-600 font-bold hidden">Compressing and processing assets...</div>
+      
       <div class="flex gap-2">
         <button id="btn-close-post-modal" class="flex-1 bg-gray-200 text-sm py-2 rounded-xl">Cancel</button>
         <button id="btn-submit-social-post" class="flex-1 bg-amber-600 text-white text-sm py-2 rounded-xl font-bold">Publish Post</button>
@@ -195,22 +218,32 @@
     </div>
   </div>
 
-  <!-- Live Broadcaster Simulation Sheet Overlay -->
-  <div id="social-live-modal" class="hidden fixed inset-0 bg-red-950 z-[60] flex flex-col justify-between p-6 text-white">
-    <div class="flex justify-between items-center">
-      <div class="flex items-center gap-2 bg-black/40 p-2 rounded-full">
+  <!-- Real WebRTC Viewfinder Lens & Live Broadcaster Simulated Chat Sheet Overlay -->
+  <div id="social-live-modal" class="hidden fixed inset-0 bg-black z-[60] flex flex-col justify-between p-4 text-white">
+    <!-- Full-screen Live Video Element Hardware Camera Track Receiver -->
+    <video id="live-video-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover z-0 bg-zinc-950"></video>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none z-10"></div>
+
+    <div class="flex justify-between items-center relative z-20">
+      <div class="flex items-center gap-2 bg-black/40 p-2 rounded-full backdrop-blur-md">
         <div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
         <span class="text-xs font-bold uppercase tracking-wider">LIVE STREAMING</span>
       </div>
-      <button id="btn-close-live" class="text-white font-black text-xl bg-white/20 px-3 py-1 rounded-full">✕ Stop Stream</button>
+      <button id="btn-close-live" class="text-white font-black text-xs bg-red-600 px-3 py-2 rounded-full shadow-lg">✕ Stop Stream</button>
     </div>
-    <div class="text-center my-auto space-y-2">
-      <p class="text-4xl">🎥</p>
-      <h3 class="text-lg font-black tracking-tight" id="live-host-title">Your Live Studio</h3>
-      <p class="text-xs text-red-200">Everyone across Ghana can discover you right now on the social tab feed!</p>
-    </div>
-    <div class="bg-black/40 p-3 rounded-xl text-xs space-y-1 max-h-32 overflow-y-auto" id="live-chat-simulation">
-      <p class="opacity-70">Stream launched. Chat messages will populate here...</p>
+
+    <!-- Active Stream View Info Banner Overlays -->
+    <div class="mt-auto space-y-3 relative z-20">
+      <div class="bg-black/40 p-3 rounded-xl text-xs space-y-1.5 max-h-40 overflow-y-auto no-scrollbar" id="live-chat-simulation">
+        <p class="text-amber-400 font-bold">⚡ Stream System Connected.</p>
+        <p class="opacity-70">Camera feed broadcasting across Ghana feed channel lists.</p>
+      </div>
+
+      <!-- Live Messaging Input Form Container Block -->
+      <form id="live-chat-input-form" class="flex gap-2" onsubmit="event.preventDefault();">
+        <input type="text" id="live-chat-message-input" placeholder="Comment on live..." class="flex-1 p-2.5 bg-black/60 border border-white/20 rounded-xl focus:outline-none text-sm text-white backdrop-blur-md" />
+        <button type="submit" class="bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow">Send</button>
+      </form>
     </div>
   </div>
 
@@ -220,7 +253,7 @@
       <button id="btn-close-modal" class="absolute top-4 right-4 bg-gray-100 text-gray-700 font-bold p-2 h-8 w-8 rounded-full flex items-center justify-center text-xs">✕</button>
       
       <div class="flex gap-4 items-center mb-4 mt-2">
-        <img id="modal-img" src="https://via.placeholder.com/150" class="w-16 h-16 rounded-xl object-cover bg-gray-50 border border-gray-100 clickable-pic" />
+        <img id="modal-img" src="https://via.placeholder.com/150" class="w-16 h-16 rounded-xl object-cover bg-gray-50 border border-gray-100 clickable-pic cursor-pointer" />
         <div>
           <h2 id="modal-title" class="text-xl font-black text-gray-900 leading-tight">Display Title</h2>
           <p id="modal-location" class="text-xs font-bold text-amber-600 mt-0.5">📍 Location Field</p>
@@ -231,8 +264,21 @@
         </div>
       </div>
 
+      <!-- TikTok Engagement Stats Card Vector Bar -->
+      <div class="bg-gray-50 p-3 rounded-xl flex justify-around text-center border my-2.5">
+        <div>
+          <span id="modal-followers-count" class="block font-black text-sm text-gray-900">0</span>
+          <span class="text-[9px] text-gray-400 font-bold uppercase">Followers</span>
+        </div>
+        <div class="border-r border-gray-200"></div>
+        <div>
+          <span id="modal-following-count" class="block font-black text-sm text-gray-900">0</span>
+          <span class="text-[9px] text-gray-400 font-bold uppercase">Following</span>
+        </div>
+      </div>
+
       <div class="flex gap-2 my-2 w-full">
-        <button id="btn-modal-follow" class="flex-1 bg-amber-600 text-white font-bold py-2 rounded-xl text-xs shadow-sm">Follow User</button>
+        <button id="btn-modal-follow" class="w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-sm">Follow User</button>
       </div>
 
       <hr class="border-gray-100 my-4" />
@@ -240,7 +286,7 @@
 
       <hr class="border-gray-100 my-4" />
       <div class="space-y-3">
-        <h3 class="text-[11px] font-black uppercase text-gray-400 tracking-wider">Portfolio & Workspace Gallery</h3>
+        <h3 class="text-[11px] font-black uppercase text-gray-400 tracking-wider">Portfolio Gallery</h3>
         <div id="modal-gallery" class="grid grid-cols-3 gap-2"></div>
         <p id="gallery-empty-msg" class="text-xs text-gray-400 italic py-1 hidden">No photos uploaded yet.</p>
       </div>
@@ -286,7 +332,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, addDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
@@ -336,6 +382,8 @@
     // Modals Overlays Nodes
     const socialPostModal = document.getElementById('social-post-modal');
     const socialLiveModal = document.getElementById('social-live-modal');
+    const liveVideoPreview = document.getElementById('live-video-preview');
+    const liveChatSimulation = document.getElementById('live-chat-simulation');
     const lightboxOverlay = document.getElementById('lightbox-overlay');
     const lightboxTargetImage = document.getElementById('lightbox-target-image');
     const profileModal = document.getElementById('profile-modal');
@@ -364,6 +412,7 @@
     let activeChatRoomId = null;
     let chatUnsubscribeHook = null;
     let presenceHeartbeatInterval = null;
+    let localStreamTrackReference = null;
 
     // Monitor State Loop Changes
     onAuthStateChanged(auth, async (user) => {
@@ -393,15 +442,12 @@
       }
     });
 
-    // Device Presence Engine
+    // Device Presence Engine Real-Time Dynamic Synchronization
     async function startPresenceHeartbeat() {
       if (!currentUser) return;
       const updatePresence = async () => {
         await setDoc(doc(db, "users", currentUser.uid), {
-          presence: {
-            status: "online",
-            lastSeen: new Date().toISOString()
-          }
+          presence: { status: "online", lastSeen: new Date().toISOString() }
         }, { merge: true });
       };
       await updatePresence();
@@ -412,10 +458,7 @@
       if (presenceHeartbeatInterval) clearInterval(presenceHeartbeatInterval);
       if (currentUser) {
         await setDoc(doc(db, "users", currentUser.uid), {
-          presence: {
-            status: "offline",
-            lastSeen: new Date().toISOString()
-          }
+          presence: { status: "offline", lastSeen: new Date().toISOString() }
         }, { merge: true });
       }
     }
@@ -450,17 +493,24 @@
       if (active === 'dash') { navDash.classList.add('text-amber-600', 'font-bold'); navDash.classList.remove('text-gray-400'); }
     }
 
-    // App Nav Bar Click Controllers
-    navFeed.addEventListener('click', () => { showScreen('app'); loadFeed(); });
-    navSocial.addEventListener('click', () => { showScreen('social'); loadSocialFeed(); });
-    navChats.addEventListener('click', () => { showScreen('chats'); loadChatChannels(); });
-    navDash.addEventListener('click', () => { showScreen('dashboard'); populateDashboard(); });
+    // Universal Dual Touch Event Target Wrapper for Fast Processing Response
+    function bindFastClick(elementNode, actionCallback) {
+      if (!elementNode) return;
+      elementNode.addEventListener('click', (e) => { e.preventDefault(); actionCallback(e); });
+      elementNode.addEventListener('touchend', (e) => { e.preventDefault(); actionCallback(e); });
+    }
 
-    // Authentication Setup Link Triggers
-    document.getElementById('btn-login').addEventListener('click', () => signInWithPopup(auth, googleProvider));
-    document.getElementById('btn-logout').addEventListener('click', () => { stopPresenceHeartbeat(); signOut(auth); });
-    document.getElementById('choose-barber').addEventListener('click', () => assignRole('barber'));
-    document.getElementById('choose-owner').addEventListener('click', () => assignRole('owner'));
+    // Mobile App Nav Navigation Tab Controllers Configuration Rules
+    bindFastClick(navFeed, () => { showScreen('app'); loadFeed(); });
+    bindFastClick(navSocial, () => { showScreen('social'); loadSocialFeed(); });
+    bindFastClick(navChats, () => { showScreen('chats'); loadChatChannels(); });
+    bindFastClick(navDash, () => { showScreen('dashboard'); populateDashboard(); });
+
+    // Core Auth Setup Click Wireframe Listeners
+    bindFastClick(document.getElementById('btn-login'), () => signInWithPopup(auth, googleProvider));
+    bindFastClick(document.getElementById('btn-logout'), () => { stopPresenceHeartbeat(); signOut(auth); });
+    bindFastClick(document.getElementById('choose-barber'), () => assignRole('barber'));
+    bindFastClick(document.getElementById('choose-owner'), () => assignRole('owner'));
 
     async function assignRole(roleName) {
       if (!currentUser) return;
@@ -474,6 +524,8 @@
         portfolioImages: [],
         following: [],
         followers: [],
+        followersCount: 0,
+        followingCount: 0,
         createdAt: new Date().toISOString()
       };
       await setDoc(doc(db, "users", currentUser.uid), freshProfile, { merge: true });
@@ -482,7 +534,7 @@
       loadFeed();
     }
 
-    // Unread Channel Real-Time Badge Count Loop
+    // Unread Channel Real-Time Notification Badge Computation Loop
     function listenToGlobalUnreadMessages() {
       if (!currentUser) return;
       onSnapshot(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)), (snapshot) => {
@@ -501,7 +553,7 @@
       });
     }
 
-    // Global Image Click Handler for Lightbox
+    // Image Click Handler for Fullscreen Lightbox Preview Overlay
     document.addEventListener('click', (e) => {
       if (e.target && e.target.classList.contains('clickable-pic')) {
         const sourceUrl = e.target.getAttribute('src');
@@ -511,9 +563,9 @@
         }
       }
     });
-    document.getElementById('btn-close-lightbox').addEventListener('click', () => lightboxOverlay.classList.add('hidden'));
+    bindFastClick(document.getElementById('btn-close-lightbox'), () => lightboxOverlay.classList.add('hidden'));
 
-    // Mobile Compression Function
+    // Mobile Compression Function for Safe Local Image Processing
     function compressImage(file, maxWidth = 600, quality = 0.5) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -535,7 +587,7 @@
       });
     }
 
-    // Input change events
+    // Input Change File Upload Asset Readers
     avatarFileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0]; if (!file) return;
       base64AvatarUrl = await compressImage(file, 300, 0.6);
@@ -555,7 +607,7 @@
         const wrapper = document.createElement('div');
         wrapper.className = "relative h-16 w-full";
         wrapper.innerHTML = `
-          <img src="${url}" class="w-full h-full object-cover rounded-lg border border-gray-200 clickable-pic" />
+          <img src="${url}" class="w-full h-full object-cover rounded-lg border clickable-pic cursor-pointer" />
           <button type="button" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center">✕</button>
         `;
         wrapper.querySelector('button').addEventListener('click', () => { temporaryPortfolioUrls.splice(idx, 1); renderDashboardGalleryPreview(); });
@@ -563,26 +615,36 @@
       });
     }
 
-    function populateDashboard() {
+    async function populateDashboard() {
       if (!userProfileData) return;
+      
+      // Update local profile stats from dynamic source counters
+      const freshSnap = await getDoc(doc(db, "users", currentUser.uid));
+      if(freshSnap.exists()){
+        userProfileData = freshSnap.data();
+      }
+
+      document.getElementById('my-followers-count').textContent = userProfileData.followersCount || 0;
+      document.getElementById('my-following-count').textContent = userProfileData.followingCount || 0;
       inputDisplayName.value = userProfileData.name || "";
       document.getElementById('input-phone').value = userProfileData.phone || "";
       document.getElementById('input-location').value = userProfileData.location || "";
+      
       if (userProfileData.role === 'barber') {
         dynamicFields.innerHTML = `
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Years Experience</label><input type="number" id="input-experience" value="${userProfileData.experienceYears || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm"></div>
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Payment Target</label><input type="text" id="input-payment" value="${userProfileData.preferredPayment || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm"></div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Years Experience</label><input type="number" id="input-experience" value="${userProfileData.experienceYears || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900"></div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Payment Target</label><input type="text" id="input-payment" value="${userProfileData.preferredPayment || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900"></div>
         `;
       } else {
         dynamicFields.innerHTML = `
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Shop / Studio Branding Name</label><input type="text" id="input-shopname" value="${userProfileData.shopName || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm"></div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Shop / Studio Branding Name</label><input type="text" id="input-shopname" value="${userProfileData.shopName || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900"></div>
         `;
       }
       dashboardAvatarPreview.src = base64AvatarUrl;
       renderDashboardGalleryPreview();
     }
 
-    document.getElementById('btn-save-profile').addEventListener('click', async () => {
+    bindFastClick(document.getElementById('btn-save-profile'), async () => {
       const payload = {
         name: inputDisplayName.value,
         phone: document.getElementById('input-phone').value,
@@ -599,10 +661,10 @@
       }
       await setDoc(doc(db, "users", currentUser.uid), payload, { merge: true });
       userProfileData = { ...userProfileData, ...payload };
-      alert("Profile data saved.");
+      alert("Profile updates saved successfully.");
     });
 
-    // Marketplace Feed Builder
+    // Marketplace Feed Renderer
     async function loadFeed() {
       feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">Polling database channels...</p>`;
       const snapshot = await getDocs(query(collection(db, "users"), where("role", "==", currentTab)));
@@ -614,78 +676,106 @@
         card.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4 items-start";
         const title = item.role === 'owner' && item.shopName ? item.shopName : item.name;
         card.innerHTML = `
-          <img src="${item.profilePic || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 clickable-pic" />
+          <img src="${item.profilePic || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 clickable-pic cursor-pointer" />
           <div class="flex-1">
             <h3 class="font-bold text-sm text-gray-900">${title}</h3>
             <p class="text-[11px] text-gray-500">📍 ${item.location || 'Ghana'}</p>
-            <button class="w-full mt-3 bg-gray-50 text-gray-700 text-xs font-bold py-2 rounded-lg border border-gray-200">View Details</button>
+            <button class="btn-view-profile w-full mt-3 bg-gray-50 text-gray-700 text-xs font-bold py-2 rounded-lg border border-gray-200">View Details</button>
           </div>
         `;
-        card.querySelector('button').addEventListener('click', () => openProfileDetails(item));
+        bindFastClick(card.querySelector('.btn-view-profile'), () => openProfileDetails(item));
         feedContainer.appendChild(card);
       });
     }
 
-    // Modal Details Injector
+    // Dynamic Profile Details Dialog Overlay Logic Builder
     async function openProfileDetails(userObj) {
-      modalImg.src = userObj.profilePic || 'https://via.placeholder.com/150';
-      modalTitle.textContent = userObj.role === 'owner' && userObj.shopName ? userObj.shopName : userObj.name;
-      modalLocation.textContent = `📍 ${userObj.location || 'Location Unset'}`;
-      modalBadge.textContent = userObj.role === 'barber' ? 'Barber' : 'Shop Owner';
+      // Synchronize latest counts via fresh single transaction query fetch
+      const currentSnapshot = await getDoc(doc(db, "users", userObj.uid));
+      let reactiveData = userObj;
+      if(currentSnapshot.exists()) reactiveData = currentSnapshot.data();
+
+      modalImg.src = reactiveData.profilePic || 'https://via.placeholder.com/150';
+      modalTitle.textContent = reactiveData.role === 'owner' && reactiveData.shopName ? reactiveData.shopName : reactiveData.name;
+      modalLocation.textContent = `📍 ${reactiveData.location || 'Location Unset'}`;
+      modalBadge.textContent = reactiveData.role === 'barber' ? 'Barber' : 'Shop Owner';
+      
+      document.getElementById('modal-followers-count').textContent = reactiveData.followersCount || 0;
+      document.getElementById('modal-following-count').textContent = reactiveData.followingCount || 0;
 
       const followingList = userProfileData.following || [];
-      if(followingList.includes(userObj.uid)){
+      if(followingList.includes(reactiveData.uid)){
         btnModalFollow.textContent = "Unfollow User";
-        btnModalFollow.className = "flex-1 bg-gray-200 text-gray-800 font-bold py-2 rounded-xl text-xs";
+        btnModalFollow.className = "w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xs";
       } else {
         btnModalFollow.textContent = "Follow on Creative Feed";
-        btnModalFollow.className = "flex-1 bg-amber-600 text-white font-bold py-2 rounded-xl text-xs";
+        btnModalFollow.className = "w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-sm";
       }
 
-      btnModalFollow.onclick = async () => {
-        let currentFollowing = userProfileData.following || [];
-        if(currentFollowing.includes(userObj.uid)){
-          currentFollowing = currentFollowing.filter(id => id !== userObj.uid);
-          alert("Unfollowed user updates applied.");
+      // Rebuilt transactional atomic follow mechanism to handle safe global increment updates
+      bindFastClick(btnModalFollow, async () => {
+        const myUid = currentUser.uid;
+        const targetUid = reactiveData.uid;
+        let myFollowingList = userProfileData.following || [];
+
+        if(myFollowingList.includes(targetUid)){
+          // Unfollow workflow routine execution
+          myFollowingList = myFollowingList.filter(id => id !== targetUid);
+          await runTransaction(db, async (transaction) => {
+            transaction.update(doc(db, "users", myUid), { following: myFollowingList, followingCount: Math.max(0, (userProfileData.followingCount || 1) - 1) });
+            transaction.update(doc(db, "users", targetUid), { followersCount: Math.max(0, (reactiveData.followersCount || 1) - 1) });
+          });
+          alert("Unfollowed user successfully.");
         } else {
-          currentFollowing.push(userObj.uid);
-          alert("Following on Creative Feed enabled! Posts will show under 'Following' filter.");
+          // Follow workflow execution rule matrix
+          myFollowingList.push(targetUid);
+          await runTransaction(db, async (transaction) => {
+            transaction.update(doc(db, "users", myUid), { following: myFollowingList, followingCount: (userProfileData.followingCount || 0) + 1 });
+            transaction.update(doc(db, "users", targetUid), { followersCount: (reactiveData.followersCount || 0) + 1 });
+          });
+          alert("Following enabled! Content will show up under your Following tabs.");
         }
-        await setDoc(doc(db, "users", currentUser.uid), { following: currentFollowing }, { merge: true });
-        userProfileData.following = currentFollowing;
+
+        userProfileData.following = myFollowingList;
         profileModal.classList.add('hidden');
-      };
+        loadFeed();
+      });
 
       modalGallery.innerHTML = "";
-      if(userObj.portfolioImages && userObj.portfolioImages.length > 0) {
+      if(reactiveData.portfolioImages && reactiveData.portfolioImages.length > 0) {
         galleryEmptyMsg.classList.add('hidden');
-        userObj.portfolioImages.forEach(src => {
+        reactiveData.portfolioImages.forEach(src => {
           const thumb = document.createElement('img');
-          thumb.src = src; thumb.className = "w-full h-20 object-cover rounded-lg border clickable-pic";
+          thumb.src = src; thumb.className = "w-full h-20 object-cover rounded-lg border clickable-pic cursor-pointer";
           modalGallery.appendChild(thumb);
         });
       } else { galleryEmptyMsg.classList.remove('hidden'); }
 
-      modalChatAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(userObj.uid, userObj); };
-      modalBookServiceAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(userObj.uid, userObj, true); };
-      modalCallAction.href = userObj.phone ? `tel:${userObj.phone}` : "#";
+      modalChatAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(reactiveData.uid, reactiveData); };
+      modalBookServiceAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(reactiveData.uid, reactiveData, true); };
+      modalCallAction.href = reactiveData.phone ? `tel:${reactiveData.phone}` : "#";
 
       profileModal.classList.remove('hidden');
     }
 
-    // TIKTOK CREATIVE FEED SYSTEM IMPLEMENTATION
-    document.getElementById('btn-social-post').addEventListener('click', () => socialPostModal.classList.remove('hidden'));
-    document.getElementById('btn-close-post-modal').addEventListener('click', () => socialPostModal.classList.add('hidden'));
+    // TIKTOK CREATIVE SHORT VIDEO FEED IMPLEMENTATION
+    bindFastClick(document.getElementById('btn-social-post'), () => socialPostModal.classList.remove('hidden'));
+    bindFastClick(document.getElementById('btn-close-post-modal'), () => socialPostModal.classList.add('hidden'));
     
     document.getElementById('input-post-file').addEventListener('change', async (e) => {
       const file = e.target.files[0]; if(!file) return;
+      document.getElementById('upload-progress-log').classList.remove('hidden');
       base64PostMediaUrl = await compressImage(file, 600, 0.5);
+      document.getElementById('upload-progress-log').classList.add('hidden');
+      alert("Media asset attached ready for publication.");
     });
 
-    document.getElementById('btn-submit-social-post').addEventListener('click', async () => {
+    bindFastClick(document.getElementById('btn-submit-social-post'), async () => {
       const caption = document.getElementById('input-post-caption').value;
-      const sound = document.getElementById('input-post-sound').value || "Original Sound";
-      if(!base64PostMediaUrl) { alert("Please attach a snapshot asset photo first."); return; }
+      const sound = document.getElementById('input-post-sound').value || "Original Sound Track";
+      const privacyScope = document.getElementById('select-post-privacy').value;
+
+      if(!base64PostMediaUrl) { alert("Please choose a work photo or media snap first."); return; }
       
       await addDoc(collection(db, "posts"), {
         uid: currentUser.uid,
@@ -694,21 +784,58 @@
         caption: caption,
         soundName: sound,
         mediaUrl: base64PostMediaUrl,
+        privacy: privacyScope, 
         likes: [],
         comments: [],
+        viewCount: 0, 
         timestamp: new Date().toISOString()
       });
+
+      document.getElementById('input-post-caption').value = "";
+      base64PostMediaUrl = "";
       socialPostModal.classList.add('hidden');
       loadSocialFeed();
     });
 
-    // Zero-Follower Live Broadcasting Engine
-    document.getElementById('btn-social-live').addEventListener('click', () => {
-      document.getElementById('live-host-title').textContent = `${userProfileData.name}'s Live Broadcast Studio`;
-      socialLiveModal.classList.remove('hidden');
+    // Native WebRTC Device Hardware Front Lens Camera Stream Trigger Implementation
+    bindFastClick(document.getElementById('btn-social-live'), async () => {
+      try {
+        // Access mobile front camera directly on viewport interface load execution
+        localStreamTrackReference = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: true
+        });
+        liveVideoPreview.srcObject = localStreamTrackReference;
+        socialLiveModal.classList.remove('hidden');
+      } catch (err) {
+        console.error("Camera engine hardware access failed: ", err);
+        alert("Unable to open hardware video lens. Verify site camera privileges inside settings.");
+      }
     });
-    document.getElementById('btn-close-live').addEventListener('click', () => socialLiveModal.classList.add('hidden'));
 
+    bindFastClick(document.getElementById('btn-close-live'), () => {
+      if(localStreamTrackReference) {
+        localStreamTrackReference.getTracks().forEach(track => track.stop());
+      }
+      socialLiveModal.classList.add('hidden');
+    });
+
+    // Live Simulated Feed Form Input Broadcaster Message Tracker Submitter
+    document.getElementById('live-chat-input-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inputField = document.getElementById('live-chat-message-input');
+      const messageText = inputField.value.trim();
+      if(!messageText) return;
+
+      const chatLine = document.createElement('p');
+      chatLine.innerHTML = `<strong class="text-amber-400">@me:</strong> <span class="text-gray-100">${messageText}</span>`;
+      liveChatSimulation.appendChild(chatLine);
+      liveChatSimulation.scrollTop = liveChatSimulation.scrollHeight;
+      
+      inputField.value = "";
+    });
+
+    // Content Discovery Engine Loader Matrix
     async function loadSocialFeed() {
       socialVideoContainer.innerHTML = `<p class="text-white text-xs text-center my-12">Loading Creative Loops...</p>`;
       const snap = await getDocs(query(collection(db, "posts"), orderBy("timestamp", "desc")));
@@ -717,32 +844,41 @@
       let postsArray = [];
       snap.forEach(d => postsArray.push({ id: d.id, ...d.data() }));
 
+      // Privacy logic layer integration checks
       if(currentSocialTab === 'following') {
         const followingIds = userProfileData.following || [];
-        postsArray = postsArray.filter(p => followingIds.includes(p.uid));
+        postsArray = postsArray.filter(p => followingIds.includes(p.uid) && p.privacy !== 'private');
+      } else {
+        // For You tab filters out strictly private content logs dynamically
+        postsArray = postsArray.filter(p => p.privacy !== 'private');
       }
 
       if(postsArray.length === 0) {
-        socialVideoContainer.innerHTML = `<p class="text-gray-400 text-xs text-center my-12">No media posts in this tab yet.</p>`;
+        socialVideoContainer.innerHTML = `<p class="text-gray-400 text-xs text-center my-12">No media loops found here.</p>`;
         return;
       }
 
       postsArray.forEach(post => {
+        // Increment post item atomic view counter loop state upon presentation layout load event
+        const postDocRef = doc(db, "posts", post.id);
+        const freshViewCount = (post.viewCount || 0) + 1;
+        setDoc(postDocRef, { viewCount: freshViewCount }, { merge: true });
+
         const card = document.createElement('div');
         card.className = "w-full video-card relative flex flex-col justify-end p-6 border-b border-gray-900/40 bg-zinc-950";
         card.innerHTML = `
-          <img src="${post.mediaUrl}" class="absolute inset-0 w-full h-full object-cover opacity-80 clickable-pic" />
+          <img src="${post.mediaUrl}" class="absolute inset-0 w-full h-full object-cover opacity-80 clickable-pic cursor-pointer" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
           
           <!-- Right Sidebar Actions Layout Controls -->
           <div class="absolute right-4 bottom-24 flex flex-col items-center gap-5 z-20 text-white">
-            <div class="flex flex-col items-center">
-              <img src="${post.avatar || 'https://via.placeholder.com/150'}" class="w-10 h-10 rounded-full border border-white object-cover" />
+            <div class="flex flex-col items-center btn-creator-avatar">
+              <img src="${post.avatar || 'https://via.placeholder.com/150'}" class="w-10 h-10 rounded-full border border-white object-cover cursor-pointer" />
               <button class="bg-red-500 rounded-full w-4 h-4 text-[10px] -mt-2 flex items-center justify-center font-bold">+</button>
             </div>
             <button class="btn-like flex flex-col items-center text-xl">❤️ <span class="text-xs font-bold">${post.likes ? post.likes.length : 0}</span></button>
             <button class="btn-comment flex flex-col items-center text-xl">💬 <span class="text-xs font-bold">${post.comments ? post.comments.length : 0}</span></button>
-            <button class="flex flex-col items-center text-xl">🔄 <span class="text-xs font-bold">Share</span></button>
+            <div class="flex flex-col items-center text-[10px] opacity-90">👀 <span class="font-bold">${freshViewCount}</span></div>
           </div>
 
           <!-- Bottom Meta Text Overlay -->
@@ -755,7 +891,18 @@
           </div>
         `;
 
-        card.querySelector('.btn-like').addEventListener('click', async () => {
+        // Profile Lens Touch Binding Links for For You / Following Sheets Feed
+        const creatorBtn = card.querySelector('.btn-creator-avatar');
+        creatorBtn.addEventListener('click', async () => {
+          const userSnap = await getDoc(doc(db, "users", post.uid));
+          if(userSnap.exists()) openProfileDetails(userSnap.data());
+        });
+        creatorBtn.addEventListener('touchend', async () => {
+          const userSnap = await getDoc(doc(db, "users", post.uid));
+          if(userSnap.exists()) openProfileDetails(userSnap.data());
+        });
+
+        bindFastClick(card.querySelector('.btn-like'), async () => {
           let likesArr = post.likes || [];
           if(likesArr.includes(currentUser.uid)) likesArr = likesArr.filter(id => id !== currentUser.uid);
           else likesArr.push(currentUser.uid);
@@ -763,8 +910,8 @@
           loadSocialFeed();
         });
 
-        card.querySelector('.btn-comment').addEventListener('click', () => {
-          const commentTxt = prompt("Type your comment below:");
+        bindFastClick(card.querySelector('.btn-comment'), () => {
+          const commentTxt = prompt("Type your feed loop comment text:");
           if(!commentTxt) return;
           const currentComments = post.comments || [];
           currentComments.push({ name: userProfileData.name, text: commentTxt });
@@ -775,21 +922,21 @@
       });
     }
 
-    document.getElementById('social-tab-following').addEventListener('click', () => {
+    bindFastClick(document.getElementById('social-tab-following'), () => {
       currentSocialTab = 'following';
       document.getElementById('social-tab-following').className = "border-b-2 border-white pb-1 text-white";
       document.getElementById('social-tab-foryou').className = "opacity-60 text-white";
       loadSocialFeed();
     });
 
-    document.getElementById('social-tab-foryou').addEventListener('click', () => {
+    bindFastClick(document.getElementById('social-tab-foryou'), () => {
       currentSocialTab = 'foryou';
       document.getElementById('social-tab-foryou').className = "border-b-2 border-white pb-1 text-white";
       document.getElementById('social-tab-following').className = "opacity-60 text-white";
       loadSocialFeed();
     });
 
-    // Chat Conversation Windows Messaging Actions Engine
+    // Chat Window View Implementation Rules Management Flow
     async function initChatTunnel(targetUid, targetUserObj, triggerAutoBooking = false) {
       const parts = [currentUser.uid, targetUid].sort();
       activeChatRoomId = `${parts[0]}_${parts[1]}`;
@@ -802,7 +949,6 @@
         avatars: { [currentUser.uid]: userProfileData.profilePic || '', [targetUid]: targetUserObj.profilePic || '' }
       }, { merge: true });
 
-      // Reset local unread mapping value for current operator inside database
       await setDoc(doc(db, "rooms", activeChatRoomId), {
         unreadCount: { [currentUser.uid]: 0 }
       }, { merge: true });
@@ -810,7 +956,6 @@
       document.getElementById('chat-window-avatar').src = targetUserObj.profilePic || 'https://via.placeholder.com/150';
       document.getElementById('chat-window-name').textContent = targetUserObj.name;
 
-      // Listen to Opponent User System Presence State Remotely
       onSnapshot(doc(db, "users", targetUid), (docSnap) => {
         if (docSnap.exists()) {
           const remoteUser = docSnap.data();
@@ -842,7 +987,7 @@
           const isMe = m.senderId === currentUser.uid;
           bubble.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-2`;
           let contentHtml = `<p class="text-xs break-words">${m.text}</p>`;
-          if(m.image) contentHtml = `<img src="${m.image}" class="w-40 h-auto rounded-lg mb-1 object-cover clickable-pic" />` + contentHtml;
+          if(m.image) contentHtml = `<img src="${m.image}" class="w-40 h-auto rounded-lg mb-1 object-cover clickable-pic cursor-pointer" />` + contentHtml;
           bubble.innerHTML = `<div class="${isMe ? 'bg-amber-600 text-white rounded-xl' : 'bg-white text-gray-900 rounded-xl'} max-w-[75%] p-3 border">${contentHtml}</div>`;
           chatMessagesBox.appendChild(bubble);
         });
@@ -852,16 +997,12 @@
       if (triggerAutoBooking) {
         injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nLocation Target: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending Response.`);
       }
-      document.getElementById('btn-chat-book-service').onclick = () => {
-        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nLocation Target: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending Response.`);
-      };
     }
 
     async function injectStructuredMessage(txt, imgStr = null) {
       if(!activeChatRoomId) return;
       const textVal = txt.trim(); if(!textVal && !imgStr) return;
 
-      // Read current unread structure state increment map calculation details
       const rSnap = await getDoc(doc(db, "rooms", activeChatRoomId));
       let currentUnread = {};
       if(rSnap.exists()) currentUnread = rSnap.data().unreadCount || {};
@@ -880,9 +1021,13 @@
       }, { merge: true });
     }
 
-    document.getElementById('btn-send-message').addEventListener('click', () => {
+    // Interactive Standard Input Messaging Submission Wire Form Controller
+    document.getElementById('chat-input-form').addEventListener('submit', (e) => {
+      e.preventDefault();
       const field = document.getElementById('chat-message-input');
-      injectStructuredMessage(field.value); field.value = "";
+      if(!field.value.trim()) return;
+      injectStructuredMessage(field.value); 
+      field.value = "";
     });
 
     document.getElementById('chat-image-input').addEventListener('change', async (e) => {
@@ -891,7 +1036,7 @@
       injectStructuredMessage("[Image Attached]", b64);
     });
 
-    document.getElementById('btn-back-to-chats').addEventListener('click', () => {
+    bindFastClick(document.getElementById('btn-back-to-chats'), () => {
       chatWindowScreen.classList.add('hidden');
       if (chatUnsubscribeHook) chatUnsubscribeHook();
       loadChatChannels();
@@ -902,7 +1047,7 @@
       const snap = await getDocs(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)));
       chatChannelsContainer.innerHTML = "";
       
-      if(snap.empty) { chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">No active application chat channels.</p>`; return; }
+      if(snap.empty) { chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">No active chat channels.</p>`; return; }
       
       snap.forEach(roomDoc => {
         const room = roomDoc.data();
@@ -921,14 +1066,14 @@
           <div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${name}</h4><p class="text-[10px] text-gray-400">Click to resume conversation</p></div>
           ${countBadge}
         `;
-        bar.onclick = () => initChatTunnel(opponentUid, { name: name, profilePic: img });
+        bindFastClick(bar, () => initChatTunnel(opponentUid, { name: name, profilePic: img }));
         chatChannelsContainer.appendChild(bar);
       });
     }
 
     const tabBarbers = document.getElementById('tab-barbers'); const tabShops = document.getElementById('tab-shops');
-    tabBarbers.addEventListener('click', () => { currentTab = 'barber'; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition"; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition"; loadFeed(); });
-    tabShops.addEventListener('click', () => { currentTab = 'owner'; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition"; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition"; loadFeed(); });
+    bindFastClick(tabBarbers, () => { currentTab = 'barber'; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition"; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition"; loadFeed(); });
+    bindFastClick(tabShops, () => { currentTab = 'owner'; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition"; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition"; loadFeed(); });
   </script>
 </body>
 </html>
