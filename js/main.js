@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
@@ -24,8 +24,6 @@ const btnLogin = document.getElementById('btn-login');
 const btnLogout = document.getElementById('btn-logout');
 const btnBarber = document.getElementById('btn-barber');
 const btnOwner = document.getElementById('btn-owner');
-
-// Profile Editor Elements
 const editScreen = document.getElementById('profile-edit-screen');
 const btnEdit = document.getElementById('btn-edit-profile');
 const btnSave = document.getElementById('save-profile');
@@ -42,7 +40,25 @@ function showScreen(screenId) {
   if (screenId === 'app') mainApp.classList.remove('hidden');
 }
 
-// Marketplace Load
+// Global booking function
+window.requestBooking = async (barberId, barberName) => {
+  if (!currentUser) return alert("Please sign in to book.");
+  try {
+    await addDoc(collection(db, "bookings"), {
+      barberId: barberId,
+      barberName: barberName,
+      customerId: currentUser.uid,
+      customerName: currentUser.displayName,
+      status: "pending",
+      createdAt: new Date().toISOString()
+    });
+    alert("Booking request sent to " + barberName + "!");
+  } catch (error) {
+    console.error("Error booking:", error);
+    alert("Failed to send booking.");
+  }
+};
+
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
   if (!feedContainer) return; 
@@ -60,16 +76,21 @@ async function loadMarketplace() {
 
     querySnapshot.forEach((doc) => {
       const barber = doc.data();
+      const barberId = doc.id;
       const displayName = barber.name || "Anonymous Barber";
       const profilePic = barber.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
+      
       const card = document.createElement('div');
-      card.className = "p-4 bg-zinc-800 rounded-xl border border-zinc-700 flex items-center gap-4";
+      card.className = "p-4 bg-zinc-800 rounded-xl border border-zinc-700 flex flex-col gap-3";
       card.innerHTML = `
-        <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border border-zinc-700 bg-zinc-700" />
-        <div>
-          <h3 class="font-bold text-amber-500">${displayName}</h3>
-          <p class="text-xs text-gray-400">Professional Barber</p>
+        <div class="flex items-center gap-4">
+          <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border border-zinc-700 bg-zinc-700" />
+          <div>
+            <h3 class="font-bold text-amber-500">${displayName}</h3>
+            <p class="text-xs text-gray-400">Professional Barber</p>
+          </div>
         </div>
+        <button onclick="requestBooking('${barberId}', '${displayName}')" class="w-full bg-amber-600 py-2 rounded-lg text-sm font-bold text-white">Book Now</button>
       `;
       feedContainer.appendChild(card);
     });
@@ -85,12 +106,10 @@ btnSave.addEventListener('click', async () => {
   const newName = document.getElementById('edit-name').value;
   const newPic = document.getElementById('edit-pic').value;
   if (!currentUser) return;
-  
   await setDoc(doc(db, "users", currentUser.uid), {
     name: newName || currentUser.displayName,
     profilePic: newPic
   }, { merge: true });
-  
   editScreen.classList.add('hidden');
   alert("Profile Updated!");
   location.reload(); 
