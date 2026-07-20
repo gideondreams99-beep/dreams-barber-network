@@ -86,7 +86,7 @@
   </div>
 
   <!-- ================= 6. LIVE CHAT CONVERSATION WINDOW ================= -->
-  <div id="chat-window-screen" class="hidden fixed inset-0 bg-zinc-900 z-50 flex flex-col max-w-md mx-auto">
+  <div id="chat-window-screen" class="hidden fixed inset-0 bg-zinc-900 z-[70] flex flex-col max-w-md mx-auto">
     <header class="bg-zinc-800 border-b border-zinc-700 p-3 flex items-center gap-3 shadow-md">
       <button id="btn-back-to-notifications" class="text-gray-400 font-bold px-2 py-1 text-lg">←</button>
       <div class="relative">
@@ -102,7 +102,7 @@
 
     <div id="chat-messages-box" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
 
-    <form id="chat-input-form" class="bg-zinc-800 border-t border-zinc-700 p-3 flex items-center gap-2" onsubmit="event.preventDefault();">
+    <form id="chat-input-form" class="bg-zinc-800 border-t border-zinc-700 p-3 flex items-center gap-2 pb-6" onsubmit="event.preventDefault();">
       <label class="bg-zinc-700 p-2.5 rounded-xl cursor-pointer text-center text-sm hover:bg-zinc-600 transition">
         📸<input type="file" id="chat-image-input" accept="image/*" class="hidden" />
       </label>
@@ -191,7 +191,7 @@
   </div>
 
   <!-- ================= 8. SYSTEM LIVE BROADCAST WINDOW ================= -->
-  <div id="social-live-modal" class="hidden fixed inset-0 bg-black z-[60] flex flex-col justify-between p-4 text-white">
+  <div id="social-live-modal" class="hidden fixed inset-0 bg-black z-[80] flex flex-col justify-between p-4 text-white">
     <video id="live-video-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover z-0 bg-zinc-950"></video>
     <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none z-10"></div>
 
