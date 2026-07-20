@@ -195,26 +195,15 @@
     <video id="live-video-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover z-0 bg-zinc-950"></video>
     <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none z-10"></div>
 
-    <!-- Top Metrics Bar -->
     <div class="flex justify-between items-center relative z-20">
       <div class="flex items-center gap-2 bg-black/40 p-2 rounded-full backdrop-blur-md">
         <div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
-        <span class="text-xs font-bold uppercase tracking-wider">LIVE</span>
-        <span class="text-xs font-medium text-gray-300">| 👁️ 1.2K</span>
+        <span class="text-xs font-bold uppercase tracking-wider">LIVE STREAMING</span>
       </div>
-      <button id="btn-close-live" class="text-white font-black text-xs bg-red-600 px-3 py-2 rounded-full shadow-lg">✕ Stop</button>
+      <button id="btn-close-live" class="text-white font-black text-xs bg-red-600 px-3 py-2 rounded-full shadow-lg">✕ Stop Stream</button>
     </div>
 
-    <!-- Bottom Engagement Area -->
     <div class="mt-auto space-y-3 relative z-20">
-      <!-- Like & Share Buttons -->
-      <div class="flex gap-2">
-        <button id="btn-live-like" class="flex-1 bg-white/10 backdrop-blur-md border border-white/20 py-2 rounded-xl text-sm font-bold active:scale-95 transition flex items-center justify-center gap-2">
-          <span id="live-like-count">❤️ 0</span>
-        </button>
-        <button class="flex-1 bg-white/10 backdrop-blur-md border border-white/20 py-2 rounded-xl text-sm font-bold active:scale-95">🔗 Share</button>
-      </div>
-
       <div class="bg-black/40 p-3 rounded-xl text-xs space-y-1.5 max-h-40 overflow-y-auto no-scrollbar" id="live-chat-simulation">
         <p class="text-amber-500 font-bold">⚡ Stream System Connected.</p>
       </div>
@@ -310,7 +299,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, addDoc, onSnapshot, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, addDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
@@ -326,7 +315,7 @@
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
 
-    // DOM Elements
+    // DOM Navigation Targets
     const authScreen = document.getElementById('auth-screen');
     const roleScreen = document.getElementById('role-screen');
     const mainApp = document.getElementById('main-app');
@@ -356,9 +345,6 @@
     const socialLiveModal = document.getElementById('social-live-modal');
     const liveVideoPreview = document.getElementById('live-video-preview');
     const liveChatSimulation = document.getElementById('live-chat-simulation');
-    const btnLiveLike = document.getElementById('btn-live-like');
-    const liveLikeCountDisplay = document.getElementById('live-like-count');
-    
     const lightboxOverlay = document.getElementById('lightbox-overlay');
     const lightboxTargetImage = document.getElementById('lightbox-target-image');
     const profileModal = document.getElementById('profile-modal');
@@ -376,7 +362,7 @@
     const modalBookServiceAction = document.getElementById('modal-book-service-action');
     const modalCallAction = document.getElementById('modal-call-action');
 
-    // App State
+    // App Session State
     let currentUser = null;
     let userProfileData = null;
     let currentTab = 'barber';
@@ -386,9 +372,8 @@
     let chatUnsubscribeHook = null;
     let presenceHeartbeatInterval = null;
     let localStreamTrackReference = null;
-    let liveLikeUnsubscribe = null;
 
-    // Authentication Listener
+    // Authentication Listener Engine
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
@@ -416,6 +401,7 @@
       }
     });
 
+    // Real-Time System Status Synchronizer
     async function startPresenceHeartbeat() {
       if (!currentUser) return;
       const updatePresence = async () => {
@@ -437,6 +423,7 @@
       }
     }
 
+    // Single-Page View Engine Director
     function showScreen(screen) {
       authScreen.classList.add('hidden');
       roleScreen.classList.add('hidden');
@@ -466,12 +453,12 @@
       if (active === 'dash') { navDash.classList.add('text-amber-500', 'font-bold'); navDash.classList.remove('text-gray-400'); }
     }
 
+    // Touch Event Target Wrappers
     function bindFastClick(elementNode, actionCallback) {
       if (!elementNode) return;
       elementNode.addEventListener('click', (e) => { e.preventDefault(); actionCallback(e); });
     }
 
-    // Nav Bindings
     bindFastClick(navFeed, () => { showScreen('app'); loadFeed(); });
     bindFastClick(navSocial, () => { showScreen('social'); });
     bindFastClick(navNotifications, () => { showScreen('notifications'); loadNotificationHub(); });
@@ -504,6 +491,7 @@
       loadFeed();
     }
 
+    // Combined Unread Activity & Message Notification Counter
     function listenToNotificationsCounter() {
       if (!currentUser) return;
       onSnapshot(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)), (snapshot) => {
@@ -522,74 +510,501 @@
       });
     }
 
-    // Live Metrics Controller
-    bindFastClick(document.getElementById('btn-social-live'), async () => {
-      try {
-        localStreamTrackReference = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
-        liveVideoPreview.srcObject = localStreamTrackReference;
-        
-        // Initialize Like Counter listener
-        const liveDocRef = doc(db, "liveStats", "mainStream");
-        await setDoc(liveDocRef, { likes: 0 }, { merge: true });
-        
-        liveLikeUnsubscribe = onSnapshot(liveDocRef, (snap) => {
-          if (snap.exists()) liveLikeCountDisplay.textContent = `❤️ ${snap.data().likes}`;
-        });
-
-        socialLiveModal.classList.remove('hidden');
-      } catch (err) { alert("Camera access required for live streaming."); }
+    // Lightbox Modal Controllers
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.classList.contains('clickable-pic')) {
+        const sourceUrl = e.target.getAttribute('src');
+        if (sourceUrl && !sourceUrl.includes('via.placeholder')) {
+          lightboxTargetImage.src = sourceUrl;
+          lightboxOverlay.classList.remove('hidden');
+        }
+      }
     });
+    bindFastClick(document.getElementById('btn-close-lightbox'), () => lightboxOverlay.classList.add('hidden'));
 
-    bindFastClick(document.getElementById('btn-close-live'), () => {
-      if(localStreamTrackReference) localStreamTrackReference.getTracks().forEach(t => t.stop());
-      if(liveLikeUnsubscribe) liveLikeUnsubscribe();
-      socialLiveModal.classList.add('hidden');
-    });
-
-    bindFastClick(btnLiveLike, async () => {
-      await setDoc(doc(db, "liveStats", "mainStream"), { likes: increment(1) }, { merge: true });
-    });
-
-    // Image/Compressor
+    // Image Compression Helper
     function compressImage(file, maxWidth = 600, quality = 0.5) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = (e) => {
+        reader.onload = (event) => {
           const img = new Image();
-          img.src = e.target.result;
+          img.src = event.target.result;
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            let w = img.width, h = img.height;
-            if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
-            canvas.width = w; canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', quality));
+            let width = img.width; let height = img.height;
+            if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/jpeg'));
           };
         };
+        reader.onerror = (err) => reject(err);
       });
     }
 
-    // Dashboard & Feed population logic omitted for brevity as it remains as per your original
+    avatarFileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      base64AvatarUrl = await compressImage(file, 300, 0.6);
+      dashboardAvatarPreview.src = base64AvatarUrl;
+    });
+
+    portfolioFileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const compressedString = await compressImage(file, 500, 0.5);
+      temporaryPortfolioUrls.push(compressedString);
+      renderDashboardGalleryPreview();
+    });
+
+    function renderDashboardGalleryPreview() {
+      dashboardGalleryPreview.innerHTML = "";
+      temporaryPortfolioUrls.forEach((url, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = "relative h-16 w-full";
+        wrapper.innerHTML = `
+          <img src="${url}" class="w-full h-full object-cover rounded-lg border border-zinc-700 clickable-pic cursor-pointer" />
+          <button type="button" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold">✕</button>
+        `;
+        wrapper.querySelector('button').addEventListener('click', () => { temporaryPortfolioUrls.splice(idx, 1); renderDashboardGalleryPreview(); });
+        dashboardGalleryPreview.appendChild(wrapper);
+      });
+    }
+
+    async function populateDashboard() {
+      if (!userProfileData) return;
+      const freshSnap = await getDoc(doc(db, "users", currentUser.uid));
+      if(freshSnap.exists()) userProfileData = freshSnap.data();
+
+      document.getElementById('my-followers-count').textContent = userProfileData.followersCount || 0;
+      document.getElementById('my-following-count').textContent = userProfileData.followingCount || 0;
+      inputDisplayName.value = userProfileData.name || "";
+      document.getElementById('input-phone').value = userProfileData.phone || "";
+      document.getElementById('input-location').value = userProfileData.location || "";
+      
+      if (userProfileData.accommodation === "yes") {
+        document.getElementById('acc-yes').checked = true;
+        document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
+        document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
+      } else {
+        document.getElementById('acc-no').checked = true;
+        document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
+        document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
+      }
+
+      if (userProfileData.role === 'barber') {
+        dynamicFields.innerHTML = `
+          <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Years Experience</label><input type="number" id="input-experience" value="${userProfileData.experienceYears || ''}" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"></div>
+          <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Preferred Pay Rate / Model</label><input type="text" id="input-payment" value="${userProfileData.preferredPayment || ''}" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"></div>
+        `;
+      } else {
+        dynamicFields.innerHTML = `
+          <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Shop / Studio Branding Name</label><input type="text" id="input-shopname" value="${userProfileData.shopName || ''}" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"></div>
+        `;
+      }
+      dashboardAvatarPreview.src = base64AvatarUrl;
+      renderDashboardGalleryPreview();
+    }
+
+    document.getElementById('acc-yes').addEventListener('change', () => {
+      document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
+      document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
+    });
+    document.getElementById('acc-no').addEventListener('change', () => {
+      document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
+      document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
+    });
+
+    bindFastClick(document.getElementById('btn-save-profile'), async () => {
+      const payload = {
+        name: inputDisplayName.value,
+        phone: document.getElementById('input-phone').value,
+        location: document.getElementById('input-location').value,
+        accommodation: document.getElementById('acc-yes').checked ? "yes" : "no",
+        profilePic: base64AvatarUrl,
+        portfolioImages: temporaryPortfolioUrls
+      };
+      if (userProfileData.role === 'barber') {
+        payload.experienceYears = document.getElementById('input-experience').value;
+        payload.preferredPayment = document.getElementById('input-payment').value;
+      } else {
+        payload.shopName = document.getElementById('input-shopname').value;
+      }
+      await setDoc(doc(db, "users", currentUser.uid), payload, { merge: true });
+      userProfileData = { ...userProfileData, ...payload };
+      alert("Profile updates successfully updated.");
+    });
+
+    // Marketplace Feed Renderer
     async function loadFeed() {
-      feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">Loading...</p>`;
+      feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">Polling marketplace channels...</p>`;
       const snapshot = await getDocs(query(collection(db, "users"), where("role", "==", currentTab)));
       feedContainer.innerHTML = "";
+      
+      if(snapshot.empty) {
+        feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">No active accounts listed in this category yet.</p>`;
+        return;
+      }
+
       snapshot.forEach(docSnap => {
         const item = docSnap.data();
         if (item.uid === currentUser.uid) return;
         const card = document.createElement('div');
         card.className = "bg-zinc-800 p-4 rounded-xl shadow-sm border border-zinc-700 flex gap-4 items-start";
-        card.innerHTML = `<img src="${item.profilePic || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover border border-zinc-700" />
-                          <div class="flex-1"><h3 class="font-bold text-sm text-white">${item.role === 'owner' && item.shopName ? item.shopName : item.name}</h3><p class="text-[11px] text-gray-400 mt-0.5">📍 ${item.location || 'Ghana'}</p></div>`;
+        const title = item.role === 'owner' && item.shopName ? item.shopName : item.name;
+        card.innerHTML = `
+          <img src="${item.profilePic || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover border border-zinc-700 clickable-pic cursor-pointer" />
+          <div class="flex-1">
+            <h3 class="font-bold text-sm text-white">${title}</h3>
+            <p class="text-[11px] text-gray-400 mt-0.5">📍 ${item.location || 'Ghana'}</p>
+            <button class="btn-view-profile w-full mt-3 bg-zinc-900 text-amber-500 text-xs font-bold py-2 rounded-lg border border-zinc-700 active:scale-95 transition">View Profile Details</button>
+          </div>
+        `;
+        bindFastClick(card.querySelector('.btn-view-profile'), () => openProfileDetails(item));
         feedContainer.appendChild(card);
       });
     }
 
-    async function populateDashboard() { /* (Remains same as your original) */ }
+    // Context Profile View Modals
+    async function openProfileDetails(userObj) {
+      const currentSnapshot = await getDoc(doc(db, "users", userObj.uid));
+      let reactiveData = userObj;
+      if(currentSnapshot.exists()) reactiveData = currentSnapshot.data();
 
-    // Chat/Notifications logic remains same as provided...
-    // [Truncated for message limit, but structure is ready for your full integration]
+      modalImg.src = reactiveData.profilePic || 'https://via.placeholder.com/150';
+      modalTitle.textContent = reactiveData.role === 'owner' && reactiveData.shopName ? reactiveData.shopName : reactiveData.name;
+      modalLocation.textContent = `📍 ${reactiveData.location || 'Location Unset'}`;
+      modalBadge.textContent = reactiveData.role === 'barber' ? 'Barber' : 'Shop Owner';
+      
+      if (reactiveData.accommodation === "yes") {
+        modalAccommodationBadge.textContent = "🏡 Setup Ready";
+        modalAccommodationBadge.className = "inline-block bg-emerald-950 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider";
+      } else {
+        modalAccommodationBadge.textContent = "✖ No Setup Space";
+        modalAccommodationBadge.className = "inline-block bg-zinc-900 text-gray-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider";
+      }
+
+      modalDetails.innerHTML = "";
+      if (reactiveData.role === 'barber') {
+        modalDetails.innerHTML = `
+          <div><span class="text-gray-400 text-xs block font-bold uppercase">Experience Level</span><p class="text-white font-medium">${reactiveData.experienceYears || '0'} Years Pro</p></div>
+          <div><span class="text-gray-400 text-xs block font-bold uppercase">Payment Rates</span><p class="text-white font-medium">${reactiveData.preferredPayment || 'Flexible Negotiable'}</p></div>
+        `;
+      } else {
+        modalDetails.innerHTML = `
+          <div><span class="text-gray-400 text-xs block font-bold uppercase">Operating Brand / Workspace</span><p class="text-white font-medium">${reactiveData.shopName || 'Private Provider Setup'}</p></div>
+        `;
+      }
+
+      document.getElementById('modal-followers-count').textContent = reactiveData.followersCount || 0;
+      document.getElementById('modal-following-count').textContent = reactiveData.followingCount || 0;
+
+      let followingList = userProfileData.following || [];
+      if(followingList.includes(reactiveData.uid)){
+        btnModalFollow.textContent = "Unfollow User Loop";
+        btnModalFollow.className = "w-full bg-zinc-700 text-gray-300 font-bold py-3 rounded-xl text-xs";
+      } else {
+        btnModalFollow.textContent = "Follow User";
+        btnModalFollow.className = "w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-sm";
+      }
+
+      // Concurrency-Safe Follow Engine Transaction Matrix with Automatic Follow Notifications
+      btnModalFollow.onclick = async (e) => {
+        e.preventDefault();
+        const myUid = currentUser.uid;
+        const targetUid = reactiveData.uid;
+        let wasFollowing = false;
+
+        await runTransaction(db, async (transaction) => {
+          const myUserSnap = await transaction.get(doc(db, "users", myUid));
+          const targetUserSnap = await transaction.get(doc(db, "users", targetUid));
+
+          if (!myUserSnap.exists() || !targetUserSnap.exists()) return;
+
+          let myFreshFollowing = myUserSnap.data().following || [];
+          let targetFreshFollowersCount = targetUserSnap.data().followersCount || 0;
+          let myFreshFollowingCount = myUserSnap.data().followingCount || 0;
+
+          if (myFreshFollowing.includes(targetUid)) {
+            myFreshFollowing = myFreshFollowing.filter(id => id !== targetUid);
+            targetFreshFollowersCount = Math.max(0, targetFreshFollowersCount - 1);
+            myFreshFollowingCount = Math.max(0, myFreshFollowingCount - 1);
+            wasFollowing = true;
+          } else {
+            myFreshFollowing.push(targetUid);
+            targetFreshFollowersCount += 1;
+            myFreshFollowingCount += 1;
+          }
+
+          transaction.update(doc(db, "users", myUid), { following: myFreshFollowing, followingCount: myFreshFollowingCount });
+          transaction.update(doc(db, "users", targetUid), { followersCount: targetFreshFollowersCount });
+          
+          userProfileData.following = myFreshFollowing;
+          userProfileData.followingCount = myFreshFollowingCount;
+        });
+
+        // Add to global notification stream if it's a new follow
+        if (!wasFollowing) {
+          await addDoc(collection(db, "notifications"), {
+            recipientId: targetUid,
+            senderId: myUid,
+            senderName: userProfileData.name,
+            senderPic: userProfileData.profilePic || '',
+            type: "follow",
+            text: "started following your profile activity.",
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        profileModal.classList.add('hidden');
+        loadFeed();
+      };
+
+      modalGallery.innerHTML = "";
+      if(reactiveData.portfolioImages && reactiveData.portfolioImages.length > 0) {
+        galleryEmptyMsg.classList.add('hidden');
+        reactiveData.portfolioImages.forEach(src => {
+          const thumb = document.createElement('img');
+          thumb.src = src; thumb.className = "w-full h-20 object-cover rounded-lg border border-zinc-700 clickable-pic cursor-pointer";
+          modalGallery.appendChild(thumb);
+        });
+      } else { galleryEmptyMsg.classList.remove('hidden'); }
+
+      modalChatAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(reactiveData.uid, reactiveData); };
+      modalBookServiceAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(reactiveData.uid, reactiveData, true); };
+      modalCallAction.href = reactiveData.phone ? `tel:${reactiveData.phone}` : "#";
+
+      profileModal.classList.remove('hidden');
+    }
+    bindFastClick(btnCloseModal, () => profileModal.classList.add('hidden'));
+
+    // Camera Broadcaster Lens
+    bindFastClick(document.getElementById('btn-social-live'), async () => {
+      try {
+        localStreamTrackReference = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: true
+        });
+        liveVideoPreview.srcObject = localStreamTrackReference;
+        socialLiveModal.classList.remove('hidden');
+      } catch (err) {
+        console.error("Hardware framework lock: ", err);
+        alert("Verify systemic camera access tracking configurations inside app device settings.");
+      }
+    });
+
+    bindFastClick(document.getElementById('btn-close-live'), () => {
+      if(localStreamTrackReference) {
+        localStreamTrackReference.getTracks().forEach(track => track.stop());
+      }
+      socialLiveModal.classList.add('hidden');
+    });
+
+    document.getElementById('live-chat-input-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inputField = document.getElementById('live-chat-message-input');
+      const messageText = inputField.value.trim();
+      if(!messageText) return;
+
+      const chatLine = document.createElement('p');
+      chatLine.innerHTML = `<strong class="text-amber-500">@me:</strong> <span class="text-zinc-300">${messageText}</span>`;
+      liveChatSimulation.appendChild(chatLine);
+      liveChatSimulation.scrollTop = liveChatSimulation.scrollHeight;
+      inputField.value = "";
+    });
+
+    // ================= UNIFIED NOTIFICATION HUB ENGINE =================
+    async function loadNotificationHub() {
+      notificationsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-4">Polling updates & activities...</p>`;
+      
+      // 1. Fetch Chat Activity Notifications
+      const chatSnap = await getDocs(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)));
+      
+      // 2. Fetch System/Follower Activity Notifications
+      const systemSnap = await getDocs(query(collection(db, "notifications"), where("recipientId", "==", currentUser.uid)));
+      
+      notificationsContainer.innerHTML = "";
+      let combinedNotifications = [];
+
+      // Parse Chat Rooms into Chat Notifications
+      chatSnap.forEach(roomDoc => {
+        const room = roomDoc.data();
+        const opponentUid = room.participants.find(id => id !== currentUser.uid);
+        if(!opponentUid) return;
+        
+        const currentUnreadCount = (room.unreadCount && room.unreadCount[currentUser.uid]) ? room.unreadCount[currentUser.uid] : 0;
+        
+        combinedNotifications.push({
+          type: "chat",
+          id: roomDoc.id,
+          opponentUid: opponentUid,
+          name: room.names[opponentUid] || "Ecosystem User",
+          img: room.avatars[opponentUid] || "https://via.placeholder.com/150",
+          text: currentUnreadCount > 0 ? `Sent you (${currentUnreadCount}) new unread message logs.` : "Tap to view full conversation history.",
+          timestamp: room.lastUpdated || new Date().toISOString(),
+          unread: currentUnreadCount > 0
+        });
+      });
+
+      // Parse System/Follow Updates
+      systemSnap.forEach(sysDoc => {
+        const data = sysDoc.data();
+        combinedNotifications.push({
+          type: "follow",
+          id: sysDoc.id,
+          name: data.senderName || "Someone",
+          img: data.senderPic || "https://via.placeholder.com/150",
+          text: data.text || "interacted with your profile.",
+          timestamp: data.timestamp || new Date().toISOString(),
+          unread: false
+        });
+      });
+
+      // Sort chronological order (newest arrivals first)
+      combinedNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      if(combinedNotifications.length === 0) {
+        notificationsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">Your activity status and alerts stream is completely empty.</p>`;
+        return;
+      }
+
+      combinedNotifications.forEach(notify => {
+        const itemRow = document.createElement('div');
+        const unreadHighlight = notify.unread ? 'border-amber-500/40 bg-amber-950/10' : 'border-zinc-700';
+        
+        itemRow.className = `bg-zinc-800 p-3.5 rounded-xl border ${unreadHighlight} flex items-center gap-3 cursor-pointer hover:bg-zinc-700/40 transition`;
+        itemRow.innerHTML = `
+          <div class="relative">
+            <img src="${notify.img}" class="w-10 h-10 rounded-full object-cover border border-zinc-700" />
+            <span class="absolute -bottom-1 -right-1 text-xs">${notify.type === 'chat' ? '💬' : '👤'}</span>
+          </div>
+          <div class="flex-1">
+            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+              ${notify.name}
+              ${notify.unread ? '<span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>' : ''}
+            </h4>
+            <p class="text-[11px] text-gray-300 mt-0.5">${notify.text}</p>
+          </div>
+        `;
+
+        if (notify.type === "chat") {
+          bindFastClick(itemRow, () => initChatTunnel(notify.opponentUid, { name: notify.name, profilePic: notify.img }));
+        }
+        
+        notificationsContainer.appendChild(itemRow);
+      });
+    }
+
+    // Chat Conversation Interactivity Tunnel
+    async function initChatTunnel(targetUid, targetUserObj, triggerAutoBooking = false) {
+      const parts = [currentUser.uid, targetUid].sort();
+      activeChatRoomId = `${parts[0]}_${parts[1]}`;
+
+      await setDoc(doc(db, "rooms", activeChatRoomId), {
+        roomId: activeChatRoomId,
+        participants: [currentUser.uid, targetUid],
+        lastUpdated: new Date().toISOString(),
+        names: { [currentUser.uid]: userProfileData.name, [targetUid]: targetUserObj.name },
+        avatars: { [currentUser.uid]: userProfileData.profilePic || '', [targetUid]: targetUserObj.profilePic || '' }
+      }, { merge: true });
+
+      await setDoc(doc(db, "rooms", activeChatRoomId), {
+        unreadCount: { [currentUser.uid]: 0 }
+      }, { merge: true });
+
+      document.getElementById('chat-window-avatar').src = targetUserObj.profilePic || 'https://via.placeholder.com/150';
+      document.getElementById('chat-window-name').textContent = targetUserObj.name;
+
+      onSnapshot(doc(db, "users", targetUid), (docSnap) => {
+        if (docSnap.exists()) {
+          const remoteUser = docSnap.data();
+          const p = remoteUser.presence || { status: 'offline' };
+          const indicator = document.getElementById('chat-presence-indicator');
+          const pText = document.getElementById('chat-window-presence-text');
+          if (p.status === 'online') {
+            indicator.className = "absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-zinc-800 rounded-full";
+            pText.textContent = "Online";
+            pText.className = "text-[10px] text-emerald-500 block font-bold";
+          } else {
+            indicator.className = "absolute bottom-0 right-0 w-2.5 h-2.5 bg-zinc-600 border-2 border-zinc-800 rounded-full";
+            const timeStr = p.lastSeen ? new Date(p.lastSeen).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Offline';
+            pText.textContent = `Last active ${timeStr}`;
+            pText.className = "text-[10px] text-gray-400 block font-normal";
+          }
+        }
+      });
+
+      showScreen('notifications');
+      chatWindowScreen.classList.remove('hidden');
+
+      if (chatUnsubscribeHook) chatUnsubscribeHook();
+      chatUnsubscribeHook = onSnapshot(query(collection(db, "rooms", activeChatRoomId, "messages"), orderBy("timestamp", "asc")), (snapshot) => {
+        chatMessagesBox.innerHTML = "";
+        snapshot.forEach(msgDoc => {
+          const m = msgDoc.data();
+          const bubble = document.createElement('div');
+          const isMe = m.senderId === currentUser.uid;
+          bubble.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-2`;
+          let contentHtml = `<p class="text-xs break-words">${m.text}</p>`;
+          if(m.image) contentHtml = `<img src="${m.image}" class="w-40 h-auto rounded-lg mb-1.5 object-cover clickable-pic cursor-pointer border border-zinc-700" />` + contentHtml;
+          bubble.innerHTML = `<div class="${isMe ? 'bg-amber-600 text-white rounded-2xl rounded-tr-none' : 'bg-zinc-800 text-gray-100 rounded-2xl rounded-tl-none'} max-w-[75%] p-3.5 border border-zinc-700/50 shadow-sm">${contentHtml}</div>`;
+          chatMessagesBox.appendChild(bubble);
+        });
+        chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
+      });
+
+      bindFastClick(document.getElementById('btn-chat-book-service'), () => {
+        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nTarget Area: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending confirmation.`);
+      });
+
+      if (triggerAutoBooking) {
+        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nTarget Area: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending confirmation.`);
+      }
+    }
+
+    async function injectStructuredMessage(txt, imgStr = null) {
+      if(!activeChatRoomId) return;
+      const textVal = txt.trim(); if(!textVal && !imgStr) return;
+
+      const rSnap = await getDoc(doc(db, "rooms", activeChatRoomId));
+      let currentUnread = {};
+      if(rSnap.exists()) currentUnread = rSnap.data().unreadCount || {};
+      
+      const opponents = rSnap.data().participants.filter(id => id !== currentUser.uid);
+      opponents.forEach(opUid => { currentUnread[opUid] = (currentUnread[opUid] || 0) + 1; });
+
+      await addDoc(collection(db, "rooms", activeChatRoomId, "messages"), {
+        senderId: currentUser.uid, text: textVal, image: imgStr, timestamp: new Date().toISOString()
+      });
+      await setDoc(doc(db, "rooms", activeChatRoomId), { 
+        lastUpdated: new Date().toISOString(),
+        unreadCount: currentUnread
+      }, { merge: true });
+    }
+
+    document.getElementById('chat-input-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const field = document.getElementById('chat-message-input');
+      if(!field.value.trim()) return;
+      injectStructuredMessage(field.value); 
+      field.value = "";
+    });
+
+    document.getElementById('chat-image-input').addEventListener('change', async (e) => {
+      const file = e.target.files[0]; if(!file) return;
+      const b64 = await compressImage(file, 500, 0.5);
+      injectStructuredMessage("[Image Log Media Attachment]", b64);
+    });
+
+    bindFastClick(document.getElementById('btn-back-to-notifications'), () => {
+      chatWindowScreen.classList.add('hidden');
+      if (chatUnsubscribeHook) chatUnsubscribeHook();
+      loadNotificationHub();
+    });
+
+    const tabBarbers = document.getElementById('tab-barbers'); const tabShops = document.getElementById('tab-shops');
+    bindFastClick(tabBarbers, () => { currentTab = 'barber'; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-amber-600 text-white shadow-sm transition"; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-400 transition"; loadFeed(); });
+    bindFastClick(tabShops, () => { currentTab = 'owner'; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-amber-600 text-white shadow-sm transition"; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-400 transition"; loadFeed(); });
   </script>
 </body>
 </html>
