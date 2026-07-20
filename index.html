@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Barber Me App</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -14,155 +14,153 @@
     .feed-container-snap { scroll-snap-type: y mandatory; }
   </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased text-gray-900 pb-24 select-none">
+<body class="bg-zinc-950 font-sans antialiased text-gray-100 pb-24 select-none">
 
   <!-- ================= 1. AUTH LOGIN SCREEN ================= -->
-  <div id="auth-screen" class="min-h-screen flex flex-col justify-center items-center p-6 bg-white">
-    <div class="w-full max-w-sm text-center">
-      <h1 class="text-4xl font-extrabold text-amber-600 mb-2 tracking-tight">Barber Me</h1>
-      <p class="text-gray-500 mb-8 text-sm">Connecting Ghana's finest barbers & shop owners</p>
-      <button id="btn-login" class="w-full bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:bg-amber-700 transition flex items-center justify-center gap-3">
-        <span>Sign in with Google</span>
+  <div id="auth-screen" class="min-h-screen flex flex-col justify-center items-center p-6 bg-zinc-900">
+    <div class="w-full max-w-sm text-center space-y-6">
+      <div>
+        <h1 class="text-4xl font-extrabold text-amber-500 mb-2 tracking-tight">Barber Me</h1>
+        <p class="text-gray-400 text-sm">Ghana's Premium Home Barbering Network</p>
+      </div>
+      <button id="btn-login" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-3 active:scale-[0.98]">
+        <span class="text-sm tracking-wide">Sign in with Google</span>
       </button>
     </div>
   </div>
 
   <!-- ================= 2. ONBOARDING ROLE SELECTION ================= -->
-  <div id="role-screen" class="hidden min-h-screen flex flex-col justify-center items-center p-6 bg-gray-50">
+  <div id="role-screen" class="hidden min-h-screen flex flex-col justify-center items-center p-6 bg-zinc-900">
     <div class="w-full max-w-sm text-center">
-      <h2 class="text-2xl font-black text-gray-900 mb-2">Create Your Profile</h2>
-      <p class="text-gray-500 text-sm mb-6">Which best describes you?</p>
+      <h2 class="text-2xl font-black text-white mb-2">Create Your Profile</h2>
+      <p class="text-gray-400 text-sm mb-6">Which best describes you?</p>
       <div class="flex flex-col gap-4">
-        <button id="choose-barber" class="p-5 bg-white border-2 border-amber-500 rounded-2xl shadow-sm text-left hover:bg-amber-50/50 transition">
-          <span class="block text-lg font-bold text-amber-600">I am a Barber</span>
-          <span class="text-xs text-gray-500 block mt-1">I want to offer home services or find a salon/shop to work in Ghana.</span>
+        <button id="choose-barber" class="p-5 bg-zinc-800 border-2 border-amber-500 rounded-2xl shadow-sm text-left active:scale-[0.98] transition">
+          <span class="block text-lg font-bold text-amber-500">I am a Barber</span>
+          <span class="text-xs text-gray-400 block mt-1">I want to offer premium home services across Ghana.</span>
         </button>
-        <button id="choose-owner" class="p-5 bg-white border-2 border-gray-200 rounded-2xl shadow-sm text-left hover:bg-amber-50/50 transition">
-          <span class="block text-lg font-bold text-gray-800">I am a Shop Owner</span>
-          <span class="text-xs text-gray-500 block mt-1">I am looking for professional barbers to join my shop or setup.</span>
+        <button id="choose-owner" class="p-5 bg-zinc-800 border-2 border-zinc-700 rounded-2xl shadow-sm text-left active:scale-[0.98] transition">
+          <span class="block text-lg font-bold text-gray-200">I am a Shop Owner</span>
+          <span class="text-xs text-gray-400 block mt-1">I want to discover skilled barbers or manage my studio setup.</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ================= 3. JIJI-STYLE MAIN MARKETPLACE FEED ================= -->
+  <!-- ================= 3. MARKETPLACE FEED ================= -->
   <div id="main-app" class="hidden max-w-md mx-auto p-4">
-    <header class="flex justify-between items-center mb-4 pt-2">
-      <h1 class="text-2xl font-black text-amber-600 tracking-tight">Barber Me</h1>
-      <button id="btn-logout" class="text-xs font-bold text-red-500 bg-red-50 px-3 py-1.5 rounded-lg">Logout</button>
+    <header class="flex justify-between items-center mb-6 pt-2">
+      <h1 class="text-2xl font-black text-amber-500 tracking-tight">Barber Me</h1>
+      <button id="btn-logout" class="text-xs font-bold text-red-400 bg-red-950/40 border border-red-900 px-3 py-1.5 rounded-lg active:scale-95">Logout</button>
     </header>
 
-    <div class="flex bg-gray-200 p-1 rounded-xl mb-4">
-      <button id="tab-barbers" class="flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition">Find Barbers</button>
-      <button id="tab-shops" class="flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition">Find Shops / Jobs</button>
+    <div class="flex bg-zinc-800 p-1 rounded-xl mb-4 border border-zinc-700">
+      <button id="tab-barbers" class="flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-amber-600 text-white shadow-sm transition">Find Barbers</button>
+      <button id="tab-shops" class="flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-400 transition">Find Shops / Owners</button>
     </div>
 
     <div id="feed-container" class="grid grid-cols-1 gap-3"></div>
   </div>
 
-  <!-- ================= 4. TIKTOK-STYLE SHORT VIDEO / SOCIAL MEDIA FEED ================= -->
+  <!-- ================= 4. CREATIVE SHORT VIDEO FEED ================= -->
   <div id="social-feed-screen" class="hidden fixed inset-0 bg-black z-40 max-w-md mx-auto flex flex-col">
-    <!-- Top Bar Navigation Toggle -->
     <div class="absolute top-4 left-0 right-0 flex justify-center items-center gap-6 z-50 text-white font-bold text-sm drop-shadow-lg">
       <button id="social-tab-following" class="opacity-60 transition">Following</button>
-      <button id="social-tab-foryou" class="border-b-2 border-white pb-1">For You</button>
-      <button id="btn-social-post" class="ml-4 bg-amber-600 text-xs px-2.5 py-1 rounded-full">+ Post</button>
-      <button id="btn-social-live" class="bg-red-600 text-xs px-2.5 py-1 rounded-full animate-pulse">● Live</button>
+      <button id="social-tab-foryou" class="border-b-2 border-amber-500 pb-1">For You</button>
+      <button id="btn-social-post" class="ml-4 bg-amber-600 text-xs px-3 py-1.5 rounded-full font-bold active:scale-95">+ Post</button>
+      <button id="btn-social-live" class="bg-red-600 text-xs px-3 py-1.5 rounded-full font-bold animate-pulse active:scale-95">● Live</button>
     </div>
 
-    <!-- Scrollable Snap Media Panel Container -->
     <div id="social-video-container" class="flex-1 overflow-y-auto feed-container-snap no-scrollbar bg-black"></div>
   </div>
 
   <!-- ================= 5. CHAT CHANNELS LIST SCREEN ================= -->
   <div id="chat-list-screen" class="hidden max-w-md mx-auto p-4">
-    <header class="mb-4 pt-2"><h1 class="text-2xl font-black text-gray-900">Messages</h1></header>
+    <header class="mb-4 pt-2"><h1 class="text-2xl font-black text-white">Messages</h1></header>
     <div id="chat-channels-container" class="space-y-2"></div>
   </div>
 
   <!-- ================= 6. LIVE CHAT CONVERSATION WINDOW ================= -->
-  <div id="chat-window-screen" class="hidden fixed inset-0 bg-gray-50 z-50 flex flex-col max-w-md mx-auto">
-    <header class="bg-white border-b border-gray-200 p-3 flex items-center gap-3 shadow-sm">
-      <button id="btn-back-to-chats" class="text-gray-600 font-bold px-2 py-1">←</button>
+  <div id="chat-window-screen" class="hidden fixed inset-0 bg-zinc-900 z-50 flex flex-col max-w-md mx-auto">
+    <header class="bg-zinc-800 border-b border-zinc-700 p-3 flex items-center gap-3 shadow-md">
+      <button id="btn-back-to-chats" class="text-gray-400 font-bold px-2 py-1 text-lg">←</button>
       <div class="relative">
-        <img id="chat-window-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-gray-200 clickable-pic cursor-pointer" />
-        <span id="chat-presence-indicator" class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-gray-400 border-2 border-white rounded-full"></span>
+        <img id="chat-window-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-zinc-700 clickable-pic cursor-pointer" />
+        <span id="chat-presence-indicator" class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-gray-500 border-2 border-zinc-800 rounded-full"></span>
       </div>
       <div class="flex-1">
-        <h2 id="chat-window-name" class="font-bold text-sm text-gray-900 leading-tight">Loading...</h2>
+        <h2 id="chat-window-name" class="font-bold text-sm text-white leading-tight">Loading...</h2>
         <span id="chat-window-presence-text" class="text-[10px] text-gray-400 block font-normal">Offline</span>
       </div>
-      <button id="btn-chat-book-service" class="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">Book Service</button>
+      <button id="btn-chat-book-service" class="bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-sm active:scale-95">Book Home Service</button>
     </header>
 
-    <div id="chat-messages-box" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+    <div id="chat-messages-box" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"></div>
 
-    <!-- Standard HTML Form Wrap to Force Mobile Keyboard Activation Pop-up -->
-    <form id="chat-input-form" class="bg-white border-t border-gray-200 p-3 flex items-center gap-2" onsubmit="event.preventDefault();">
-      <label class="bg-gray-100 p-2.5 rounded-xl cursor-pointer text-center text-sm hover:bg-gray-200 transition">
+    <form id="chat-input-form" class="bg-zinc-800 border-t border-zinc-700 p-3 flex items-center gap-2" onsubmit="event.preventDefault();">
+      <label class="bg-zinc-700 p-2.5 rounded-xl cursor-pointer text-center text-sm hover:bg-zinc-600 transition">
         📸<input type="file" id="chat-image-input" accept="image/*" class="hidden" />
       </label>
-      <input type="text" id="chat-message-input" placeholder="Type your message here..." class="flex-1 p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm text-gray-900" />
-      <button type="submit" id="btn-send-message" class="bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow">Send</button>
+      <input type="text" id="chat-message-input" placeholder="Type your message here..." class="flex-1 p-2.5 bg-zinc-900 border border-zinc-700 rounded-xl focus:outline-none focus:border-amber-500 text-sm text-white" />
+      <button type="submit" id="btn-send-message" class="bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow active:scale-95">Send</button>
     </form>
   </div>
 
   <!-- ================= 7. USER PROFILE & EDIT DASHBOARD ================= -->
   <div id="dashboard-screen" class="hidden max-w-md mx-auto p-4">
     <header class="flex justify-between items-center mb-4 pt-2">
-      <h1 class="text-2xl font-black text-gray-900">My Profile</h1>
-      <button id="btn-save-profile" class="bg-amber-600 text-white font-bold px-5 py-2 rounded-xl text-sm shadow-md hover:bg-amber-700 transition">Save Profile</button>
+      <h1 class="text-2xl font-black text-white">My Profile</h1>
+      <button id="btn-save-profile" class="bg-amber-600 text-white font-bold px-5 py-2 rounded-xl text-sm shadow-md hover:bg-amber-700 transition active:scale-95">Save Profile</button>
     </header>
 
     <form id="profile-form" class="space-y-4" onsubmit="event.preventDefault();">
-      <!-- TikTok Metrics Tracker Data Display Widget Card -->
-      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex justify-around text-center py-5">
+      <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm flex justify-around text-center py-5">
         <div>
-          <span id="my-followers-count" class="block font-black text-lg text-gray-900">0</span>
+          <span id="my-followers-count" class="block font-black text-lg text-amber-500">0</span>
           <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Followers</span>
         </div>
-        <div class="border-r border-gray-100"></div>
+        <div class="border-r border-zinc-700"></div>
         <div>
-          <span id="my-following-count" class="block font-black text-lg text-gray-900">0</span>
+          <span id="my-following-count" class="block font-black text-lg text-amber-500">0</span>
           <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Following</span>
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-4">
-        <h3 class="text-xs font-black uppercase text-gray-400 tracking-wider">Primary Account Details</h3>
+      <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm space-y-4">
+        <h3 class="text-xs font-black uppercase text-amber-500 tracking-wider">Primary Account Details</h3>
         <div class="flex items-center gap-4">
           <div class="relative">
-            <img id="dashboard-avatar-preview" src="https://via.placeholder.com/150" class="w-20 h-20 rounded-xl object-cover border border-gray-200 clickable-pic cursor-pointer" />
-            <label class="absolute -bottom-1 -right-1 bg-amber-600 text-white p-1 rounded-full text-xs cursor-pointer shadow-md">
+            <img id="dashboard-avatar-preview" src="https://via.placeholder.com/150" class="w-20 h-20 rounded-xl object-cover border border-zinc-700 clickable-pic cursor-pointer" />
+            <label class="absolute -bottom-1 -right-1 bg-amber-600 text-white p-1.5 rounded-full text-xs cursor-pointer shadow-md">
               ✏️<input type="file" id="avatar-file-input" accept="image/*" class="hidden" />
             </label>
           </div>
           <div class="flex-1">
-            <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Full Name / Display Title</label>
-            <input type="text" id="input-display-name" placeholder="Your name or business brand" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none text-sm" />
+            <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Full Name / Brand Title</label>
+            <input type="text" id="input-display-name" placeholder="Your name or business brand" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:border-amber-500 text-sm text-white" />
           </div>
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-3">
+      <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm space-y-3">
         <div>
           <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Phone Number</label>
-          <input type="tel" id="input-phone" placeholder="e.g. +233 50 123 4567" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm">
+          <input type="tel" id="input-phone" placeholder="e.g. +233 50 123 4567" class="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-xl focus:outline-none focus:border-amber-500 text-sm text-white">
         </div>
         <div>
           <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Location in Ghana</label>
-          <input type="text" id="input-location" placeholder="e.g. Accra, East Legon" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm">
+          <input type="text" id="input-location" placeholder="e.g. Accra, East Legon" class="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-xl focus:outline-none focus:border-amber-500 text-sm text-white">
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-        <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-2">Accommodation Facility Status</label>
+      <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm">
+        <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-2">Accommodation / Shop Facility Setup</label>
         <div class="flex gap-3">
-          <label class="flex-1 flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold transition select-none" id="label-acc-yes">
+          <label class="flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none" id="label-acc-yes">
             <input type="radio" name="accommodation" value="yes" id="acc-yes" class="hidden" />
             <span>🏡 Available</span>
           </label>
-          <label class="flex-1 flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold transition select-none" id="label-acc-no">
+          <label class="flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none" id="label-acc-no">
             <input type="radio" name="accommodation" value="no" id="acc-no" class="hidden" checked />
             <span>✖ Not Available</span>
           </label>
@@ -171,13 +169,13 @@
 
       <div id="dynamic-fields" class="space-y-4"></div>
 
-      <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-        <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Upload Work / Shop Photos</label>
+      <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm">
+        <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Upload Work / Salon Photos</label>
         <div class="flex items-center justify-center w-full mt-1">
-          <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition relative">
+          <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-zinc-700 border-dashed rounded-xl cursor-pointer bg-zinc-900 hover:bg-zinc-800 transition relative">
             <div class="flex flex-col items-center justify-center pt-4 pb-4 text-center px-2">
               <span class="text-xl mb-1">📸</span>
-              <p class="text-xs text-gray-500 font-bold">Tap to add portfolio images</p>
+              <p class="text-xs text-gray-400 font-bold">Tap to add portfolio images</p>
             </div>
             <input type="file" id="portfolio-file-input" accept="image/*" class="hidden" />
           </label>
@@ -187,40 +185,36 @@
     </form>
   </div>
 
-  <!-- ================= 8. NEW CONTENT UPLOAD & LIVE MODALS SYSTEM ================= -->
-  <!-- Create TikTok Video Post Modal Overlay -->
-  <div id="social-post-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4">
-      <h3 class="font-bold text-lg">Create Creative Post</h3>
-      <input type="text" id="input-post-caption" placeholder="Write a description or hashtag..." class="w-full p-2.5 border border-gray-200 rounded-xl text-sm text-gray-900" />
-      <input type="text" id="input-post-sound" placeholder="Add sound track name (e.g., Shatta Wale)" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm text-gray-900" />
+  <!-- ================= 8. SYSTEM POST/LIVE MODALS ================= -->
+  <div id="social-post-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-800 w-full max-w-sm rounded-2xl p-5 space-y-4 border border-zinc-700 text-white">
+      <h3 class="font-bold text-lg text-amber-500">Create Creative Loop</h3>
+      <input type="text" id="input-post-caption" placeholder="Write a description or hashtag..." class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none" />
+      <input type="text" id="input-post-sound" placeholder="Add sound track name (e.g., King Promise)" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none" />
       
-      <!-- Content Visibility Audience Privacy Engine Switch Container -->
       <div>
         <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Who can view this post</label>
-        <select id="select-post-privacy" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700">
-          <option value="public" selected>🌎 Public (Everyone can discover & go viral)</option>
+        <select id="select-post-privacy" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-sm font-bold text-gray-300 focus:outline-none">
+          <option value="public" selected>🌎 Public (Discovery Feed)</option>
           <option value="followers">👥 Followers Only</option>
           <option value="private">🔒 Private (Only Me)</option>
         </select>
       </div>
 
-      <label class="block border-2 border-dashed p-4 text-center rounded-xl cursor-pointer bg-gray-50 text-xs font-bold text-gray-600">
-        📸 Mobile Photo or Video Clip Upload
+      <label class="block border-2 border-zinc-700 border-dashed p-4 text-center rounded-xl cursor-pointer bg-zinc-900 text-xs font-bold text-gray-400">
+        📸 Attach Photo or Video Asset
         <input type="file" id="input-post-file" accept="image/*,video/*" class="hidden" />
       </label>
-      <div id="upload-progress-log" class="text-xs text-amber-600 font-bold hidden">Compressing and processing assets...</div>
+      <div id="upload-progress-log" class="text-xs text-amber-500 font-bold hidden">Processing media parameters...</div>
       
       <div class="flex gap-2">
-        <button id="btn-close-post-modal" class="flex-1 bg-gray-200 text-sm py-2 rounded-xl">Cancel</button>
-        <button id="btn-submit-social-post" class="flex-1 bg-amber-600 text-white text-sm py-2 rounded-xl font-bold">Publish Post</button>
+        <button id="btn-close-post-modal" class="flex-1 bg-zinc-700 text-sm py-2 rounded-xl">Cancel</button>
+        <button id="btn-submit-social-post" class="flex-1 bg-amber-600 text-white text-sm py-2 rounded-xl font-bold">Publish</button>
       </div>
     </div>
   </div>
 
-  <!-- Real WebRTC Viewfinder Lens & Live Broadcaster Simulated Chat Sheet Overlay -->
   <div id="social-live-modal" class="hidden fixed inset-0 bg-black z-[60] flex flex-col justify-between p-4 text-white">
-    <!-- Full-screen Live Video Element Hardware Camera Track Receiver -->
     <video id="live-video-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover z-0 bg-zinc-950"></video>
     <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none z-10"></div>
 
@@ -232,14 +226,11 @@
       <button id="btn-close-live" class="text-white font-black text-xs bg-red-600 px-3 py-2 rounded-full shadow-lg">✕ Stop Stream</button>
     </div>
 
-    <!-- Active Stream View Info Banner Overlays -->
     <div class="mt-auto space-y-3 relative z-20">
       <div class="bg-black/40 p-3 rounded-xl text-xs space-y-1.5 max-h-40 overflow-y-auto no-scrollbar" id="live-chat-simulation">
-        <p class="text-amber-400 font-bold">⚡ Stream System Connected.</p>
-        <p class="opacity-70">Camera feed broadcasting across Ghana feed channel lists.</p>
+        <p class="text-amber-500 font-bold">⚡ Stream System Connected.</p>
       </div>
 
-      <!-- Live Messaging Input Form Container Block -->
       <form id="live-chat-input-form" class="flex gap-2" onsubmit="event.preventDefault();">
         <input type="text" id="live-chat-message-input" placeholder="Comment on live..." class="flex-1 p-2.5 bg-black/60 border border-white/20 rounded-xl focus:outline-none text-sm text-white backdrop-blur-md" />
         <button type="submit" class="bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow">Send</button>
@@ -247,73 +238,72 @@
     </div>
   </div>
 
-  <!-- ================= 9. INTERACTIVE PROFILE POPUP MODAL SHEET ================= -->
-  <div id="profile-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-end justify-center p-0">
-    <div class="bg-white w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto p-6 animate-slide-up shadow-2xl relative no-scrollbar">
-      <button id="btn-close-modal" class="absolute top-4 right-4 bg-gray-100 text-gray-700 font-bold p-2 h-8 w-8 rounded-full flex items-center justify-center text-xs">✕</button>
+  <!-- ================= 9. INTERACTIVE DETAILS POPUP MODAL ================= -->
+  <div id="profile-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-end justify-center p-0">
+    <div class="bg-zinc-800 w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto p-6 animate-slide-up shadow-2xl relative border-t border-zinc-700 no-scrollbar text-white">
+      <button id="btn-close-modal" class="absolute top-4 right-4 bg-zinc-700 text-gray-300 font-bold p-2 h-8 w-8 rounded-full flex items-center justify-center text-xs">✕</button>
       
       <div class="flex gap-4 items-center mb-4 mt-2">
-        <img id="modal-img" src="https://via.placeholder.com/150" class="w-16 h-16 rounded-xl object-cover bg-gray-50 border border-gray-100 clickable-pic cursor-pointer" />
+        <img id="modal-img" src="https://via.placeholder.com/150" class="w-16 h-16 rounded-xl object-cover bg-zinc-900 border border-zinc-700 clickable-pic cursor-pointer" />
         <div>
-          <h2 id="modal-title" class="text-xl font-black text-gray-900 leading-tight">Display Title</h2>
-          <p id="modal-location" class="text-xs font-bold text-amber-600 mt-0.5">📍 Location Field</p>
+          <h2 id="modal-title" class="text-xl font-black text-white leading-tight">Display Title</h2>
+          <p id="modal-location" class="text-xs font-bold text-amber-500 mt-0.5">📍 Location Field</p>
           <div class="flex flex-wrap gap-1.5 mt-2">
-            <span id="modal-badge" class="inline-block bg-amber-50 text-amber-700 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider">Role</span>
+            <span id="modal-badge" class="inline-block bg-amber-950 text-amber-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider">Role</span>
             <span id="modal-accommodation-badge" class="inline-block text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider">🏡 Accommodation</span>
           </div>
         </div>
       </div>
 
-      <!-- TikTok Engagement Stats Card Vector Bar -->
-      <div class="bg-gray-50 p-3 rounded-xl flex justify-around text-center border my-2.5">
+      <div class="bg-zinc-900 p-3 rounded-xl flex justify-around text-center border border-zinc-700 my-2.5">
         <div>
-          <span id="modal-followers-count" class="block font-black text-sm text-gray-900">0</span>
+          <span id="modal-followers-count" class="block font-black text-sm text-amber-500">0</span>
           <span class="text-[9px] text-gray-400 font-bold uppercase">Followers</span>
         </div>
-        <div class="border-r border-gray-200"></div>
+        <div class="border-r border-zinc-700"></div>
         <div>
-          <span id="modal-following-count" class="block font-black text-sm text-gray-900">0</span>
+          <span id="modal-following-count" class="block font-black text-sm text-amber-500">0</span>
           <span class="text-[9px] text-gray-400 font-bold uppercase">Following</span>
         </div>
       </div>
 
       <div class="flex gap-2 my-2 w-full">
-        <button id="btn-modal-follow" class="w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-sm">Follow User</button>
+        <button id="btn-modal-follow" class="w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-sm active:scale-95">Follow User</button>
       </div>
 
-      <hr class="border-gray-100 my-4" />
-      <div id="modal-details" class="grid grid-cols-1 gap-2.5 text-sm"></div>
+      <hr class="border-zinc-700 my-4" />
+      <div id="modal-details" class="grid grid-cols-1 gap-2.5 text-sm text-gray-300"></div>
 
-      <hr class="border-gray-100 my-4" />
+      <hr class="border-zinc-700 my-4" />
       <div class="space-y-3">
-        <h3 class="text-[11px] font-black uppercase text-gray-400 tracking-wider">Portfolio Gallery</h3>
+        <h3 class="text-[11px] font-black uppercase text-amber-500 tracking-wider">Portfolio Gallery</h3>
         <div id="modal-gallery" class="grid grid-cols-3 gap-2"></div>
         <p id="gallery-empty-msg" class="text-xs text-gray-400 italic py-1 hidden">No photos uploaded yet.</p>
       </div>
 
       <div class="mt-6 flex flex-col gap-2">
-        <button id="modal-chat-action" class="w-full bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-amber-700 transition flex items-center justify-center gap-2 text-sm">
-          <span>💬 Start Instant Application Chat</span>
+        <button id="modal-chat-action" class="w-full bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-amber-700 transition flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+          <span>💬 Start Conversation Chat</span>
         </button>
-        <button id="modal-book-service-action" class="w-full bg-amber-700 text-white font-bold py-3 px-4 rounded-xl text-xs hover:bg-amber-800 transition">
+        <button id="modal-book-service-action" class="w-full bg-amber-700 text-white font-bold py-3 px-4 rounded-xl text-xs hover:bg-amber-800 transition active:scale-[0.98]">
           ⚡ Book Direct Home Service
         </button>
-        <a id="modal-call-action" href="tel:" class="w-full bg-gray-100 text-gray-800 font-bold py-3 px-4 rounded-xl text-center text-xs hover:bg-gray-200 transition">
+        <a id="modal-call-action" href="tel:" class="w-full bg-zinc-700 text-gray-200 font-bold py-3 px-4 rounded-xl text-center text-xs hover:bg-zinc-600 transition active:scale-[0.98]">
           📞 Direct Phone Call
         </a>
       </div>
     </div>
   </div>
 
-  <!-- ================= 10. FULLSCREEN CRYSTAL CLEAR IMAGE PREVIEWER OVERLAY ================= -->
+  <!-- ================= 10. LIGHTBOX PREVIEW OVERLAY ================= -->
   <div id="lightbox-overlay" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col justify-center items-center p-4">
     <button id="btn-close-lightbox" class="absolute top-6 right-6 text-white text-2xl font-bold bg-white/10 h-12 w-12 rounded-full flex items-center justify-center">✕</button>
     <img id="lightbox-target-image" src="" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl" />
   </div>
 
-  <!-- ================= BOTTOM APPMENU SELECTION NAVIGATION FOOTER BAR ================= -->
-  <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 flex justify-around max-w-md mx-auto shadow-xl z-50">
-    <button id="nav-feed" class="flex flex-col items-center text-amber-600 font-bold text-[11px] w-1/4 gap-0.5">
+  <!-- ================= BOTTOM NAVIGATION FOOTER BAR ================= -->
+  <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-700 py-2 flex justify-around max-w-md mx-auto shadow-xl z-50">
+    <button id="nav-feed" class="flex flex-col items-center text-amber-500 font-bold text-[11px] w-1/4 gap-0.5">
       <span class="text-lg">📋</span><span>Market Feed</span>
     </button>
     <button id="nav-social" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5">
@@ -328,7 +318,7 @@
     </button>
   </nav>
 
-  <!-- ================= BACKEND MODULE LOGIC INTERACTION SCRIPTS ================= -->
+  <!-- ================= LOGIC MODULE IMPLEMENTATION ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -348,7 +338,7 @@
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
 
-    // DOM Target Screen Interfaces
+    // DOM Navigation Targets
     const authScreen = document.getElementById('auth-screen');
     const roleScreen = document.getElementById('role-screen');
     const mainApp = document.getElementById('main-app');
@@ -358,7 +348,6 @@
     const dashboardScreen = document.getElementById('dashboard-screen');
     const bottomNav = document.getElementById('bottom-nav');
     
-    // Interactive Form Node Values
     const feedContainer = document.getElementById('feed-container');
     const socialVideoContainer = document.getElementById('social-video-container');
     const dynamicFields = document.getElementById('dynamic-fields');
@@ -366,20 +355,17 @@
     const chatMessagesBox = document.getElementById('chat-messages-box');
     const badgeUnreadMsg = document.getElementById('badge-unread-msg');
 
-    // Bottom Links Navigation Control Elements
     const navFeed = document.getElementById('nav-feed');
     const navSocial = document.getElementById('nav-social');
     const navChats = document.getElementById('nav-chats');
     const navDash = document.getElementById('nav-dash');
 
-    // Profile Management Variables
     const dashboardAvatarPreview = document.getElementById('dashboard-avatar-preview');
     const avatarFileInput = document.getElementById('avatar-file-input');
     const inputDisplayName = document.getElementById('input-display-name');
     const portfolioFileInput = document.getElementById('portfolio-file-input');
     const dashboardGalleryPreview = document.getElementById('dashboard-gallery-preview');
 
-    // Modals Overlays Nodes
     const socialPostModal = document.getElementById('social-post-modal');
     const socialLiveModal = document.getElementById('social-live-modal');
     const liveVideoPreview = document.getElementById('live-video-preview');
@@ -401,7 +387,7 @@
     const modalBookServiceAction = document.getElementById('modal-book-service-action');
     const modalCallAction = document.getElementById('modal-call-action');
 
-    // Internal State Machine Configuration
+    // App Session State
     let currentUser = null;
     let userProfileData = null;
     let currentTab = 'barber';
@@ -414,7 +400,7 @@
     let presenceHeartbeatInterval = null;
     let localStreamTrackReference = null;
 
-    // Monitor State Loop Changes
+    // Authentication Listener Engine
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
@@ -442,7 +428,7 @@
       }
     });
 
-    // Device Presence Engine Real-Time Dynamic Synchronization
+    // Real-Time System Offline/Online Status Synchronizer
     async function startPresenceHeartbeat() {
       if (!currentUser) return;
       const updatePresence = async () => {
@@ -451,7 +437,8 @@
         }, { merge: true });
       };
       await updatePresence();
-      presenceHeartbeatInterval = setInterval(updatePresence, 20000);
+      if (presenceHeartbeatInterval) clearInterval(presenceHeartbeatInterval);
+      presenceHeartbeatInterval = setInterval(updatePresence, 45000); // 45s interval optimizes mobile battery consumption
     }
 
     async function stopPresenceHeartbeat() {
@@ -463,7 +450,7 @@
       }
     }
 
-    // Dynamic Context View Routing Manager
+    // Single-Page View Engine Director
     function showScreen(screen) {
       authScreen.classList.add('hidden');
       roleScreen.classList.add('hidden');
@@ -484,29 +471,26 @@
 
     function setActiveNav(active) {
       [navFeed, navSocial, navChats, navDash].forEach(btn => { 
-        btn.classList.remove('text-amber-600', 'font-bold'); 
+        btn.classList.remove('text-amber-500', 'font-bold'); 
         btn.classList.add('text-gray-400', 'font-medium'); 
       });
-      if (active === 'feed') { navFeed.classList.add('text-amber-600', 'font-bold'); navFeed.classList.remove('text-gray-400'); }
-      if (active === 'social') { navSocial.classList.add('text-amber-600', 'font-bold'); navSocial.classList.remove('text-gray-400'); }
-      if (active === 'chats') { navChats.classList.add('text-amber-600', 'font-bold'); navChats.classList.remove('text-gray-400'); }
-      if (active === 'dash') { navDash.classList.add('text-amber-600', 'font-bold'); navDash.classList.remove('text-gray-400'); }
+      if (active === 'feed') { navFeed.classList.add('text-amber-500', 'font-bold'); navFeed.classList.remove('text-gray-400'); }
+      if (active === 'social') { navSocial.classList.add('text-amber-500', 'font-bold'); navSocial.classList.remove('text-gray-400'); }
+      if (active === 'chats') { navChats.classList.add('text-amber-500', 'font-bold'); navChats.classList.remove('text-gray-400'); }
+      if (active === 'dash') { navDash.classList.add('text-amber-500', 'font-bold'); navDash.classList.remove('text-gray-400'); }
     }
 
-    // Universal Dual Touch Event Target Wrapper for Fast Processing Response
+    // Touch Event Target Wrappers for Instant Mobile Interaction Response
     function bindFastClick(elementNode, actionCallback) {
       if (!elementNode) return;
       elementNode.addEventListener('click', (e) => { e.preventDefault(); actionCallback(e); });
-      elementNode.addEventListener('touchend', (e) => { e.preventDefault(); actionCallback(e); });
     }
 
-    // Mobile App Nav Navigation Tab Controllers Configuration Rules
     bindFastClick(navFeed, () => { showScreen('app'); loadFeed(); });
     bindFastClick(navSocial, () => { showScreen('social'); loadSocialFeed(); });
     bindFastClick(navChats, () => { showScreen('chats'); loadChatChannels(); });
     bindFastClick(navDash, () => { showScreen('dashboard'); populateDashboard(); });
 
-    // Core Auth Setup Click Wireframe Listeners
     bindFastClick(document.getElementById('btn-login'), () => signInWithPopup(auth, googleProvider));
     bindFastClick(document.getElementById('btn-logout'), () => { stopPresenceHeartbeat(); signOut(auth); });
     bindFastClick(document.getElementById('choose-barber'), () => assignRole('barber'));
@@ -516,9 +500,9 @@
       if (!currentUser) return;
       const freshProfile = {
         uid: currentUser.uid,
-        name: currentUser.displayName,
+        name: currentUser.displayName || "Anonymous Professional",
         email: currentUser.email,
-        profilePic: currentUser.photoURL,
+        profilePic: currentUser.photoURL || "",
         role: roleName,
         accommodation: "no",
         portfolioImages: [],
@@ -534,7 +518,7 @@
       loadFeed();
     }
 
-    // Unread Channel Real-Time Notification Badge Computation Loop
+    // Dynamic Navigation Unread Messages Totalizer
     function listenToGlobalUnreadMessages() {
       if (!currentUser) return;
       onSnapshot(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)), (snapshot) => {
@@ -553,7 +537,7 @@
       });
     }
 
-    // Image Click Handler for Fullscreen Lightbox Preview Overlay
+    // Lightbox Modal Visual Layout Controllers
     document.addEventListener('click', (e) => {
       if (e.target && e.target.classList.contains('clickable-pic')) {
         const sourceUrl = e.target.getAttribute('src');
@@ -565,7 +549,7 @@
     });
     bindFastClick(document.getElementById('btn-close-lightbox'), () => lightboxOverlay.classList.add('hidden'));
 
-    // Mobile Compression Function for Safe Local Image Processing
+    // Image Compression Helper
     function compressImage(file, maxWidth = 600, quality = 0.5) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -580,14 +564,13 @@
             canvas.width = width; canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
+            resolve(canvas.toToDataURL ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/jpeg'));
           };
         };
         reader.onerror = (err) => reject(err);
       });
     }
 
-    // Input Change File Upload Asset Readers
     avatarFileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0]; if (!file) return;
       base64AvatarUrl = await compressImage(file, 300, 0.6);
@@ -596,7 +579,7 @@
 
     portfolioFileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0]; if (!file) return;
-      const compressedString = await compressImage(file, 600, 0.5);
+      const compressedString = await compressImage(file, 500, 0.5);
       temporaryPortfolioUrls.push(compressedString);
       renderDashboardGalleryPreview();
     });
@@ -607,8 +590,8 @@
         const wrapper = document.createElement('div');
         wrapper.className = "relative h-16 w-full";
         wrapper.innerHTML = `
-          <img src="${url}" class="w-full h-full object-cover rounded-lg border clickable-pic cursor-pointer" />
-          <button type="button" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center">✕</button>
+          <img src="${url}" class="w-full h-full object-cover rounded-lg border border-zinc-700 clickable-pic cursor-pointer" />
+          <button type="button" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold">✕</button>
         `;
         wrapper.querySelector('button').addEventListener('click', () => { temporaryPortfolioUrls.splice(idx, 1); renderDashboardGalleryPreview(); });
         dashboardGalleryPreview.appendChild(wrapper);
@@ -617,12 +600,8 @@
 
     async function populateDashboard() {
       if (!userProfileData) return;
-      
-      // Update local profile stats from dynamic source counters
       const freshSnap = await getDoc(doc(db, "users", currentUser.uid));
-      if(freshSnap.exists()){
-        userProfileData = freshSnap.data();
-      }
+      if(freshSnap.exists()) userProfileData = freshSnap.data();
 
       document.getElementById('my-followers-count').textContent = userProfileData.followersCount || 0;
       document.getElementById('my-following-count').textContent = userProfileData.followingCount || 0;
@@ -630,19 +609,39 @@
       document.getElementById('input-phone').value = userProfileData.phone || "";
       document.getElementById('input-location').value = userProfileData.location || "";
       
+      if (userProfileData.accommodation === "yes") {
+        document.getElementById('acc-yes').checked = true;
+        document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
+        document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
+      } else {
+        document.getElementById('acc-no').checked = true;
+        document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
+        document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
+      }
+
       if (userProfileData.role === 'barber') {
         dynamicFields.innerHTML = `
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Years Experience</label><input type="number" id="input-experience" value="${userProfileData.experienceYears || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900"></div>
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Payment Target</label><input type="text" id="input-payment" value="${userProfileData.preferredPayment || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900"></div>
+          <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Years Experience</label><input type="number" id="input-experience" value="${userProfileData.experienceYears || ''}" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"></div>
+          <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Preferred Pay Rate / Model</label><input type="text" id="input-payment" value="${userProfileData.preferredPayment || ''}" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"></div>
         `;
       } else {
         dynamicFields.innerHTML = `
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Shop / Studio Branding Name</label><input type="text" id="input-shopname" value="${userProfileData.shopName || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900"></div>
+          <div class="bg-zinc-800 p-4 rounded-xl border border-zinc-700 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Shop / Studio Branding Name</label><input type="text" id="input-shopname" value="${userProfileData.shopName || ''}" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"></div>
         `;
       }
       dashboardAvatarPreview.src = base64AvatarUrl;
       renderDashboardGalleryPreview();
     }
+
+    // Accommodation Configuration UI Selection Rules
+    document.getElementById('acc-yes').addEventListener('change', () => {
+      document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
+      document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
+    });
+    document.getElementById('acc-no').addEventListener('change', () => {
+      document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
+      document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
+    });
 
     bindFastClick(document.getElementById('btn-save-profile'), async () => {
       const payload = {
@@ -661,26 +660,32 @@
       }
       await setDoc(doc(db, "users", currentUser.uid), payload, { merge: true });
       userProfileData = { ...userProfileData, ...payload };
-      alert("Profile updates saved successfully.");
+      alert("Profile updates successfully updated.");
     });
 
-    // Marketplace Feed Renderer
+    // Marketplace Feed Core Renderer Matrix
     async function loadFeed() {
-      feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">Polling database channels...</p>`;
+      feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">Polling marketplace channels...</p>`;
       const snapshot = await getDocs(query(collection(db, "users"), where("role", "==", currentTab)));
       feedContainer.innerHTML = "";
+      
+      if(snapshot.empty) {
+        feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">No active accounts listed in this category yet.</p>`;
+        return;
+      }
+
       snapshot.forEach(docSnap => {
         const item = docSnap.data();
         if (item.uid === currentUser.uid) return;
         const card = document.createElement('div');
-        card.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4 items-start";
+        card.className = "bg-zinc-800 p-4 rounded-xl shadow-sm border border-zinc-700 flex gap-4 items-start";
         const title = item.role === 'owner' && item.shopName ? item.shopName : item.name;
         card.innerHTML = `
-          <img src="${item.profilePic || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 clickable-pic cursor-pointer" />
+          <img src="${item.profilePic || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover border border-zinc-700 clickable-pic cursor-pointer" />
           <div class="flex-1">
-            <h3 class="font-bold text-sm text-gray-900">${title}</h3>
-            <p class="text-[11px] text-gray-500">📍 ${item.location || 'Ghana'}</p>
-            <button class="btn-view-profile w-full mt-3 bg-gray-50 text-gray-700 text-xs font-bold py-2 rounded-lg border border-gray-200">View Details</button>
+            <h3 class="font-bold text-sm text-white">${title}</h3>
+            <p class="text-[11px] text-gray-400 mt-0.5">📍 ${item.location || 'Ghana'}</p>
+            <button class="btn-view-profile w-full mt-3 bg-zinc-900 text-amber-500 text-xs font-bold py-2 rounded-lg border border-zinc-700 active:scale-95 transition">View Profile Details</button>
           </div>
         `;
         bindFastClick(card.querySelector('.btn-view-profile'), () => openProfileDetails(item));
@@ -688,9 +693,8 @@
       });
     }
 
-    // Dynamic Profile Details Dialog Overlay Logic Builder
+    // Dynamic Context Profile View Builder Modals
     async function openProfileDetails(userObj) {
-      // Synchronize latest counts via fresh single transaction query fetch
       const currentSnapshot = await getDoc(doc(db, "users", userObj.uid));
       let reactiveData = userObj;
       if(currentSnapshot.exists()) reactiveData = currentSnapshot.data();
@@ -700,53 +704,81 @@
       modalLocation.textContent = `📍 ${reactiveData.location || 'Location Unset'}`;
       modalBadge.textContent = reactiveData.role === 'barber' ? 'Barber' : 'Shop Owner';
       
+      if (reactiveData.accommodation === "yes") {
+        modalAccommodationBadge.textContent = "🏡 Setup Ready";
+        modalAccommodationBadge.className = "inline-block bg-emerald-950 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider";
+      } else {
+        modalAccommodationBadge.textContent = "✖ No Setup Space";
+        modalAccommodationBadge.className = "inline-block bg-zinc-900 text-gray-400 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider";
+      }
+
+      modalDetails.innerHTML = "";
+      if (reactiveData.role === 'barber') {
+        modalDetails.innerHTML = `
+          <div><span class="text-gray-400 text-xs block font-bold uppercase">Experience Level</span><p class="text-white font-medium">${reactiveData.experienceYears || '0'} Years Pro</p></div>
+          <div><span class="text-gray-400 text-xs block font-bold uppercase">Payment Rates</span><p class="text-white font-medium">${reactiveData.preferredPayment || 'Flexible Negotiable'}</p></div>
+        `;
+      } else {
+        modalDetails.innerHTML = `
+          <div><span class="text-gray-400 text-xs block font-bold uppercase">Operating Brand / Workspace</span><p class="text-white font-medium">${reactiveData.shopName || 'Private Provider Setup'}</p></div>
+        `;
+      }
+
       document.getElementById('modal-followers-count').textContent = reactiveData.followersCount || 0;
       document.getElementById('modal-following-count').textContent = reactiveData.followingCount || 0;
 
-      const followingList = userProfileData.following || [];
+      let followingList = userProfileData.following || [];
       if(followingList.includes(reactiveData.uid)){
-        btnModalFollow.textContent = "Unfollow User";
-        btnModalFollow.className = "w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-xs";
+        btnModalFollow.textContent = "Unfollow User Loop";
+        btnModalFollow.className = "w-full bg-zinc-700 text-gray-300 font-bold py-3 rounded-xl text-xs";
       } else {
         btnModalFollow.textContent = "Follow on Creative Feed";
         btnModalFollow.className = "w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-sm";
       }
 
-      // Rebuilt transactional atomic follow mechanism to handle safe global increment updates
-      bindFastClick(btnModalFollow, async () => {
+      // Concurrency-Safe Follow Engine Transaction Matrix
+      btnModalFollow.onclick = async (e) => {
+        e.preventDefault();
         const myUid = currentUser.uid;
         const targetUid = reactiveData.uid;
-        let myFollowingList = userProfileData.following || [];
 
-        if(myFollowingList.includes(targetUid)){
-          // Unfollow workflow routine execution
-          myFollowingList = myFollowingList.filter(id => id !== targetUid);
-          await runTransaction(db, async (transaction) => {
-            transaction.update(doc(db, "users", myUid), { following: myFollowingList, followingCount: Math.max(0, (userProfileData.followingCount || 1) - 1) });
-            transaction.update(doc(db, "users", targetUid), { followersCount: Math.max(0, (reactiveData.followersCount || 1) - 1) });
-          });
-          alert("Unfollowed user successfully.");
-        } else {
-          // Follow workflow execution rule matrix
-          myFollowingList.push(targetUid);
-          await runTransaction(db, async (transaction) => {
-            transaction.update(doc(db, "users", myUid), { following: myFollowingList, followingCount: (userProfileData.followingCount || 0) + 1 });
-            transaction.update(doc(db, "users", targetUid), { followersCount: (reactiveData.followersCount || 0) + 1 });
-          });
-          alert("Following enabled! Content will show up under your Following tabs.");
-        }
+        await runTransaction(db, async (transaction) => {
+          const myUserSnap = await transaction.get(doc(db, "users", myUid));
+          const targetUserSnap = await transaction.get(doc(db, "users", targetUid));
 
-        userProfileData.following = myFollowingList;
+          if (!myUserSnap.exists() || !targetUserSnap.exists()) return;
+
+          let myFreshFollowing = myUserSnap.data().following || [];
+          let targetFreshFollowersCount = targetUserSnap.data().followersCount || 0;
+          let myFreshFollowingCount = myUserSnap.data().followingCount || 0;
+
+          if (myFreshFollowing.includes(targetUid)) {
+            myFreshFollowing = myFreshFollowing.filter(id => id !== targetUid);
+            targetFreshFollowersCount = Math.max(0, targetFreshFollowersCount - 1);
+            myFreshFollowingCount = Math.max(0, myFreshFollowingCount - 1);
+          } else {
+            myFreshFollowing.push(targetUid);
+            targetFreshFollowersCount += 1;
+            myFreshFollowingCount += 1;
+          }
+
+          transaction.update(doc(db, "users", myUid), { following: myFreshFollowing, followingCount: myFreshFollowingCount });
+          transaction.update(doc(db, "users", targetUid), { followersCount: targetFreshFollowersCount });
+          
+          userProfileData.following = myFreshFollowing;
+          userProfileData.followingCount = myFreshFollowingCount;
+        });
+
         profileModal.classList.add('hidden');
         loadFeed();
-      });
+      };
 
       modalGallery.innerHTML = "";
       if(reactiveData.portfolioImages && reactiveData.portfolioImages.length > 0) {
         galleryEmptyMsg.classList.add('hidden');
         reactiveData.portfolioImages.forEach(src => {
           const thumb = document.createElement('img');
-          thumb.src = src; thumb.className = "w-full h-20 object-cover rounded-lg border clickable-pic cursor-pointer";
+          thumb.src = src; thumb.className = "w-full h-20 object-cover rounded-lg border border-zinc-700 clickable-pic cursor-pointer";
           modalGallery.appendChild(thumb);
         });
       } else { galleryEmptyMsg.classList.remove('hidden'); }
@@ -757,8 +789,9 @@
 
       profileModal.classList.remove('hidden');
     }
+    bindFastClick(btnCloseModal, () => profileModal.classList.add('hidden'));
 
-    // TIKTOK CREATIVE SHORT VIDEO FEED IMPLEMENTATION
+    // TikTok Short Loop Social Action Implementation Matrix
     bindFastClick(document.getElementById('btn-social-post'), () => socialPostModal.classList.remove('hidden'));
     bindFastClick(document.getElementById('btn-close-post-modal'), () => socialPostModal.classList.add('hidden'));
     
@@ -767,15 +800,15 @@
       document.getElementById('upload-progress-log').classList.remove('hidden');
       base64PostMediaUrl = await compressImage(file, 600, 0.5);
       document.getElementById('upload-progress-log').classList.add('hidden');
-      alert("Media asset attached ready for publication.");
+      alert("Media attachment transaction ready.");
     });
 
     bindFastClick(document.getElementById('btn-submit-social-post'), async () => {
       const caption = document.getElementById('input-post-caption').value;
-      const sound = document.getElementById('input-post-sound').value || "Original Sound Track";
+      const sound = document.getElementById('input-post-sound').value || "Original Barber Sound Audio";
       const privacyScope = document.getElementById('select-post-privacy').value;
 
-      if(!base64PostMediaUrl) { alert("Please choose a work photo or media snap first."); return; }
+      if(!base64PostMediaUrl) { alert("Attach an image snap loop first."); return; }
       
       await addDoc(collection(db, "posts"), {
         uid: currentUser.uid,
@@ -797,10 +830,9 @@
       loadSocialFeed();
     });
 
-    // Native WebRTC Device Hardware Front Lens Camera Stream Trigger Implementation
+    // Native Camera Tracking Broadcaster Lens Module
     bindFastClick(document.getElementById('btn-social-live'), async () => {
       try {
-        // Access mobile front camera directly on viewport interface load execution
         localStreamTrackReference = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "user" },
           audio: true
@@ -808,8 +840,8 @@
         liveVideoPreview.srcObject = localStreamTrackReference;
         socialLiveModal.classList.remove('hidden');
       } catch (err) {
-        console.error("Camera engine hardware access failed: ", err);
-        alert("Unable to open hardware video lens. Verify site camera privileges inside settings.");
+        console.error("Hardware framework lock: ", err);
+        alert("Verify systemic camera access tracking configurations inside app device settings.");
       }
     });
 
@@ -820,7 +852,6 @@
       socialLiveModal.classList.add('hidden');
     });
 
-    // Live Simulated Feed Form Input Broadcaster Message Tracker Submitter
     document.getElementById('live-chat-input-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const inputField = document.getElementById('live-chat-message-input');
@@ -828,14 +859,12 @@
       if(!messageText) return;
 
       const chatLine = document.createElement('p');
-      chatLine.innerHTML = `<strong class="text-amber-400">@me:</strong> <span class="text-gray-100">${messageText}</span>`;
+      chatLine.innerHTML = `<strong class="text-amber-500">@me:</strong> <span class="text-zinc-300">${messageText}</span>`;
       liveChatSimulation.appendChild(chatLine);
       liveChatSimulation.scrollTop = liveChatSimulation.scrollHeight;
-      
       inputField.value = "";
     });
 
-    // Content Discovery Engine Loader Matrix
     async function loadSocialFeed() {
       socialVideoContainer.innerHTML = `<p class="text-white text-xs text-center my-12">Loading Creative Loops...</p>`;
       const snap = await getDocs(query(collection(db, "posts"), orderBy("timestamp", "desc")));
@@ -844,60 +873,49 @@
       let postsArray = [];
       snap.forEach(d => postsArray.push({ id: d.id, ...d.data() }));
 
-      // Privacy logic layer integration checks
       if(currentSocialTab === 'following') {
         const followingIds = userProfileData.following || [];
         postsArray = postsArray.filter(p => followingIds.includes(p.uid) && p.privacy !== 'private');
       } else {
-        // For You tab filters out strictly private content logs dynamically
         postsArray = postsArray.filter(p => p.privacy !== 'private');
       }
 
       if(postsArray.length === 0) {
-        socialVideoContainer.innerHTML = `<p class="text-gray-400 text-xs text-center my-12">No media loops found here.</p>`;
+        socialVideoContainer.innerHTML = `<p class="text-gray-400 text-xs text-center my-12">No loops published in this ecosystem.</p>`;
         return;
       }
 
       postsArray.forEach(post => {
-        // Increment post item atomic view counter loop state upon presentation layout load event
         const postDocRef = doc(db, "posts", post.id);
         const freshViewCount = (post.viewCount || 0) + 1;
         setDoc(postDocRef, { viewCount: freshViewCount }, { merge: true });
 
         const card = document.createElement('div');
-        card.className = "w-full video-card relative flex flex-col justify-end p-6 border-b border-gray-900/40 bg-zinc-950";
+        card.className = "w-full video-card relative flex flex-col justify-end p-6 border-b border-zinc-900 bg-zinc-950";
         card.innerHTML = `
-          <img src="${post.mediaUrl}" class="absolute inset-0 w-full h-full object-cover opacity-80 clickable-pic cursor-pointer" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
+          <img src="${post.mediaUrl}" class="absolute inset-0 w-full h-full object-cover opacity-75 clickable-pic cursor-pointer" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30 pointer-events-none"></div>
           
-          <!-- Right Sidebar Actions Layout Controls -->
           <div class="absolute right-4 bottom-24 flex flex-col items-center gap-5 z-20 text-white">
-            <div class="flex flex-col items-center btn-creator-avatar">
-              <img src="${post.avatar || 'https://via.placeholder.com/150'}" class="w-10 h-10 rounded-full border border-white object-cover cursor-pointer" />
-              <button class="bg-red-500 rounded-full w-4 h-4 text-[10px] -mt-2 flex items-center justify-center font-bold">+</button>
+            <div class="flex flex-col items-center btn-creator-avatar cursor-pointer">
+              <img src="${post.avatar || 'https://via.placeholder.com/150'}" class="w-10 h-10 rounded-full border border-amber-500 object-cover" />
             </div>
-            <button class="btn-like flex flex-col items-center text-xl">❤️ <span class="text-xs font-bold">${post.likes ? post.likes.length : 0}</span></button>
-            <button class="btn-comment flex flex-col items-center text-xl">💬 <span class="text-xs font-bold">${post.comments ? post.comments.length : 0}</span></button>
-            <div class="flex flex-col items-center text-[10px] opacity-90">👀 <span class="font-bold">${freshViewCount}</span></div>
+            <button class="btn-like flex flex-col items-center text-xl">❤️ <span class="text-xs font-bold mt-0.5">${post.likes ? post.likes.length : 0}</span></button>
+            <button class="btn-comment flex flex-col items-center text-xl">💬 <span class="text-xs font-bold mt-0.5">${post.comments ? post.comments.length : 0}</span></button>
+            <div class="flex flex-col items-center text-[10px] opacity-75">👀 <span class="font-bold">${freshViewCount}</span></div>
           </div>
 
-          <!-- Bottom Meta Text Overlay -->
           <div class="relative z-10 text-white space-y-1.5 max-w-[80%]">
-            <h4 class="font-bold text-sm">@${post.name || 'Creative User'}</h4>
+            <h4 class="font-bold text-sm text-amber-500">@${post.name || 'Creative Pro'}</h4>
             <p class="text-xs text-gray-200">${post.caption || ''}</p>
-            <div class="flex items-center gap-2 text-[11px] bg-black/30 w-fit px-2 py-1 rounded-full text-amber-400 font-semibold">
+            <div class="flex items-center gap-2 text-[11px] bg-black/40 border border-zinc-800 w-fit px-2.5 py-1 rounded-full text-amber-400 font-semibold">
               🎵 <span>${post.soundName || 'Original Audio'}</span>
             </div>
           </div>
         `;
 
-        // Profile Lens Touch Binding Links for For You / Following Sheets Feed
         const creatorBtn = card.querySelector('.btn-creator-avatar');
         creatorBtn.addEventListener('click', async () => {
-          const userSnap = await getDoc(doc(db, "users", post.uid));
-          if(userSnap.exists()) openProfileDetails(userSnap.data());
-        });
-        creatorBtn.addEventListener('touchend', async () => {
           const userSnap = await getDoc(doc(db, "users", post.uid));
           if(userSnap.exists()) openProfileDetails(userSnap.data());
         });
@@ -911,7 +929,7 @@
         });
 
         bindFastClick(card.querySelector('.btn-comment'), () => {
-          const commentTxt = prompt("Type your feed loop comment text:");
+          const commentTxt = prompt("Type your public loop comment:");
           if(!commentTxt) return;
           const currentComments = post.comments || [];
           currentComments.push({ name: userProfileData.name, text: commentTxt });
@@ -924,19 +942,19 @@
 
     bindFastClick(document.getElementById('social-tab-following'), () => {
       currentSocialTab = 'following';
-      document.getElementById('social-tab-following').className = "border-b-2 border-white pb-1 text-white";
+      document.getElementById('social-tab-following').className = "border-b-2 border-amber-500 pb-1 text-white";
       document.getElementById('social-tab-foryou').className = "opacity-60 text-white";
       loadSocialFeed();
     });
 
     bindFastClick(document.getElementById('social-tab-foryou'), () => {
       currentSocialTab = 'foryou';
-      document.getElementById('social-tab-foryou').className = "border-b-2 border-white pb-1 text-white";
+      document.getElementById('social-tab-foryou').className = "border-b-2 border-amber-500 pb-1 text-white";
       document.getElementById('social-tab-following').className = "opacity-60 text-white";
       loadSocialFeed();
     });
 
-    // Chat Window View Implementation Rules Management Flow
+    // Chat Conversation Interactivity Tunnel
     async function initChatTunnel(targetUid, targetUserObj, triggerAutoBooking = false) {
       const parts = [currentUser.uid, targetUid].sort();
       activeChatRoomId = `${parts[0]}_${parts[1]}`;
@@ -963,13 +981,13 @@
           const indicator = document.getElementById('chat-presence-indicator');
           const pText = document.getElementById('chat-window-presence-text');
           if (p.status === 'online') {
-            indicator.className = "absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full";
+            indicator.className = "absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-zinc-800 rounded-full";
             pText.textContent = "Online";
-            pText.className = "text-[10px] text-emerald-600 block font-bold";
+            pText.className = "text-[10px] text-emerald-500 block font-bold";
           } else {
-            indicator.className = "absolute bottom-0 right-0 w-2.5 h-2.5 bg-gray-400 border-2 border-white rounded-full";
+            indicator.className = "absolute bottom-0 right-0 w-2.5 h-2.5 bg-zinc-600 border-2 border-zinc-800 rounded-full";
             const timeStr = p.lastSeen ? new Date(p.lastSeen).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Offline';
-            pText.textContent = `Last seen at ${timeStr}`;
+            pText.textContent = `Last active ${timeStr}`;
             pText.className = "text-[10px] text-gray-400 block font-normal";
           }
         }
@@ -987,15 +1005,20 @@
           const isMe = m.senderId === currentUser.uid;
           bubble.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-2`;
           let contentHtml = `<p class="text-xs break-words">${m.text}</p>`;
-          if(m.image) contentHtml = `<img src="${m.image}" class="w-40 h-auto rounded-lg mb-1 object-cover clickable-pic cursor-pointer" />` + contentHtml;
-          bubble.innerHTML = `<div class="${isMe ? 'bg-amber-600 text-white rounded-xl' : 'bg-white text-gray-900 rounded-xl'} max-w-[75%] p-3 border">${contentHtml}</div>`;
+          if(m.image) contentHtml = `<img src="${m.image}" class="w-40 h-auto rounded-lg mb-1.5 object-cover clickable-pic cursor-pointer border border-zinc-700" />` + contentHtml;
+          bubble.innerHTML = `<div class="${isMe ? 'bg-amber-600 text-white rounded-2xl rounded-tr-none' : 'bg-zinc-800 text-gray-100 rounded-2xl rounded-tl-none'} max-w-[75%] p-3.5 border border-zinc-700/50 shadow-sm">${contentHtml}</div>`;
           chatMessagesBox.appendChild(bubble);
         });
         chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
       });
 
+      // Automated Booking Action Trigger Integration Rules
+      bindFastClick(document.getElementById('btn-chat-book-service'), () => {
+        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nTarget Area: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending confirmation.`);
+      });
+
       if (triggerAutoBooking) {
-        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nLocation Target: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending Response.`);
+        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nTarget Area: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending confirmation.`);
       }
     }
 
@@ -1008,9 +1031,7 @@
       if(rSnap.exists()) currentUnread = rSnap.data().unreadCount || {};
       
       const opponents = rSnap.data().participants.filter(id => id !== currentUser.uid);
-      opponents.forEach(opUid => {
-        currentUnread[opUid] = (currentUnread[opUid] || 0) + 1;
-      });
+      opponents.forEach(opUid => { currentUnread[opUid] = (currentUnread[opUid] || 0) + 1; });
 
       await addDoc(collection(db, "rooms", activeChatRoomId, "messages"), {
         senderId: currentUser.uid, text: textVal, image: imgStr, timestamp: new Date().toISOString()
@@ -1021,7 +1042,6 @@
       }, { merge: true });
     }
 
-    // Interactive Standard Input Messaging Submission Wire Form Controller
     document.getElementById('chat-input-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const field = document.getElementById('chat-message-input');
@@ -1033,7 +1053,7 @@
     document.getElementById('chat-image-input').addEventListener('change', async (e) => {
       const file = e.target.files[0]; if(!file) return;
       const b64 = await compressImage(file, 500, 0.5);
-      injectStructuredMessage("[Image Attached]", b64);
+      injectStructuredMessage("[Image Log Media Attachment]", b64);
     });
 
     bindFastClick(document.getElementById('btn-back-to-chats'), () => {
@@ -1043,27 +1063,27 @@
     });
 
     async function loadChatChannels() {
-      chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-4">Polling chat logs...</p>`;
+      chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-4">Polling logs...</p>`;
       const snap = await getDocs(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)));
       chatChannelsContainer.innerHTML = "";
       
-      if(snap.empty) { chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">No active chat channels.</p>`; return; }
+      if(snap.empty) { chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">No chat conversation threads active.</p>`; return; }
       
       snap.forEach(roomDoc => {
         const room = roomDoc.data();
         const opponentUid = room.participants.find(id => id !== currentUser.uid);
         if(!opponentUid) return;
-        const name = room.names[opponentUid] || "User";
+        const name = room.names[opponentUid] || "Ecosystem User";
         const img = room.avatars[opponentUid] || "https://via.placeholder.com/150";
         
         const currentUnreadCount = (room.unreadCount && room.unreadCount[currentUser.uid]) ? room.unreadCount[currentUser.uid] : 0;
-        const countBadge = currentUnreadCount > 0 ? `<span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-auto">${currentUnreadCount}</span>` : '';
+        const countBadge = currentUnreadCount > 0 ? `<span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-auto">${currentUnreadCount}</span>` : '';
 
         const bar = document.createElement('div');
-        bar.className = "bg-white p-3.5 rounded-xl border flex items-center gap-3 cursor-pointer hover:bg-amber-50/30";
+        bar.className = "bg-zinc-800 p-3.5 rounded-xl border border-zinc-700 flex items-center gap-3 cursor-pointer hover:bg-zinc-700/40";
         bar.innerHTML = `
-          <img src="${img}" class="w-10 h-10 rounded-full object-cover border" />
-          <div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${name}</h4><p class="text-[10px] text-gray-400">Click to resume conversation</p></div>
+          <img src="${img}" class="w-10 h-10 rounded-full object-cover border border-zinc-700" />
+          <div class="flex-1"><h4 class="font-bold text-sm text-white">${name}</h4><p class="text-[10px] text-gray-400">Tap to view chat conversation</p></div>
           ${countBadge}
         `;
         bindFastClick(bar, () => initChatTunnel(opponentUid, { name: name, profilePic: img }));
@@ -1072,8 +1092,8 @@
     }
 
     const tabBarbers = document.getElementById('tab-barbers'); const tabShops = document.getElementById('tab-shops');
-    bindFastClick(tabBarbers, () => { currentTab = 'barber'; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition"; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition"; loadFeed(); });
-    bindFastClick(tabShops, () => { currentTab = 'owner'; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition"; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition"; loadFeed(); });
+    bindFastClick(tabBarbers, () => { currentTab = 'barber'; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-amber-600 text-white shadow-sm transition"; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-400 transition"; loadFeed(); });
+    bindFastClick(tabShops, () => { currentTab = 'owner'; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-amber-600 text-white shadow-sm transition"; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-400 transition"; loadFeed(); });
   </script>
 </body>
 </html>
