@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
@@ -40,78 +40,99 @@ function showScreen(screenId) {
   if (screenId === 'app') mainApp.classList.remove('hidden');
 }
 
-// Global booking function
-window.requestBooking = async (barberId, barberName) => {
-  if (!currentUser) return alert("Please sign in to book.");
+// Global booking/interaction function
+window.requestBooking = async (targetId, targetName, targetRole) => {
+  if (!currentUser) return alert("Please sign in first.");
   try {
     await addDoc(collection(db, "bookings"), {
-      barberId: barberId,
-      barberName: barberName,
+      targetId: targetId,
+      targetName: targetName,
+      targetRole: targetRole,
       customerId: currentUser.uid,
       customerName: currentUser.displayName,
       status: "pending",
       createdAt: new Date().toISOString()
     });
-    alert("Booking request sent to " + barberName + "!");
+    alert("Request sent successfully to " + targetName + "!");
   } catch (error) {
-    console.error("Error booking:", error);
-    alert("Failed to send booking.");
+    console.error("Error sending request:", error);
+    alert("Failed to send request.");
   }
 };
 
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
   if (!feedContainer) return; 
-  feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading barbers...</p>";
+  feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading network...</p>";
 
   try {
-    const q = query(collection(db, "users"), where("role", "==", "barber"));
-    const querySnapshot = await getDocs(q);
+    // FIX: Fetch all users instead of filtering only for barbers, so shop owners appear too!
+    const querySnapshot = await getDocs(collection(db, "users"));
     feedContainer.innerHTML = ""; 
     
     if (querySnapshot.empty) {
-      feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>No barbers found yet.</p>";
+      feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>No profiles found yet.</p>";
       return;
     }
 
-    querySnapshot.forEach((doc) => {
-      const barber = doc.data();
-      const barberId = doc.id;
-      const displayName = barber.name || "Anonymous Barber";
-      const profilePic = barber.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
+    querySnapshot.forEach((docSnap) => {
+      const profile = docSnap.data();
+      const profileId = docSnap.id;
+      
+      // Skip the currently logged-in user from seeing themselves in the main feed if desired, or keep them. Let's show everyone.
+      const displayName = profile.name || "Anonymous User";
+      const profilePic = profile.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
+      const roleText = profile.role === 'owner' ? 'Business Owner (DREAMS HANDS)' : 'Professional Barber';
       
       const card = document.createElement('div');
-      card.className = "p-4 bg-zinc-800 rounded-xl border border-zinc-700 flex flex-col gap-3";
+      card.className = "p-4 bg-zinc-800 rounded-xl border border-zinc-700 flex flex-col gap-3 text-left";
       card.innerHTML = `
         <div class="flex items-center gap-4">
           <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border border-zinc-700 bg-zinc-700" />
           <div>
             <h3 class="font-bold text-amber-500">${displayName}</h3>
-            <p class="text-xs text-gray-400">Professional Barber</p>
+            <p class="text-xs text-gray-400">${roleText}</p>
           </div>
         </div>
-        <button onclick="requestBooking('${barberId}', '${displayName}')" class="w-full bg-amber-600 py-2 rounded-lg text-sm font-bold text-white">Book Now</button>
+        <button onclick="requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-600 py-2 rounded-lg text-sm font-bold text-white">Connect / Book</button>
       `;
       feedContainer.appendChild(card);
     });
   } catch (error) {
     console.error("Error loading marketplace:", error);
+    feedContainer.innerHTML = "<p class='text-red-500 text-sm'>Failed to load network feed.</p>";
   }
 }
 
 // Profile Editor Listeners
-btnEdit.addEventListener('click', () => editScreen.classList.remove('hidden'));
+btnEdit.addEventListener('click', () => {
+  // Pre-fill fields with current user data if available
+  if(currentUser) {
+    document.getElementById('edit-name').value = currentUser.displayName || "";
+  }
+  editScreen.classList.remove('hidden');
+});
+
 btnCancel.addEventListener('click', () => editScreen.classList.add('hidden'));
+
 btnSave.addEventListener('click', async () => {
   const newName = document.getElementById('edit-name').value;
   const newPic = document.getElementById('edit-pic').value;
   if (!currentUser) return;
-  await setDoc(doc(db, "users", currentUser.uid), {
-    name: newName || currentUser.displayName,
-    profilePic: newPic
-  }, { merge: true });
+  
+  const updateData = {
+    name: newName || currentUser.displayName
+  };
+  
+  // Only update profilePic if they entered something, otherwise keep their Google photo/avatar
+  if (newPic.trim() !== "") {
+    updateData.profilePic = newPic.trim();
+  }
+
+  await setDoc(doc(db, "users", currentUser.uid), updateData, { merge: true });
+  
   editScreen.classList.add('hidden');
-  alert("Profile Updated!");
+  alert("Profile Updated Successfully!");
   location.reload(); 
 });
 
@@ -120,7 +141,14 @@ btnLogout.addEventListener('click', () => signOut(auth));
 
 async function assignRole(roleName) {
   if (!currentUser) return;
-  const userProfile = { uid: currentUser.uid, name: currentUser.displayName, email: currentUser.email, profilePic: currentUser.photoURL || "", role: roleName, createdAt: new Date().toISOString() };
+  const userProfile = { 
+    uid: currentUser.uid, 
+    name: currentUser.displayName, 
+    email: currentUser.email, 
+    profilePic: currentUser.photoURL || "", 
+    role: roleName, 
+    createdAt: new Date().toISOString() 
+  };
   await setDoc(doc(db, "users", currentUser.uid), userProfile, { merge: true });
   showScreen('app'); 
   loadMarketplace();
