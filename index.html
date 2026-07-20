@@ -6,14 +6,12 @@
   <title>Barber Me App</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .animate-slide-up { animation: slideUp 0.25s ease-out forwards; }
-    /* Hide scrollbar utility */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .video-card { height: calc(100vh - 120px); scroll-snap-align: start; }
+    .feed-container-snap { scroll-snap-type: y mandatory; }
   </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased text-gray-900 pb-24">
@@ -62,20 +60,37 @@
     <div id="feed-container" class="grid grid-cols-1 gap-3"></div>
   </div>
 
-  <!-- ================= 4. CHAT CHANNELS LIST SCREEN ================= -->
+  <!-- ================= 4. TIKTOK-STYLE SHORT VIDEO / SOCIAL MEDIA FEED ================= -->
+  <div id="social-feed-screen" class="hidden fixed inset-0 bg-black z-40 max-w-md mx-auto flex flex-col">
+    <!-- Top Bar Navigation Toggle -->
+    <div class="absolute top-4 left-0 right-0 flex justify-center items-center gap-6 z-50 text-white font-bold text-sm drop-shadow-lg">
+      <button id="social-tab-following" class="opacity-60 transition">Following</button>
+      <button id="social-tab-foryou" class="border-b-2 border-white pb-1">For You</button>
+      <button id="btn-social-post" class="ml-4 bg-amber-600 text-xs px-2.5 py-1 rounded-full">+ Post</button>
+      <button id="btn-social-live" class="bg-red-600 text-xs px-2.5 py-1 rounded-full animation-pulse">● Live</button>
+    </div>
+
+    <!-- Scrollable Snap Media Panel Container -->
+    <div id="social-video-container" class="flex-1 overflow-y-auto feed-container-snap no-scrollbar bg-black"></div>
+  </div>
+
+  <!-- ================= 5. CHAT CHANNELS LIST SCREEN ================= -->
   <div id="chat-list-screen" class="hidden max-w-md mx-auto p-4">
     <header class="mb-4 pt-2"><h1 class="text-2xl font-black text-gray-900">Messages</h1></header>
     <div id="chat-channels-container" class="space-y-2"></div>
   </div>
 
-  <!-- ================= 5. LIVE CHAT CONVERSATION WINDOW ================= -->
+  <!-- ================= 6. LIVE CHAT CONVERSATION WINDOW ================= -->
   <div id="chat-window-screen" class="hidden fixed inset-0 bg-gray-50 z-50 flex flex-col max-w-md mx-auto">
     <header class="bg-white border-b border-gray-200 p-3 flex items-center gap-3 shadow-sm">
       <button id="btn-back-to-chats" class="text-gray-600 font-bold px-2 py-1">←</button>
-      <img id="chat-window-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-gray-200 clickable-pic" />
+      <div class="relative">
+        <img id="chat-window-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-gray-200 clickable-pic" />
+        <span id="chat-presence-indicator" class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-gray-400 border-2 border-white rounded-full"></span>
+      </div>
       <div class="flex-1">
         <h2 id="chat-window-name" class="font-bold text-sm text-gray-900 leading-tight">Loading...</h2>
-        <span id="chat-window-meta" class="text-[10px] text-amber-600 font-medium block"></span>
+        <span id="chat-window-presence-text" class="text-[10px] text-gray-400 block font-normal">Offline</span>
       </div>
       <button id="btn-chat-book-service" class="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">Book Service</button>
     </header>
@@ -91,7 +106,7 @@
     </div>
   </div>
 
-  <!-- ================= 6. USER PROFILE & EDIT DASHBOARD ================= -->
+  <!-- ================= 7. USER PROFILE & EDIT DASHBOARD ================= -->
   <div id="dashboard-screen" class="hidden max-w-md mx-auto p-4">
     <header class="flex justify-between items-center mb-4 pt-2">
       <h1 class="text-2xl font-black text-gray-900">My Profile</h1>
@@ -124,7 +139,7 @@
         </div>
         <div>
           <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Location in Ghana (City, Region)</label>
-          <input type="text" id="input-location" placeholder="e.g. Accra, East Legon or Kumasi, Adum" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm">
+          <input type="text" id="input-location" placeholder="e.g. Accra, East Legon" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm">
         </div>
       </div>
 
@@ -138,7 +153,7 @@
           </label>
           <label class="flex-1 flex items-center justify-center gap-2 p-3 border rounded-xl cursor-pointer text-xs font-bold transition select-none" id="label-acc-no">
             <input type="radio" name="accommodation" value="no" id="acc-no" class="hidden" checked />
-            <span>✖ Not Available / Not Needed</span>
+            <span>✖ Not Available</span>
           </label>
         </div>
       </div>
@@ -153,7 +168,6 @@
             <div class="flex flex-col items-center justify-center pt-4 pb-4 text-center px-2">
               <span class="text-xl mb-1">📸</span>
               <p class="text-xs text-gray-500 font-bold">Tap to add portfolio images</p>
-              <p id="upload-status-text" class="text-[10px] text-gray-400 mt-0.5">Stored instantly inside your Firebase setup</p>
             </div>
             <input type="file" id="portfolio-file-input" accept="image/*" class="hidden" />
           </label>
@@ -163,7 +177,44 @@
     </form>
   </div>
 
-  <!-- ================= 7. INTERACTIVE PROFILE POPUP MODAL SHEET ================= -->
+  <!-- ================= 8. NEW CONTENT UPLOAD & LIVE MODALS SYSTEM ================= -->
+  <!-- Create TikTok Video Post Modal Overlay -->
+  <div id="social-post-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4">
+      <h3 class="font-bold text-lg">Create Creative Post</h3>
+      <input type="text" id="input-post-caption" placeholder="Write a description or hashtag..." class="w-full p-2.5 border border-gray-200 rounded-xl text-sm" />
+      <input type="text" id="input-post-sound" placeholder="Add sound track name (e.g., Shatta Wale - King)" class="w-full p-2.5 border border-gray-200 rounded-xl text-sm" />
+      <label class="block border-2 border-dashed p-4 text-center rounded-xl cursor-pointer bg-gray-50 text-xs font-bold text-gray-600">
+        📸 Attach Video snapshot or Work Photo
+        <input type="file" id="input-post-file" accept="image/*,video/*" class="hidden" />
+      </label>
+      <div class="flex gap-2">
+        <button id="btn-close-post-modal" class="flex-1 bg-gray-200 text-sm py-2 rounded-xl">Cancel</button>
+        <button id="btn-submit-social-post" class="flex-1 bg-amber-600 text-white text-sm py-2 rounded-xl font-bold">Publish Post</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Broadcaster Simulation Sheet Overlay -->
+  <div id="social-live-modal" class="hidden fixed inset-0 bg-red-950 z-[60] flex flex-col justify-between p-6 text-white">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center gap-2 bg-black/40 p-2 rounded-full">
+        <div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+        <span class="text-xs font-bold uppercase tracking-wider">LIVE STREAMING</span>
+      </div>
+      <button id="btn-close-live" class="text-white font-black text-xl bg-white/20 px-3 py-1 rounded-full">✕ Stop Stream</button>
+    </div>
+    <div class="text-center my-auto space-y-2">
+      <p class="text-4xl">🎥</p>
+      <h3 class="text-lg font-black tracking-tight" id="live-host-title">Your Live Studio</h3>
+      <p class="text-xs text-red-200">Everyone across Ghana can discover you right now on the social tab feed!</p>
+    </div>
+    <div class="bg-black/40 p-3 rounded-xl text-xs space-y-1 max-h-32 overflow-y-auto" id="live-chat-simulation">
+      <p class="opacity-70">Stream launched. Chat messages will populate here...</p>
+    </div>
+  </div>
+
+  <!-- ================= 9. INTERACTIVE PROFILE POPUP MODAL SHEET ================= -->
   <div id="profile-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-end justify-center p-0">
     <div class="bg-white w-full max-w-md rounded-t-3xl max-h-[85vh] overflow-y-auto p-6 animate-slide-up shadow-2xl relative no-scrollbar">
       <button id="btn-close-modal" class="absolute top-4 right-4 bg-gray-100 text-gray-700 font-bold p-2 h-8 w-8 rounded-full flex items-center justify-center text-xs">✕</button>
@@ -180,18 +231,22 @@
         </div>
       </div>
 
+      <div class="flex gap-2 my-2 w-full">
+        <button id="btn-modal-follow" class="flex-1 bg-amber-600 text-white font-bold py-2 rounded-xl text-xs shadow-sm">Follow User</button>
+      </div>
+
       <hr class="border-gray-100 my-4" />
       <div id="modal-details" class="grid grid-cols-1 gap-2.5 text-sm"></div>
 
       <hr class="border-gray-100 my-4" />
       <div class="space-y-3">
-        <h3 class="text-[11px] font-black uppercase text-gray-400 tracking-wider">Portfolio & Workspace Gallery (Tap to view clear)</h3>
+        <h3 class="text-[11px] font-black uppercase text-gray-400 tracking-wider">Portfolio & Workspace Gallery</h3>
         <div id="modal-gallery" class="grid grid-cols-3 gap-2"></div>
         <p id="gallery-empty-msg" class="text-xs text-gray-400 italic py-1 hidden">No photos uploaded yet.</p>
       </div>
 
       <div class="mt-6 flex flex-col gap-2">
-        <button id="modal-chat-action" class="w-full bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow shadow-amber-600/20 hover:bg-amber-700 transition flex items-center justify-center gap-2 text-sm">
+        <button id="modal-chat-action" class="w-full bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-amber-700 transition flex items-center justify-center gap-2 text-sm">
           <span>💬 Start Instant Application Chat</span>
         </button>
         <button id="modal-book-service-action" class="w-full bg-amber-700 text-white font-bold py-3 px-4 rounded-xl text-xs hover:bg-amber-800 transition">
@@ -204,22 +259,25 @@
     </div>
   </div>
 
-  <!-- ================= 8. FULLSCREEN CRYSTAL CLEAR IMAGE PREVIEWER OVERLAY ================= -->
+  <!-- ================= 10. FULLSCREEN CRYSTAL CLEAR IMAGE PREVIEWER OVERLAY ================= -->
   <div id="lightbox-overlay" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col justify-center items-center p-4">
     <button id="btn-close-lightbox" class="absolute top-6 right-6 text-white text-2xl font-bold bg-white/10 h-12 w-12 rounded-full flex items-center justify-center">✕</button>
     <img id="lightbox-target-image" src="" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl" />
-    <p class="text-gray-400 text-xs mt-4 tracking-wide font-medium">Viewing high-resolution document asset</p>
   </div>
 
   <!-- ================= BOTTOM APPMENU SELECTION NAVIGATION FOOTER BAR ================= -->
-  <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 flex justify-around max-w-md mx-auto shadow-xl z-40">
-    <button id="nav-feed" class="flex flex-col items-center text-amber-600 font-bold text-[11px] w-1/3 gap-0.5">
+  <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 flex justify-around max-w-md mx-auto shadow-xl z-50">
+    <button id="nav-feed" class="flex flex-col items-center text-amber-600 font-bold text-[11px] w-1/4 gap-0.5">
       <span class="text-lg">📋</span><span>Market Feed</span>
     </button>
-    <button id="nav-chats" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/3 gap-0.5">
-      <span class="text-lg">💬</span><span>Messages</span>
+    <button id="nav-social" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5">
+      <span class="text-lg">🎵</span><span>Creative Feed</span>
     </button>
-    <button id="nav-dash" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/3 gap-0.5">
+    <button id="nav-chats" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5 relative">
+      <span class="text-lg">💬</span><span>Messages</span>
+      <span id="badge-unread-msg" class="hidden absolute top-0.5 right-3 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-4 text-center">0</span>
+    </button>
+    <button id="nav-dash" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5">
       <span class="text-lg">👤</span><span>My Profile</span>
     </button>
   </nav>
@@ -230,7 +288,6 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Verified live Firebase instance parameters
     const firebaseConfig = {
       apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
       authDomain: "dreamssmartapp.firebaseapp.com",
@@ -245,37 +302,42 @@
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
 
-    // DOM Screen Handles
+    // DOM Target Screen Interfaces
     const authScreen = document.getElementById('auth-screen');
     const roleScreen = document.getElementById('role-screen');
     const mainApp = document.getElementById('main-app');
+    const socialFeedScreen = document.getElementById('social-feed-screen');
     const chatListScreen = document.getElementById('chat-list-screen');
     const chatWindowScreen = document.getElementById('chat-window-screen');
     const dashboardScreen = document.getElementById('dashboard-screen');
     const bottomNav = document.getElementById('bottom-nav');
+    
+    // Interactive Form Node Values
     const feedContainer = document.getElementById('feed-container');
+    const socialVideoContainer = document.getElementById('social-video-container');
     const dynamicFields = document.getElementById('dynamic-fields');
     const chatChannelsContainer = document.getElementById('chat-channels-container');
     const chatMessagesBox = document.getElementById('chat-messages-box');
+    const badgeUnreadMsg = document.getElementById('badge-unread-msg');
 
-    // Bottom Navigation Handles
+    // Bottom Links Navigation Control Elements
     const navFeed = document.getElementById('nav-feed');
+    const navSocial = document.getElementById('nav-social');
     const navChats = document.getElementById('nav-chats');
     const navDash = document.getElementById('nav-dash');
 
-    // Form inputs & previews
+    // Profile Management Variables
     const dashboardAvatarPreview = document.getElementById('dashboard-avatar-preview');
     const avatarFileInput = document.getElementById('avatar-file-input');
     const inputDisplayName = document.getElementById('input-display-name');
     const portfolioFileInput = document.getElementById('portfolio-file-input');
-    const uploadStatusText = document.getElementById('upload-status-text');
     const dashboardGalleryPreview = document.getElementById('dashboard-gallery-preview');
 
-    // Lightbox Components
+    // Modals Overlays Nodes
+    const socialPostModal = document.getElementById('social-post-modal');
+    const socialLiveModal = document.getElementById('social-live-modal');
     const lightboxOverlay = document.getElementById('lightbox-overlay');
     const lightboxTargetImage = document.getElementById('lightbox-target-image');
-    
-    // Detailed Modals UI handles
     const profileModal = document.getElementById('profile-modal');
     const btnCloseModal = document.getElementById('btn-close-modal');
     const modalImg = document.getElementById('modal-img');
@@ -286,22 +348,24 @@
     const modalDetails = document.getElementById('modal-details');
     const modalGallery = document.getElementById('modal-gallery');
     const galleryEmptyMsg = document.getElementById('gallery-empty-msg');
-    
-    // Modal Interaction triggers
+    const btnModalFollow = document.getElementById('btn-modal-follow');
     const modalChatAction = document.getElementById('modal-chat-action');
     const modalBookServiceAction = document.getElementById('modal-book-service-action');
     const modalCallAction = document.getElementById('modal-call-action');
 
-    // State parameters
+    // Internal State Machine Configuration
     let currentUser = null;
     let userProfileData = null;
     let currentTab = 'barber';
+    let currentSocialTab = 'foryou';
     let temporaryPortfolioUrls = [];
     let base64AvatarUrl = "";
+    let base64PostMediaUrl = "";
     let activeChatRoomId = null;
     let chatUnsubscribeHook = null;
+    let presenceHeartbeatInterval = null;
 
-    // Monitor Session Pipeline Hooks
+    // Monitor State Loop Changes
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
@@ -317,20 +381,51 @@
             base64AvatarUrl = userProfileData.profilePic || user.photoURL || "";
             showScreen('app');
             loadFeed();
+            startPresenceHeartbeat();
+            listenToGlobalUnreadMessages();
           }
         }
       } else {
+        stopPresenceHeartbeat();
         currentUser = null;
         userProfileData = null;
         showScreen('auth');
       }
     });
 
-    // Screen Director Routine
+    // Device Presence Engine
+    async function startPresenceHeartbeat() {
+      if (!currentUser) return;
+      const updatePresence = async () => {
+        await setDoc(doc(db, "users", currentUser.uid), {
+          presence: {
+            status: "online",
+            lastSeen: new Date().toISOString()
+          }
+        }, { merge: true });
+      };
+      await updatePresence();
+      presenceHeartbeatInterval = setInterval(updatePresence, 20000);
+    }
+
+    async function stopPresenceHeartbeat() {
+      if (presenceHeartbeatInterval) clearInterval(presenceHeartbeatInterval);
+      if (currentUser) {
+        await setDoc(doc(db, "users", currentUser.uid), {
+          presence: {
+            status: "offline",
+            lastSeen: new Date().toISOString()
+          }
+        }, { merge: true });
+      }
+    }
+
+    // Dynamic Context View Routing Manager
     function showScreen(screen) {
       authScreen.classList.add('hidden');
       roleScreen.classList.add('hidden');
       mainApp.classList.add('hidden');
+      socialFeedScreen.classList.add('hidden');
       chatListScreen.classList.add('hidden');
       chatWindowScreen.classList.add('hidden');
       dashboardScreen.classList.add('hidden');
@@ -339,25 +434,31 @@
       if (screen === 'auth') authScreen.classList.remove('hidden');
       if (screen === 'role') roleScreen.classList.remove('hidden');
       if (screen === 'app') { mainApp.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('feed'); }
+      if (screen === 'social') { socialFeedScreen.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('social'); }
       if (screen === 'chats') { chatListScreen.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('chats'); }
       if (screen === 'dashboard') { dashboardScreen.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('dash'); }
     }
 
     function setActiveNav(active) {
-      [navFeed, navChats, navDash].forEach(btn => { btn.classList.remove('text-amber-600', 'font-bold'); btn.classList.add('text-gray-400', 'font-medium'); });
+      [navFeed, navSocial, navChats, navDash].forEach(btn => { 
+        btn.classList.remove('text-amber-600', 'font-bold'); 
+        btn.classList.add('text-gray-400', 'font-medium'); 
+      });
       if (active === 'feed') { navFeed.classList.add('text-amber-600', 'font-bold'); navFeed.classList.remove('text-gray-400'); }
+      if (active === 'social') { navSocial.classList.add('text-amber-600', 'font-bold'); navSocial.classList.remove('text-gray-400'); }
       if (active === 'chats') { navChats.classList.add('text-amber-600', 'font-bold'); navChats.classList.remove('text-gray-400'); }
       if (active === 'dash') { navDash.classList.add('text-amber-600', 'font-bold'); navDash.classList.remove('text-gray-400'); }
     }
 
-    // App Navigation Bar triggers links
+    // App Nav Bar Click Controllers
     navFeed.addEventListener('click', () => { showScreen('app'); loadFeed(); });
+    navSocial.addEventListener('click', () => { showScreen('social'); loadSocialFeed(); });
     navChats.addEventListener('click', () => { showScreen('chats'); loadChatChannels(); });
     navDash.addEventListener('click', () => { showScreen('dashboard'); populateDashboard(); });
 
-    // Authentication Bindings
+    // Authentication Setup Link Triggers
     document.getElementById('btn-login').addEventListener('click', () => signInWithPopup(auth, googleProvider));
-    document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+    document.getElementById('btn-logout').addEventListener('click', () => { stopPresenceHeartbeat(); signOut(auth); });
     document.getElementById('choose-barber').addEventListener('click', () => assignRole('barber'));
     document.getElementById('choose-owner').addEventListener('click', () => assignRole('owner'));
 
@@ -371,6 +472,8 @@
         role: roleName,
         accommodation: "no",
         portfolioImages: [],
+        following: [],
+        followers: [],
         createdAt: new Date().toISOString()
       };
       await setDoc(doc(db, "users", currentUser.uid), freshProfile, { merge: true });
@@ -379,7 +482,26 @@
       loadFeed();
     }
 
-    // GLOBAL INTERACTIVE CLICKABLE FULLSCREEN IMAGE PREVIEW ACTION HOOKS
+    // Unread Channel Real-Time Badge Count Loop
+    function listenToGlobalUnreadMessages() {
+      if (!currentUser) return;
+      onSnapshot(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)), (snapshot) => {
+        let unreadTotalCount = 0;
+        snapshot.forEach(roomDoc => {
+          const data = roomDoc.data();
+          const unreadMap = data.unreadCount || {};
+          unreadTotalCount += (unreadMap[currentUser.uid] || 0);
+        });
+        if (unreadTotalCount > 0) {
+          badgeUnreadMsg.textContent = unreadTotalCount;
+          badgeUnreadMsg.classList.remove('hidden');
+        } else {
+          badgeUnreadMsg.classList.add('hidden');
+        }
+      });
+    }
+
+    // Global Image Click Handler for Lightbox
     document.addEventListener('click', (e) => {
       if (e.target && e.target.classList.contains('clickable-pic')) {
         const sourceUrl = e.target.getAttribute('src');
@@ -390,9 +512,8 @@
       }
     });
     document.getElementById('btn-close-lightbox').addEventListener('click', () => lightboxOverlay.classList.add('hidden'));
-    lightboxOverlay.addEventListener('click', (e) => { if(e.target === lightboxOverlay) lightboxOverlay.classList.add('hidden'); });
 
-    // In-memory Mobile Image Compressor Block
+    // Mobile Compression Function
     function compressImage(file, maxWidth = 600, quality = 0.5) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -414,27 +535,18 @@
       });
     }
 
-    // Handle Profile Picture Custom Overwrites
+    // Input change events
     avatarFileInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      try {
-        base64AvatarUrl = await compressImage(file, 300, 0.6);
-        dashboardAvatarPreview.src = base64AvatarUrl;
-      } catch (err) { alert("Failed to render avatar selection."); }
+      const file = e.target.files[0]; if (!file) return;
+      base64AvatarUrl = await compressImage(file, 300, 0.6);
+      dashboardAvatarPreview.src = base64AvatarUrl;
     });
 
-    // Handle Portfolio Multi-Image Additions
     portfolioFileInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      uploadStatusText.textContent = "Processing and converting photo asset...";
-      try {
-        const compressedString = await compressImage(file, 600, 0.5);
-        temporaryPortfolioUrls.push(compressedString);
-        renderDashboardGalleryPreview();
-        uploadStatusText.textContent = "Photo rendered. Save profile to write records.";
-      } catch (err) { uploadStatusText.textContent = "Compression aborted."; }
+      const file = e.target.files[0]; if (!file) return;
+      const compressedString = await compressImage(file, 600, 0.5);
+      temporaryPortfolioUrls.push(compressedString);
+      renderDashboardGalleryPreview();
     });
 
     function renderDashboardGalleryPreview() {
@@ -451,57 +563,31 @@
       });
     }
 
-    // Synchronize Form States with Local Dashboard Controller
     function populateDashboard() {
       if (!userProfileData) return;
       inputDisplayName.value = userProfileData.name || "";
       document.getElementById('input-phone').value = userProfileData.phone || "";
       document.getElementById('input-location').value = userProfileData.location || "";
-      
-      const isAcc = userProfileData.accommodation === "yes";
-      document.getElementById('acc-yes').checked = isAcc;
-      document.getElementById('acc-no').checked = !isAcc;
-      toggleAccUILabels(isAcc);
-
       if (userProfileData.role === 'barber') {
         dynamicFields.innerHTML = `
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-            <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Years of Experience</label>
-            <input type="number" id="input-experience" value="${userProfileData.experienceYears || ''}" placeholder="e.g. 4" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm">
-          </div>
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-            <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Preferred Payment Arrangement</label>
-            <input type="text" id="input-payment" value="${userProfileData.preferredPayment || ''}" placeholder="e.g. ₵3,500 monthly target or 60/40 Split" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm">
-          </div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Years Experience</label><input type="number" id="input-experience" value="${userProfileData.experienceYears || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm"></div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Payment Target</label><input type="text" id="input-payment" value="${userProfileData.preferredPayment || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm"></div>
         `;
       } else {
         dynamicFields.innerHTML = `
-          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-            <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1">Shop / Salon Studio Branding Name</label>
-            <input type="text" id="input-shopname" value="${userProfileData.shopName || ''}" placeholder="e.g. Dreams Hands Studios" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm">
-          </div>
+          <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm"><label class="block text-xs font-black text-gray-400 tracking-wider mb-1">Shop / Studio Branding Name</label><input type="text" id="input-shopname" value="${userProfileData.shopName || ''}" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm"></div>
         `;
       }
       dashboardAvatarPreview.src = base64AvatarUrl;
       renderDashboardGalleryPreview();
     }
 
-    function toggleAccUILabels(isYes) {
-      const ly = document.getElementById('label-acc-yes'); const ln = document.getElementById('label-acc-no');
-      if(isYes){ ly.className = "flex-1 flex items-center justify-center gap-2 p-3 border-2 border-amber-500 bg-amber-50 rounded-xl cursor-pointer text-xs font-bold text-amber-700"; ln.className = "flex-1 flex items-center justify-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-medium text-gray-400 bg-white"; }
-      else { ln.className = "flex-1 flex items-center justify-center gap-2 p-3 border-2 border-gray-500 bg-gray-50 rounded-xl cursor-pointer text-xs font-bold text-gray-700"; ly.className = "flex-1 flex items-center justify-center gap-2 p-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-medium text-gray-400 bg-white"; }
-    }
-    document.getElementById('acc-yes').addEventListener('change', () => toggleAccUILabels(true));
-    document.getElementById('acc-no').addEventListener('change', () => toggleAccUILabels(false));
-
     document.getElementById('btn-save-profile').addEventListener('click', async () => {
-      if (!currentUser) return;
-      const accVal = document.getElementById('acc-yes').checked ? "yes" : "no";
       const payload = {
         name: inputDisplayName.value,
         phone: document.getElementById('input-phone').value,
         location: document.getElementById('input-location').value,
-        accommodation: accVal,
+        accommodation: document.getElementById('acc-yes').checked ? "yes" : "no",
         profilePic: base64AvatarUrl,
         portfolioImages: temporaryPortfolioUrls
       };
@@ -513,33 +599,26 @@
       }
       await setDoc(doc(db, "users", currentUser.uid), payload, { merge: true });
       userProfileData = { ...userProfileData, ...payload };
-      alert("All parameters saved safely inside your Firebase Firestore database!");
-      showScreen('app'); loadFeed();
+      alert("Profile data saved.");
     });
 
-    // Feed Core Marketplace Builder Loop
+    // Marketplace Feed Builder
     async function loadFeed() {
       feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">Polling database channels...</p>`;
       const snapshot = await getDocs(query(collection(db, "users"), where("role", "==", currentTab)));
       feedContainer.innerHTML = "";
-      if (snapshot.empty) { feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">No matching listings found.</p>`; return; }
-
       snapshot.forEach(docSnap => {
         const item = docSnap.data();
         if (item.uid === currentUser.uid) return;
         const card = document.createElement('div');
         card.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4 items-start";
         const title = item.role === 'owner' && item.shopName ? item.shopName : item.name;
-        const sub = item.role === 'barber' ? `Experience: ${item.experienceYears || '0'} Yrs` : `Hiring Manager Profile`;
-        const accTag = item.accommodation === 'yes' ? `<span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">🏡 Housing Provided</span>` : '';
-        
         card.innerHTML = `
           <img src="${item.profilePic || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover border border-gray-200 clickable-pic" />
           <div class="flex-1">
-            <h3 class="font-bold text-sm text-gray-900 leading-tight">${title}</h3>
-            <p class="text-[11px] text-gray-500 mt-0.5">📍 ${item.location || 'Ghana'}</p>
-            <div class="flex items-center gap-2 mt-1.5">${accTag}<span class="text-[11px] text-gray-400">${sub}</span></div>
-            <button class="w-full mt-3 bg-gray-50 hover:bg-amber-50 border border-gray-200 hover:border-amber-300 text-gray-700 hover:text-amber-800 text-xs font-bold py-2 rounded-lg transition">View Full Details</button>
+            <h3 class="font-bold text-sm text-gray-900">${title}</h3>
+            <p class="text-[11px] text-gray-500">📍 ${item.location || 'Ghana'}</p>
+            <button class="w-full mt-3 bg-gray-50 text-gray-700 text-xs font-bold py-2 rounded-lg border border-gray-200">View Details</button>
           </div>
         `;
         card.querySelector('button').addEventListener('click', () => openProfileDetails(item));
@@ -547,48 +626,170 @@
       });
     }
 
-    // Modal Interactive Sheet Injector
-    function openProfileDetails(user) {
-      modalImg.src = user.profilePic || 'https://via.placeholder.com/150';
-      modalTitle.textContent = user.role === 'owner' && user.shopName ? user.shopName : user.name;
-      modalLocation.textContent = `📍 ${user.location || 'Location Unset'}`;
-      modalBadge.textContent = user.role === 'barber' ? 'Professional Barber' : 'Salons / Studio Owner';
-      
-      if(user.accommodation === 'yes') { modalAccommodationBadge.textContent = "🏡 Accommodation Available"; modalAccommodationBadge.className = "inline-block bg-emerald-50 text-emerald-700 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider"; }
-      else { modalAccommodationBadge.textContent = "✖ Accommodation Unset"; modalAccommodationBadge.className = "inline-block bg-gray-100 text-gray-500 text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider"; }
+    // Modal Details Injector
+    async function openProfileDetails(userObj) {
+      modalImg.src = userObj.profilePic || 'https://via.placeholder.com/150';
+      modalTitle.textContent = userObj.role === 'owner' && userObj.shopName ? userObj.shopName : userObj.name;
+      modalLocation.textContent = `📍 ${userObj.location || 'Location Unset'}`;
+      modalBadge.textContent = userObj.role === 'barber' ? 'Barber' : 'Shop Owner';
 
-      if (user.role === 'barber') {
-        modalDetails.innerHTML = `
-          <div class="bg-gray-50 p-2.5 rounded-lg"><span class="block text-[9px] font-bold text-gray-400 uppercase">Barbering Capacity</span><span class="font-bold text-gray-800 text-xs">${user.experienceYears || '0'} Years active service</span></div>
-          <div class="bg-gray-50 p-2.5 rounded-lg"><span class="block text-[9px] font-bold text-gray-400 uppercase">Rate/Salary Target</span><span class="font-bold text-amber-600 text-xs">${user.preferredPayment || 'Negotiable rates'}</span></div>
-        `;
+      const followingList = userProfileData.following || [];
+      if(followingList.includes(userObj.uid)){
+        btnModalFollow.textContent = "Unfollow User";
+        btnModalFollow.className = "flex-1 bg-gray-200 text-gray-800 font-bold py-2 rounded-xl text-xs";
       } else {
-        modalDetails.innerHTML = `<div class="bg-gray-50 p-2.5 rounded-lg"><span class="block text-[9px] font-bold text-gray-400 uppercase">Verified Representative</span><span class="font-bold text-gray-800 text-xs">${user.name}</span></div>`;
+        btnModalFollow.textContent = "Follow on Creative Feed";
+        btnModalFollow.className = "flex-1 bg-amber-600 text-white font-bold py-2 rounded-xl text-xs";
       }
 
+      btnModalFollow.onclick = async () => {
+        let currentFollowing = userProfileData.following || [];
+        if(currentFollowing.includes(userObj.uid)){
+          currentFollowing = currentFollowing.filter(id => id !== userObj.uid);
+          alert("Unfollowed user updates applied.");
+        } else {
+          currentFollowing.push(userObj.uid);
+          alert("Following on Creative Feed enabled! Posts will show under 'Following' filter.");
+        }
+        await setDoc(doc(db, "users", currentUser.uid), { following: currentFollowing }, { merge: true });
+        userProfileData.following = currentFollowing;
+        profileModal.classList.add('hidden');
+      };
+
       modalGallery.innerHTML = "";
-      if (user.portfolioImages && user.portfolioImages.length > 0) {
+      if(userObj.portfolioImages && userObj.portfolioImages.length > 0) {
         galleryEmptyMsg.classList.add('hidden');
-        user.portfolioImages.forEach(imgData => {
+        userObj.portfolioImages.forEach(src => {
           const thumb = document.createElement('img');
-          thumb.src = imgData;
-          thumb.className = "w-full h-20 object-cover rounded-lg border border-gray-200 clickable-pic";
+          thumb.src = src; thumb.className = "w-full h-20 object-cover rounded-lg border clickable-pic";
           modalGallery.appendChild(thumb);
         });
       } else { galleryEmptyMsg.classList.remove('hidden'); }
 
-      modalCallAction.href = user.phone ? `tel:${user.phone}` : "#";
-      
-      // Set up click events for interactive booking/chatting routines
-      modalChatAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(user.uid, user); };
-      modalBookServiceAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(user.uid, user, true); };
+      modalChatAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(userObj.uid, userObj); };
+      modalBookServiceAction.onclick = () => { profileModal.classList.add('hidden'); initChatTunnel(userObj.uid, userObj, true); };
+      modalCallAction.href = userObj.phone ? `tel:${userObj.phone}` : "#";
 
       profileModal.classList.remove('hidden');
     }
 
-    btnCloseModal.addEventListener('click', () => profileModal.classList.add('hidden'));
+    // TIKTOK CREATIVE FEED SYSTEM IMPLEMENTATION
+    document.getElementById('btn-social-post').addEventListener('click', () => socialPostModal.classList.remove('hidden'));
+    document.getElementById('btn-close-post-modal').addEventListener('click', () => socialPostModal.classList.add('hidden'));
+    
+    document.getElementById('input-post-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0]; if(!file) return;
+      base64PostMediaUrl = await compressImage(file, 600, 0.5);
+    });
 
-    // LIVE INTERACTIVE MESSAGING TUNNEL SYSTEM (FIRESTORE POWERED)
+    document.getElementById('btn-submit-social-post').addEventListener('click', async () => {
+      const caption = document.getElementById('input-post-caption').value;
+      const sound = document.getElementById('input-post-sound').value || "Original Sound";
+      if(!base64PostMediaUrl) { alert("Please attach a snapshot asset photo first."); return; }
+      
+      await addDoc(collection(db, "posts"), {
+        uid: currentUser.uid,
+        name: userProfileData.name,
+        avatar: userProfileData.profilePic || '',
+        caption: caption,
+        soundName: sound,
+        mediaUrl: base64PostMediaUrl,
+        likes: [],
+        comments: [],
+        timestamp: new Date().toISOString()
+      });
+      socialPostModal.classList.add('hidden');
+      loadSocialFeed();
+    });
+
+    // Zero-Follower Live Broadcasting Engine
+    document.getElementById('btn-social-live').addEventListener('click', () => {
+      document.getElementById('live-host-title').textContent = `${userProfileData.name}'s Live Broadcast Studio`;
+      socialLiveModal.classList.remove('hidden');
+    });
+    document.getElementById('btn-close-live').addEventListener('click', () => socialLiveModal.classList.add('hidden'));
+
+    async function loadSocialFeed() {
+      socialVideoContainer.innerHTML = `<p class="text-white text-xs text-center my-12">Loading Creative Loops...</p>`;
+      const snap = await getDocs(query(collection(db, "posts"), orderBy("timestamp", "desc")));
+      socialVideoContainer.innerHTML = "";
+      
+      let postsArray = [];
+      snap.forEach(d => postsArray.push({ id: d.id, ...d.data() }));
+
+      if(currentSocialTab === 'following') {
+        const followingIds = userProfileData.following || [];
+        postsArray = postsArray.filter(p => followingIds.includes(p.uid));
+      }
+
+      if(postsArray.length === 0) {
+        socialVideoContainer.innerHTML = `<p class="text-gray-400 text-xs text-center my-12">No media posts in this tab yet.</p>`;
+        return;
+      }
+
+      postsArray.forEach(post => {
+        const card = document.createElement('div');
+        card.className = "w-full video-card relative flex flex-col justify-end p-6 border-b border-gray-900/40 bg-zinc-950";
+        card.innerHTML = `
+          <img src="${post.mediaUrl}" class="absolute inset-0 w-full h-full object-cover opacity-80 clickable-pic" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
+          
+          <!-- Right Sidebar Actions Layout Controls -->
+          <div class="absolute right-4 bottom-24 flex flex-col items-center gap-5 z-20 text-white">
+            <div class="flex flex-col items-center">
+              <img src="${post.avatar || 'https://via.placeholder.com/150'}" class="w-10 h-10 rounded-full border border-white object-cover" />
+              <button class="bg-red-500 rounded-full w-4 h-4 text-[10px] -mt-2 flex items-center justify-center font-bold">+</button>
+            </div>
+            <button class="btn-like flex flex-col items-center text-xl">❤️ <span class="text-xs font-bold">${post.likes ? post.likes.length : 0}</span></button>
+            <button class="btn-comment flex flex-col items-center text-xl">💬 <span class="text-xs font-bold">${post.comments ? post.comments.length : 0}</span></button>
+            <button class="flex flex-col items-center text-xl">🔄 <span class="text-xs font-bold">Share</span></button>
+          </div>
+
+          <!-- Bottom Meta Text Overlay -->
+          <div class="relative z-10 text-white space-y-1.5 max-w-[80%]">
+            <h4 class="font-bold text-sm">@${post.name || 'Creative User'}</h4>
+            <p class="text-xs text-gray-200">${post.caption || ''}</p>
+            <div class="flex items-center gap-2 text-[11px] bg-black/30 w-fit px-2 py-1 rounded-full text-amber-400 font-semibold">
+              🎵 <span>${post.soundName || 'Original Audio'}</span>
+            </div>
+          </div>
+        `;
+
+        card.querySelector('.btn-like').addEventListener('click', async () => {
+          let likesArr = post.likes || [];
+          if(likesArr.includes(currentUser.uid)) likesArr = likesArr.filter(id => id !== currentUser.uid);
+          else likesArr.push(currentUser.uid);
+          await setDoc(doc(db, "posts", post.id), { likes: likesArr }, { merge: true });
+          loadSocialFeed();
+        });
+
+        card.querySelector('.btn-comment').addEventListener('click', () => {
+          const commentTxt = prompt("Type your comment below:");
+          if(!commentTxt) return;
+          const currentComments = post.comments || [];
+          currentComments.push({ name: userProfileData.name, text: commentTxt });
+          setDoc(doc(db, "posts", post.id), { comments: currentComments }, { merge: true }).then(() => loadSocialFeed());
+        });
+
+        socialVideoContainer.appendChild(card);
+      });
+    }
+
+    document.getElementById('social-tab-following').addEventListener('click', () => {
+      currentSocialTab = 'following';
+      document.getElementById('social-tab-following').className = "border-b-2 border-white pb-1 text-white";
+      document.getElementById('social-tab-foryou').className = "opacity-60 text-white";
+      loadSocialFeed();
+    });
+
+    document.getElementById('social-tab-foryou').addEventListener('click', () => {
+      currentSocialTab = 'foryou';
+      document.getElementById('social-tab-foryou').className = "border-b-2 border-white pb-1 text-white";
+      document.getElementById('social-tab-following').className = "opacity-60 text-white";
+      loadSocialFeed();
+    });
+
+    // Chat Conversation Windows Messaging Actions Engine
     async function initChatTunnel(targetUid, targetUserObj, triggerAutoBooking = false) {
       const parts = [currentUser.uid, targetUid].sort();
       activeChatRoomId = `${parts[0]}_${parts[1]}`;
@@ -601,9 +802,33 @@
         avatars: { [currentUser.uid]: userProfileData.profilePic || '', [targetUid]: targetUserObj.profilePic || '' }
       }, { merge: true });
 
+      // Reset local unread mapping value for current operator inside database
+      await setDoc(doc(db, "rooms", activeChatRoomId), {
+        unreadCount: { [currentUser.uid]: 0 }
+      }, { merge: true });
+
       document.getElementById('chat-window-avatar').src = targetUserObj.profilePic || 'https://via.placeholder.com/150';
-      document.getElementById('chat-window-name').textContent = targetUserObj.role === 'owner' && targetUserObj.shopName ? targetUserObj.shopName : targetUserObj.name;
-      document.getElementById('chat-window-meta').textContent = targetUserObj.role === 'barber' ? 'Professional Barber' : 'Shop Owner';
+      document.getElementById('chat-window-name').textContent = targetUserObj.name;
+
+      // Listen to Opponent User System Presence State Remotely
+      onSnapshot(doc(db, "users", targetUid), (docSnap) => {
+        if (docSnap.exists()) {
+          const remoteUser = docSnap.data();
+          const p = remoteUser.presence || { status: 'offline' };
+          const indicator = document.getElementById('chat-presence-indicator');
+          const pText = document.getElementById('chat-window-presence-text');
+          if (p.status === 'online') {
+            indicator.className = "absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full";
+            pText.textContent = "Online";
+            pText.className = "text-[10px] text-emerald-600 block font-bold";
+          } else {
+            indicator.className = "absolute bottom-0 right-0 w-2.5 h-2.5 bg-gray-400 border-2 border-white rounded-full";
+            const timeStr = p.lastSeen ? new Date(p.lastSeen).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Offline';
+            pText.textContent = `Last seen at ${timeStr}`;
+            pText.className = "text-[10px] text-gray-400 block font-normal";
+          }
+        }
+      });
 
       showScreen('chats');
       chatWindowScreen.classList.remove('hidden');
@@ -616,58 +841,54 @@
           const bubble = document.createElement('div');
           const isMe = m.senderId === currentUser.uid;
           bubble.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-2`;
-          
           let contentHtml = `<p class="text-xs break-words">${m.text}</p>`;
-          if(m.image) contentHtml = `<img src="${m.image}" class="w-40 h-auto rounded-lg mb-1 object-cover clickable-pic border border-gray-100" />` + contentHtml;
-          
-          bubble.innerHTML = `
-            <div class="${isMe ? 'bg-amber-600 text-white rounded-t-xl rounded-bl-xl' : 'bg-white border border-gray-200 text-gray-900 rounded-t-xl rounded-br-xl'} max-w-[75%] p-3 shadow-xs">
-              ${contentHtml}
-            </div>
-          `;
+          if(m.image) contentHtml = `<img src="${m.image}" class="w-40 h-auto rounded-lg mb-1 object-cover clickable-pic" />` + contentHtml;
+          bubble.innerHTML = `<div class="${isMe ? 'bg-amber-600 text-white rounded-xl' : 'bg-white text-gray-900 rounded-xl'} max-w-[75%] p-3 border">${contentHtml}</div>`;
           chatMessagesBox.appendChild(bubble);
         });
         chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
       });
 
-      // Handle Immediate Home Service Booking Injection
       if (triggerAutoBooking) {
-        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nLocation Target: ${userProfileData.location || 'Not Specified'}\nStatus: Pending Response via app chat.`);
+        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nLocation Target: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending Response.`);
       }
-
       document.getElementById('btn-chat-book-service').onclick = () => {
-        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nLocation Target: ${userProfileData.location || 'Not Specified'}\nStatus: Pending Response via app chat.`);
+        injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nLocation Target: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending Response.`);
       };
     }
 
     async function injectStructuredMessage(txt, imgStr = null) {
       if(!activeChatRoomId) return;
-      const textVal = txt.trim();
-      if(!textVal && !imgStr) return;
+      const textVal = txt.trim(); if(!textVal && !imgStr) return;
+
+      // Read current unread structure state increment map calculation details
+      const rSnap = await getDoc(doc(db, "rooms", activeChatRoomId));
+      let currentUnread = {};
+      if(rSnap.exists()) currentUnread = rSnap.data().unreadCount || {};
       
-      await addDoc(collection(db, "rooms", activeChatRoomId, "messages"), {
-        senderId: currentUser.uid,
-        text: textVal,
-        image: imgStr,
-        timestamp: new Date().toISOString()
+      const opponents = rSnap.data().participants.filter(id => id !== currentUser.uid);
+      opponents.forEach(opUid => {
+        currentUnread[opUid] = (currentUnread[opUid] || 0) + 1;
       });
-      await setDoc(doc(db, "rooms", activeChatRoomId), { lastUpdated: new Date().toISOString() }, { merge: true });
+
+      await addDoc(collection(db, "rooms", activeChatRoomId, "messages"), {
+        senderId: currentUser.uid, text: textVal, image: imgStr, timestamp: new Date().toISOString()
+      });
+      await setDoc(doc(db, "rooms", activeChatRoomId), { 
+        lastUpdated: new Date().toISOString(),
+        unreadCount: currentUnread
+      }, { merge: true });
     }
 
-    // Chat Message Transmission triggers
     document.getElementById('btn-send-message').addEventListener('click', () => {
       const field = document.getElementById('chat-message-input');
-      injectStructuredMessage(field.value);
-      field.value = "";
+      injectStructuredMessage(field.value); field.value = "";
     });
 
     document.getElementById('chat-image-input').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if(!file) return;
-      try {
-        const compressedBase64 = await compressImage(file, 500, 0.5);
-        injectStructuredMessage("[Sent a snapshot image data]", compressedBase64);
-      } catch(e) { alert("Image transmission broken."); }
+      const file = e.target.files[0]; if(!file) return;
+      const b64 = await compressImage(file, 500, 0.5);
+      injectStructuredMessage("[Image Attached]", b64);
     });
 
     document.getElementById('btn-back-to-chats').addEventListener('click', () => {
@@ -676,34 +897,35 @@
       loadChatChannels();
     });
 
-    // Load All Open Active In-App Chat Rooms
     async function loadChatChannels() {
       chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-4">Polling chat logs...</p>`;
       const snap = await getDocs(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)));
       chatChannelsContainer.innerHTML = "";
       
-      if(snap.empty) { chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">No active application chat channels. Browse the feed to start talking.</p>`; return; }
+      if(snap.empty) { chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">No active application chat channels.</p>`; return; }
       
       snap.forEach(roomDoc => {
         const room = roomDoc.data();
         const opponentUid = room.participants.find(id => id !== currentUser.uid);
         if(!opponentUid) return;
-
-        const name = room.names[opponentUid] || "App User";
+        const name = room.names[opponentUid] || "User";
         const img = room.avatars[opponentUid] || "https://via.placeholder.com/150";
+        
+        const currentUnreadCount = (room.unreadCount && room.unreadCount[currentUser.uid]) ? room.unreadCount[currentUser.uid] : 0;
+        const countBadge = currentUnreadCount > 0 ? `<span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-auto">${currentUnreadCount}</span>` : '';
 
         const bar = document.createElement('div');
-        bar.className = "bg-white p-3.5 rounded-xl border border-gray-100 flex items-center gap-3 cursor-pointer hover:bg-amber-50/30 transition";
+        bar.className = "bg-white p-3.5 rounded-xl border flex items-center gap-3 cursor-pointer hover:bg-amber-50/30";
         bar.innerHTML = `
-          <img src="${img}" class="w-10 h-10 rounded-full object-cover border border-gray-200" />
-          <div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${name}</h4><p class="text-[10px] text-gray-400 mt-0.5">Click to resume conversation</p></div>
+          <img src="${img}" class="w-10 h-10 rounded-full object-cover border" />
+          <div class="flex-1"><h4 class="font-bold text-sm text-gray-900">${name}</h4><p class="text-[10px] text-gray-400">Click to resume conversation</p></div>
+          ${countBadge}
         `;
-        bar.onclick = () => initChatTunnel(opponentUid, { name: name, profilePic: img, role: 'user' });
+        bar.onclick = () => initChatTunnel(opponentUid, { name: name, profilePic: img });
         chatChannelsContainer.appendChild(bar);
       });
     }
 
-    // Toggle tab marketplace logic adjustments
     const tabBarbers = document.getElementById('tab-barbers'); const tabShops = document.getElementById('tab-shops');
     tabBarbers.addEventListener('click', () => { currentTab = 'barber'; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition"; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition"; loadFeed(); });
     tabShops.addEventListener('click', () => { currentTab = 'owner'; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-white text-gray-900 shadow-sm transition"; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-600 transition"; loadFeed(); });
