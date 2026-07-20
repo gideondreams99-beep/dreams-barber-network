@@ -25,30 +25,32 @@ const btnLogout = document.getElementById('btn-logout');
 const btnBarber = document.getElementById('btn-barber');
 const btnOwner = document.getElementById('btn-owner');
 
+// Profile Editor Elements
+const editScreen = document.getElementById('profile-edit-screen');
+const btnEdit = document.getElementById('btn-edit-profile');
+const btnSave = document.getElementById('save-profile');
+const btnCancel = document.getElementById('cancel-edit');
+
 let currentUser = null;
 
-// Helper function to switch screens
 function showScreen(screenId) {
   authScreen.classList.add('hidden');
   roleScreen.classList.add('hidden');
   mainApp.classList.add('hidden');
-  
   if (screenId === 'auth') authScreen.classList.remove('hidden');
   if (screenId === 'role') roleScreen.classList.remove('hidden');
   if (screenId === 'app') mainApp.classList.remove('hidden');
 }
 
-// Fetch and display the Marketplace Feed
+// Marketplace Load
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
   if (!feedContainer) return; 
-
   feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading barbers...</p>";
 
   try {
     const q = query(collection(db, "users"), where("role", "==", "barber"));
     const querySnapshot = await getDocs(q);
-
     feedContainer.innerHTML = ""; 
     
     if (querySnapshot.empty) {
@@ -58,11 +60,8 @@ async function loadMarketplace() {
 
     querySnapshot.forEach((doc) => {
       const barber = doc.data();
-      
-      // Use fallback name and smart avatar if data is missing
       const displayName = barber.name || "Anonymous Barber";
       const profilePic = barber.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
-
       const card = document.createElement('div');
       card.className = "p-4 bg-zinc-800 rounded-xl border border-zinc-700 flex items-center gap-4";
       card.innerHTML = `
@@ -76,37 +75,33 @@ async function loadMarketplace() {
     });
   } catch (error) {
     console.error("Error loading marketplace:", error);
-    feedContainer.innerHTML = "<p class='text-red-500 text-sm'>Failed to load feed.</p>";
   }
 }
 
-// 1. Handle Login
-btnLogin.addEventListener('click', async () => {
-  try {
-    await signInWithPopup(auth, googleProvider);
-  } catch (error) {
-    console.error("Login failed", error);
-  }
-});
-
-// 2. Handle Logout
-btnLogout.addEventListener('click', () => {
-  signOut(auth);
-});
-
-// 3. Handle Role Selection
-async function assignRole(roleName) {
+// Profile Editor Listeners
+btnEdit.addEventListener('click', () => editScreen.classList.remove('hidden'));
+btnCancel.addEventListener('click', () => editScreen.classList.add('hidden'));
+btnSave.addEventListener('click', async () => {
+  const newName = document.getElementById('edit-name').value;
+  const newPic = document.getElementById('edit-pic').value;
   if (!currentUser) return;
   
-  const userProfile = {
-    uid: currentUser.uid,
-    name: currentUser.displayName,
-    email: currentUser.email,
-    profilePic: currentUser.photoURL || "",
-    role: roleName,
-    createdAt: new Date().toISOString()
-  };
+  await setDoc(doc(db, "users", currentUser.uid), {
+    name: newName || currentUser.displayName,
+    profilePic: newPic
+  }, { merge: true });
+  
+  editScreen.classList.add('hidden');
+  alert("Profile Updated!");
+  location.reload(); 
+});
 
+btnLogin.addEventListener('click', () => signInWithPopup(auth, googleProvider));
+btnLogout.addEventListener('click', () => signOut(auth));
+
+async function assignRole(roleName) {
+  if (!currentUser) return;
+  const userProfile = { uid: currentUser.uid, name: currentUser.displayName, email: currentUser.email, profilePic: currentUser.photoURL || "", role: roleName, createdAt: new Date().toISOString() };
   await setDoc(doc(db, "users", currentUser.uid), userProfile, { merge: true });
   showScreen('app'); 
   loadMarketplace();
@@ -115,17 +110,14 @@ async function assignRole(roleName) {
 btnBarber.addEventListener('click', () => assignRole('barber'));
 btnOwner.addEventListener('click', () => assignRole('owner'));
 
-// 4. Listen for Authentication Changes
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     const userDoc = await getDoc(doc(db, "users", user.uid));
-    
     if (userDoc.exists() && userDoc.data().role) {
       const data = userDoc.data();
       document.getElementById('user-display-name').textContent = data.name || "User";
       document.getElementById('user-role-text').textContent = "Role: " + data.role;
-      
       showScreen('app');
       loadMarketplace();
     } else {
