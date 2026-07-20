@@ -2,16 +2,17 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Keep your existing Firebase config code block right here
+// Your verified Firebase web configuration settings
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
+  authDomain: "dreamssmartapp.firebaseapp.com",
+  projectId: "dreamssmartapp",
+  storageBucket: "dreamssmartapp.firebasestorage.app",
+  messagingSenderId: "679648849916",
+  appId: "1:679648849916:web:9ad24dbfd209dd266a8c79"
 };
 
+// Initialize Firebase App and Modules
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -28,10 +29,11 @@ const listingsFeed = document.getElementById('listingsFeed');
 // 1. Trigger Google Authentication REDIRECT Flow (Safe for Mobile Browsers)
 googleSignInBtn.addEventListener('click', async () => {
   try {
+    googleSignInBtn.innerHTML = "Loading...";
     await signInWithRedirect(auth, provider);
   } catch (error) {
-    console.error("Sign-in trigger issue: ", error);
-    alert("Could not open sign-in page. Please try again.");
+    alert("Firebase Sign-In Error: " + error.message);
+    googleSignInBtn.innerHTML = "Sign in with Google";
   }
 });
 
@@ -43,31 +45,35 @@ getRedirectResult(auth)
     }
   })
   .catch((error) => {
-    console.error("Redirect auth error details: ", error);
+    alert("Authentication Redirect Failure: " + error.message);
   });
 
 // 3. Clear Session Logout Trigger
-logoutBtn.addEventListener('click', () => {
-  signOut(auth);
-});
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    signOut(auth);
+  });
+}
 
 // 4. Strict State Gatekeeper Monitoring
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // If logged in, block access panel drops and show the app
-    loginScreen.style.display = 'none';
-    mainApp.style.display = 'block';
-    userAvatar.src = user.photoURL || 'https://via.placeholder.com/36';
+    // Hide login screen and show the app content
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (mainApp) mainApp.style.display = 'block';
+    if (userAvatar) userAvatar.src = user.photoURL || 'https://via.placeholder.com/36';
     loadMarketplaceFeed(); // Fetch marketplace snapshot data
   } else {
     // Force user back to login screen if unauthenticated
-    loginScreen.style.display = 'flex';
-    mainApp.style.display = 'none';
+    if (loginScreen) loginScreen.style.display = 'flex';
+    if (mainApp) mainApp.style.display = 'none';
   }
 });
 
 // 5. Load Active Ads into the Grid Interface
 function loadMarketplaceFeed() {
+  if (!listingsFeed) return;
+  
   const listingsRef = collection(db, "listings");
   const q = query(listingsRef, orderBy("createdAt", "desc"));
 
