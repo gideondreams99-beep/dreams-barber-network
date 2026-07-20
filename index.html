@@ -3,268 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barber Connect Platform</title>
+  <title>Dreams Smart Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    /* Premium Dark/Gold Aesthetic Styles */
-    body {
-      background-color: #121212;
-      color: #FFFFFF;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
+    :root {
+      --bg-dark: #121212;
+      --surface: #1e1e1e;
+      --accent-gold: #d4af37;
+      --text-white: #ffffff;
+      --text-gray: #aaaaaa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-white); min-height: 100vh; }
+
+    /* Gatekeeper Login Screen */
+    #loginScreen {
       display: flex;
+      flex-direction: column;
       justify-content: center;
-    }
-    .form-container {
-      background-color: #1E1E1E;
-      border: 1px solid #333333;
-      border-radius: 12px;
-      padding: 25px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-    h2 {
-      color: #D4AF37; /* Metallic Gold Accent */
+      align-items: center;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg-dark);
+      z-index: 1000;
+      padding: 30px;
       text-align: center;
-      margin-bottom: 5px;
     }
-    p.subtitle {
-      color: #A9A9A9; /* Ash Accent */
-      text-align: center;
-      font-size: 14px;
-      margin-bottom: 25px;
-    }
-    .input-group {
-      margin-bottom: 18px;
-    }
-    .dynamic-section {
-      border-left: 2px solid #D4AF37;
-      padding-left: 12px;
-      margin-bottom: 18px;
-    }
-    label {
-      display: block;
-      color: #A9A9A9;
-      font-size: 13px;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      background-color: #2A2A2A;
-      border: 1px solid #444444;
-      border-radius: 6px;
-      color: white;
-      font-size: 15px;
-      box-sizing: border-box;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: #D4AF37;
-      outline: none;
-    }
-    .currency-wrap {
+    .login-branding { margin-bottom: 40px; }
+    .login-branding h1 { color: var(--accent-gold); font-size: 2.2rem; font-weight: 600; letter-spacing: 1px; }
+    .login-branding p { color: var(--text-gray); font-size: 0.95rem; margin-top: 10px; }
+    
+    .google-login-btn {
       display: flex;
       align-items: center;
-    }
-    .currency-label {
-      background-color: #333333;
-      padding: 12px;
-      border: 1px solid #444444;
-      border-right: none;
-      border-radius: 6px 0 0 6px;
-      color: #D4AF37;
-      font-weight: bold;
-    }
-    .currency-wrap input {
-      border-radius: 0 6px 6px 0;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background-color: #D4AF37;
-      color: #121212;
+      justify-content: center;
+      background: #ffffff;
+      color: #000000;
+      padding: 14px 24px;
+      border-radius: 30px;
       border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: bold;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.2s;
+      width: 100%;
+      max-width: 280px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+      transition: transform 0.2s;
     }
-    button:hover {
-      background-color: #AA882C;
-    }
-    .skip-link {
-      display: block;
-      text-align: center;
-      margin-top: 15px;
-      color: #A9A9A9;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .skip-link:hover {
-      color: #D4AF37;
-    }
+    .google-login-btn img { width: 22px; height: 22px; margin-right: 12px; }
+
+    /* Main Application Container (Hidden by default) */
+    #mainApp { display: none; padding-bottom: 80px; }
+
+    /* Header & Navigation */
+    header { background: var(--surface); padding: 15px; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .logo { font-weight: 600; color: var(--accent-gold); font-size: 1.2rem; }
+    
+    .user-profile { display: flex; align-items: center; gap: 10px; }
+    .user-profile img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--accent-gold); }
+    .logout-btn { background: transparent; border: none; color: var(--text-gray); font-size: 0.8rem; text-decoration: underline; cursor: pointer; }
+
+    .search-container { position: relative; }
+    .search-bar { width: 100%; background: #2a2a2a; border: 1px solid #444; padding: 10px 15px; border-radius: 25px; color: #fff; font-size: 0.9rem; }
+    
+    /* Updated Categories Slider */
+    .categories-slider { display: flex; overflow-x: auto; padding: 15px 10px; gap: 10px; scrollbar-width: none; }
+    .categories-slider::-webkit-scrollbar { display: none; }
+    .category-chip { background: var(--surface); border: 1px solid #333; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; white-space: nowrap; color: var(--text-gray); }
+    .category-chip.active { background: var(--accent-gold); color: #000; font-weight: 600; border-color: var(--accent-gold); }
+
+    /* Product Grid */
+    .feed-container { padding: 0 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .product-card { background: var(--surface); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; position: relative; border: 1px solid #2a2a2a; }
+    .product-img { width: 100%; aspect-ratio: 1; background: #252525; object-fit: cover; }
+    .product-info { padding: 10px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+    .product-price { color: var(--accent-gold); font-weight: 600; font-size: 1.1rem; }
+    .product-title { font-size: 0.85rem; color: var(--text-white); margin: 4px 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .product-location { font-size: 0.75rem; color: var(--text-gray); }
+    .verified-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: var(--accent-gold); padding: 2px 6px; font-size: 0.65rem; border-radius: 4px; border: 1px solid var(--accent-gold); }
+
+    /* Floating Post Button */
+    .fab-post { position: fixed; bottom: 20px; right: 20px; background: var(--accent-gold); color: #000; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); text-decoration: none; z-index: 99; }
   </style>
 </head>
 <body>
 
-  <div class="form-container">
-    <h2>DREAMS SMART APP</h2>
-    <p class="subtitle">Create Your Professional Barbering Network Profile</p>
-
-    <!-- Registration Form Fields -->
-    <form id="profileForm">
-      <div class="input-group">
-        <label for="fullName">Full Name</label>
-        <input type="text" id="fullName" placeholder="e.g. Gideon Dreams" required>
-      </div>
-
-      <div class="input-group">
-        <label for="phone">Phone Number</label>
-        <input type="tel" id="phone" placeholder="e.g. +233XXXXXXXXX" required>
-      </div>
-
-      <div class="input-group">
-        <label for="role">I am a:</label>
-        <select id="role" required>
-          <option value="barber">Barber (Looking for a chair/work)</option>
-          <option value="shop_owner">Shop Owner (Have chairs to rent out)</option>
-        </select>
-      </div>
-
-      <!-- BARBER EXTRA FIELDS SECTION (Shows when role is Barber) -->
-      <div id="barberSection" class="dynamic-section">
-        <div class="input-group">
-          <label for="profilePic">Profile Picture</label>
-          <input type="file" id="profilePic" accept="image/*">
-        </div>
-
-        <div class="input-group">
-          <label for="experienceYears">Working Experience (Years)</label>
-          <input type="number" id="experienceYears" placeholder="e.g. 3" min="0">
-        </div>
-
-        <div class="input-group">
-          <label for="portfolioPhotos">Pictures of Your Works</label>
-          <input type="file" id="portfolioPhotos" accept="image/*" multiple>
-        </div>
-
-        <div class="input-group">
-          <label for="education">Level of Education</label>
-          <select id="education">
-            <option value="Apprenticeship">Apprenticeship / Practical Training</option>
-            <option value="JHS/SHS">High School / JHS / SHS</option>
-            <option value="Certificate">Vocational / Barbering Certificate</option>
-            <option value="Diploma">Diploma / Higher Education</option>
-          </select>
-        </div>
-
-        <div class="input-group">
-          <label for="payoutPreference">Payment Mode Preference</label>
-          <select id="payoutPreference">
-            <option value="Salary">Monthly Salary</option>
-            <option value="Commission">Commission Basis</option>
-            <option value="Chair Rent">Chair Rent / Sales Fee</option>
-          </select>
-        </div>
-
-        <div class="input-group">
-          <label id="amountLabel" for="payoutAmount">Salary Amount</label>
-          <div class="currency-wrap">
-            <span id="cediSign" class="currency-label">GH₵</span>
-            <input type="number" id="payoutAmount" placeholder="e.g. 1500" min="0">
-          </div>
-        </div>
-      </div>
-
-      <!-- SHOP OWNER EXTRA FIELDS SECTION (Shows when role is Shop Owner) -->
-      <div id="shopOwnerSection" class="dynamic-section" style="display: none;">
-        <div class="input-group">
-          <label for="shopPhotos">Pictures of Your Shop</label>
-          <input type="file" id="shopPhotos" accept="image/*" multiple>
-        </div>
-
-        <div class="input-group">
-          <label for="shopVideo">Video Tour of Your Shop</label>
-          <input type="file" id="shopVideo" accept="video/*">
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label for="city">City (Location)</label>
-        <input type="text" id="city" value="Accra" required>
-      </div>
-
-      <div class="input-group">
-        <label for="bio">Bio / Experience</label>
-        <textarea id="bio" rows="3" placeholder="Tell shops or barbers about your work, specialties, or chair availability..."></textarea>
-      </div>
-
-      <button type="submit">CREATE PROFILE</button>
-    </form>
-    
-    <a href="feed.html" class="skip-link">Skip to Marketplace Feed →</a>
+  <!-- Mandatory Login Wall Screen -->
+  <div id="loginScreen">
+    <div class="login-branding">
+      <h1>DREAMS SMARTS</h1>
+      <p>Sign in to access the premium barbering & styling network</p>
+    </div>
+    <button class="google-login-btn" id="googleSignInBtn">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google UI"> Sign in with Google
+    </button>
   </div>
 
-  <!-- Form Actions and Dynamic Show/Hide Logic -->
-  <script type="module">
-    import { createUserProfile } from './firebase-config.js';
+  <!-- Locked Main Content Panel -->
+  <div id="mainApp">
+    <header>
+      <div class="header-top">
+        <div class="logo">DREAMS SMARTS</div>
+        <div class="user-profile">
+          <img src="" id="userAvatar" alt="Profile View">
+          <button class="logout-btn" id="logoutBtn">Sign Out</button>
+        </div>
+      </div>
+      <div class="search-container">
+        <input type="text" class="search-bar" placeholder="Search for shops, home services, or items...">
+      </div>
+    </header>
 
-    const roleSelect = document.getElementById('role');
-    const barberSection = document.getElementById('barberSection');
-    const shopOwnerSection = document.getElementById('shopOwnerSection');
-    const payoutPreference = document.getElementById('payoutPreference');
-    const amountLabel = document.getElementById('amountLabel');
-    const cediSign = document.getElementById('cediSign');
+    <!-- Requested Updated Clean Category Chips -->
+    <div class="categories-slider">
+      <div class="category-chip active">All Feed</div>
+      <div class="category-chip">Home Barbering Services</div>
+      <div class="category-chip">Salons</div>
+    </div>
 
-    // Automatically change visible input options when user picks Barber or Shop Owner
-    roleSelect.addEventListener('change', () => {
-      if (roleSelect.value === 'barber') {
-        barberSection.style.display = 'block';
-        shopOwnerSection.style.display = 'none';
-      } else {
-        barberSection.style.display = 'none';
-        shopOwnerSection.style.display = 'block';
-      }
-    });
+    <main class="feed-container" id="listingsFeed">
+      <!-- Listings loaded dynamically -->
+    </main>
 
-    // Dynamically change text labels if they choose Commission (%) instead of Salary (GH₵)
-    payoutPreference.addEventListener('change', () => {
-      if (payoutPreference.value === 'Commission') {
-        amountLabel.textContent = "Commission Percentage (%)";
-        cediSign.textContent = "%";
-      } else if (payoutPreference.value === 'Chair Rent') {
-        amountLabel.textContent = "Chair Rent Amount Fee";
-        cediSign.textContent = "GH₵";
-      } else {
-        amountLabel.textContent = "Salary Amount";
-        cediSign.textContent = "GH₵";
-      }
-    });
+    <a href="add-chair.html" class="fab-post">+</a>
+  </div>
 
-    document.getElementById('profileForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const fullName = document.getElementById('fullName').value;
-      const phone = document.getElementById('phone').value;
-      const role = document.getElementById('role').value;
-      const city = document.getElementById('city').value;
-      const bio = document.getElementById('bio').value;
-
-      // Temporary placeholder ID for testing layout
-      const temporaryUserId = "test_user_" + Math.floor(Math.random() * 10000);
-
-      // Trigger standard save
-      await createUserProfile(temporaryUserId, fullName, phone, role, city, bio);
-
-      window.location.href = "feed.html";
-    });
-  </script>
-
+  <script type="module" src="app.js"></script>
 </body>
 </html>
-
