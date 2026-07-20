@@ -10,8 +10,6 @@
     .animate-slide-up { animation: slideUp 0.25s ease-out forwards; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .video-card { height: calc(100vh - 120px); scroll-snap-align: start; }
-    .feed-container-snap { scroll-snap-type: y mandatory; }
   </style>
 </head>
 <body class="bg-zinc-950 font-sans antialiased text-gray-100 pb-24 select-none">
@@ -62,22 +60,30 @@
     <div id="feed-container" class="grid grid-cols-1 gap-3"></div>
   </div>
 
-  <!-- ================= 4. CREATIVE SHORT VIDEO FEED ================= -->
-  <div id="social-feed-screen" class="hidden fixed inset-0 bg-black z-40 max-w-md mx-auto flex flex-col">
-    <div class="absolute top-4 left-0 right-0 flex justify-center items-center gap-6 z-50 text-white font-bold text-sm drop-shadow-lg">
-      <button id="social-tab-following" class="opacity-60 transition">Following</button>
-      <button id="social-tab-foryou" class="border-b-2 border-amber-500 pb-1">For You</button>
-      <button id="btn-social-post" class="ml-4 bg-amber-600 text-xs px-3 py-1.5 rounded-full font-bold active:scale-95">+ Post</button>
-      <button id="btn-social-live" class="bg-red-600 text-xs px-3 py-1.5 rounded-full font-bold animate-pulse active:scale-95">● Live</button>
+  <!-- ================= 4. LIVE BROADCAST CENTER (REPLACED DISCOVERY TABS) ================= -->
+  <div id="social-feed-screen" class="hidden max-w-md mx-auto p-4 flex flex-col items-center justify-center min-h-[70vh]">
+    <div class="text-center space-y-4 w-full">
+      <div class="w-20 h-20 bg-red-950/40 border-2 border-red-500 rounded-full flex items-center justify-center mx-auto mb-2 animate-pulse">
+        <span class="text-3xl">🎥</span>
+      </div>
+      <h2 class="text-xl font-black text-white">Live Stream Broadcast Studio</h2>
+      <p class="text-xs text-gray-400 max-w-xs mx-auto">Go live to demonstrate cuts, review setups, and showcase skills in real time to potential clients or shops.</p>
+      
+      <button id="btn-social-live" class="w-full max-w-xs bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition flex items-center justify-center gap-2 mx-auto active:scale-[0.98]">
+        <span class="w-2 h-2 bg-white rounded-full animate-ping"></span>
+        <span>Launch Real-Time Stream</span>
+      </button>
     </div>
-
-    <div id="social-video-container" class="flex-1 overflow-y-auto feed-container-snap no-scrollbar bg-black"></div>
   </div>
 
-  <!-- ================= 5. CHAT CHANNELS LIST SCREEN ================= -->
+  <!-- ================= 5. CHAT CHANNELS & MESSAGING HUB ================= -->
   <div id="chat-list-screen" class="hidden max-w-md mx-auto p-4">
     <header class="mb-4 pt-2"><h1 class="text-2xl font-black text-white">Messages</h1></header>
-    <div id="chat-channels-container" class="space-y-2"></div>
+    
+    <!-- Structured Chat Channels Box Container -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 min-h-[60vh] flex flex-col">
+      <div id="chat-channels-container" class="space-y-2 flex-1 overflow-y-auto no-scrollbar"></div>
+    </div>
   </div>
 
   <!-- ================= 6. LIVE CHAT CONVERSATION WINDOW ================= -->
@@ -185,35 +191,7 @@
     </form>
   </div>
 
-  <!-- ================= 8. SYSTEM POST/LIVE MODALS ================= -->
-  <div id="social-post-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-800 w-full max-w-sm rounded-2xl p-5 space-y-4 border border-zinc-700 text-white">
-      <h3 class="font-bold text-lg text-amber-500">Create Creative Loop</h3>
-      <input type="text" id="input-post-caption" placeholder="Write a description or hashtag..." class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none" />
-      <input type="text" id="input-post-sound" placeholder="Add sound track name (e.g., King Promise)" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none" />
-      
-      <div>
-        <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Who can view this post</label>
-        <select id="select-post-privacy" class="w-full p-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-sm font-bold text-gray-300 focus:outline-none">
-          <option value="public" selected>🌎 Public (Discovery Feed)</option>
-          <option value="followers">👥 Followers Only</option>
-          <option value="private">🔒 Private (Only Me)</option>
-        </select>
-      </div>
-
-      <label class="block border-2 border-zinc-700 border-dashed p-4 text-center rounded-xl cursor-pointer bg-zinc-900 text-xs font-bold text-gray-400">
-        📸 Attach Photo or Video Asset
-        <input type="file" id="input-post-file" accept="image/*,video/*" class="hidden" />
-      </label>
-      <div id="upload-progress-log" class="text-xs text-amber-500 font-bold hidden">Processing media parameters...</div>
-      
-      <div class="flex gap-2">
-        <button id="btn-close-post-modal" class="flex-1 bg-zinc-700 text-sm py-2 rounded-xl">Cancel</button>
-        <button id="btn-submit-social-post" class="flex-1 bg-amber-600 text-white text-sm py-2 rounded-xl font-bold">Publish</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- ================= 8. SYSTEM LIVE BROADCAST WINDOW ================= -->
   <div id="social-live-modal" class="hidden fixed inset-0 bg-black z-[60] flex flex-col justify-between p-4 text-white">
     <video id="live-video-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover z-0 bg-zinc-950"></video>
     <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none z-10"></div>
@@ -307,7 +285,7 @@
       <span class="text-lg">📋</span><span>Market Feed</span>
     </button>
     <button id="nav-social" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5">
-      <span class="text-lg">🎵</span><span>Creative Feed</span>
+      <span class="text-lg">🎥</span><span>Live Stream</span>
     </button>
     <button id="nav-chats" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5 relative">
       <span class="text-lg">💬</span><span>Messages</span>
@@ -349,7 +327,6 @@
     const bottomNav = document.getElementById('bottom-nav');
     
     const feedContainer = document.getElementById('feed-container');
-    const socialVideoContainer = document.getElementById('social-video-container');
     const dynamicFields = document.getElementById('dynamic-fields');
     const chatChannelsContainer = document.getElementById('chat-channels-container');
     const chatMessagesBox = document.getElementById('chat-messages-box');
@@ -366,7 +343,6 @@
     const portfolioFileInput = document.getElementById('portfolio-file-input');
     const dashboardGalleryPreview = document.getElementById('dashboard-gallery-preview');
 
-    const socialPostModal = document.getElementById('social-post-modal');
     const socialLiveModal = document.getElementById('social-live-modal');
     const liveVideoPreview = document.getElementById('live-video-preview');
     const liveChatSimulation = document.getElementById('live-chat-simulation');
@@ -391,10 +367,8 @@
     let currentUser = null;
     let userProfileData = null;
     let currentTab = 'barber';
-    let currentSocialTab = 'foryou';
     let temporaryPortfolioUrls = [];
     let base64AvatarUrl = "";
-    let base64PostMediaUrl = "";
     let activeChatRoomId = null;
     let chatUnsubscribeHook = null;
     let presenceHeartbeatInterval = null;
@@ -428,7 +402,7 @@
       }
     });
 
-    // Real-Time System Offline/Online Status Synchronizer
+    // Real-Time System Status Synchronizer
     async function startPresenceHeartbeat() {
       if (!currentUser) return;
       const updatePresence = async () => {
@@ -438,7 +412,7 @@
       };
       await updatePresence();
       if (presenceHeartbeatInterval) clearInterval(presenceHeartbeatInterval);
-      presenceHeartbeatInterval = setInterval(updatePresence, 45000); // 45s interval optimizes mobile battery consumption
+      presenceHeartbeatInterval = setInterval(updatePresence, 45000); 
     }
 
     async function stopPresenceHeartbeat() {
@@ -487,7 +461,7 @@
     }
 
     bindFastClick(navFeed, () => { showScreen('app'); loadFeed(); });
-    bindFastClick(navSocial, () => { showScreen('social'); loadSocialFeed(); });
+    bindFastClick(navSocial, () => { showScreen('social'); });
     bindFastClick(navChats, () => { showScreen('chats'); loadChatChannels(); });
     bindFastClick(navDash, () => { showScreen('dashboard'); populateDashboard(); });
 
@@ -564,7 +538,7 @@
             canvas.width = width; canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toToDataURL ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/jpeg'));
+            resolve(canvas.toDataURL ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/jpeg'));
           };
         };
         reader.onerror = (err) => reject(err);
@@ -732,7 +706,7 @@
         btnModalFollow.textContent = "Unfollow User Loop";
         btnModalFollow.className = "w-full bg-zinc-700 text-gray-300 font-bold py-3 rounded-xl text-xs";
       } else {
-        btnModalFollow.textContent = "Follow on Creative Feed";
+        btnModalFollow.textContent = "Follow User";
         btnModalFollow.className = "w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-sm";
       }
 
@@ -791,46 +765,7 @@
     }
     bindFastClick(btnCloseModal, () => profileModal.classList.add('hidden'));
 
-    // TikTok Short Loop Social Action Implementation Matrix
-    bindFastClick(document.getElementById('btn-social-post'), () => socialPostModal.classList.remove('hidden'));
-    bindFastClick(document.getElementById('btn-close-post-modal'), () => socialPostModal.classList.add('hidden'));
-    
-    document.getElementById('input-post-file').addEventListener('change', async (e) => {
-      const file = e.target.files[0]; if(!file) return;
-      document.getElementById('upload-progress-log').classList.remove('hidden');
-      base64PostMediaUrl = await compressImage(file, 600, 0.5);
-      document.getElementById('upload-progress-log').classList.add('hidden');
-      alert("Media attachment transaction ready.");
-    });
-
-    bindFastClick(document.getElementById('btn-submit-social-post'), async () => {
-      const caption = document.getElementById('input-post-caption').value;
-      const sound = document.getElementById('input-post-sound').value || "Original Barber Sound Audio";
-      const privacyScope = document.getElementById('select-post-privacy').value;
-
-      if(!base64PostMediaUrl) { alert("Attach an image snap loop first."); return; }
-      
-      await addDoc(collection(db, "posts"), {
-        uid: currentUser.uid,
-        name: userProfileData.name,
-        avatar: userProfileData.profilePic || '',
-        caption: caption,
-        soundName: sound,
-        mediaUrl: base64PostMediaUrl,
-        privacy: privacyScope, 
-        likes: [],
-        comments: [],
-        viewCount: 0, 
-        timestamp: new Date().toISOString()
-      });
-
-      document.getElementById('input-post-caption').value = "";
-      base64PostMediaUrl = "";
-      socialPostModal.classList.add('hidden');
-      loadSocialFeed();
-    });
-
-    // Native Camera Tracking Broadcaster Lens Module
+    // Native Camera Live Broadcaster Lens Module
     bindFastClick(document.getElementById('btn-social-live'), async () => {
       try {
         localStreamTrackReference = await navigator.mediaDevices.getUserMedia({
@@ -863,95 +798,6 @@
       liveChatSimulation.appendChild(chatLine);
       liveChatSimulation.scrollTop = liveChatSimulation.scrollHeight;
       inputField.value = "";
-    });
-
-    async function loadSocialFeed() {
-      socialVideoContainer.innerHTML = `<p class="text-white text-xs text-center my-12">Loading Creative Loops...</p>`;
-      const snap = await getDocs(query(collection(db, "posts"), orderBy("timestamp", "desc")));
-      socialVideoContainer.innerHTML = "";
-      
-      let postsArray = [];
-      snap.forEach(d => postsArray.push({ id: d.id, ...d.data() }));
-
-      if(currentSocialTab === 'following') {
-        const followingIds = userProfileData.following || [];
-        postsArray = postsArray.filter(p => followingIds.includes(p.uid) && p.privacy !== 'private');
-      } else {
-        postsArray = postsArray.filter(p => p.privacy !== 'private');
-      }
-
-      if(postsArray.length === 0) {
-        socialVideoContainer.innerHTML = `<p class="text-gray-400 text-xs text-center my-12">No loops published in this ecosystem.</p>`;
-        return;
-      }
-
-      postsArray.forEach(post => {
-        const postDocRef = doc(db, "posts", post.id);
-        const freshViewCount = (post.viewCount || 0) + 1;
-        setDoc(postDocRef, { viewCount: freshViewCount }, { merge: true });
-
-        const card = document.createElement('div');
-        card.className = "w-full video-card relative flex flex-col justify-end p-6 border-b border-zinc-900 bg-zinc-950";
-        card.innerHTML = `
-          <img src="${post.mediaUrl}" class="absolute inset-0 w-full h-full object-cover opacity-75 clickable-pic cursor-pointer" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30 pointer-events-none"></div>
-          
-          <div class="absolute right-4 bottom-24 flex flex-col items-center gap-5 z-20 text-white">
-            <div class="flex flex-col items-center btn-creator-avatar cursor-pointer">
-              <img src="${post.avatar || 'https://via.placeholder.com/150'}" class="w-10 h-10 rounded-full border border-amber-500 object-cover" />
-            </div>
-            <button class="btn-like flex flex-col items-center text-xl">❤️ <span class="text-xs font-bold mt-0.5">${post.likes ? post.likes.length : 0}</span></button>
-            <button class="btn-comment flex flex-col items-center text-xl">💬 <span class="text-xs font-bold mt-0.5">${post.comments ? post.comments.length : 0}</span></button>
-            <div class="flex flex-col items-center text-[10px] opacity-75">👀 <span class="font-bold">${freshViewCount}</span></div>
-          </div>
-
-          <div class="relative z-10 text-white space-y-1.5 max-w-[80%]">
-            <h4 class="font-bold text-sm text-amber-500">@${post.name || 'Creative Pro'}</h4>
-            <p class="text-xs text-gray-200">${post.caption || ''}</p>
-            <div class="flex items-center gap-2 text-[11px] bg-black/40 border border-zinc-800 w-fit px-2.5 py-1 rounded-full text-amber-400 font-semibold">
-              🎵 <span>${post.soundName || 'Original Audio'}</span>
-            </div>
-          </div>
-        `;
-
-        const creatorBtn = card.querySelector('.btn-creator-avatar');
-        creatorBtn.addEventListener('click', async () => {
-          const userSnap = await getDoc(doc(db, "users", post.uid));
-          if(userSnap.exists()) openProfileDetails(userSnap.data());
-        });
-
-        bindFastClick(card.querySelector('.btn-like'), async () => {
-          let likesArr = post.likes || [];
-          if(likesArr.includes(currentUser.uid)) likesArr = likesArr.filter(id => id !== currentUser.uid);
-          else likesArr.push(currentUser.uid);
-          await setDoc(doc(db, "posts", post.id), { likes: likesArr }, { merge: true });
-          loadSocialFeed();
-        });
-
-        bindFastClick(card.querySelector('.btn-comment'), () => {
-          const commentTxt = prompt("Type your public loop comment:");
-          if(!commentTxt) return;
-          const currentComments = post.comments || [];
-          currentComments.push({ name: userProfileData.name, text: commentTxt });
-          setDoc(doc(db, "posts", post.id), { comments: currentComments }, { merge: true }).then(() => loadSocialFeed());
-        });
-
-        socialVideoContainer.appendChild(card);
-      });
-    }
-
-    bindFastClick(document.getElementById('social-tab-following'), () => {
-      currentSocialTab = 'following';
-      document.getElementById('social-tab-following').className = "border-b-2 border-amber-500 pb-1 text-white";
-      document.getElementById('social-tab-foryou').className = "opacity-60 text-white";
-      loadSocialFeed();
-    });
-
-    bindFastClick(document.getElementById('social-tab-foryou'), () => {
-      currentSocialTab = 'foryou';
-      document.getElementById('social-tab-foryou').className = "border-b-2 border-amber-500 pb-1 text-white";
-      document.getElementById('social-tab-following').className = "opacity-60 text-white";
-      loadSocialFeed();
     });
 
     // Chat Conversation Interactivity Tunnel
