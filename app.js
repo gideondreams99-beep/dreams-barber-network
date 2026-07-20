@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Your verified Firebase web configuration settings
@@ -18,6 +18,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
+// Custom parameters to make sure it functions correctly on mobile screens
+provider.setCustomParameters({
+  prompt: 'select_account'
+});
+
 // UI Elements References
 const loginScreen = document.getElementById('loginScreen');
 const mainApp = document.getElementById('mainApp');
@@ -26,51 +31,48 @@ const logoutBtn = document.getElementById('logoutBtn');
 const userAvatar = document.getElementById('userAvatar');
 const listingsFeed = document.getElementById('listingsFeed');
 
-// 1. Trigger Google Authentication REDIRECT Flow (Safe for Mobile Browsers)
+// 1. Optimized Popup Authenticater (Forces session to hook immediately)
 googleSignInBtn.addEventListener('click', async () => {
   try {
-    googleSignInBtn.innerHTML = "Loading...";
-    await signInWithRedirect(auth, provider);
+    googleSignInBtn.innerHTML = "Authenticating...";
+    const result = await signInWithPopup(auth, provider);
+    if (result.user) {
+      console.log("Logged in successfully via popup!");
+    }
   } catch (error) {
-    alert("Firebase Sign-In Error: " + error.message);
+    console.error("Popup Error: ", error);
+    alert("Sign-In Issue: " + error.message);
     googleSignInBtn.innerHTML = "Sign in with Google";
   }
 });
 
-// 2. Handle the incoming redirect result when the page loads back up
-getRedirectResult(auth)
-  .then((result) => {
-    if (result?.user) {
-      console.log("Logged in via redirect successfully!");
-    }
-  })
-  .catch((error) => {
-    alert("Authentication Redirect Failure: " + error.message);
-  });
-
-// 3. Clear Session Logout Trigger
+// 2. Clear Session Logout Trigger
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
     signOut(auth);
   });
 }
 
-// 4. Strict State Gatekeeper Monitoring
+// 3. Strict State Gatekeeper Monitoring (This breaks the loop)
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // Hide login screen and show the app content
+    console.log("Gatekeeper: User verified!", user.uid);
+    // Explicitly toggle views to break any rendering loops
     if (loginScreen) loginScreen.style.display = 'none';
-    if (mainApp) mainApp.style.display = 'block';
+    if (mainApp) {
+      mainApp.style.display = 'block';
+      mainApp.removeAttribute('hidden'); // Fallback if hidden attribute was used
+    }
     if (userAvatar) userAvatar.src = user.photoURL || 'https://via.placeholder.com/36';
-    loadMarketplaceFeed(); // Fetch marketplace snapshot data
+    loadMarketplaceFeed(); 
   } else {
-    // Force user back to login screen if unauthenticated
+    console.log("Gatekeeper: No active user session.");
     if (loginScreen) loginScreen.style.display = 'flex';
     if (mainApp) mainApp.style.display = 'none';
   }
 });
 
-// 5. Load Active Ads into the Grid Interface
+// 4. Load Active Ads into the Grid Interface
 function loadMarketplaceFeed() {
   if (!listingsFeed) return;
   
