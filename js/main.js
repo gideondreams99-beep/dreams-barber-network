@@ -78,14 +78,17 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     
-    // Check if user already has a profile in Firestore
+    // Fetch the user document
     const userDoc = await getDoc(doc(db, "users", user.uid));
     
     if (userDoc.exists() && userDoc.data().role) {
-      // User has an account and a role
+      // User has a profile and a role - go to app
+      const data = userDoc.data();
+      document.getElementById('user-display-name').textContent = data.name;
+      document.getElementById('user-role-text').textContent = "Role: " + data.role;
       showScreen('app');
     } else {
-      // New user, needs to pick a role
+      // New user or missing role - go to role selection
       showScreen('role');
     }
   } else {
