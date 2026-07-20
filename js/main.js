@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
@@ -24,6 +24,8 @@ const btnLogin = document.getElementById('btn-login');
 const btnLogout = document.getElementById('btn-logout');
 const btnBarber = document.getElementById('btn-barber');
 const btnOwner = document.getElementById('btn-owner');
+
+// Profile Editor Elements
 const editScreen = document.getElementById('profile-edit-screen');
 const btnEdit = document.getElementById('btn-edit-profile');
 const btnSave = document.getElementById('save-profile');
@@ -60,13 +62,13 @@ window.requestBooking = async (targetId, targetName, targetRole) => {
   }
 };
 
+// Fetch and display Marketplace Feed (Both Barbers and Owners)
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
   if (!feedContainer) return; 
   feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading network...</p>";
 
   try {
-    // FIX: Fetch all users instead of filtering only for barbers, so shop owners appear too!
     const querySnapshot = await getDocs(collection(db, "users"));
     feedContainer.innerHTML = ""; 
     
@@ -79,22 +81,23 @@ async function loadMarketplace() {
       const profile = docSnap.data();
       const profileId = docSnap.id;
       
-      // Skip the currently logged-in user from seeing themselves in the main feed if desired, or keep them. Let's show everyone.
       const displayName = profile.name || "Anonymous User";
-      const profilePic = profile.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
+      const profilePic = profile.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=f59e0b&color=fff';
       const roleText = profile.role === 'owner' ? 'Business Owner (DREAMS HANDS)' : 'Professional Barber';
       
       const card = document.createElement('div');
-      card.className = "p-4 bg-zinc-800 rounded-xl border border-zinc-700 flex flex-col gap-3 text-left";
+      card.className = "p-4 bg-white rounded-xl border border-amber-500 shadow-sm flex flex-col gap-3 text-left";
       card.innerHTML = `
         <div class="flex items-center gap-4">
-          <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border border-zinc-700 bg-zinc-700" />
+          <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border-2 border-amber-500 bg-gray-100" />
           <div>
-            <h3 class="font-bold text-amber-500">${displayName}</h3>
-            <p class="text-xs text-gray-400">${roleText}</p>
+            <h3 class="font-bold text-amber-700">${displayName}</h3>
+            <p class="text-xs text-gray-500">${roleText}</p>
           </div>
         </div>
-        <button onclick="requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-600 py-2 rounded-lg text-sm font-bold text-white">Connect / Book</button>
+        <button onclick="requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-500 hover:bg-amber-600 py-2 rounded-lg text-sm font-bold text-white shadow-md transition">
+          Connect / Book
+        </button>
       `;
       feedContainer.appendChild(card);
     });
@@ -106,8 +109,7 @@ async function loadMarketplace() {
 
 // Profile Editor Listeners
 btnEdit.addEventListener('click', () => {
-  // Pre-fill fields with current user data if available
-  if(currentUser) {
+  if (currentUser) {
     document.getElementById('edit-name').value = currentUser.displayName || "";
   }
   editScreen.classList.remove('hidden');
@@ -124,7 +126,6 @@ btnSave.addEventListener('click', async () => {
     name: newName || currentUser.displayName
   };
   
-  // Only update profilePic if they entered something, otherwise keep their Google photo/avatar
   if (newPic.trim() !== "") {
     updateData.profilePic = newPic.trim();
   }
@@ -136,6 +137,7 @@ btnSave.addEventListener('click', async () => {
   location.reload(); 
 });
 
+// Authentication Event Handlers
 btnLogin.addEventListener('click', () => signInWithPopup(auth, googleProvider));
 btnLogout.addEventListener('click', () => signOut(auth));
 

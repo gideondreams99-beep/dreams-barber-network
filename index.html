@@ -3,61 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barber Me</title>
+  <title>DREAMS HANDS STUDIOS & G.I SMARTS</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-zinc-950 font-sans antialiased text-gray-100 pb-24">
+<body class="bg-white text-zinc-900 font-sans min-h-screen">
 
-  <!-- Auth Screen -->
-  <div id="auth-screen" class="min-h-screen flex flex-col justify-center items-center p-6 bg-zinc-900">
-    <div class="text-center space-y-6 w-full max-w-sm">
-      <h1 class="text-4xl text-amber-500 font-extrabold tracking-tight">Barber Me</h1>
-      <button id="btn-login" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl shadow-lg">Sign in with Google</button>
+  <!-- 1. Authentication Screen -->
+  <div id="auth-screen" class="max-w-md mx-auto p-6 text-center mt-20">
+    <h1 class="text-3xl font-bold text-amber-600 mb-2">DREAMS HANDS</h1>
+    <p class="text-gray-500 mb-8 text-sm">Sign in to access your dashboard and network</p>
+    <button id="btn-login" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition">
+      Sign in with Google
+    </button>
+  </div>
+
+  <!-- 2. Role Selection Screen (Hidden by default) -->
+  <div id="role-screen" class="hidden max-w-md mx-auto p-6 text-center mt-20">
+    <h2 class="text-2xl font-bold text-amber-600 mb-2">Select Your Role</h2>
+    <p class="text-gray-500 mb-6 text-sm">Choose how you want to use the platform</p>
+    <div class="space-y-4">
+      <button id="btn-barber" class="w-full bg-white border-2 border-amber-500 text-amber-700 hover:bg-amber-50 font-bold py-3 px-4 rounded-xl shadow-sm transition">
+        I am a Barber
+      </button>
+      <button id="btn-owner" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition">
+        I am a Business Owner
+      </button>
     </div>
   </div>
 
-  <!-- Role Selection Screen -->
-  <div id="role-screen" class="hidden min-h-screen flex flex-col justify-center items-center p-6 bg-zinc-900">
-    <div class="w-full max-w-sm text-center">
-      <h2 class="text-2xl font-black text-white mb-6">Which best describes you?</h2>
-      <div class="flex flex-col gap-4">
-        <button id="btn-barber" class="p-5 bg-zinc-800 border-2 border-amber-500 rounded-2xl text-left">
-          <span class="block text-lg font-bold text-amber-500">I am a Barber</span>
-        </button>
-        <button id="btn-owner" class="p-5 bg-zinc-800 border-2 border-zinc-700 rounded-2xl text-left">
-          <span class="block text-lg font-bold text-gray-200">I am a Shop Owner</span>
-        </button>
-      </div>
-    </div>
+  <!-- 3. Main Dashboard Screen (Hidden by default) -->
+  <div id="main-app" class="hidden max-w-md mx-auto p-4 text-center mt-6">
+    <h2 class="text-xl text-amber-600 font-bold mb-1">Welcome, <span id="user-display-name"></span>!</h2>
+    <p id="user-role-text" class="text-sm text-gray-500 mb-2"></p>
+    
+    <button id="btn-edit-profile" class="text-amber-600 underline text-sm mb-6 font-semibold">Edit My Profile</button>
+    
+    <div class="text-left font-bold text-gray-800 mb-2">Network Feed</div>
+    <div id="feed-container" class="space-y-3 text-left"></div>
+
+    <button id="btn-logout" class="mt-8 w-full bg-amber-500 hover:bg-amber-600 text-white px-4 py-3 rounded-xl font-bold shadow-md transition">Logout</button>
   </div>
 
-  <!-- Main App Screen (Placeholder for now) -->
-  <!-- Main App Screen -->
-<div id="main-app" class="hidden max-w-md mx-auto p-4 text-center mt-10">
-  <h2 class="text-xl text-amber-500 font-bold mb-1">Welcome, <span id="user-display-name"></span>!</h2>
-  <p id="user-role-text" class="text-sm text-gray-400 mb-2"></p>
-  
-  <!-- Edit Profile Button -->
-  <button id="btn-edit-profile" class="text-amber-500 underline text-sm mb-6">Edit My Profile</button>
-  
-  <div id="feed-container" class="mt-8 space-y-3 text-left"></div>
+  <!-- Profile Edit Overlay Screen (Hidden by default) -->
+  <div id="profile-edit-screen" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto">
+    <h2 class="text-xl font-bold mb-4 text-amber-700">Edit Profile</h2>
+    <input type="text" id="edit-name" placeholder="Full Name" class="w-full bg-gray-50 border border-amber-300 p-3 rounded-lg mb-3 text-zinc-900 focus:outline-none focus:border-amber-500">
+    <input type="text" id="edit-pic" placeholder="Profile Image URL (Optional)" class="w-full bg-gray-50 border border-amber-300 p-3 rounded-lg mb-3 text-zinc-900 focus:outline-none focus:border-amber-500">
+    <button id="save-profile" class="w-full bg-amber-500 hover:bg-amber-600 py-3 rounded-lg font-bold text-white shadow-md">Save Changes</button>
+    <button id="cancel-edit" class="w-full mt-2 text-gray-500 font-medium">Cancel</button>
+  </div>
 
-  <button id="btn-logout" class="mt-8 w-full bg-red-950/40 text-red-500 border border-red-900 px-4 py-3 rounded-xl font-bold">Logout</button>
-</div>
-
-<!-- Profile Edit Screen (Hidden by default) -->
-<div id="profile-edit-screen" class="hidden fixed inset-0 bg-zinc-950 p-6 z-50 flex flex-col justify-center">
-  <h2 class="text-xl font-bold mb-4 text-white">Edit Profile</h2>
-  <input type="text" id="edit-name" placeholder="Full Name" class="w-full bg-zinc-800 p-3 rounded-lg mb-3 text-white">
-  <input type="text" id="edit-pic" placeholder="Profile Image URL" class="w-full bg-zinc-800 p-3 rounded-lg mb-3 text-white">
-  <button id="save-profile" class="w-full bg-amber-600 py-3 rounded-lg font-bold text-white">Save Changes</button>
-  <button id="cancel-edit" class="w-full mt-2 text-gray-400">Cancel</button>
-</div>
-<!-- Inside main-app div, below the logout button -->
-<div id="feed-container" class="mt-8 space-y-4">
-  <!-- Barbers will appear here -->
-</div>
-
+  <!-- Main JavaScript File -->
   <script type="module" src="js/main.js"></script>
 </body>
+</html>
