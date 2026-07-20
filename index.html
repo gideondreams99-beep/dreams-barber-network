@@ -60,7 +60,7 @@
     <div id="feed-container" class="grid grid-cols-1 gap-3"></div>
   </div>
 
-  <!-- ================= 4. LIVE BROADCAST CENTER (REPLACED DISCOVERY TABS) ================= -->
+  <!-- ================= 4. LIVE BROADCAST CENTER ================= -->
   <div id="social-feed-screen" class="hidden max-w-md mx-auto p-4 flex flex-col items-center justify-center min-h-[70vh]">
     <div class="text-center space-y-4 w-full">
       <div class="w-20 h-20 bg-red-950/40 border-2 border-red-500 rounded-full flex items-center justify-center mx-auto mb-2 animate-pulse">
@@ -76,20 +76,19 @@
     </div>
   </div>
 
-  <!-- ================= 5. CHAT CHANNELS & MESSAGING HUB ================= -->
-  <div id="chat-list-screen" class="hidden max-w-md mx-auto p-4">
-    <header class="mb-4 pt-2"><h1 class="text-2xl font-black text-white">Messages</h1></header>
+  <!-- ================= 5. UNIFIED NOTIFICATIONS HUB ================= -->
+  <div id="notification-hub-screen" class="hidden max-w-md mx-auto p-4">
+    <header class="mb-4 pt-2"><h1 class="text-2xl font-black text-white">Notifications</h1></header>
     
-    <!-- Structured Chat Channels Box Container -->
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 min-h-[60vh] flex flex-col">
-      <div id="chat-channels-container" class="space-y-2 flex-1 overflow-y-auto no-scrollbar"></div>
+      <div id="notifications-container" class="space-y-2 flex-1 overflow-y-auto no-scrollbar"></div>
     </div>
   </div>
 
   <!-- ================= 6. LIVE CHAT CONVERSATION WINDOW ================= -->
   <div id="chat-window-screen" class="hidden fixed inset-0 bg-zinc-900 z-50 flex flex-col max-w-md mx-auto">
     <header class="bg-zinc-800 border-b border-zinc-700 p-3 flex items-center gap-3 shadow-md">
-      <button id="btn-back-to-chats" class="text-gray-400 font-bold px-2 py-1 text-lg">←</button>
+      <button id="btn-back-to-notifications" class="text-gray-400 font-bold px-2 py-1 text-lg">←</button>
       <div class="relative">
         <img id="chat-window-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-zinc-700 clickable-pic cursor-pointer" />
         <span id="chat-presence-indicator" class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-gray-500 border-2 border-zinc-800 rounded-full"></span>
@@ -287,9 +286,9 @@
     <button id="nav-social" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5">
       <span class="text-lg">🎥</span><span>Live Stream</span>
     </button>
-    <button id="nav-chats" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5 relative">
-      <span class="text-lg">💬</span><span>Messages</span>
-      <span id="badge-unread-msg" class="hidden absolute top-0.5 right-3 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-4 text-center">0</span>
+    <button id="nav-notifications" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5 relative">
+      <span class="text-lg">🔔</span><span>Notifications</span>
+      <span id="badge-unread-notifications" class="hidden absolute top-0.5 right-3 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-4 text-center">0</span>
     </button>
     <button id="nav-dash" class="flex flex-col items-center text-gray-400 font-medium text-[11px] w-1/4 gap-0.5">
       <span class="text-lg">👤</span><span>My Profile</span>
@@ -321,20 +320,20 @@
     const roleScreen = document.getElementById('role-screen');
     const mainApp = document.getElementById('main-app');
     const socialFeedScreen = document.getElementById('social-feed-screen');
-    const chatListScreen = document.getElementById('chat-list-screen');
+    const notificationHubScreen = document.getElementById('notification-hub-screen');
     const chatWindowScreen = document.getElementById('chat-window-screen');
     const dashboardScreen = document.getElementById('dashboard-screen');
     const bottomNav = document.getElementById('bottom-nav');
     
     const feedContainer = document.getElementById('feed-container');
     const dynamicFields = document.getElementById('dynamic-fields');
-    const chatChannelsContainer = document.getElementById('chat-channels-container');
+    const notificationsContainer = document.getElementById('notifications-container');
     const chatMessagesBox = document.getElementById('chat-messages-box');
-    const badgeUnreadMsg = document.getElementById('badge-unread-msg');
+    const badgeUnreadNotifications = document.getElementById('badge-unread-notifications');
 
     const navFeed = document.getElementById('nav-feed');
     const navSocial = document.getElementById('nav-social');
-    const navChats = document.getElementById('nav-chats');
+    const navNotifications = document.getElementById('nav-notifications');
     const navDash = document.getElementById('nav-dash');
 
     const dashboardAvatarPreview = document.getElementById('dashboard-avatar-preview');
@@ -391,7 +390,7 @@
             showScreen('app');
             loadFeed();
             startPresenceHeartbeat();
-            listenToGlobalUnreadMessages();
+            listenToNotificationsCounter();
           }
         }
       } else {
@@ -430,7 +429,7 @@
       roleScreen.classList.add('hidden');
       mainApp.classList.add('hidden');
       socialFeedScreen.classList.add('hidden');
-      chatListScreen.classList.add('hidden');
+      notificationHubScreen.classList.add('hidden');
       chatWindowScreen.classList.add('hidden');
       dashboardScreen.classList.add('hidden');
       bottomNav.classList.add('hidden');
@@ -439,22 +438,22 @@
       if (screen === 'role') roleScreen.classList.remove('hidden');
       if (screen === 'app') { mainApp.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('feed'); }
       if (screen === 'social') { socialFeedScreen.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('social'); }
-      if (screen === 'chats') { chatListScreen.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('chats'); }
+      if (screen === 'notifications') { notificationHubScreen.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('notifications'); }
       if (screen === 'dashboard') { dashboardScreen.classList.remove('hidden'); bottomNav.classList.remove('hidden'); setActiveNav('dash'); }
     }
 
     function setActiveNav(active) {
-      [navFeed, navSocial, navChats, navDash].forEach(btn => { 
+      [navFeed, navSocial, navNotifications, navDash].forEach(btn => { 
         btn.classList.remove('text-amber-500', 'font-bold'); 
         btn.classList.add('text-gray-400', 'font-medium'); 
       });
       if (active === 'feed') { navFeed.classList.add('text-amber-500', 'font-bold'); navFeed.classList.remove('text-gray-400'); }
       if (active === 'social') { navSocial.classList.add('text-amber-500', 'font-bold'); navSocial.classList.remove('text-gray-400'); }
-      if (active === 'chats') { navChats.classList.add('text-amber-500', 'font-bold'); navChats.classList.remove('text-gray-400'); }
+      if (active === 'notifications') { navNotifications.classList.add('text-amber-500', 'font-bold'); navNotifications.classList.remove('text-gray-400'); }
       if (active === 'dash') { navDash.classList.add('text-amber-500', 'font-bold'); navDash.classList.remove('text-gray-400'); }
     }
 
-    // Touch Event Target Wrappers for Instant Mobile Interaction Response
+    // Touch Event Target Wrappers
     function bindFastClick(elementNode, actionCallback) {
       if (!elementNode) return;
       elementNode.addEventListener('click', (e) => { e.preventDefault(); actionCallback(e); });
@@ -462,7 +461,7 @@
 
     bindFastClick(navFeed, () => { showScreen('app'); loadFeed(); });
     bindFastClick(navSocial, () => { showScreen('social'); });
-    bindFastClick(navChats, () => { showScreen('chats'); loadChatChannels(); });
+    bindFastClick(navNotifications, () => { showScreen('notifications'); loadNotificationHub(); });
     bindFastClick(navDash, () => { showScreen('dashboard'); populateDashboard(); });
 
     bindFastClick(document.getElementById('btn-login'), () => signInWithPopup(auth, googleProvider));
@@ -492,26 +491,26 @@
       loadFeed();
     }
 
-    // Dynamic Navigation Unread Messages Totalizer
-    function listenToGlobalUnreadMessages() {
+    // Combined Unread Activity & Message Notification Counter
+    function listenToNotificationsCounter() {
       if (!currentUser) return;
       onSnapshot(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)), (snapshot) => {
-        let unreadTotalCount = 0;
+        let totalCount = 0;
         snapshot.forEach(roomDoc => {
           const data = roomDoc.data();
           const unreadMap = data.unreadCount || {};
-          unreadTotalCount += (unreadMap[currentUser.uid] || 0);
+          totalCount += (unreadMap[currentUser.uid] || 0);
         });
-        if (unreadTotalCount > 0) {
-          badgeUnreadMsg.textContent = unreadTotalCount;
-          badgeUnreadMsg.classList.remove('hidden');
+        if (totalCount > 0) {
+          badgeUnreadNotifications.textContent = totalCount;
+          badgeUnreadNotifications.classList.remove('hidden');
         } else {
-          badgeUnreadMsg.classList.add('hidden');
+          badgeUnreadNotifications.classList.add('hidden');
         }
       });
     }
 
-    // Lightbox Modal Visual Layout Controllers
+    // Lightbox Modal Controllers
     document.addEventListener('click', (e) => {
       if (e.target && e.target.classList.contains('clickable-pic')) {
         const sourceUrl = e.target.getAttribute('src');
@@ -607,7 +606,6 @@
       renderDashboardGalleryPreview();
     }
 
-    // Accommodation Configuration UI Selection Rules
     document.getElementById('acc-yes').addEventListener('change', () => {
       document.getElementById('label-acc-yes').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-amber-500 bg-amber-950/20 text-amber-400 rounded-xl cursor-pointer text-xs font-bold transition select-none";
       document.getElementById('label-acc-no').className = "flex-1 flex items-center justify-center gap-2 p-3 border border-zinc-700 rounded-xl cursor-pointer text-xs font-bold transition select-none text-gray-400";
@@ -637,7 +635,7 @@
       alert("Profile updates successfully updated.");
     });
 
-    // Marketplace Feed Core Renderer Matrix
+    // Marketplace Feed Renderer
     async function loadFeed() {
       feedContainer.innerHTML = `<p class="text-center text-xs text-gray-400 my-8">Polling marketplace channels...</p>`;
       const snapshot = await getDocs(query(collection(db, "users"), where("role", "==", currentTab)));
@@ -667,7 +665,7 @@
       });
     }
 
-    // Dynamic Context Profile View Builder Modals
+    // Context Profile View Modals
     async function openProfileDetails(userObj) {
       const currentSnapshot = await getDoc(doc(db, "users", userObj.uid));
       let reactiveData = userObj;
@@ -710,11 +708,12 @@
         btnModalFollow.className = "w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs shadow-sm";
       }
 
-      // Concurrency-Safe Follow Engine Transaction Matrix
+      // Concurrency-Safe Follow Engine Transaction Matrix with Automatic Follow Notifications
       btnModalFollow.onclick = async (e) => {
         e.preventDefault();
         const myUid = currentUser.uid;
         const targetUid = reactiveData.uid;
+        let wasFollowing = false;
 
         await runTransaction(db, async (transaction) => {
           const myUserSnap = await transaction.get(doc(db, "users", myUid));
@@ -730,6 +729,7 @@
             myFreshFollowing = myFreshFollowing.filter(id => id !== targetUid);
             targetFreshFollowersCount = Math.max(0, targetFreshFollowersCount - 1);
             myFreshFollowingCount = Math.max(0, myFreshFollowingCount - 1);
+            wasFollowing = true;
           } else {
             myFreshFollowing.push(targetUid);
             targetFreshFollowersCount += 1;
@@ -742,6 +742,19 @@
           userProfileData.following = myFreshFollowing;
           userProfileData.followingCount = myFreshFollowingCount;
         });
+
+        // Add to global notification stream if it's a new follow
+        if (!wasFollowing) {
+          await addDoc(collection(db, "notifications"), {
+            recipientId: targetUid,
+            senderId: myUid,
+            senderName: userProfileData.name,
+            senderPic: userProfileData.profilePic || '',
+            type: "follow",
+            text: "started following your profile activity.",
+            timestamp: new Date().toISOString()
+          });
+        }
 
         profileModal.classList.add('hidden');
         loadFeed();
@@ -765,7 +778,7 @@
     }
     bindFastClick(btnCloseModal, () => profileModal.classList.add('hidden'));
 
-    // Native Camera Live Broadcaster Lens Module
+    // Camera Broadcaster Lens
     bindFastClick(document.getElementById('btn-social-live'), async () => {
       try {
         localStreamTrackReference = await navigator.mediaDevices.getUserMedia({
@@ -799,6 +812,88 @@
       liveChatSimulation.scrollTop = liveChatSimulation.scrollHeight;
       inputField.value = "";
     });
+
+    // ================= UNIFIED NOTIFICATION HUB ENGINE =================
+    async function loadNotificationHub() {
+      notificationsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-4">Polling updates & activities...</p>`;
+      
+      // 1. Fetch Chat Activity Notifications
+      const chatSnap = await getDocs(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)));
+      
+      // 2. Fetch System/Follower Activity Notifications
+      const systemSnap = await getDocs(query(collection(db, "notifications"), where("recipientId", "==", currentUser.uid)));
+      
+      notificationsContainer.innerHTML = "";
+      let combinedNotifications = [];
+
+      // Parse Chat Rooms into Chat Notifications
+      chatSnap.forEach(roomDoc => {
+        const room = roomDoc.data();
+        const opponentUid = room.participants.find(id => id !== currentUser.uid);
+        if(!opponentUid) return;
+        
+        const currentUnreadCount = (room.unreadCount && room.unreadCount[currentUser.uid]) ? room.unreadCount[currentUser.uid] : 0;
+        
+        combinedNotifications.push({
+          type: "chat",
+          id: roomDoc.id,
+          opponentUid: opponentUid,
+          name: room.names[opponentUid] || "Ecosystem User",
+          img: room.avatars[opponentUid] || "https://via.placeholder.com/150",
+          text: currentUnreadCount > 0 ? `Sent you (${currentUnreadCount}) new unread message logs.` : "Tap to view full conversation history.",
+          timestamp: room.lastUpdated || new Date().toISOString(),
+          unread: currentUnreadCount > 0
+        });
+      });
+
+      // Parse System/Follow Updates
+      systemSnap.forEach(sysDoc => {
+        const data = sysDoc.data();
+        combinedNotifications.push({
+          type: "follow",
+          id: sysDoc.id,
+          name: data.senderName || "Someone",
+          img: data.senderPic || "https://via.placeholder.com/150",
+          text: data.text || "interacted with your profile.",
+          timestamp: data.timestamp || new Date().toISOString(),
+          unread: false
+        });
+      });
+
+      // Sort chronological order (newest arrivals first)
+      combinedNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      if(combinedNotifications.length === 0) {
+        notificationsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">Your activity status and alerts stream is completely empty.</p>`;
+        return;
+      }
+
+      combinedNotifications.forEach(notify => {
+        const itemRow = document.createElement('div');
+        const unreadHighlight = notify.unread ? 'border-amber-500/40 bg-amber-950/10' : 'border-zinc-700';
+        
+        itemRow.className = `bg-zinc-800 p-3.5 rounded-xl border ${unreadHighlight} flex items-center gap-3 cursor-pointer hover:bg-zinc-700/40 transition`;
+        itemRow.innerHTML = `
+          <div class="relative">
+            <img src="${notify.img}" class="w-10 h-10 rounded-full object-cover border border-zinc-700" />
+            <span class="absolute -bottom-1 -right-1 text-xs">${notify.type === 'chat' ? '💬' : '👤'}</span>
+          </div>
+          <div class="flex-1">
+            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+              ${notify.name}
+              ${notify.unread ? '<span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>' : ''}
+            </h4>
+            <p class="text-[11px] text-gray-300 mt-0.5">${notify.text}</p>
+          </div>
+        `;
+
+        if (notify.type === "chat") {
+          bindFastClick(itemRow, () => initChatTunnel(notify.opponentUid, { name: notify.name, profilePic: notify.img }));
+        }
+        
+        notificationsContainer.appendChild(itemRow);
+      });
+    }
 
     // Chat Conversation Interactivity Tunnel
     async function initChatTunnel(targetUid, targetUserObj, triggerAutoBooking = false) {
@@ -839,7 +934,7 @@
         }
       });
 
-      showScreen('chats');
+      showScreen('notifications');
       chatWindowScreen.classList.remove('hidden');
 
       if (chatUnsubscribeHook) chatUnsubscribeHook();
@@ -858,7 +953,6 @@
         chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
       });
 
-      // Automated Booking Action Trigger Integration Rules
       bindFastClick(document.getElementById('btn-chat-book-service'), () => {
         injectStructuredMessage(`⚡ HOME SERVICE BOOKING REQUEST\nClient: ${userProfileData.name}\nTarget Area: ${userProfileData.location || 'Accra, Ghana'}\nStatus: Pending confirmation.`);
       });
@@ -902,40 +996,11 @@
       injectStructuredMessage("[Image Log Media Attachment]", b64);
     });
 
-    bindFastClick(document.getElementById('btn-back-to-chats'), () => {
+    bindFastClick(document.getElementById('btn-back-to-notifications'), () => {
       chatWindowScreen.classList.add('hidden');
       if (chatUnsubscribeHook) chatUnsubscribeHook();
-      loadChatChannels();
+      loadNotificationHub();
     });
-
-    async function loadChatChannels() {
-      chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-4">Polling logs...</p>`;
-      const snap = await getDocs(query(collection(db, "rooms"), where("participants", "array-contains", currentUser.uid)));
-      chatChannelsContainer.innerHTML = "";
-      
-      if(snap.empty) { chatChannelsContainer.innerHTML = `<p class="text-xs text-gray-400 text-center my-6">No chat conversation threads active.</p>`; return; }
-      
-      snap.forEach(roomDoc => {
-        const room = roomDoc.data();
-        const opponentUid = room.participants.find(id => id !== currentUser.uid);
-        if(!opponentUid) return;
-        const name = room.names[opponentUid] || "Ecosystem User";
-        const img = room.avatars[opponentUid] || "https://via.placeholder.com/150";
-        
-        const currentUnreadCount = (room.unreadCount && room.unreadCount[currentUser.uid]) ? room.unreadCount[currentUser.uid] : 0;
-        const countBadge = currentUnreadCount > 0 ? `<span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold ml-auto">${currentUnreadCount}</span>` : '';
-
-        const bar = document.createElement('div');
-        bar.className = "bg-zinc-800 p-3.5 rounded-xl border border-zinc-700 flex items-center gap-3 cursor-pointer hover:bg-zinc-700/40";
-        bar.innerHTML = `
-          <img src="${img}" class="w-10 h-10 rounded-full object-cover border border-zinc-700" />
-          <div class="flex-1"><h4 class="font-bold text-sm text-white">${name}</h4><p class="text-[10px] text-gray-400">Tap to view chat conversation</p></div>
-          ${countBadge}
-        `;
-        bindFastClick(bar, () => initChatTunnel(opponentUid, { name: name, profilePic: img }));
-        chatChannelsContainer.appendChild(bar);
-      });
-    }
 
     const tabBarbers = document.getElementById('tab-barbers'); const tabShops = document.getElementById('tab-shops');
     bindFastClick(tabBarbers, () => { currentTab = 'barber'; tabBarbers.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg bg-amber-600 text-white shadow-sm transition"; tabShops.className = "flex-1 text-center py-2.5 text-sm font-bold rounded-lg text-gray-400 transition"; loadFeed(); });
