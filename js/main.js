@@ -41,18 +41,15 @@ function showScreen(screenId) {
 // Fetch and display the Marketplace Feed
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
-  
-  // If the container doesn't exist yet, stop the function to prevent errors
   if (!feedContainer) return; 
 
   feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading barbers...</p>";
 
   try {
-    // Get all users where role is 'barber'
     const q = query(collection(db, "users"), where("role", "==", "barber"));
     const querySnapshot = await getDocs(q);
 
-    feedContainer.innerHTML = ""; // Clear loading text
+    feedContainer.innerHTML = ""; 
     
     if (querySnapshot.empty) {
       feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>No barbers found yet.</p>";
@@ -61,16 +58,17 @@ async function loadMarketplace() {
 
     querySnapshot.forEach((doc) => {
       const barber = doc.data();
+      
+      // Use fallback name and smart avatar if data is missing
+      const displayName = barber.name || "Anonymous Barber";
+      const profilePic = barber.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
+
       const card = document.createElement('div');
       card.className = "p-4 bg-zinc-800 rounded-xl border border-zinc-700 flex items-center gap-4";
-      
-      // We use a placeholder image if they don't have a profile picture yet
-      const profilePic = barber.profilePic || 'https://via.placeholder.com/150';
-
       card.innerHTML = `
-        <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border border-zinc-700" />
+        <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border border-zinc-700 bg-zinc-700" />
         <div>
-          <h3 class="font-bold text-amber-500">${barber.name}</h3>
+          <h3 class="font-bold text-amber-500">${displayName}</h3>
           <p class="text-xs text-gray-400">Professional Barber</p>
         </div>
       `;
@@ -109,10 +107,9 @@ async function assignRole(roleName) {
     createdAt: new Date().toISOString()
   };
 
-  // Save to Firestore
   await setDoc(doc(db, "users", currentUser.uid), userProfile, { merge: true });
   showScreen('app'); 
-  loadMarketplace(); // Load the feed after assigning a new role
+  loadMarketplace();
 }
 
 btnBarber.addEventListener('click', () => assignRole('barber'));
@@ -122,25 +119,19 @@ btnOwner.addEventListener('click', () => assignRole('owner'));
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-    
-    // Fetch the user document
     const userDoc = await getDoc(doc(db, "users", user.uid));
     
     if (userDoc.exists() && userDoc.data().role) {
-      // User has a profile and a role - go to app
       const data = userDoc.data();
-      document.getElementById('user-display-name').textContent = data.name;
+      document.getElementById('user-display-name').textContent = data.name || "User";
       document.getElementById('user-role-text').textContent = "Role: " + data.role;
       
       showScreen('app');
-      loadMarketplace(); // Load the feed when user logs in successfully
-
+      loadMarketplace();
     } else {
-      // New user or missing role - go to role selection
       showScreen('role');
     }
   } else {
-    // User is logged out
     currentUser = null;
     showScreen('auth');
   }
