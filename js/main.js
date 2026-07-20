@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
@@ -38,6 +38,50 @@ function showScreen(screenId) {
   if (screenId === 'app') mainApp.classList.remove('hidden');
 }
 
+// Fetch and display the Marketplace Feed
+async function loadMarketplace() {
+  const feedContainer = document.getElementById('feed-container');
+  
+  // If the container doesn't exist yet, stop the function to prevent errors
+  if (!feedContainer) return; 
+
+  feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading barbers...</p>";
+
+  try {
+    // Get all users where role is 'barber'
+    const q = query(collection(db, "users"), where("role", "==", "barber"));
+    const querySnapshot = await getDocs(q);
+
+    feedContainer.innerHTML = ""; // Clear loading text
+    
+    if (querySnapshot.empty) {
+      feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>No barbers found yet.</p>";
+      return;
+    }
+
+    querySnapshot.forEach((doc) => {
+      const barber = doc.data();
+      const card = document.createElement('div');
+      card.className = "p-4 bg-zinc-800 rounded-xl border border-zinc-700 flex items-center gap-4";
+      
+      // We use a placeholder image if they don't have a profile picture yet
+      const profilePic = barber.profilePic || 'https://via.placeholder.com/150';
+
+      card.innerHTML = `
+        <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border border-zinc-700" />
+        <div>
+          <h3 class="font-bold text-amber-500">${barber.name}</h3>
+          <p class="text-xs text-gray-400">Professional Barber</p>
+        </div>
+      `;
+      feedContainer.appendChild(card);
+    });
+  } catch (error) {
+    console.error("Error loading marketplace:", error);
+    feedContainer.innerHTML = "<p class='text-red-500 text-sm'>Failed to load feed.</p>";
+  }
+}
+
 // 1. Handle Login
 btnLogin.addEventListener('click', async () => {
   try {
@@ -67,7 +111,8 @@ async function assignRole(roleName) {
 
   // Save to Firestore
   await setDoc(doc(db, "users", currentUser.uid), userProfile, { merge: true });
-  showScreen('app'); // Go to dashboard
+  showScreen('app'); 
+  loadMarketplace(); // Load the feed after assigning a new role
 }
 
 btnBarber.addEventListener('click', () => assignRole('barber'));
@@ -86,7 +131,10 @@ onAuthStateChanged(auth, async (user) => {
       const data = userDoc.data();
       document.getElementById('user-display-name').textContent = data.name;
       document.getElementById('user-role-text').textContent = "Role: " + data.role;
+      
       showScreen('app');
+      loadMarketplace(); // Load the feed when user logs in successfully
+
     } else {
       // New user or missing role - go to role selection
       showScreen('role');
