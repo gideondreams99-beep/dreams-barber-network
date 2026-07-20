@@ -18,7 +18,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// Custom parameters to make sure it functions correctly on mobile screens
+// Custom parameters to force account choice seamlessly on mobile screens
 provider.setCustomParameters({
   prompt: 'select_account'
 });
@@ -57,11 +57,11 @@ if (logoutBtn) {
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("Gatekeeper: User verified!", user.uid);
-    // Explicitly toggle views to break any rendering loops
+    // Explicitly toggle views to display the application layout
     if (loginScreen) loginScreen.style.display = 'none';
     if (mainApp) {
       mainApp.style.display = 'block';
-      mainApp.removeAttribute('hidden'); // Fallback if hidden attribute was used
+      mainApp.removeAttribute('hidden'); 
     }
     if (userAvatar) userAvatar.src = user.photoURL || 'https://via.placeholder.com/36';
     loadMarketplaceFeed(); 
@@ -72,18 +72,19 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// 4. Load Active Ads into the Grid Interface
+// 4. Load Active Ads into the Grid Interface (Barbers & Owners Feed)
 function loadMarketplaceFeed() {
   if (!listingsFeed) return;
   
   const listingsRef = collection(db, "listings");
+  // Pulls all premium listings sorted by newest first
   const q = query(listingsRef, orderBy("createdAt", "desc"));
 
   onSnapshot(q, (snapshot) => {
     listingsFeed.innerHTML = "";
     
     if(snapshot.empty) {
-      listingsFeed.innerHTML = "<p style='grid-column: span 2; text-align:center; padding:30px; color:#666;'>No listings posted yet.</p>";
+      listingsFeed.innerHTML = "<p style='grid-column: span 2; text-align:center; padding:30px; color:#999;'>No listings posted yet.</p>";
       return;
     }
 
@@ -91,17 +92,40 @@ function loadMarketplaceFeed() {
       const item = doc.data();
       const card = document.createElement('div');
       card.className = 'product-card';
+      card.style.position = 'relative'; // Keeps badges anchored properly
+      
+      // Determine the network status category label badge dynamically
+      let roleBadge = '';
+      if (item.category === 'barber_looking') {
+        roleBadge = `<span class="role-badge barber-type">Barber Looking</span>`;
+      } else if (item.category === 'owner_looking') {
+        roleBadge = `<span class="role-badge owner-type">Owner Looking</span>`;
+      } else {
+        roleBadge = `<span class="role-badge service-type">Home Barbering Service</span>`;
+      }
+
       card.innerHTML = `
+        ${roleBadge}
         ${item.isVerified ? `<span class="verified-badge">Verified</span>` : ''}
         <img src="${item.imageUrl || 'https://via.placeholder.com/150'}" class="product-img" alt="Listing image">
         <div class="product-info">
           <div>
             <div class="product-price">GH₵ ${item.price || 'Contact'}</div>
             <div class="product-title">${item.title || 'No Title'}</div>
+            <div class="product-description" style="font-size: 12px; color: #bbb; margin-top: 4px;">
+              ${item.description ? item.description.substring(0, 60) + '...' : ''}
+            </div>
           </div>
-          <div class="product-location">📍 ${item.location || 'Ghana'}</div>
+          <div class="product-location" style="margin-top: 8px;">📍 ${item.location || 'Ghana'}</div>
         </div>
       `;
+      
+      // Makes both barber and owner profile cards interactive and clickable
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        window.location.href = `view-listing.html?id=${doc.id}`;
+      });
+
       listingsFeed.appendChild(card);
     });
   });
