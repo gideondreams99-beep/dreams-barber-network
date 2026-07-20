@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Keep your existing Firebase config code block right here
@@ -25,22 +25,33 @@ const logoutBtn = document.getElementById('logoutBtn');
 const userAvatar = document.getElementById('userAvatar');
 const listingsFeed = document.getElementById('listingsFeed');
 
-// 1. Trigger Google Authentication Popup Flow
+// 1. Trigger Google Authentication REDIRECT Flow (Safe for Mobile Browsers)
 googleSignInBtn.addEventListener('click', async () => {
   try {
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   } catch (error) {
-    console.error("Sign-in issue: ", error);
-    alert("Authentication failed. Please try again.");
+    console.error("Sign-in trigger issue: ", error);
+    alert("Could not open sign-in page. Please try again.");
   }
 });
 
-// 2. Clear Session Logout Trigger
+// 2. Handle the incoming redirect result when the page loads back up
+getRedirectResult(auth)
+  .then((result) => {
+    if (result?.user) {
+      console.log("Logged in via redirect successfully!");
+    }
+  })
+  .catch((error) => {
+    console.error("Redirect auth error details: ", error);
+  });
+
+// 3. Clear Session Logout Trigger
 logoutBtn.addEventListener('click', () => {
   signOut(auth);
 });
 
-// 3. Strict State Gatekeeper Monitoring
+// 4. Strict State Gatekeeper Monitoring
 onAuthStateChanged(auth, (user) => {
   if (user) {
     // If logged in, block access panel drops and show the app
@@ -55,7 +66,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// 4. Load Active Ads into the Grid Interface
+// 5. Load Active Ads into the Grid Interface
 function loadMarketplaceFeed() {
   const listingsRef = collection(db, "listings");
   const q = query(listingsRef, orderBy("createdAt", "desc"));
