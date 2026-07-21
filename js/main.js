@@ -20,26 +20,33 @@ const googleProvider = new GoogleAuthProvider();
 const authScreen = document.getElementById('auth-screen');
 const roleScreen = document.getElementById('role-screen');
 const mainApp = document.getElementById('main-app');
+const adminScreen = document.getElementById('admin-screen');
 const btnLogin = document.getElementById('btn-login');
 const btnLogout = document.getElementById('btn-logout');
 const btnBarber = document.getElementById('btn-barber');
 const btnOwner = document.getElementById('btn-owner');
 
-// Profile Editor Elements
+// Profile & Admin Nav Elements
 const editScreen = document.getElementById('profile-edit-screen');
 const btnEdit = document.getElementById('btn-edit-profile');
 const btnSave = document.getElementById('save-profile');
 const btnCancel = document.getElementById('cancel-edit');
+const btnOpenAdmin = document.getElementById('btn-open-admin');
+const btnBackToApp = document.getElementById('btn-back-to-app');
 
 let currentUser = null;
+let currentUserRole = null;
 
 function showScreen(screenId) {
   authScreen.classList.add('hidden');
   roleScreen.classList.add('hidden');
   mainApp.classList.add('hidden');
+  adminScreen.classList.add('hidden');
+  
   if (screenId === 'auth') authScreen.classList.remove('hidden');
   if (screenId === 'role') roleScreen.classList.remove('hidden');
   if (screenId === 'app') mainApp.classList.remove('hidden');
+  if (screenId === 'admin') adminScreen.classList.remove('hidden');
 }
 
 // Global booking/interaction function
@@ -61,6 +68,38 @@ window.requestBooking = async (targetId, targetName, targetRole) => {
     alert("Failed to send request.");
   }
 };
+
+// Fetch and display Admin Bookings
+async function loadAdminBookings() {
+  const adminContainer = document.getElementById('admin-bookings-container');
+  if (!adminContainer) return;
+  adminContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading requests...</p>";
+
+  try {
+    const querySnapshot = await getDocs(collection(db, "bookings"));
+    adminContainer.innerHTML = "";
+
+    if (querySnapshot.empty) {
+      adminContainer.innerHTML = "<p class='text-gray-400 text-sm'>No incoming requests yet.</p>";
+      return;
+    }
+
+    querySnapshot.forEach((docSnap) => {
+      const booking = docSnap.data();
+      const card = document.createElement('div');
+      card.className = "p-4 bg-white rounded-xl border border-amber-300 shadow-sm flex flex-col gap-2 text-left";
+      card.innerHTML = `
+        <p class="text-sm font-bold text-amber-700">Client: ${booking.customerName || "Anonymous"}</p>
+        <p class="text-xs text-gray-600">Requested Target: <span class="font-semibold">${booking.targetName}</span> (${booking.targetRole})</p>
+        <p class="text-xs text-gray-400">Status: <span class="text-amber-600 font-bold uppercase">${booking.status}</span></p>
+      `;
+      adminContainer.appendChild(card);
+    });
+  } catch (error) {
+    console.error("Error loading bookings:", error);
+    adminContainer.innerHTML = "<p class='text-red-500 text-sm'>Failed to load bookings.</p>";
+  }
+}
 
 // Fetch and display Marketplace Feed (Both Barbers and Owners)
 async function loadMarketplace() {
@@ -106,6 +145,17 @@ async function loadMarketplace() {
     feedContainer.innerHTML = "<p class='text-red-500 text-sm'>Failed to load network feed.</p>";
   }
 }
+
+// Admin Navigation Listeners
+btnOpenAdmin.addEventListener('click', () => {
+  showScreen('admin');
+  loadAdminBookings();
+});
+
+btnBackToApp.addEventListener('click', () => {
+  showScreen('app');
+  loadMarketplace();
+});
 
 // Profile Editor Listeners
 btnEdit.addEventListener('click', () => {
@@ -165,8 +215,17 @@ onAuthStateChanged(auth, async (user) => {
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists() && userDoc.data().role) {
       const data = userDoc.data();
+      currentUserRole = data.role;
       document.getElementById('user-display-name').textContent = data.name || "User";
       document.getElementById('user-role-text').textContent = "Role: " + data.role;
+      
+      // Show admin button only if the logged-in user is an owner
+      if (currentUserRole === 'owner') {
+        btnOpenAdmin.classList.remove('hidden');
+      } else {
+        btnOpenAdmin.classList.add('hidden');
+      }
+
       showScreen('app');
       loadMarketplace();
     } else {
@@ -174,6 +233,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   } else {
     currentUser = null;
+    currentUserRole = null;
     showScreen('auth');
   }
 });

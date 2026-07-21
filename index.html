@@ -37,12 +37,27 @@
     <h2 class="text-xl text-amber-600 font-bold mb-1">Welcome, <span id="user-display-name"></span>!</h2>
     <p id="user-role-text" class="text-sm text-gray-500 mb-2"></p>
     
-    <button id="btn-edit-profile" class="text-amber-600 underline text-sm mb-6 font-semibold">Edit My Profile</button>
+    <div class="flex justify-center gap-4 mb-6">
+      <button id="btn-edit-profile" class="text-amber-600 underline text-sm font-semibold">Edit My Profile</button>
+      <!-- Admin Button (Only shown if owner) -->
+      <button id="btn-open-admin" class="hidden text-amber-700 underline text-sm font-semibold">View Admin Bookings</button>
+    </div>
     
     <div class="text-left font-bold text-gray-800 mb-2">Network Feed</div>
     <div id="feed-container" class="space-y-3 text-left"></div>
 
     <button id="btn-logout" class="mt-8 w-full bg-amber-500 hover:bg-amber-600 text-white px-4 py-3 rounded-xl font-bold shadow-md transition">Logout</button>
+  </div>
+
+  <!-- 4. Admin Dashboard Screen (Hidden by default) -->
+  <div id="admin-screen" class="hidden max-w-md mx-auto p-4 text-center mt-6">
+    <h2 class="text-2xl font-bold text-amber-700 mb-1">Admin Dashboard</h2>
+    <p class="text-sm text-gray-500 mb-6">Manage incoming booking & connection requests</p>
+    
+    <div class="text-left font-bold text-gray-800 mb-2">Incoming Requests</div>
+    <div id="admin-bookings-container" class="space-y-3 text-left mb-6"></div>
+
+    <button id="btn-back-to-app" class="w-full bg-gray-200 hover:bg-gray-300 text-zinc-800 px-4 py-3 rounded-xl font-bold transition">Back to Feed</button>
   </div>
 
   <!-- Profile Edit Overlay Screen (Hidden by default) -->
