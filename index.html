@@ -3,288 +3,165 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barber Me - Home Barbering Services</title>
+  <title>Barber Me - Home Service Barbering</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white text-zinc-900 font-sans min-h-screen pb-20">
+<body class="bg-zinc-50 font-sans antialiased text-zinc-900">
 
   <!-- 1. Authentication Screen -->
-  <div id="auth-screen" class="max-w-md mx-auto p-6 text-center mt-20">
-    <h1 class="text-3xl font-bold text-amber-600 mb-2">Barber Me</h1>
-    <p class="text-gray-500 mb-8 text-sm">Please sign in with Google to access home barbering services</p>
-    <button id="btn-login" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition">
-      Sign in with Google
-    </button>
-  </div>
-
-  <!-- 2. Role Selection Screen (Hidden by default) -->
-  <div id="role-screen" class="hidden max-w-md mx-auto p-6 text-center mt-20">
-    <h2 class="text-2xl font-bold text-amber-600 mb-2">Select Your Role</h2>
-    <p class="text-gray-500 mb-6 text-sm">Choose how you want to use the platform</p>
-    <div class="space-y-4">
-      <button id="btn-barber" class="w-full bg-white border-2 border-amber-500 text-amber-700 hover:bg-amber-50 font-bold py-3 px-4 rounded-xl shadow-sm transition">
-        I am a Barber
-      </button>
-      <button id="btn-owner" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition">
-        I am a Business Owner
+  <div id="auth-screen" class="min-h-screen flex flex-col items-center justify-center p-6 bg-zinc-950 text-white">
+    <div class="max-w-md w-full text-center flex flex-col items-center gap-6">
+      <div class="w-20 h-20 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.242-4.242 3 3 0 004.242 4.242z" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-3xl font-extrabold text-amber-500 tracking-tight">Barber Me</h1>
+        <p class="text-sm text-gray-400 mt-2">Please sign in with Google to access home barbering services</p>
+      </div>
+      <button id="btn-login" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-amber-500/30 transition flex items-center justify-center gap-3">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.24 10.285V13.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.344-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c7.058 0 11.734-4.96 11.734-11.951 0-.829-.082-1.467-.182-2.244H12.24z"/></svg>
+        Sign in with Google
       </button>
     </div>
   </div>
 
-  <!-- 3. Main Dashboard Screen (Hidden by default) -->
-  <div id="main-app" class="hidden max-w-md mx-auto p-4 text-center mt-4">
-    <div class="text-xs font-bold tracking-widest uppercase text-amber-600 mb-1">Barber Me</div>
-    <h2 class="text-xl text-amber-700 font-bold mb-1">Welcome, <span id="user-display-name"></span>!</h2>
-    <p id="user-role-text" class="text-sm text-gray-500 mb-3"></p>
-    
-    <div class="flex justify-center gap-3 mb-4 text-xs font-semibold">
-      <button id="btn-edit-profile" class="text-amber-600 underline">Edit My Profile</button>
-      <button id="btn-open-chats" class="text-amber-700 underline">My Chats</button>
-      <button id="btn-open-admin" class="hidden text-amber-800 underline">Bookings</button>
+  <!-- 2. Role Selection Screen -->
+  <div id="role-screen" class="hidden min-h-screen flex flex-col items-center justify-center p-6 bg-zinc-950 text-white">
+    <div class="max-w-md w-full text-center flex flex-col items-center gap-6">
+      <h2 class="text-2xl font-bold text-amber-500">Choose Your Role</h2>
+      <p class="text-sm text-gray-400">Select how you want to use Barber Me</p>
+      <div class="flex flex-col gap-4 w-full">
+        <button id="btn-barber" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition">
+          Home Service Barber
+        </button>
+        <button id="btn-owner" class="w-full bg-zinc-900 border border-amber-500/50 hover:bg-zinc-800 text-amber-400 font-bold py-3.5 px-6 rounded-xl shadow-md transition">
+          Business Owner
+        </button>
+      </div>
     </div>
-    
-    <div class="text-left font-bold text-gray-800 mb-1">Home Barbering Services</div>
-    <p class="text-xs text-gray-500 text-left mb-3">Search or filter providers below</p>
-    
-    <!-- Search and Filter Controls -->
-    <div class="flex gap-2 mb-4">
-      <input type="text" id="search-input" placeholder="Search provider name..." class="w-full bg-gray-50 border border-amber-300 p-2.5 rounded-xl text-sm text-zinc-900 focus:outline-none focus:border-amber-500">
-      <select id="filter-select" class="bg-gray-50 border border-amber-300 p-2.5 rounded-xl text-sm text-amber-700 font-semibold focus:outline-none focus:border-amber-500">
-        <option value="all">All</option>
-        <option value="barber">Barbers</option>
-        <option value="owner">Owners</option>
-      </select>
-    </div>
-
-    <div id="feed-container" class="space-y-3 text-left"></div>
-
-    <button id="btn-logout" class="mt-8 w-full bg-amber-500 hover:bg-amber-600 text-white px-4 py-3 rounded-xl font-bold shadow-md transition text-sm">Logout</button>
   </div>
 
-  <!-- 4. Detailed Profile View Modal (Hidden by default) -->
-  <div id="profile-modal" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto text-center overflow-y-auto">
-    <div class="bg-gray-50 border border-amber-300 p-6 rounded-2xl shadow-lg my-auto">
-      <img id="modal-pic" src="" class="w-24 h-24 rounded-full object-cover border-4 border-amber-500 mx-auto mb-4 bg-gray-200" />
-      <h3 id="modal-name" class="text-2xl font-bold text-amber-700 mb-1"></h3>
-      <p id="modal-role" class="text-sm text-gray-600 mb-4 font-medium"></p>
+  <!-- 3. Main App Marketplace Dashboard -->
+  <div id="main-app" class="hidden min-h-screen flex flex-col p-4 max-w-lg mx-auto gap-4">
+    <header class="flex flex-col gap-3 bg-white p-4 rounded-2xl border border-amber-300 shadow-sm">
+      <div class="flex justify-between items-center">
+        <div>
+          <span class="text-xs uppercase tracking-wider text-amber-600 font-bold">Barber Me</span>
+          <h1 id="user-display-name" class="text-xl font-extrabold text-amber-700">Welcome</h1>
+          <p id="user-role-text" class="text-xs text-gray-500">Role: --</p>
+        </div>
+        <button id="btn-logout" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+          Logout
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-2 pt-2 border-t border-amber-100">
+        <button id="btn-edit-profile" class="text-xs font-semibold text-amber-700 hover:underline">Edit My Profile</button>
+        <span class="text-gray-300">|</span>
+        <button id="btn-open-chats" class="text-xs font-semibold text-amber-700 hover:underline">My Chats</button>
+        <span class="text-gray-300">|</span>
+        <button id="btn-open-admin" class="hidden text-xs font-semibold text-amber-700 hover:underline">Bookings</button>
+      </div>
+    </header>
+
+    <div class="flex flex-col gap-2">
+      <h2 class="text-lg font-bold text-amber-700">Home Barbering Services</h2>
+      <p class="text-xs text-gray-500">Search or filter providers below</p>
       
-      <div class="border-t border-amber-200 pt-4 mb-4">
-        <p class="text-xs text-gray-500 mb-2 font-bold">Portfolio / Work Photos</p>
-        <div id="modal-portfolio" class="flex gap-2 justify-start overflow-x-auto py-2">
-          <span class="text-xs text-gray-400 italic">No extra photos uploaded yet</span>
+      <div class="flex gap-2">
+        <input type="text" id="search-input" placeholder="Search provider name..." class="w-2/3 px-3 py-2 text-sm bg-white border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        <select id="filter-select" class="w-1/3 px-3 py-2 text-sm bg-white border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <option value="all">All</option>
+          <option value="barber">Barbers</option>
+          <option value="owner">Owners</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Marketplace Feed Container -->
+    <div id="feed-container" class="flex flex-col gap-3 pb-6">
+      <!-- Cards dynamically populated here -->
+    </div>
+  </div>
+
+  <!-- 4. Admin Bookings Screen -->
+  <div id="admin-screen" class="hidden min-h-screen flex flex-col p-4 max-w-lg mx-auto gap-4">
+    <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-amber-300 shadow-sm">
+      <button id="btn-back-to-app" class="text-xs font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition">← Back to App</button>
+      <h2 class="font-extrabold text-amber-700">Incoming Bookings</h2>
+    </div>
+    <div id="admin-bookings-container" class="flex flex-col gap-3">
+      <!-- Admin bookings load here -->
+    </div>
+  </div>
+
+  <!-- 5. Live Chat Screen -->
+  <div id="chat-screen" class="hidden min-h-screen flex flex-col max-w-lg mx-auto bg-white">
+    <div class="flex items-center justify-between p-4 border-b border-amber-200 bg-amber-50">
+      <button id="btn-back-from-chat" class="text-xs font-bold text-amber-700 bg-white border border-amber-300 px-3 py-1.5 rounded-lg shadow-sm">← Back</button>
+      <h3 id="chat-header-name" class="font-bold text-amber-800 text-sm">Chat Room</h3>
+      <div class="w-10"></div>
+    </div>
+    <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto flex flex-col gap-2 bg-zinc-50">
+      <!-- Messages rendered here -->
+    </div>
+    <div class="p-3 border-t border-amber-200 bg-white flex gap-2">
+      <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 px-3 py-2 text-sm border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500" />
+      <button id="btn-send-message" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md">Send</button>
+    </div>
+  </div>
+
+  <!-- Profile View & Detail Modal -->
+  <div id="profile-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white max-w-sm w-full rounded-2xl p-5 border border-amber-300 shadow-xl flex flex-col gap-4 text-center relative">
+      <button id="close-modal" class="absolute top-3 right-3 text-gray-400 hover:text-zinc-900 font-bold text-lg">×</button>
+      <img id="modal-pic" src="" class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-amber-500 shadow-md bg-gray-100" />
+      <div>
+        <h3 id="modal-name" class="font-bold text-lg text-amber-800">--</h3>
+        <p id="modal-role" class="text-xs text-gray-500">--</p>
+      </div>
+      <div class="text-left flex flex-col gap-1.5">
+        <span class="text-xs font-bold text-amber-700">Portfolio Work</span>
+        <div id="modal-portfolio" class="flex gap-2 overflow-x-auto py-1">
+          <!-- Portfolio images injected here -->
         </div>
       </div>
-
-      <div class="space-y-2">
-        <button id="modal-book-btn" class="w-full bg-amber-500 hover:bg-amber-600 py-3 rounded-lg font-bold text-white shadow-md text-sm">Book Home Service</button>
-        <button id="modal-chat-btn" class="w-full bg-white border border-amber-500 text-amber-700 hover:bg-amber-50 py-3 rounded-lg font-bold shadow-sm text-sm">Chat with Provider</button>
+      <div class="flex gap-2 pt-2">
+        <button id="modal-book-btn" class="w-1/2 bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-xl text-xs font-bold shadow-md transition">Book Service</button>
+        <button id="modal-chat-btn" class="w-1/2 bg-white border border-amber-500 text-amber-700 hover:bg-amber-50 py-2.5 rounded-xl text-xs font-bold shadow-sm transition">Live Chat</button>
       </div>
-      <button id="close-modal" class="w-full text-gray-500 font-medium py-2 text-sm mt-2">Close</button>
     </div>
   </div>
 
-  <!-- 5. Real-Time Chat Room Screen (Hidden by default) -->
-  <div id="chat-screen" class="hidden max-w-md mx-auto p-4 flex flex-col h-screen max-h-[90vh]">
-    <div class="flex items-center justify-between border-b border-amber-200 pb-3 mb-3">
-      <button id="btn-back-from-chat" class="text-xs bg-gray-100 hover:bg-gray-200 text-zinc-800 font-bold px-3 py-1.5 rounded-lg">&larr; Back</button>
-      <h3 id="chat-header-name" class="font-bold text-amber-700 text-sm">Chat Room</h3>
-      <span class="w-12"></span>
+  <!-- Profile Edit Screen Overlay -->
+  <div id="profile-edit-screen" class="hidden fixed inset-0 bg-white z-50 flex flex-col p-4 max-w-lg mx-auto overflow-y-auto">
+    <div class="flex justify-between items-center pb-4 border-b border-amber-200">
+      <h2 class="font-extrabold text-amber-700 text-lg">Edit Your Profile</h2>
+      <button id="cancel-edit" class="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg">Cancel</button>
     </div>
-    
-    <!-- Messages Feed -->
-    <div id="chat-messages-container" class="flex-1 overflow-y-auto space-y-3 p-2 bg-gray-50 rounded-xl border border-amber-200 mb-3 text-left"></div>
-
-    <!-- Message Input Bar -->
-    <div class="flex gap-2 items-center">
-      <input type="text" id="chat-input" placeholder="Type a message..." class="w-full bg-gray-50 border border-amber-300 p-2.5 rounded-xl text-sm text-zinc-900 focus:outline-none focus:border-amber-500">
-      <button id="btn-send-message" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-md transition whitespace-nowrap">Send</button>
-    </div>
-  </div>
-
-  <!-- 6. Admin Bookings Screen (Hidden by default) -->
-  <div id="admin-screen" class="hidden max-w-md mx-auto p-4 text-center mt-6">
-    <h2 class="text-2xl font-bold text-amber-700 mb-1">Barber Me Admin</h2>
-    <p class="text-sm text-gray-500 mb-6">Manage incoming home service requests</p>
-    
-    <div class="text-left font-bold text-gray-800 mb-2">Incoming Requests</div>
-    <div id="admin-bookings-container" class="space-y-3 text-left mb-6"></div>
-
-    <button id="btn-back-to-app" class="w-full bg-gray-200 hover:bg-gray-300 text-zinc-800 px-4 py-3 rounded-xl font-bold transition text-sm">Back to Services</button>
-  </div>
-
-  <!-- Profile Edit Overlay Screen (Hidden by default) -->
-  <div id="profile-edit-screen" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto overflow-y-auto">
-    <div class="my-auto bg-white p-6 rounded-2xl border border-amber-300 shadow-xl">
-      <h2 class="text-xl font-bold mb-4 text-amber-700">Edit Profile & Portfolio</h2>
-      
-      <div class="mb-3 text-left">
-        <label class="text-xs font-bold text-amber-700 block mb-1">Your Name:</label>
-        <input type="text" id="edit-name" placeholder="Full Name" class="w-full bg-gray-50 border border-amber-300 p-3 rounded-lg text-zinc-900 focus:outline-none focus:border-amber-500 text-sm">
+    <div class="flex flex-col gap-4 pt-4">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-bold text-amber-700">Display Name</label>
+        <input type="text" id="edit-name" class="px-3 py-2 text-sm border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500" />
       </div>
-
-      <div class="mb-3 text-left">
-        <label class="text-xs font-bold text-amber-700 block mb-1">Upload Profile Picture from Phone:</label>
-        <input type="file" id="edit-pic-file" accept="image/*" class="w-full bg-gray-50 border border-amber-300 p-2 rounded-lg text-xs text-zinc-700 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-white hover:file:bg-amber-600">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-bold text-amber-700">Change Profile Picture (from phone)</label>
+        <input type="file" id="edit-pic-file" accept="image/*" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
       </div>
-      
-      <div class="border-t border-amber-200 pt-3 mb-4 text-left">
-        <label class="text-xs font-bold text-amber-700 block mb-1">Upload Portfolio Haircut Photo from Phone:</label>
-        <input type="file" id="edit-portfolio-file" accept="image/*" class="w-full bg-gray-50 border border-amber-300 p-2 rounded-lg text-xs text-zinc-700 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 mb-2">
-        <div id="edit-portfolio-preview" class="flex gap-2 overflow-x-auto mt-2 py-1"></div>
-      </div>
-
-      <button id="save-profile" class="w-full bg-amber-500 hover:bg-amber-600 py-3 rounded-lg font-bold text-white shadow-md text-sm">Save Changes</button>
-      <button id="cancel-edit" class="w-full mt-2 text-gray-500 font-medium text-sm">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Main JavaScript File -->
-  <script type="module" src="js/main.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barber Me - Home Barbering Services</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-white text-zinc-900 font-sans min-h-screen pb-20">
-
-  <!-- 1. Authentication Screen -->
-  <div id="auth-screen" class="max-w-md mx-auto p-6 text-center mt-20">
-    <h1 class="text-3xl font-bold text-amber-600 mb-2">Barber Me</h1>
-    <p class="text-gray-500 mb-8 text-sm">Please sign in with Google to access home barbering services</p>
-    <button id="btn-login" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition">
-      Sign in with Google
-    </button>
-  </div>
-
-  <!-- 2. Role Selection Screen (Hidden by default) -->
-  <div id="role-screen" class="hidden max-w-md mx-auto p-6 text-center mt-20">
-    <h2 class="text-2xl font-bold text-amber-600 mb-2">Select Your Role</h2>
-    <p class="text-gray-500 mb-6 text-sm">Choose how you want to use the platform</p>
-    <div class="space-y-4">
-      <button id="btn-barber" class="w-full bg-white border-2 border-amber-500 text-amber-700 hover:bg-amber-50 font-bold py-3 px-4 rounded-xl shadow-sm transition">
-        I am a Barber
-      </button>
-      <button id="btn-owner" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition">
-        I am a Business Owner
-      </button>
-    </div>
-  </div>
-
-  <!-- 3. Main Dashboard Screen (Hidden by default) -->
-  <div id="main-app" class="hidden max-w-md mx-auto p-4 text-center mt-4">
-    <div class="text-xs font-bold tracking-widest uppercase text-amber-600 mb-1">Barber Me</div>
-    <h2 class="text-xl text-amber-700 font-bold mb-1">Welcome, <span id="user-display-name"></span>!</h2>
-    <p id="user-role-text" class="text-sm text-gray-500 mb-3"></p>
-    
-    <div class="flex justify-center gap-3 mb-4 text-xs font-semibold">
-      <button id="btn-edit-profile" class="text-amber-600 underline">Edit My Profile</button>
-      <button id="btn-open-chats" class="text-amber-700 underline">My Chats</button>
-      <button id="btn-open-admin" class="hidden text-amber-800 underline">Bookings</button>
-    </div>
-    
-    <div class="text-left font-bold text-gray-800 mb-1">Home Barbering Services</div>
-    <p class="text-xs text-gray-500 text-left mb-3">Search or filter providers below</p>
-    
-    <!-- Search and Filter Controls -->
-    <div class="flex gap-2 mb-4">
-      <input type="text" id="search-input" placeholder="Search provider name..." class="w-full bg-gray-50 border border-amber-300 p-2.5 rounded-xl text-sm text-zinc-900 focus:outline-none focus:border-amber-500">
-      <select id="filter-select" class="bg-gray-50 border border-amber-300 p-2.5 rounded-xl text-sm text-amber-700 font-semibold focus:outline-none focus:border-amber-500">
-        <option value="all">All</option>
-        <option value="barber">Barbers</option>
-        <option value="owner">Owners</option>
-      </select>
-    </div>
-
-    <div id="feed-container" class="space-y-3 text-left"></div>
-
-    <button id="btn-logout" class="mt-8 w-full bg-amber-500 hover:bg-amber-600 text-white px-4 py-3 rounded-xl font-bold shadow-md transition text-sm">Logout</button>
-  </div>
-
-  <!-- 4. Detailed Profile View Modal (Hidden by default) -->
-  <div id="profile-modal" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto text-center overflow-y-auto">
-    <div class="bg-gray-50 border border-amber-300 p-6 rounded-2xl shadow-lg my-auto">
-      <img id="modal-pic" src="" class="w-24 h-24 rounded-full object-cover border-4 border-amber-500 mx-auto mb-4 bg-gray-200" />
-      <h3 id="modal-name" class="text-2xl font-bold text-amber-700 mb-1"></h3>
-      <p id="modal-role" class="text-sm text-gray-600 mb-4 font-medium"></p>
-      
-      <div class="border-t border-amber-200 pt-4 mb-4">
-        <p class="text-xs text-gray-500 mb-2 font-bold">Portfolio / Work Photos</p>
-        <div id="modal-portfolio" class="flex gap-2 justify-start overflow-x-auto py-2">
-          <span class="text-xs text-gray-400 italic">No extra photos uploaded yet</span>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-bold text-amber-700">Add Portfolio Photos</label>
+        <input type="file" id="edit-portfolio-file" accept="image/*" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
+        <div id="edit-portfolio-preview" class="flex gap-2 overflow-x-auto py-2">
+          <!-- Preview items -->
         </div>
       </div>
-
-      <div class="space-y-2">
-        <button id="modal-book-btn" class="w-full bg-amber-500 hover:bg-amber-600 py-3 rounded-lg font-bold text-white shadow-md text-sm">Book Home Service</button>
-        <button id="modal-chat-btn" class="w-full bg-white border border-amber-500 text-amber-700 hover:bg-amber-50 py-3 rounded-lg font-bold shadow-sm text-sm">Chat with Provider</button>
-      </div>
-      <button id="close-modal" class="w-full text-gray-500 font-medium py-2 text-sm mt-2">Close</button>
+      <button id="save-profile" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl shadow-md text-sm mt-4">Save Changes</button>
     </div>
   </div>
 
-  <!-- 5. Real-Time Chat Room Screen (Hidden by default) -->
-  <div id="chat-screen" class="hidden max-w-md mx-auto p-4 flex flex-col h-screen max-h-[90vh]">
-    <div class="flex items-center justify-between border-b border-amber-200 pb-3 mb-3">
-      <button id="btn-back-from-chat" class="text-xs bg-gray-100 hover:bg-gray-200 text-zinc-800 font-bold px-3 py-1.5 rounded-lg">&larr; Back</button>
-      <h3 id="chat-header-name" class="font-bold text-amber-700 text-sm">Chat Room</h3>
-      <span class="w-12"></span>
-    </div>
-    
-    <!-- Messages Feed -->
-    <div id="chat-messages-container" class="flex-1 overflow-y-auto space-y-3 p-2 bg-gray-50 rounded-xl border border-amber-200 mb-3 text-left"></div>
-
-    <!-- Message Input Bar -->
-    <div class="flex gap-2 items-center">
-      <input type="text" id="chat-input" placeholder="Type a message..." class="w-full bg-gray-50 border border-amber-300 p-2.5 rounded-xl text-sm text-zinc-900 focus:outline-none focus:border-amber-500">
-      <button id="btn-send-message" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-md transition whitespace-nowrap">Send</button>
-    </div>
-  </div>
-
-  <!-- 6. Admin Bookings Screen (Hidden by default) -->
-  <div id="admin-screen" class="hidden max-w-md mx-auto p-4 text-center mt-6">
-    <h2 class="text-2xl font-bold text-amber-700 mb-1">Barber Me Admin</h2>
-    <p class="text-sm text-gray-500 mb-6">Manage incoming home service requests</p>
-    
-    <div class="text-left font-bold text-gray-800 mb-2">Incoming Requests</div>
-    <div id="admin-bookings-container" class="space-y-3 text-left mb-6"></div>
-
-    <button id="btn-back-to-app" class="w-full bg-gray-200 hover:bg-gray-300 text-zinc-800 px-4 py-3 rounded-xl font-bold transition text-sm">Back to Services</button>
-  </div>
-
-  <!-- Profile Edit Overlay Screen (Hidden by default) -->
-  <div id="profile-edit-screen" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto overflow-y-auto">
-    <div class="my-auto bg-white p-6 rounded-2xl border border-amber-300 shadow-xl">
-      <h2 class="text-xl font-bold mb-4 text-amber-700">Edit Profile & Portfolio</h2>
-      
-      <div class="mb-3 text-left">
-        <label class="text-xs font-bold text-amber-700 block mb-1">Your Name:</label>
-        <input type="text" id="edit-name" placeholder="Full Name" class="w-full bg-gray-50 border border-amber-300 p-3 rounded-lg text-zinc-900 focus:outline-none focus:border-amber-500 text-sm">
-      </div>
-
-      <div class="mb-3 text-left">
-        <label class="text-xs font-bold text-amber-700 block mb-1">Upload Profile Picture from Phone:</label>
-        <input type="file" id="edit-pic-file" accept="image/*" class="w-full bg-gray-50 border border-amber-300 p-2 rounded-lg text-xs text-zinc-700 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-white hover:file:bg-amber-600">
-      </div>
-      
-      <div class="border-t border-amber-200 pt-3 mb-4 text-left">
-        <label class="text-xs font-bold text-amber-700 block mb-1">Upload Portfolio Haircut Photo from Phone:</label>
-        <input type="file" id="edit-portfolio-file" accept="image/*" class="w-full bg-gray-50 border border-amber-300 p-2 rounded-lg text-xs text-zinc-700 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 mb-2">
-        <div id="edit-portfolio-preview" class="flex gap-2 overflow-x-auto mt-2 py-1"></div>
-      </div>
-
-      <button id="save-profile" class="w-full bg-amber-500 hover:bg-amber-600 py-3 rounded-lg font-bold text-white shadow-md text-sm">Save Changes</button>
-      <button id="cancel-edit" class="w-full mt-2 text-gray-500 font-medium text-sm">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Main JavaScript File -->
+  <!-- Main Execution Script -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
