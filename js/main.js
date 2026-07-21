@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -49,7 +49,7 @@ let currentUser = null;
 let currentUserRole = null;
 let allProfilesCache = [];
 let tempPortfolioList = [];
-let activeModalTarget = null; // Stores target provider info for modal booking
+let activeModalTarget = null;
 
 function showScreen(screenId) {
   authScreen.classList.add('hidden');
@@ -310,21 +310,34 @@ btnSave.addEventListener('click', async () => {
 });
 
 // Authentication Event Handlers
-btnLogin.addEventListener('click', () => signInWithPopup(auth, googleProvider));
+btnLogin.addEventListener('click', () => {
+  signInWithRedirect(auth, googleProvider);
+});
+
 btnLogout.addEventListener('click', () => signOut(auth));
 
 async function assignRole(roleName) {
   if (!currentUser) return;
   const userProfile = { 
     uid: currentUser.uid, 
-    name: currentUser.displayName, 
-    email: currentUser.email, 
+    name: currentUser.displayName || "User", 
+    email: currentUser.email || "", 
     profilePic: currentUser.photoURL || "", 
     role: roleName, 
     portfolio: [],
     createdAt: new Date().toISOString() 
   };
   await setDoc(doc(db, "users", currentUser.uid), userProfile, { merge: true });
+  currentUserRole = roleName;
+  document.getElementById('user-display-name').textContent = userProfile.name;
+  document.getElementById('user-role-text').textContent = "Role: " + roleName;
+  
+  if (roleName === 'owner') {
+    btnOpenAdmin.classList.remove('hidden');
+  } else {
+    btnOpenAdmin.classList.add('hidden');
+  }
+
   showScreen('app'); 
   loadMarketplace();
 }
@@ -332,14 +345,29 @@ async function assignRole(roleName) {
 btnBarber.addEventListener('click', () => assignRole('barber'));
 btnOwner.addEventListener('click', () => assignRole('owner'));
 
+// Handle Redirect Result and Auth State Changes reliably
+getRedirectResult(auth)
+  .then(async (result) => {
+    if (result && result.user) {
+      currentUser = result.user;
+      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+      if (!userDoc.exists() || !userDoc.data().role) {
+        showScreen('role');
+      }
+    }
+  })
+  .catch((error) => {
+    console.error("Redirect sign-in error:", error);
+  });
+
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    currentUseruser;
+    currentUser = user;
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists() && userDoc.data().role) {
       const data = userDoc.data();
       currentUserRole = data.role;
-      document.getElementById('user-display-name').textContent = data.name || "User";
+      document.getElementById('user-display-name').textContent = data.name || user.displayName || "User";
       document.getElementById('user-role-text').textContent = "Role: " + data.role;
       
       if (currentUserRole === 'owner') {
