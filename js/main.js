@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
@@ -21,6 +21,8 @@ const authScreen = document.getElementById('auth-screen');
 const roleScreen = document.getElementById('role-screen');
 const mainApp = document.getElementById('main-app');
 const adminScreen = document.getElementById('admin-screen');
+const chatScreen = document.getElementById('chat-screen');
+
 const btnLogin = document.getElementById('btn-login');
 const btnLogout = document.getElementById('btn-logout');
 const btnBarber = document.getElementById('btn-barber');
@@ -37,30 +39,44 @@ const btnBackToApp = document.getElementById('btn-back-to-app');
 const profileModal = document.getElementById('profile-modal');
 const closeModalBtn = document.getElementById('close-modal');
 const modalBookBtn = document.getElementById('modal-book-btn');
+const modalChatBtn = document.getElementById('modal-chat-btn');
+
 const searchInput = document.getElementById('search-input');
 const filterSelect = document.getElementById('filter-select');
 
-// Portfolio Editing Elements
-const editPortfolioInput = document.getElementById('edit-portfolio-input');
-const btnAddPortfolio = document.getElementById('btn-add-portfolio');
+// Phone Upload Elements
+const editPicFile = document.getElementById('edit-pic-file');
+const editPortfolioFile = document.getElementById('edit-portfolio-file');
 const editPortfolioPreview = document.getElementById('edit-portfolio-preview');
+
+// Chat Elements
+const chatHeaderName = document.getElementById('chat-header-name');
+const chatMessagesContainer = document.getElementById('chat-messages-container');
+const chatInput = document.getElementById('chat-input');
+const btnSendMessage = document.getElementById('btn-send-message');
+const btnBackFromChat = document.getElementById('btn-back-from-chat');
 
 let currentUser = null;
 let currentUserRole = null;
 let allProfilesCache = [];
 let tempPortfolioList = [];
+let tempProfilePicData = "";
 let activeModalTarget = null;
+let activeChatPartner = null; 
+let unsubscribeChatMessages = null;
 
 function showScreen(screenId) {
   authScreen.classList.add('hidden');
   roleScreen.classList.add('hidden');
   mainApp.classList.add('hidden');
   adminScreen.classList.add('hidden');
+  chatScreen.classList.add('hidden');
   
   if (screenId === 'auth') authScreen.classList.remove('hidden');
   if (screenId === 'role') roleScreen.classList.remove('hidden');
   if (screenId === 'app') mainApp.classList.remove('hidden');
   if (screenId === 'admin') adminScreen.classList.remove('hidden');
+  if (screenId === 'chat') chatScreen.classList.remove('hidden');
 }
 
 // Global booking function for Barber Me Home Services
@@ -88,6 +104,85 @@ modalBookBtn.addEventListener('click', () => {
   if (activeModalTarget) {
     window.requestBooking(activeModalTarget.id, activeModalTarget.name, activeModalTarget.role);
   }
+});
+
+// Chat Initialization from Modal
+modalChatBtn.addEventListener('click', () => {
+  if (activeModalTarget) {
+    profileModal.classList.add('hidden');
+    openChatRoom(activeModalTarget.id, activeModalTarget.name);
+  }
+});
+
+// Open Real-Time Chat Room
+function openChatRoom(partnerId, partnerName) {
+  if (!currentUser) return alert("Please sign in first.");
+  activeChatPartner = { id: partnerId, name: partnerName };
+  chatHeaderName.textContent = "Chat with " + partnerName;
+  showScreen('chat');
+
+  if (unsubscribeChatMessages) unsubscribeChatMessages();
+
+  const chatId = currentUser.uid < partnerId ? `${currentUser.uid}_${partnerId}` : `${partnerId}_${currentUser.uid}`;
+  const messagesRef = collection(db, "chats", chatId, "messages");
+  const q = query(messagesRef, orderBy("createdAt", "asc"));
+
+  unsubscribeChatMessages = onSnapshot(q, (snapshot) => {
+    chatMessagesContainer.innerHTML = "";
+    if (snapshot.empty) {
+      chatMessagesContainer.innerHTML = "<p class='text-xs text-gray-400 text-center py-4'>No messages yet. Say hello!</p>";
+      return;
+    }
+
+    snapshot.forEach((docSnap) => {
+      const msg = docSnap.data();
+      const isMe = msg.senderId === currentUser.uid;
+      const bubble = document.createElement('div');
+      bubble.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-2`;
+      
+      bubble.innerHTML = `
+        <div class="max-w-[75%] px-3 py-2 rounded-2xl text-sm shadow-sm ${isMe ? 'bg-amber-500 text-white rounded-br-none' : 'bg-white border border-amber-200 text-zinc-900 rounded-bl-none'}">
+          ${msg.text}
+        </div>
+        <span class="text-[10px] text-gray-400 mt-0.5 px-1">${isMe ? 'Sent' : partnerName}</span>
+      `;
+      chatMessagesContainer.appendChild(bubble);
+    });
+    chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+  });
+}
+
+btnSendMessage.addEventListener('click', async () => {
+  const text = chatInput.value.trim();
+  if (!text || !activeChatPartner || !currentUser) return;
+
+  const chatId = currentUser.uid < activeChatPartner.id ? `${currentUser.uid}_${activeChatPartner.id}` : `${activeChatPartner.id}_${currentUser.uid}`;
+  
+  try {
+    chatInput.value = "";
+    await addDoc(collection(db, "chats", chatId, "messages"), {
+      senderId: currentUser.uid,
+      senderName: currentUser.displayName,
+      text: text,
+      createdAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    alert("Failed to send message.");
+  }
+});
+
+chatInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    btnSendMessage.click();
+  }
+});
+
+btnBackFromChat.addEventListener('click', () => {
+  if (unsubscribeChatMessages) unsubscribeChatMessages();
+  showScreen('app');
+  loadMarketplace();
 });
 
 // Global Profile View function with Portfolio Rendering
@@ -160,6 +255,8 @@ function renderFeed(profiles) {
   }
 
   profiles.forEach(({ profileId, profile }) => {
+    if (currentUser && profileId === currentUser.uid) return;
+
     const displayName = profile.name || "Anonymous User";
     const profilePic = profile.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=f59e0b&color=fff';
     const roleText = profile.role === 'owner' ? 'Business Owner (Barber Me)' : 'Home Service Barber';
@@ -178,13 +275,22 @@ function renderFeed(profiles) {
           <span class="text-xs text-amber-600 underline font-semibold mt-1 inline-block">Tap to view photos & profile</span>
         </div>
       </div>
-      <button onclick="event.stopPropagation(); requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-500 hover:bg-amber-600 py-2 rounded-lg text-sm font-bold text-white shadow-md transition">
-        Book Home Service
-      </button>
+      <div class="flex gap-2">
+        <button onclick="event.stopPropagation(); requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-1/2 bg-amber-500 hover:bg-amber-600 py-2 rounded-lg text-xs font-bold text-white shadow-md transition">
+          Book Service
+        </button>
+        <button onclick="event.stopPropagation(); window.openChatRoomDirect('${profileId}', '${displayName}')" class="w-1/2 bg-white border border-amber-500 text-amber-700 hover:bg-amber-50 py-2 rounded-lg text-xs font-bold shadow-sm transition">
+          Live Chat
+        </button>
+      </div>
     `;
     feedContainer.appendChild(card);
   });
 }
+
+window.openChatRoomDirect = (id, name) => {
+  openChatRoom(id, name);
+};
 
 // Filter and search logic helper
 function filterAndSearchProfiles() {
@@ -235,6 +341,10 @@ btnOpenAdmin.addEventListener('click', () => {
   loadAdminBookings();
 });
 
+document.getElementById('btn-open-chats').addEventListener('click', () => {
+  alert("Tap 'Live Chat' on any provider card in the marketplace feed to instantly open a direct chat room with them!");
+});
+
 btnBackToApp.addEventListener('click', () => {
   showScreen('app');
   loadMarketplace();
@@ -259,27 +369,44 @@ window.removePortfolioItem = (index) => {
   renderEditPortfolioPreview();
 };
 
-btnAddPortfolio.addEventListener('click', () => {
-  const url = editPortfolioInput.value.trim();
-  if (url !== "") {
-    tempPortfolioList.push(url);
-    editPortfolioInput.value = "";
+// Handle phone file picker for portfolio
+editPortfolioFile.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    tempPortfolioList.push(event.target.result);
+    editPortfolioFile.value = "";
     renderEditPortfolioPreview();
-  }
+  };
+  reader.readAsDataURL(file);
+});
+
+// Handle phone file picker for profile picture
+editPicFile.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    tempProfilePicData = event.target.result;
+    alert("Profile picture selected from phone successfully!");
+  };
+  reader.readAsDataURL(file);
 });
 
 // Profile Editor Listeners
 btnEdit.addEventListener('click', async () => {
   if (!currentUser) return;
+  tempProfilePicData = "";
   const userDoc = await getDoc(doc(db, "users", currentUser.uid));
   if (userDoc.exists()) {
     const data = userDoc.data();
     document.getElementById('edit-name').value = data.name || currentUser.displayName || "";
-    document.getElementById('edit-pic').value = data.profilePic || currentUser.photoURL || "";
     tempPortfolioList = data.portfolio ? [...data.portfolio] : [];
   } else {
     document.getElementById('edit-name').value = currentUser.displayName || "";
-    document.getElementById('edit-pic').value = currentUser.photoURL || "";
     tempPortfolioList = [];
   }
   renderEditPortfolioPreview();
@@ -290,7 +417,6 @@ btnCancel.addEventListener('click', () => editScreen.classList.add('hidden'));
 
 btnSave.addEventListener('click', async () => {
   const newName = document.getElementById('edit-name').value;
-  const newPic = document.getElementById('edit-pic').value;
   if (!currentUser) return;
   
   const updateData = {
@@ -298,8 +424,8 @@ btnSave.addEventListener('click', async () => {
     portfolio: tempPortfolioList
   };
   
-  if (newPic.trim() !== "") {
-    updateData.profilePic = newPic.trim();
+  if (tempProfilePicData !== "") {
+    updateData.profilePic = tempProfilePicData;
   }
 
   await setDoc(doc(db, "users", currentUser.uid), updateData, { merge: true });
