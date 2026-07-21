@@ -36,12 +36,20 @@ const btnBackToApp = document.getElementById('btn-back-to-app');
 
 const profileModal = document.getElementById('profile-modal');
 const closeModalBtn = document.getElementById('close-modal');
+const modalBookBtn = document.getElementById('modal-book-btn');
 const searchInput = document.getElementById('search-input');
 const filterSelect = document.getElementById('filter-select');
+
+// Portfolio Editing Elements
+const editPortfolioInput = document.getElementById('edit-portfolio-input');
+const btnAddPortfolio = document.getElementById('btn-add-portfolio');
+const editPortfolioPreview = document.getElementById('edit-portfolio-preview');
 
 let currentUser = null;
 let currentUserRole = null;
 let allProfilesCache = [];
+let tempPortfolioList = [];
+let activeModalTarget = null; // Stores target provider info for modal booking
 
 function showScreen(screenId) {
   authScreen.classList.add('hidden');
@@ -55,7 +63,7 @@ function showScreen(screenId) {
   if (screenId === 'admin') adminScreen.classList.remove('hidden');
 }
 
-// Global booking/interaction function for Barber Me Home Services
+// Global booking function for Barber Me Home Services
 window.requestBooking = async (targetId, targetName, targetRole) => {
   if (!currentUser) return alert("Please sign in first.");
   try {
@@ -76,11 +84,33 @@ window.requestBooking = async (targetId, targetName, targetRole) => {
   }
 };
 
-// Global Profile View function
-window.viewProfileDetails = (name, role, pic) => {
+modalBookBtn.addEventListener('click', () => {
+  if (activeModalTarget) {
+    window.requestBooking(activeModalTarget.id, activeModalTarget.name, activeModalTarget.role);
+  }
+});
+
+// Global Profile View function with Portfolio Rendering
+window.viewProfileDetails = (profileId, name, role, pic, portfolio = []) => {
+  activeModalTarget = { id: profileId, name, role };
   document.getElementById('modal-name').textContent = name;
   document.getElementById('modal-role').textContent = role === 'owner' ? 'Barber Me Business Owner' : 'Barber Me Professional Barber';
   document.getElementById('modal-pic').src = pic;
+  
+  const portfolioContainer = document.getElementById('modal-portfolio');
+  portfolioContainer.innerHTML = "";
+
+  if (!portfolio || portfolio.length === 0) {
+    portfolioContainer.innerHTML = "<span class='text-xs text-gray-400 italic'>No extra photos uploaded yet</span>";
+  } else {
+    portfolio.forEach(photoUrl => {
+      const img = document.createElement('img');
+      img.src = photoUrl;
+      img.className = "w-20 h-20 rounded-xl object-cover border border-amber-300 shadow-sm flex-shrink-0 bg-gray-100";
+      portfolioContainer.appendChild(img);
+    });
+  }
+
   profileModal.classList.remove('hidden');
 };
 
@@ -133,10 +163,11 @@ function renderFeed(profiles) {
     const displayName = profile.name || "Anonymous User";
     const profilePic = profile.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=f59e0b&color=fff';
     const roleText = profile.role === 'owner' ? 'Business Owner (Barber Me)' : 'Home Service Barber';
+    const portfolio = profile.portfolio || [];
     
     const card = document.createElement('div');
     card.className = "p-4 bg-white rounded-xl border border-amber-500 shadow-sm flex flex-col gap-3 text-left cursor-pointer hover:bg-amber-50/50 transition";
-    card.onclick = () => viewProfileDetails(displayName, profile.role, profilePic);
+    card.onclick = () => viewProfileDetails(profileId, displayName, profile.role, profilePic, portfolio);
 
     card.innerHTML = `
       <div class="flex items-center gap-4">
@@ -209,11 +240,49 @@ btnBackToApp.addEventListener('click', () => {
   loadMarketplace();
 });
 
-// Profile Editor Listeners
-btnEdit.addEventListener('click', () => {
-  if (currentUser) {
-    document.getElementById('edit-name').value = currentUser.displayName || "";
+// Render temporary portfolio preview inside edit modal
+function renderEditPortfolioPreview() {
+  editPortfolioPreview.innerHTML = "";
+  tempPortfolioList.forEach((url, index) => {
+    const wrap = document.createElement('div');
+    wrap.className = "relative flex-shrink-0";
+    wrap.innerHTML = `
+      <img src="${url}" class="w-16 h-16 rounded-lg object-cover border border-amber-300 bg-gray-100" />
+      <button type="button" onclick="window.removePortfolioItem(${index})" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-[10px] font-bold flex items-center justify-center shadow">×</button>
+    `;
+    editPortfolioPreview.appendChild(wrap);
+  });
+}
+
+window.removePortfolioItem = (index) => {
+  tempPortfolioList.splice(index, 1);
+  renderEditPortfolioPreview();
+};
+
+btnAddPortfolio.addEventListener('click', () => {
+  const url = editPortfolioInput.value.trim();
+  if (url !== "") {
+    tempPortfolioList.push(url);
+    editPortfolioInput.value = "";
+    renderEditPortfolioPreview();
   }
+});
+
+// Profile Editor Listeners
+btnEdit.addEventListener('click', async () => {
+  if (!currentUser) return;
+  const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+  if (userDoc.exists()) {
+    const data = userDoc.data();
+    document.getElementById('edit-name').value = data.name || currentUser.displayName || "";
+    document.getElementById('edit-pic').value = data.profilePic || currentUser.photoURL || "";
+    tempPortfolioList = data.portfolio ? [...data.portfolio] : [];
+  } else {
+    document.getElementById('edit-name').value = currentUser.displayName || "";
+    document.getElementById('edit-pic').value = currentUser.photoURL || "";
+    tempPortfolioList = [];
+  }
+  renderEditPortfolioPreview();
   editScreen.classList.remove('hidden');
 });
 
@@ -225,7 +294,8 @@ btnSave.addEventListener('click', async () => {
   if (!currentUser) return;
   
   const updateData = {
-    name: newName || currentUser.displayName
+    name: newName || currentUser.displayName,
+    portfolio: tempPortfolioList
   };
   
   if (newPic.trim() !== "") {
@@ -235,7 +305,7 @@ btnSave.addEventListener('click', async () => {
   await setDoc(doc(db, "users", currentUser.uid), updateData, { merge: true });
   
   editScreen.classList.add('hidden');
-  alert("Profile Updated Successfully!");
+  alert("Profile & Portfolio Updated Successfully!");
   location.reload(); 
 });
 
@@ -251,6 +321,7 @@ async function assignRole(roleName) {
     email: currentUser.email, 
     profilePic: currentUser.photoURL || "", 
     role: roleName, 
+    portfolio: [],
     createdAt: new Date().toISOString() 
   };
   await setDoc(doc(db, "users", currentUser.uid), userProfile, { merge: true });
