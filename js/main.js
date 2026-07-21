@@ -71,6 +71,8 @@ function showScreen(screenId) {
   mainApp.classList.add('hidden');
   adminScreen.classList.add('hidden');
   chatScreen.classList.add('hidden');
+  profileModal.classList.add('hidden');
+  editScreen.classList.add('hidden');
   
   if (screenId === 'auth') authScreen.classList.remove('hidden');
   if (screenId === 'role') roleScreen.classList.remove('hidden');
