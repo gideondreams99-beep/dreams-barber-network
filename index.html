@@ -98,18 +98,20 @@
   </div>
 
   <!-- 5. Live Chat Screen -->
-  <div id="chat-screen" class="hidden min-h-screen flex flex-col max-w-lg mx-auto bg-white">
-    <div class="flex items-center justify-between p-4 border-b border-amber-200 bg-amber-50">
+  <div id="chat-screen" class="hidden h-screen flex flex-col max-w-lg mx-auto bg-white">
+    <div class="flex items-center justify-between p-4 border-b border-amber-200 bg-amber-50 flex-shrink-0">
       <button id="btn-back-from-chat" class="text-xs font-bold text-amber-700 bg-white border border-amber-300 px-3 py-1.5 rounded-lg shadow-sm">← Back</button>
       <h3 id="chat-header-name" class="font-bold text-amber-800 text-sm">Chat Room</h3>
       <div class="w-10"></div>
     </div>
+    
+    <!-- Scrollable Messages Area -->
     <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto flex flex-col gap-2 bg-zinc-50">
       <!-- Messages rendered here -->
     </div>
     
-    <!-- Chat Input Bar with Image Upload -->
-    <div class="p-3 border-t border-amber-200 bg-white flex items-center gap-2">
+    <!-- Chat Input Bar Pinned at Bottom -->
+    <div class="p-3 border-t border-amber-200 bg-white flex items-center gap-2 flex-shrink-0">
       <input type="file" id="chat-img-file" accept="image/*" class="hidden" />
       <button id="btn-attach-img" type="button" class="bg-amber-100 hover:bg-amber-200 text-amber-800 p-2.5 rounded-xl text-xs font-bold flex items-center justify-center transition" title="Attach Image">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
