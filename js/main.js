@@ -334,7 +334,7 @@ btnOwner.addEventListener('click', () => assignRole('owner'));
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    currentUser = user;
+    currentUseruser;
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists() && userDoc.data().role) {
       const data = userDoc.data();

@@ -62,17 +62,19 @@
   </div>
 
   <!-- 4. Detailed Profile View Modal (Hidden by default) -->
-  <div id="profile-modal" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto text-center">
-    <div class="bg-gray-50 border border-amber-300 p-6 rounded-2xl shadow-lg">
+  <div id="profile-modal" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto text-center overflow-y-auto">
+    <div class="bg-gray-50 border border-amber-300 p-6 rounded-2xl shadow-lg my-auto">
       <img id="modal-pic" src="" class="w-24 h-24 rounded-full object-cover border-4 border-amber-500 mx-auto mb-4 bg-gray-200" />
       <h3 id="modal-name" class="text-2xl font-bold text-amber-700 mb-1"></h3>
       <p id="modal-role" class="text-sm text-gray-600 mb-4 font-medium"></p>
-      <div class="border-t border-amber-200 pt-4 mb-6">
-        <p class="text-xs text-gray-500 mb-2">Portfolio / Work Photos</p>
-        <div id="modal-portfolio" class="flex gap-2 justify-center overflow-x-auto py-2">
+      
+      <div class="border-t border-amber-200 pt-4 mb-4">
+        <p class="text-xs text-gray-500 mb-2 font-bold">Portfolio / Work Photos</p>
+        <div id="modal-portfolio" class="flex gap-2 justify-start overflow-x-auto py-2">
           <span class="text-xs text-gray-400 italic">No extra photos uploaded yet</span>
         </div>
       </div>
+
       <button id="modal-book-btn" class="w-full bg-amber-500 hover:bg-amber-600 py-3 rounded-lg font-bold text-white shadow-md mb-2">Book Home Service</button>
       <button id="close-modal" class="w-full text-gray-500 font-medium py-2">Close</button>
     </div>
@@ -90,12 +92,24 @@
   </div>
 
   <!-- Profile Edit Overlay Screen (Hidden by default) -->
-  <div id="profile-edit-screen" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto">
-    <h2 class="text-xl font-bold mb-4 text-amber-700">Edit Profile</h2>
-    <input type="text" id="edit-name" placeholder="Full Name" class="w-full bg-gray-50 border border-amber-300 p-3 rounded-lg mb-3 text-zinc-900 focus:outline-none focus:border-amber-500">
-    <input type="text" id="edit-pic" placeholder="Profile Image URL (Optional)" class="w-full bg-gray-50 border border-amber-300 p-3 rounded-lg mb-3 text-zinc-900 focus:outline-none focus:border-amber-500">
-    <button id="save-profile" class="w-full bg-amber-500 hover:bg-amber-600 py-3 rounded-lg font-bold text-white shadow-md">Save Changes</button>
-    <button id="cancel-edit" class="w-full mt-2 text-gray-500 font-medium">Cancel</button>
+  <div id="profile-edit-screen" class="hidden fixed inset-0 bg-white/95 backdrop-blur-sm p-6 z-50 flex flex-col justify-center max-w-md mx-auto overflow-y-auto">
+    <div class="my-auto bg-white p-6 rounded-2xl border border-amber-300 shadow-xl">
+      <h2 class="text-xl font-bold mb-4 text-amber-700">Edit Profile & Portfolio</h2>
+      <input type="text" id="edit-name" placeholder="Full Name" class="w-full bg-gray-50 border border-amber-300 p-3 rounded-lg mb-3 text-zinc-900 focus:outline-none focus:border-amber-500 text-sm">
+      <input type="text" id="edit-pic" placeholder="Profile Image URL" class="w-full bg-gray-50 border border-amber-300 p-3 rounded-lg mb-3 text-zinc-900 focus:outline-none focus:border-amber-500 text-sm">
+      
+      <div class="border-t border-amber-200 pt-3 mb-4 text-left">
+        <label class="text-xs font-bold text-amber-700 block mb-1">Add Portfolio Haircut Photo URL:</label>
+        <div class="flex gap-2">
+          <input type="text" id="edit-portfolio-input" placeholder="Paste image link..." class="w-full bg-gray-50 border border-amber-300 p-2.5 rounded-lg text-zinc-900 focus:outline-none focus:border-amber-500 text-sm">
+          <button id="btn-add-portfolio" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-3 py-2.5 rounded-lg text-xs transition whitespace-nowrap">Add</button>
+        </div>
+        <div id="edit-portfolio-preview" class="flex gap-2 overflow-x-auto mt-2 py-1"></div>
+      </div>
+
+      <button id="save-profile" class="w-full bg-amber-500 hover:bg-amber-600 py-3 rounded-lg font-bold text-white shadow-md text-sm">Save Changes</button>
+      <button id="cancel-edit" class="w-full mt-2 text-gray-500 font-medium text-sm">Cancel</button>
+    </div>
   </div>
 
   <!-- Main JavaScript File -->
