@@ -55,8 +55,6 @@ const chatMessagesContainer = document.getElementById('chat-messages-container')
 const chatInput = document.getElementById('chat-input');
 const btnSendMessage = document.getElementById('btn-send-message');
 const btnBackFromChat = document.getElementById('btn-back-from-chat');
-const chatImgFile = document.getElementById('chat-img-file');
-const btnAttachImg = document.getElementById('btn-attach-img');
 
 let currentUser = null;
 let currentUserRole = null;
@@ -110,6 +108,7 @@ modalBookBtn.addEventListener('click', () => {
   }
 });
 
+// Chat Initialization from Modal
 modalChatBtn.addEventListener('click', () => {
   if (activeModalTarget) {
     profileModal.classList.add('hidden');
@@ -143,17 +142,9 @@ function openChatRoom(partnerId, partnerName) {
       const bubble = document.createElement('div');
       bubble.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-2`;
       
-      let contentHtml = "";
-      if (msg.text) {
-        contentHtml += `<span>${msg.text}</span>`;
-      }
-      if (msg.imageUrl) {
-        contentHtml += `<img src="${msg.imageUrl}" class="w-40 h-40 object-cover rounded-xl mt-1 border border-amber-300 bg-white shadow-sm" />`;
-      }
-
       bubble.innerHTML = `
         <div class="max-w-[75%] px-3 py-2 rounded-2xl text-sm shadow-sm ${isMe ? 'bg-amber-500 text-white rounded-br-none' : 'bg-white border border-amber-200 text-zinc-900 rounded-bl-none'}">
-          ${contentHtml}
+          ${msg.text}
         </div>
         <span class="text-[10px] text-gray-400 mt-0.5 px-1">${isMe ? 'Sent' : partnerName}</span>
       `;
@@ -162,39 +153,6 @@ function openChatRoom(partnerId, partnerName) {
     chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
   });
 }
-
-// Chat Image Upload Handlers
-btnAttachImg.addEventListener('click', () => {
-  chatImgFile.click();
-});
-
-chatImgFile.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async (event) => {
-    const base64Image = event.target.result;
-    chatImgFile.value = "";
-    
-    if (!activeChatPartner || !currentUser) return;
-    const chatId = currentUser.uid < activeChatPartner.id ? `${currentUser.uid}_${activeChatPartner.id}` : `${activeChatPartner.id}_${currentUser.uid}`;
-    
-    try {
-      await addDoc(collection(db, "chats", chatId, "messages"), {
-        senderId: currentUser.uid,
-        senderName: currentUser.displayName,
-        text: "",
-        imageUrl: base64Image,
-        createdAt: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error("Error sending image message:", error);
-      alert("Failed to send image.");
-    }
-  };
-  reader.readAsDataURL(file);
-});
 
 btnSendMessage.addEventListener('click', async () => {
   const text = chatInput.value.trim();
@@ -336,6 +294,7 @@ window.openChatRoomDirect = (id, name) => {
   openChatRoom(id, name);
 };
 
+// Filter and search logic helper
 function filterAndSearchProfiles() {
   const searchTerm = searchInput.value.toLowerCase().trim();
   const selectedRole = filterSelect.value;
@@ -350,6 +309,7 @@ function filterAndSearchProfiles() {
   renderFeed(filtered);
 }
 
+// Fetch network profiles from Firestore and cache them
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
   if (!feedContainer) return; 
@@ -373,9 +333,11 @@ async function loadMarketplace() {
   }
 }
 
+// Event listeners for search and filter inputs
 searchInput.addEventListener('input', filterAndSearchProfiles);
 filterSelect.addEventListener('change', filterAndSearchProfiles);
 
+// Admin Navigation Listeners
 btnOpenAdmin.addEventListener('click', () => {
   showScreen('admin');
   loadAdminBookings();
@@ -390,6 +352,7 @@ btnBackToApp.addEventListener('click', () => {
   loadMarketplace();
 });
 
+// Render temporary portfolio preview inside edit modal
 function renderEditPortfolioPreview() {
   editPortfolioPreview.innerHTML = "";
   tempPortfolioList.forEach((url, index) => {
@@ -408,6 +371,7 @@ window.removePortfolioItem = (index) => {
   renderEditPortfolioPreview();
 };
 
+// Handle phone file picker for portfolio
 editPortfolioFile.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -421,6 +385,7 @@ editPortfolioFile.addEventListener('change', (e) => {
   reader.readAsDataURL(file);
 });
 
+// Handle phone file picker for profile picture
 editPicFile.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -433,6 +398,7 @@ editPicFile.addEventListener('change', (e) => {
   reader.readAsDataURL(file);
 });
 
+// Profile Editor Listeners
 btnEdit.addEventListener('click', async () => {
   if (!currentUser) return;
   tempProfilePicData = "";
@@ -471,6 +437,7 @@ btnSave.addEventListener('click', async () => {
   location.reload(); 
 });
 
+// Authentication Event Handlers
 btnLogin.addEventListener('click', () => {
   signInWithRedirect(auth, googleProvider);
 });
@@ -506,6 +473,7 @@ async function assignRole(roleName) {
 btnBarber.addEventListener('click', () => assignRole('barber'));
 btnOwner.addEventListener('click', () => assignRole('owner'));
 
+// Handle Redirect Result and Auth State Changes reliably
 getRedirectResult(auth)
   .then(async (result) => {
     if (result && result.user) {
