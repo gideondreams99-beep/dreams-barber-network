@@ -36,9 +36,12 @@ const btnBackToApp = document.getElementById('btn-back-to-app');
 
 const profileModal = document.getElementById('profile-modal');
 const closeModalBtn = document.getElementById('close-modal');
+const searchInput = document.getElementById('search-input');
+const filterSelect = document.getElementById('filter-select');
 
 let currentUser = null;
 let currentUserRole = null;
+let allProfilesCache = [];
 
 function showScreen(screenId) {
   authScreen.classList.add('hidden');
@@ -52,7 +55,7 @@ function showScreen(screenId) {
   if (screenId === 'admin') adminScreen.classList.remove('hidden');
 }
 
-// Global booking/interaction function for Home Services
+// Global booking/interaction function for Barber Me Home Services
 window.requestBooking = async (targetId, targetName, targetRole) => {
   if (!currentUser) return alert("Please sign in first.");
   try {
@@ -65,7 +68,7 @@ window.requestBooking = async (targetId, targetName, targetRole) => {
       status: "pending",
       createdAt: new Date().toISOString()
     });
-    alert("Home Service request sent successfully to " + targetName + "!");
+    alert("Barber Me home service request sent successfully to " + targetName + "!");
     profileModal.classList.add('hidden');
   } catch (error) {
     console.error("Error sending request:", error);
@@ -73,14 +76,11 @@ window.requestBooking = async (targetId, targetName, targetRole) => {
   }
 };
 
-// Global Profile View function (Clickable Cards)
+// Global Profile View function
 window.viewProfileDetails = (name, role, pic) => {
   document.getElementById('modal-name').textContent = name;
-  document.getElementById('modal-role').textContent = role === 'owner' ? 'Home Service Owner (DREAMS HANDS)' : 'Home Service Barber';
+  document.getElementById('modal-role').textContent = role === 'owner' ? 'Barber Me Business Owner' : 'Barber Me Professional Barber';
   document.getElementById('modal-pic').src = pic;
-  
-  // Setup modal booking button action
-  // We can attach a generic click listener or pass data
   profileModal.classList.remove('hidden');
 };
 
@@ -118,55 +118,85 @@ async function loadAdminBookings() {
   }
 }
 
-// Fetch and display Home Barbering Network Feed with Clickable Cards
+// Render feed cards based on filter and search inputs
+function renderFeed(profiles) {
+  const feedContainer = document.getElementById('feed-container');
+  if (!feedContainer) return;
+  feedContainer.innerHTML = "";
+
+  if (profiles.length === 0) {
+    feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>No providers match your search criteria.</p>";
+    return;
+  }
+
+  profiles.forEach(({ profileId, profile }) => {
+    const displayName = profile.name || "Anonymous User";
+    const profilePic = profile.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=f59e0b&color=fff';
+    const roleText = profile.role === 'owner' ? 'Business Owner (Barber Me)' : 'Home Service Barber';
+    
+    const card = document.createElement('div');
+    card.className = "p-4 bg-white rounded-xl border border-amber-500 shadow-sm flex flex-col gap-3 text-left cursor-pointer hover:bg-amber-50/50 transition";
+    card.onclick = () => viewProfileDetails(displayName, profile.role, profilePic);
+
+    card.innerHTML = `
+      <div class="flex items-center gap-4">
+        <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border-2 border-amber-500 bg-gray-100" />
+        <div>
+          <h3 class="font-bold text-amber-700">${displayName}</h3>
+          <p class="text-xs text-gray-500">${roleText}</p>
+          <span class="text-xs text-amber-600 underline font-semibold mt-1 inline-block">Tap to view photos & profile</span>
+        </div>
+      </div>
+      <button onclick="event.stopPropagation(); requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-500 hover:bg-amber-600 py-2 rounded-lg text-sm font-bold text-white shadow-md transition">
+        Book Home Service
+      </button>
+    `;
+    feedContainer.appendChild(card);
+  });
+}
+
+// Filter and search logic helper
+function filterAndSearchProfiles() {
+  const searchTerm = searchInput.value.toLowerCase().trim();
+  const selectedRole = filterSelect.value;
+
+  const filtered = allProfilesCache.filter(({ profile }) => {
+    const name = (profile.name || "").toLowerCase();
+    const matchesSearch = name.includes(searchTerm);
+    const matchesRole = selectedRole === 'all' || profile.role === selectedRole;
+    return matchesSearch && matchesRole;
+  });
+
+  renderFeed(filtered);
+}
+
+// Fetch network profiles from Firestore and cache them
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
   if (!feedContainer) return; 
-  feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading home service providers...</p>";
+  feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading Barber Me network...</p>";
 
   try {
     const querySnapshot = await getDocs(collection(db, "users"));
-    feedContainer.innerHTML = ""; 
-    
-    if (querySnapshot.empty) {
-      feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>No providers found yet.</p>";
-      return;
-    }
+    allProfilesCache = [];
 
     querySnapshot.forEach((docSnap) => {
-      const profile = docSnap.data();
-      const profileId = docSnap.id;
-      
-      const displayName = profile.name || "Anonymous User";
-      const profilePic = profile.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=f59e0b&color=fff';
-      const roleText = profile.role === 'owner' ? 'Home Service Owner (DREAMS HANDS)' : 'Home Service Barber';
-      
-      const card = document.createElement('div');
-      card.className = "p-4 bg-white rounded-xl border border-amber-500 shadow-sm flex flex-col gap-3 text-left cursor-pointer hover:bg-amber-50/50 transition";
-      
-      // Make entire card clickable to view profile details
-      card.onclick = () => viewProfileDetails(displayName, profile.role, profilePic);
-
-      card.innerHTML = `
-        <div class="flex items-center gap-4">
-          <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border-2 border-amber-500 bg-gray-100" />
-          <div>
-            <h3 class="font-bold text-amber-700">${displayName}</h3>
-            <p class="text-xs text-gray-500">${roleText}</p>
-            <span class="text-xs text-amber-600 underline font-semibold mt-1 inline-block">Tap to view photos & profile</span>
-          </div>
-        </div>
-        <button onclick="event.stopPropagation(); requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-500 hover:bg-amber-600 py-2 rounded-lg text-sm font-bold text-white shadow-md transition">
-          Book Home Service
-        </button>
-      `;
-      feedContainer.appendChild(card);
+      allProfilesCache.push({
+        profileId: docSnap.id,
+        profile: docSnap.data()
+      });
     });
+
+    filterAndSearchProfiles();
   } catch (error) {
     console.error("Error loading marketplace:", error);
     feedContainer.innerHTML = "<p class='text-red-500 text-sm'>Failed to load network feed.</p>";
   }
 }
+
+// Event listeners for search and filter inputs
+searchInput.addEventListener('input', filterAndSearchProfiles);
+filterSelect.addEventListener('change', filterAndSearchProfiles);
 
 // Admin Navigation Listeners
 btnOpenAdmin.addEventListener('click', () => {
