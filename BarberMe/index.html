@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BarberMe</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:#0d0d0d;
+color:white;
+}
+
+.screen{
+display:none;
+min-height:100vh;
+}
+
+.active{
+display:flex;
+}
+
+button{
+transition:.3s;
+}
+
+.nav-btn{
+display:flex;
+flex-direction:column;
+align-items:center;
+font-size:12px;
+color:#888;
+}
+
+.nav-btn.active{
+color:#f5b942;
+}
+
+.card{
+background:#171717;
+border:1px solid #333;
+border-radius:18px;
+padding:15px;
+}
+
+.gold{
+color:#f5b942;
+}
+
+.gold-bg{
+background:#f5b942;
+color:black;
+}
+
+input,select{
+background:#1f1f1f;
+border:1px solid #444;
+color:white;
+padding:12px;
+border-radius:12px;
+width:100%;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+height:70px;
+background:#111;
+display:flex;
+justify-content:space-around;
+align-items:center;
+border-top:1px solid #333;
+}
+
+.fade{
+animation:fade .4s;
+}
+
+@keyframes fade{
+from{opacity:0;}
+to{opacity:1;}
+}
+
+.splash-logo{
+font-size:48px;
+font-weight:bold;
+color:#f5b942;
+}
+
+.profile{
+width:70px;
+height:70px;
+border-radius:50%;
+background:#333;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- Splash -->
+
+<div id="splash" class="screen active justify-center items-center flex-col fade">
+
+<div class="splash-logo">
+💈
+</div>
+
+<h1 class="text-4xl font-bold mt-4 gold">
+BarberMe
+</h1>
+
+<p class="text-gray-400 mt-2">
+Professional Home Barber Marketplace
+</p>
+
+</div>
+
+<!-- Login -->
+
+<div id="login" class="screen justify-center items-center p-6 flex-col">
+
+<div class="card w-full max-w-md">
+
+<h2 class="text-3xl font-bold gold text-center">
+Welcome
+</h2>
+
+<p class="text-center text-gray-400 mt-2">
+Sign in to continue
+</p>
+
+<button id="googleBtn"
+class="gold-bg w-full py-3 rounded-xl mt-6 font-bold">
+Continue with Google
+</button>
+
+</div>
+
+</div>
+
+<!-- Home -->
+
+<div id="home" class="screen flex-col">
+
+<header class="p-5">
+
+<h1 class="text-3xl font-bold gold">
+BarberMe
+</h1>
+
+<p class="text-gray-400">
+Find professional barbers near you
+</p>
+
+</header>
+
+<div class="px-5">
+
+<input
+placeholder="Search barbers...">
+
+</div>
+
+<div class="p-5 space-y-4">
+
+<div class="card">
+
+<div class="flex items-center gap-4">
+
+<div class="profile"></div>
+
+<div>
+
+<h2 class="font-bold">
+John Barber
+</h2>
+
+<p class="text-sm text-gray-400">
+Home Service Barber
+</p>
+
+</div>
+
+</div>
+
+<button class="gold-bg w-full py-3 rounded-xl mt-4">
+View Profile
+</button>
+
+</div>
+
+</div>
+
+<nav class="bottom-nav">
+
+<div class="nav-btn active">
+🏠
+<span>Home</span>
+</div>
+
+<div class="nav-btn">
+🔍
+<span>Search</span>
+</div>
+
+<div class="nav-btn">
+💬
+<span>Chats</span>
+</div>
+
+<div class="nav-btn">
+📅
+<span>Bookings</span>
+</div>
+
+<div class="nav-btn">
+👤
+<span>Profile</span>
+</div>
+
+</nav>
+
+</div>
+
+<script>
+
+const splash=document.getElementById("splash");
+const login=document.getElementById("login");
+const home=document.getElementById("home");
+
+setTimeout(()=>{
+splash.classList.remove("active");
+login.classList.add("active");
+},2500);
+
+document
+.getElementById("googleBtn")
+.onclick=function(){
+
+login.classList.remove("active");
+
+home.classList.add("active");
+
+};
+
+</script>
+
+</body>
+</html>
