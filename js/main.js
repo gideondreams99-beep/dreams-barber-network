@@ -49,7 +49,7 @@ function showScreen(screenId) {
   if (screenId === 'admin') adminScreen.classList.remove('hidden');
 }
 
-// Global booking/interaction function
+// Global booking/interaction function for Home Services
 window.requestBooking = async (targetId, targetName, targetRole) => {
   if (!currentUser) return alert("Please sign in first.");
   try {
@@ -62,7 +62,7 @@ window.requestBooking = async (targetId, targetName, targetRole) => {
       status: "pending",
       createdAt: new Date().toISOString()
     });
-    alert("Request sent successfully to " + targetName + "!");
+    alert("Home Service request sent successfully to " + targetName + "!");
   } catch (error) {
     console.error("Error sending request:", error);
     alert("Failed to send request.");
@@ -90,7 +90,7 @@ async function loadAdminBookings() {
       card.className = "p-4 bg-white rounded-xl border border-amber-300 shadow-sm flex flex-col gap-2 text-left";
       card.innerHTML = `
         <p class="text-sm font-bold text-amber-700">Client: ${booking.customerName || "Anonymous"}</p>
-        <p class="text-xs text-gray-600">Requested Target: <span class="font-semibold">${booking.targetName}</span> (${booking.targetRole})</p>
+        <p class="text-xs text-gray-600">Requested Provider: <span class="font-semibold">${booking.targetName}</span> (${booking.targetRole})</p>
         <p class="text-xs text-gray-400">Status: <span class="text-amber-600 font-bold uppercase">${booking.status}</span></p>
       `;
       adminContainer.appendChild(card);
@@ -101,18 +101,18 @@ async function loadAdminBookings() {
   }
 }
 
-// Fetch and display Marketplace Feed (Both Barbers and Owners)
+// Fetch and display Home Barbering Network Feed
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
   if (!feedContainer) return; 
-  feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading network...</p>";
+  feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>Loading home service providers...</p>";
 
   try {
     const querySnapshot = await getDocs(collection(db, "users"));
     feedContainer.innerHTML = ""; 
     
     if (querySnapshot.empty) {
-      feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>No profiles found yet.</p>";
+      feedContainer.innerHTML = "<p class='text-gray-400 text-sm'>No providers found yet.</p>";
       return;
     }
 
@@ -122,7 +122,7 @@ async function loadMarketplace() {
       
       const displayName = profile.name || "Anonymous User";
       const profilePic = profile.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=f59e0b&color=fff';
-      const roleText = profile.role === 'owner' ? 'Business Owner (DREAMS HANDS)' : 'Professional Barber';
+      const roleText = profile.role === 'owner' ? 'Home Service Owner (DREAMS HANDS)' : 'Home Service Barber';
       
       const card = document.createElement('div');
       card.className = "p-4 bg-white rounded-xl border border-amber-500 shadow-sm flex flex-col gap-3 text-left";
@@ -135,7 +135,7 @@ async function loadMarketplace() {
           </div>
         </div>
         <button onclick="requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-500 hover:bg-amber-600 py-2 rounded-lg text-sm font-bold text-white shadow-md transition">
-          Connect / Book
+          Book Home Service
         </button>
       `;
       feedContainer.appendChild(card);
@@ -219,7 +219,6 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById('user-display-name').textContent = data.name || "User";
       document.getElementById('user-role-text').textContent = "Role: " + data.role;
       
-      // Show admin button only if the logged-in user is an owner
       if (currentUserRole === 'owner') {
         btnOpenAdmin.classList.remove('hidden');
       } else {
@@ -234,6 +233,6 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     currentUser = null;
     currentUserRole = null;
-    showScreen('auth');
+    showScreen('auth'); // Enforce Google sign-in as primary requirement before accessing anything
   }
 });
