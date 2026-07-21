@@ -26,13 +26,16 @@ const btnLogout = document.getElementById('btn-logout');
 const btnBarber = document.getElementById('btn-barber');
 const btnOwner = document.getElementById('btn-owner');
 
-// Profile & Admin Nav Elements
+// Profile, Modal & Admin Nav Elements
 const editScreen = document.getElementById('profile-edit-screen');
 const btnEdit = document.getElementById('btn-edit-profile');
 const btnSave = document.getElementById('save-profile');
 const btnCancel = document.getElementById('cancel-edit');
 const btnOpenAdmin = document.getElementById('btn-open-admin');
 const btnBackToApp = document.getElementById('btn-back-to-app');
+
+const profileModal = document.getElementById('profile-modal');
+const closeModalBtn = document.getElementById('close-modal');
 
 let currentUser = null;
 let currentUserRole = null;
@@ -63,11 +66,25 @@ window.requestBooking = async (targetId, targetName, targetRole) => {
       createdAt: new Date().toISOString()
     });
     alert("Home Service request sent successfully to " + targetName + "!");
+    profileModal.classList.add('hidden');
   } catch (error) {
     console.error("Error sending request:", error);
     alert("Failed to send request.");
   }
 };
+
+// Global Profile View function (Clickable Cards)
+window.viewProfileDetails = (name, role, pic) => {
+  document.getElementById('modal-name').textContent = name;
+  document.getElementById('modal-role').textContent = role === 'owner' ? 'Home Service Owner (DREAMS HANDS)' : 'Home Service Barber';
+  document.getElementById('modal-pic').src = pic;
+  
+  // Setup modal booking button action
+  // We can attach a generic click listener or pass data
+  profileModal.classList.remove('hidden');
+};
+
+closeModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
 
 // Fetch and display Admin Bookings
 async function loadAdminBookings() {
@@ -101,7 +118,7 @@ async function loadAdminBookings() {
   }
 }
 
-// Fetch and display Home Barbering Network Feed
+// Fetch and display Home Barbering Network Feed with Clickable Cards
 async function loadMarketplace() {
   const feedContainer = document.getElementById('feed-container');
   if (!feedContainer) return; 
@@ -125,16 +142,21 @@ async function loadMarketplace() {
       const roleText = profile.role === 'owner' ? 'Home Service Owner (DREAMS HANDS)' : 'Home Service Barber';
       
       const card = document.createElement('div');
-      card.className = "p-4 bg-white rounded-xl border border-amber-500 shadow-sm flex flex-col gap-3 text-left";
+      card.className = "p-4 bg-white rounded-xl border border-amber-500 shadow-sm flex flex-col gap-3 text-left cursor-pointer hover:bg-amber-50/50 transition";
+      
+      // Make entire card clickable to view profile details
+      card.onclick = () => viewProfileDetails(displayName, profile.role, profilePic);
+
       card.innerHTML = `
         <div class="flex items-center gap-4">
           <img src="${profilePic}" class="w-12 h-12 rounded-full object-cover border-2 border-amber-500 bg-gray-100" />
           <div>
             <h3 class="font-bold text-amber-700">${displayName}</h3>
             <p class="text-xs text-gray-500">${roleText}</p>
+            <span class="text-xs text-amber-600 underline font-semibold mt-1 inline-block">Tap to view photos & profile</span>
           </div>
         </div>
-        <button onclick="requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-500 hover:bg-amber-600 py-2 rounded-lg text-sm font-bold text-white shadow-md transition">
+        <button onclick="event.stopPropagation(); requestBooking('${profileId}', '${displayName}', '${profile.role}')" class="w-full bg-amber-500 hover:bg-amber-600 py-2 rounded-lg text-sm font-bold text-white shadow-md transition">
           Book Home Service
         </button>
       `;
@@ -233,6 +255,6 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     currentUser = null;
     currentUserRole = null;
-    showScreen('auth'); // Enforce Google sign-in as primary requirement before accessing anything
+    showScreen('auth');
   }
 });
