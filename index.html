@@ -13,7 +13,6 @@
   import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
   
-  // Your Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
     authDomain: "dreamssmartapp.firebaseapp.com",
@@ -23,14 +22,12 @@
     appId: "1:679648849916:web:9ad24dbfd209dd266a8c79"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const storage = getStorage(app);
   const googleProvider = new GoogleAuthProvider();
 
-  // Expose to window for inline scripts
   window.db = db;
   window.auth = auth;
   window.storage = storage;
@@ -53,7 +50,6 @@
   window.uploadBytes = uploadBytes;
   window.getDownloadURL = getDownloadURL;
 
-  // Listen for auth state changes on load
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userSnap = await getDoc(doc(db, "users", user.uid));
@@ -64,6 +60,7 @@
         document.getElementById("mainApp").classList.add("active");
         updateProfileUI();
         loadBarbersFromFirestore();
+        loadUserBookings();
       }
     }
   });
@@ -193,7 +190,7 @@ input:focus, select:focus { border-color: #f5b942; }
         <div class="profile-img flex items-center justify-center text-xl">💬</div>
         <div class="flex-1">
           <div class="flex justify-between"><h4 class="font-bold text-sm">Community Chat</h4><span class="text-xs text-gray-500">Live</span></div>
-          <p class="text-xs text-gray-400 truncate">Tap to join live customer-barber discussions</p>
+          <p class="text-xs text-gray-400 truncate">Tap to join live discussions</p>
         </div>
         <span class="w-2 h-2 rounded-full gold-bg"></span>
       </div>
@@ -206,9 +203,7 @@ input:focus, select:focus { border-color: #f5b942; }
       <button onclick="switchTab('chats')" class="text-sm gold">← Back</button>
       <h2 class="text-xl font-bold gold" id="chatRoomTitle">Chat Room</h2>
     </div>
-    <div id="chatMessages" class="card flex-1 h-72 overflow-y-auto space-y-3 p-3 bg-neutral-900 border-neutral-800">
-      <!-- Live messages populate here -->
-    </div>
+    <div id="chatMessages" class="card flex-1 h-72 overflow-y-auto space-y-3 p-3 bg-neutral-900 border-neutral-800"></div>
     <div class="flex gap-2">
       <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1">
       <button onclick="sendChatMessage()" class="gold-bg px-5 rounded-xl text-sm">Send</button>
@@ -218,16 +213,8 @@ input:focus, select:focus { border-color: #f5b942; }
   <!-- BOOKINGS TAB -->
   <div id="tab-bookings" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <h2 class="text-xl font-bold gold">Your Appointments</h2>
-    <div id="bookingsList" class="space-y-3">
-      <div class="card space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="badge bg-amber-500/20 text-amber-400">Confirmed</span>
-          <span class="text-xs text-gray-400">Today, 3:00 PM</span>
-        </div>
-        <h3 class="font-bold">Executive Haircut & Beard Trim</h3>
-        <p class="text-xs text-gray-400">Barber: John Barber (Home Service)</p>
-        <p class="text-xs gold font-semibold">Total: GHS 120.00</p>
-      </div>
+    <div id="bookingsList" class="space-y-3 pb-12">
+      <p class="text-xs text-gray-500">Loading appointments...</p>
     </div>
   </div>
 
@@ -241,7 +228,7 @@ input:focus, select:focus { border-color: #f5b942; }
       </div>
     </div>
 
-    <!-- Barber Portfolio Section (Only shows if role is barber) -->
+    <!-- Barber Portfolio Section -->
     <div id="barberPortfolioSection" class="space-y-3" style="display:none;">
       <h3 class="font-bold text-sm gold">Portfolio Uploads</h3>
       <div class="card space-y-3">
@@ -271,9 +258,9 @@ input:focus, select:focus { border-color: #f5b942; }
     </div>
     <div class="space-y-2">
       <div class="card text-xs space-y-1">
-        <p class="font-bold">Booking Confirmed</p>
-        <p class="text-gray-400">John Barber accepted your appointment request for today.</p>
-        <span class="text-gray-500 text-[10px]">10 mins ago</span>
+        <p class="font-bold">System Online</p>
+        <p class="text-gray-400">Welcome to BarberMe live booking marketplace.</p>
+        <span class="text-gray-500 text-[10px]">Just now</span>
       </div>
     </div>
   </div>
@@ -291,29 +278,29 @@ input:focus, select:focus { border-color: #f5b942; }
 
 <!-- BOOKING MODAL -->
 <div id="bookingModal" class="screen fixed inset-0 bg-black/90 z-50 p-6 overflow-y-auto" style="display:none;">
-  <div class="max-w-md mx-auto space-y-4">
+  <div class="max-w-md mx-auto space-y-4 mt-10">
     <div class="flex justify-between items-center">
       <h2 class="text-xl font-bold gold" id="modalBarberName">John Barber</h2>
       <button onclick="closeBookingModal()" class="text-gray-400 text-xl font-bold">✕</button>
     </div>
     <div class="card space-y-3">
-      <p class="text-xs text-gray-400">⭐ 4.9 (124 reviews) • Home Service Specialist</p>
+      <p class="text-xs text-gray-400">⭐ 4.9 • Home Service Specialist</p>
       <hr class="border-neutral-800">
       <h4 class="font-bold text-sm">Select Service</h4>
       <select id="serviceSelect">
-        <option value="80">Classic Haircut - GHS 80</option>
-        <option value="120" selected>Executive Cut & Beard - GHS 120</option>
-        <option value="150">Dreadlocks Styling - GHS 150</option>
+        <option value="Classic Haircut - GHS 80">Classic Haircut - GHS 80</option>
+        <option value="Executive Cut & Beard - GHS 120" selected>Executive Cut & Beard - GHS 120</option>
+        <option value="Dreadlocks Styling - GHS 150">Dreadlocks Styling - GHS 150</option>
       </select>
       <h4 class="font-bold text-sm">Appointment Date & Time</h4>
       <input type="datetime-local" id="bookingDateTime">
       <h4 class="font-bold text-sm">Payment Method</h4>
       <select id="paymentMethod">
-        <option value="momo">Mobile Money (MTN / Vodafone / AirtelTigo)</option>
-        <option value="card">Credit / Debit Card</option>
-        <option value="cash">Cash on Service</option>
+        <option value="Mobile Money (MoMo)">Mobile Money (MTN / Vodafone / AirtelTigo)</option>
+        <option value="Credit Card">Credit / Debit Card</option>
+        <option value="Cash on Service">Cash on Service</option>
       </select>
-      <button onclick="confirmBooking()" class="gold-bg w-full py-3 rounded-xl mt-2">Proceed to Payment</button>
+      <button onclick="submitBooking()" class="gold-bg w-full py-3 rounded-xl mt-2">Confirm & Book Appointment</button>
     </div>
   </div>
 </div>
@@ -321,6 +308,7 @@ input:focus, select:focus { border-color: #f5b942; }
 <!-- APPLICATION CONTROLLER SCRIPT -->
 <script>
 let currentUser = { name: "User", role: "client", phone: "", uid: "" };
+let selectedBarberForBooking = "";
 let currentChatRoomId = null;
 let unsubscribeChat = null;
 let allBarbersCache = [];
@@ -334,7 +322,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 1500);
 });
 
-// Live Firebase Google Sign-In Trigger
 document.getElementById("googleBtn").onclick = async function() {
   try {
     const result = await window.signInWithPopup(window.auth, window.googleProvider);
@@ -352,10 +339,11 @@ document.getElementById("googleBtn").onclick = async function() {
       document.getElementById("mainApp").classList.add("active");
       updateProfileUI();
       loadBarbersFromFirestore();
+      loadUserBookings();
     }
   } catch (error) {
-    console.error("Authentication Error:", error);
-    alert("Google Sign-In failed. Make sure Google Sign-In is enabled in your Firebase Console authentication settings.");
+    console.error("Auth Error:", error);
+    alert("Google Sign-In failed.");
   }
 };
 
@@ -366,7 +354,7 @@ async function setRole(role) {
     name: user ? user.displayName : "User",
     email: user ? user.email : "",
     role: role,
-    phone: user && user.phoneNumber ? user.phoneNumber : "",
+    phone: "",
     portfolio: []
   };
 
@@ -378,6 +366,7 @@ async function setRole(role) {
   document.getElementById("mainApp").classList.add("active");
   updateProfileUI();
   loadBarbersFromFirestore();
+  loadUserBookings();
 }
 
 function switchTab(tabId) {
@@ -394,7 +383,6 @@ function switchTab(tabId) {
   }
 }
 
-// Load real barbers dynamically from Firestore users collection with role == 'barber'
 async function loadBarbersFromFirestore() {
   try {
     const q = window.query(window.collection(window.db, "users"), window.where("role", "==", "barber"));
@@ -405,10 +393,9 @@ async function loadBarbersFromFirestore() {
       allBarbersCache.push(doc.data());
     });
 
-    // If no barbers registered yet, add a demo item so the list isn't empty
     if(allBarbersCache.length === 0) {
       allBarbersCache = [
-        { uid: '1', name: 'John Barber', role: 'barber', rating: 4.9, reviews: 120, price: 'GHS 100', serviceTitle: 'Home Service Specialist' }
+        { uid: 'demo_1', name: 'John Barber', role: 'barber', serviceTitle: 'Home Service Specialist' }
       ];
     }
 
@@ -427,7 +414,7 @@ function renderBarbers(list) {
         <div class="flex-1">
           <h3 class="font-bold">${b.name}</h3>
           <p class="text-xs text-gray-400">${b.serviceTitle || 'Professional Barber'}</p>
-          <p class="text-xs gold mt-1">⭐ 4.9 (120 reviews) • From GHS 100</p>
+          <p class="text-xs gold mt-1">⭐ 4.9 • Home Service Available</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -444,7 +431,82 @@ function filterBarbers() {
   renderBarbers(filtered);
 }
 
-// Real-time Firestore Chat Handlers
+function openBookingModal(barberName) {
+  selectedBarberForBooking = barberName;
+  document.getElementById("modalBarberName").innerText = barberName;
+  document.getElementById("bookingModal").style.display = "flex";
+}
+
+function closeBookingModal() {
+  document.getElementById("bookingModal").style.display = "none";
+}
+
+// Save Booking directly to Firestore
+async function submitBooking() {
+  const service = document.getElementById("serviceSelect").value;
+  const dateTime = document.getElementById("bookingDateTime").value;
+  const payment = document.getElementById("paymentMethod").value;
+
+  if(!dateTime) {
+    alert("Please select a valid date and time for your appointment.");
+    return;
+  }
+
+  try {
+    const bookingData = {
+      clientUid: currentUser.uid,
+      clientName: currentUser.name,
+      barberName: selectedBarberForBooking,
+      service: service,
+      dateTime: dateTime,
+      paymentMethod: payment,
+      status: "Confirmed",
+      timestamp: window.serverTimestamp()
+    };
+
+    await window.addDoc(window.collection(window.db, "bookings"), bookingData);
+    alert("Appointment booked successfully and synced to database!");
+    closeBookingModal();
+    switchTab("bookings");
+    loadUserBookings();
+  } catch(e) {
+    console.error("Booking error:", e);
+    alert("Failed to save booking. Please check connection.");
+  }
+}
+
+// Load Bookings from Firestore in Real-Time
+async function loadUserBookings() {
+  const container = document.getElementById("bookingsList");
+  try {
+    const q = window.query(window.collection(window.db, "bookings"), window.where("clientUid", "==", currentUser.uid));
+    const querySnapshot = await window.getDocs(q);
+    
+    if(querySnapshot.empty) {
+      container.innerHTML = `<p class="text-xs text-gray-500 text-center my-6">No active appointments found. Book a barber to get started!</p>`;
+      return;
+    }
+
+    container.innerHTML = "";
+    querySnapshot.forEach((doc) => {
+      const b = doc.data();
+      container.innerHTML += `
+        <div class="card space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="badge bg-amber-500/20 text-amber-400">${b.status}</span>
+            <span class="text-xs text-gray-400">${b.dateTime.replace('T', ' ')}</span>
+          </div>
+          <h3 class="font-bold">${b.service}</h3>
+          <p class="text-xs text-gray-400">Barber: ${b.barberName} (Home Service)</p>
+          <p class="text-xs gold font-semibold">Payment: ${b.paymentMethod}</p>
+        </div>
+      `;
+    });
+  } catch(e) {
+    console.error("Error loading bookings:", e);
+  }
+}
+
 function openChatRoom(roomId, roomTitle) {
   currentChatRoomId = roomId;
   document.getElementById("chatRoomTitle").innerText = roomTitle;
@@ -489,46 +551,40 @@ async function sendChatMessage() {
     const messagesRef = window.collection(window.db, "chats", currentChatRoomId, "messages");
     await window.addDoc(messagesRef, {
       text: text,
-      senderUid: currentUser.uid || window.auth.currentUser.uid,
-      senderName: currentUser.name || "User",
+      senderUid: currentUser.uid,
+      senderName: currentUser.name,
       timestamp: window.serverTimestamp()
     });
     input.value = "";
   } catch(e) {
     console.error("Error sending message:", e);
-    alert("Could not send message.");
   }
 }
 
-// Portfolio Upload via Firebase Storage
 async function uploadPortfolioImage() {
   const fileInput = document.getElementById("portfolioFile");
-  if(fileInput.files.length === 0) {
-    alert("Please select an image first.");
-    return;
-  }
+  if(fileInput.files.length === 0) return alert("Select an image first.");
 
   const file = fileInput.files[0];
-  const storageRef = window.ref(window.storage, `portfolios/${window.auth.currentUser.uid}/${Date.now()}_${file.name}`);
+  const storageRef = window.ref(window.storage, `portfolios/${currentUser.uid}/${Date.now()}_${file.name}`);
 
   try {
-    alert("Uploading image to Firebase Storage...");
+    alert("Uploading to Firebase Storage...");
     const snapshot = await window.uploadBytes(storageRef, file);
     const downloadUrl = await window.getDownloadURL(snapshot.ref);
 
     if(!currentUser.portfolio) currentUser.portfolio = [];
     currentUser.portfolio.push(downloadUrl);
 
-    await window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), {
+    await window.setDoc(window.doc(window.db, "users", currentUser.uid), {
       portfolio: currentUser.portfolio
     }, { merge: true });
 
     renderPortfolioGrid();
     fileInput.value = "";
-    alert("Portfolio image uploaded successfully!");
+    alert("Portfolio updated successfully!");
   } catch(e) {
     console.error("Upload error:", e);
-    alert("Failed to upload portfolio image.");
   }
 }
 
@@ -538,27 +594,11 @@ function renderPortfolioGrid() {
     grid.innerHTML = `<p class="text-xs text-gray-500 col-span-3">No portfolio images uploaded yet.</p>`;
     return;
   }
-
   grid.innerHTML = currentUser.portfolio.map(url => `
     <div class="h-20 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700">
       <img src="${url}" class="w-full h-full object-cover">
     </div>
   `).join('');
-}
-
-function openBookingModal(barberName) {
-  document.getElementById("modalBarberName").innerText = barberName;
-  document.getElementById("bookingModal").style.display = "flex";
-}
-
-function closeBookingModal() {
-  document.getElementById("bookingModal").style.display = "none";
-}
-
-function confirmBooking() {
-  alert("Booking request sent successfully! Mobile Money prompt initialized.");
-  closeBookingModal();
-  switchTab("bookings");
 }
 
 function openLiveStream() {
@@ -584,10 +624,10 @@ async function saveProfile() {
   currentUser.phone = document.getElementById("editPhone").value;
   
   if(window.auth.currentUser) {
-    await window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), currentUser, { merge: true });
+    await window.setDoc(window.doc(window.db, "users", currentUser.uid), currentUser, { merge: true });
   }
   updateProfileUI();
-  alert("Profile updated successfully in Firestore!");
+  alert("Profile updated successfully!");
 }
 
 async function logout() {
