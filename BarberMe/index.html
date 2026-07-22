@@ -10,7 +10,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
   
   // Your Firebase configuration
@@ -45,6 +45,13 @@
   window.getDoc = getDoc;
   window.updateDoc = updateDoc;
   window.onSnapshot = onSnapshot;
+  window.query = query;
+  window.where = where;
+  window.orderBy = orderBy;
+  window.serverTimestamp = serverTimestamp;
+  window.ref = ref;
+  window.uploadBytes = uploadBytes;
+  window.getDownloadURL = getDownloadURL;
 
   // Listen for auth state changes on load
   onAuthStateChanged(auth, async (user) => {
@@ -56,6 +63,7 @@
         document.getElementById("login").classList.remove("active");
         document.getElementById("mainApp").classList.add("active");
         updateProfileUI();
+        loadBarbersFromFirestore();
       }
     }
   });
@@ -162,7 +170,7 @@ input:focus, select:focus { border-color: #f5b942; }
       <button onclick="openLiveStream()" class="gold-bg px-4 py-2 rounded-xl text-xs">Watch</button>
     </div>
 
-    <h2 class="font-bold text-lg mt-2">Top Rated Barbers</h2>
+    <h2 class="font-bold text-lg mt-2">Active Marketplace Barbers</h2>
     <div id="barbersList" class="space-y-3 pb-12"></div>
   </div>
 
@@ -181,14 +189,29 @@ input:focus, select:focus { border-color: #f5b942; }
   <div id="tab-chats" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <h2 class="text-xl font-bold gold">Messages</h2>
     <div id="chatsList" class="space-y-2">
-      <div onclick="openChat('John Barber')" class="card flex items-center gap-3 cursor-pointer">
-        <div class="profile-img"></div>
+      <div onclick="openChatRoom('general_chat', 'General Marketplace Chat')" class="card flex items-center gap-3 cursor-pointer">
+        <div class="profile-img flex items-center justify-center text-xl">💬</div>
         <div class="flex-1">
-          <div class="flex justify-between"><h4 class="font-bold text-sm">John Barber</h4><span class="text-xs text-gray-500">12:45 PM</span></div>
-          <p class="text-xs text-gray-400 truncate">See you at 3 PM for the home cut!</p>
+          <div class="flex justify-between"><h4 class="font-bold text-sm">Community Chat</h4><span class="text-xs text-gray-500">Live</span></div>
+          <p class="text-xs text-gray-400 truncate">Tap to join live customer-barber discussions</p>
         </div>
         <span class="w-2 h-2 rounded-full gold-bg"></span>
       </div>
+    </div>
+  </div>
+
+  <!-- CHAT ROOM SUBVIEW -->
+  <div id="tab-chat-room" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
+    <div class="flex items-center gap-3">
+      <button onclick="switchTab('chats')" class="text-sm gold">← Back</button>
+      <h2 class="text-xl font-bold gold" id="chatRoomTitle">Chat Room</h2>
+    </div>
+    <div id="chatMessages" class="card flex-1 h-72 overflow-y-auto space-y-3 p-3 bg-neutral-900 border-neutral-800">
+      <!-- Live messages populate here -->
+    </div>
+    <div class="flex gap-2">
+      <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1">
+      <button onclick="sendChatMessage()" class="gold-bg px-5 rounded-xl text-sm">Send</button>
     </div>
   </div>
 
@@ -215,6 +238,17 @@ input:focus, select:focus { border-color: #f5b942; }
       <div>
         <h2 class="font-bold text-lg" id="profileNameDisplay">User Name</h2>
         <p class="text-xs text-gray-400 capitalize" id="profileRoleDisplay">Client</p>
+      </div>
+    </div>
+
+    <!-- Barber Portfolio Section (Only shows if role is barber) -->
+    <div id="barberPortfolioSection" class="space-y-3" style="display:none;">
+      <h3 class="font-bold text-sm gold">Portfolio Uploads</h3>
+      <div class="card space-y-3">
+        <p class="text-xs text-gray-400">Upload your best cuts to show prospective clients.</p>
+        <input type="file" id="portfolioFile" accept="image/*" class="text-xs">
+        <button onclick="uploadPortfolioImage()" class="gold-bg w-full py-2.5 rounded-xl text-sm">Upload to Portfolio</button>
+        <div id="portfolioPreviewGrid" class="grid grid-cols-3 gap-2 mt-2"></div>
       </div>
     </div>
 
@@ -286,12 +320,10 @@ input:focus, select:focus { border-color: #f5b942; }
 
 <!-- APPLICATION CONTROLLER SCRIPT -->
 <script>
-let currentUser = { name: "User", role: "client", phone: "" };
-const mockBarbers = [
-  { id: '1', name: 'John Barber', role: 'Home Service Specialist', rating: 4.9, reviews: 120, price: 'GHS 100' },
-  { id: '2', name: 'Fade Master Studio', role: 'Shop Owner / Elite Hub', rating: 4.8, reviews: 95, price: 'GHS 90' },
-  { id: '3', name: 'Kingsway Grooming', role: 'Mobile Barber', rating: 4.7, reviews: 78, price: 'GHS 110' }
-];
+let currentUser = { name: "User", role: "client", phone: "", uid: "" };
+let currentChatRoomId = null;
+let unsubscribeChat = null;
+let allBarbersCache = [];
 
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -300,7 +332,6 @@ window.addEventListener('DOMContentLoaded', () => {
       document.getElementById("login").classList.add("active");
     }
   }, 1500);
-  renderBarbers(mockBarbers);
 });
 
 // Live Firebase Google Sign-In Trigger
@@ -320,6 +351,7 @@ document.getElementById("googleBtn").onclick = async function() {
       document.getElementById("login").classList.remove("active");
       document.getElementById("mainApp").classList.add("active");
       updateProfileUI();
+      loadBarbersFromFirestore();
     }
   } catch (error) {
     console.error("Authentication Error:", error);
@@ -334,7 +366,8 @@ async function setRole(role) {
     name: user ? user.displayName : "User",
     email: user ? user.email : "",
     role: role,
-    phone: user && user.phoneNumber ? user.phoneNumber : ""
+    phone: user && user.phoneNumber ? user.phoneNumber : "",
+    portfolio: []
   };
 
   if (window.auth && window.auth.currentUser) {
@@ -344,6 +377,7 @@ async function setRole(role) {
   document.getElementById("roleSetup").classList.remove("active");
   document.getElementById("mainApp").classList.add("active");
   updateProfileUI();
+  loadBarbersFromFirestore();
 }
 
 function switchTab(tabId) {
@@ -352,9 +386,35 @@ function switchTab(tabId) {
   
   if(tabId === 'notifications') {
     document.getElementById('tab-notifications').style.display = 'flex';
+  } else if(tabId === 'chat-room') {
+    document.getElementById('tab-chat-room').style.display = 'flex';
   } else {
     document.getElementById(`tab-${tabId}`).style.display = 'flex';
     document.getElementById(`nav-${tabId}`).classList.add('active');
+  }
+}
+
+// Load real barbers dynamically from Firestore users collection with role == 'barber'
+async function loadBarbersFromFirestore() {
+  try {
+    const q = window.query(window.collection(window.db, "users"), window.where("role", "==", "barber"));
+    const querySnapshot = await window.getDocs(q);
+    
+    allBarbersCache = [];
+    querySnapshot.forEach((doc) => {
+      allBarbersCache.push(doc.data());
+    });
+
+    // If no barbers registered yet, add a demo item so the list isn't empty
+    if(allBarbersCache.length === 0) {
+      allBarbersCache = [
+        { uid: '1', name: 'John Barber', role: 'barber', rating: 4.9, reviews: 120, price: 'GHS 100', serviceTitle: 'Home Service Specialist' }
+      ];
+    }
+
+    renderBarbers(allBarbersCache);
+  } catch(e) {
+    console.error("Error loading barbers:", e);
   }
 }
 
@@ -366,13 +426,13 @@ function renderBarbers(list) {
         <div class="profile-img bg-neutral-800"></div>
         <div class="flex-1">
           <h3 class="font-bold">${b.name}</h3>
-          <p class="text-xs text-gray-400">${b.role}</p>
-          <p class="text-xs gold mt-1">⭐ ${b.rating} (${b.reviews} reviews) • From ${b.price}</p>
+          <p class="text-xs text-gray-400">${b.serviceTitle || 'Professional Barber'}</p>
+          <p class="text-xs gold mt-1">⭐ 4.9 (120 reviews) • From GHS 100</p>
         </div>
       </div>
       <div class="flex gap-2">
         <button onclick="openBookingModal('${b.name}')" class="gold-bg flex-1 py-2.5 rounded-xl text-xs">Book Appointment</button>
-        <button onclick="openChat('${b.name}')" class="card py-2.5 px-4 rounded-xl text-xs border border-neutral-700">Chat</button>
+        <button onclick="openChatRoom('${b.uid || 'general'}', '${b.name}')" class="card py-2.5 px-4 rounded-xl text-xs border border-neutral-700">Chat</button>
       </div>
     </div>
   `).join('');
@@ -380,8 +440,110 @@ function renderBarbers(list) {
 
 function filterBarbers() {
   const query = document.getElementById("searchInput").value.toLowerCase();
-  const filtered = mockBarbers.filter(b => b.name.toLowerCase().includes(query) || b.role.toLowerCase().includes(query));
+  const filtered = allBarbersCache.filter(b => b.name.toLowerCase().includes(query));
   renderBarbers(filtered);
+}
+
+// Real-time Firestore Chat Handlers
+function openChatRoom(roomId, roomTitle) {
+  currentChatRoomId = roomId;
+  document.getElementById("chatRoomTitle").innerText = roomTitle;
+  switchTab("chat-room");
+
+  if(unsubscribeChat) unsubscribeChat();
+
+  const messagesRef = window.collection(window.db, "chats", roomId, "messages");
+  const q = window.query(messagesRef, window.orderBy("timestamp", "asc"));
+
+  unsubscribeChat = window.onSnapshot(q, (snapshot) => {
+    const container = document.getElementById("chatMessages");
+    container.innerHTML = "";
+    
+    if(snapshot.empty) {
+      container.innerHTML = `<p class="text-center text-xs text-gray-500 my-4">No messages yet. Start the conversation!</p>`;
+      return;
+    }
+
+    snapshot.forEach((doc) => {
+      const msg = doc.data();
+      const isMe = msg.senderUid === currentUser.uid;
+      container.innerHTML += `
+        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+          <span class="text-[10px] text-gray-400 mb-0.5">${msg.senderName}</span>
+          <div class="card px-3 py-2 text-xs max-w-[80%] ${isMe ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-neutral-800 border-neutral-700'}">
+            ${msg.text}
+          </div>
+        </div>
+      `;
+    });
+    container.scrollTop = container.scrollHeight;
+  });
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if(!text || !currentChatRoomId) return;
+
+  try {
+    const messagesRef = window.collection(window.db, "chats", currentChatRoomId, "messages");
+    await window.addDoc(messagesRef, {
+      text: text,
+      senderUid: currentUser.uid || window.auth.currentUser.uid,
+      senderName: currentUser.name || "User",
+      timestamp: window.serverTimestamp()
+    });
+    input.value = "";
+  } catch(e) {
+    console.error("Error sending message:", e);
+    alert("Could not send message.");
+  }
+}
+
+// Portfolio Upload via Firebase Storage
+async function uploadPortfolioImage() {
+  const fileInput = document.getElementById("portfolioFile");
+  if(fileInput.files.length === 0) {
+    alert("Please select an image first.");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const storageRef = window.ref(window.storage, `portfolios/${window.auth.currentUser.uid}/${Date.now()}_${file.name}`);
+
+  try {
+    alert("Uploading image to Firebase Storage...");
+    const snapshot = await window.uploadBytes(storageRef, file);
+    const downloadUrl = await window.getDownloadURL(snapshot.ref);
+
+    if(!currentUser.portfolio) currentUser.portfolio = [];
+    currentUser.portfolio.push(downloadUrl);
+
+    await window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), {
+      portfolio: currentUser.portfolio
+    }, { merge: true });
+
+    renderPortfolioGrid();
+    fileInput.value = "";
+    alert("Portfolio image uploaded successfully!");
+  } catch(e) {
+    console.error("Upload error:", e);
+    alert("Failed to upload portfolio image.");
+  }
+}
+
+function renderPortfolioGrid() {
+  const grid = document.getElementById("portfolioPreviewGrid");
+  if(!currentUser.portfolio || currentUser.portfolio.length === 0) {
+    grid.innerHTML = `<p class="text-xs text-gray-500 col-span-3">No portfolio images uploaded yet.</p>`;
+    return;
+  }
+
+  grid.innerHTML = currentUser.portfolio.map(url => `
+    <div class="h-20 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700">
+      <img src="${url}" class="w-full h-full object-cover">
+    </div>
+  `).join('');
 }
 
 function openBookingModal(barberName) {
@@ -399,10 +561,6 @@ function confirmBooking() {
   switchTab("bookings");
 }
 
-function openChat(barberName) {
-  switchTab("chats");
-}
-
 function openLiveStream() {
   alert("Connecting to live video stream feed...");
 }
@@ -412,6 +570,13 @@ function updateProfileUI() {
   document.getElementById("profileRoleDisplay").innerText = currentUser.role || "client";
   document.getElementById("editName").value = currentUser.name || "";
   document.getElementById("editPhone").value = currentUser.phone || "";
+
+  if(currentUser.role === 'barber') {
+    document.getElementById("barberPortfolioSection").style.display = "block";
+    renderPortfolioGrid();
+  } else {
+    document.getElementById("barberPortfolioSection").style.display = "none";
+  }
 }
 
 async function saveProfile() {
@@ -426,6 +591,7 @@ async function saveProfile() {
 }
 
 async function logout() {
+  if(unsubscribeChat) unsubscribeChat();
   await window.signOut(window.auth);
   document.getElementById("mainApp").classList.remove("active");
   document.getElementById("login").classList.add("active");
