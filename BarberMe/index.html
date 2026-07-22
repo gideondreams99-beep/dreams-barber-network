@@ -3,255 +3,433 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>BarberMe</title>
-
+<title>BarberMe | Professional Home Barber Marketplace</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
+<!-- Firebase SDKs & Integration -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+  
+  // Your Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
+    authDomain: "dreamssmartapp.firebaseapp.com",
+    projectId: "dreamssmartapp",
+    storageBucket: "dreamssmartapp.firebasestorage.app",
+    messagingSenderId: "679648849916",
+    appId: "1:679648849916:web:9ad24dbfd209dd266a8c79"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  const googleProvider = new GoogleAuthProvider();
+
+  // Expose to window for inline scripts
+  window.db = db;
+  window.auth = auth;
+  window.storage = storage;
+  window.googleProvider = googleProvider;
+  window.signInWithPopup = signInWithPopup;
+  window.signOut = signOut;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.getDocs = getDocs;
+  window.doc = doc;
+  window.setDoc = setDoc;
+  window.getDoc = getDoc;
+  window.updateDoc = updateDoc;
+  window.onSnapshot = onSnapshot;
+
+  // Listen for auth state changes on load
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      if (userSnap.exists()) {
+        window.currentUser = userSnap.data();
+        document.getElementById("splash").classList.remove("active");
+        document.getElementById("login").classList.remove("active");
+        document.getElementById("mainApp").classList.add("active");
+        updateProfileUI();
+      }
+    }
+  });
+</script>
+
 <style>
-body{
-margin:0;
-font-family:Arial,Helvetica,sans-serif;
-background:#0d0d0d;
-color:white;
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0d0d0d;
+  color: white;
+  -webkit-tap-highlight-color: transparent;
 }
-
-.screen{
-display:none;
-min-height:100vh;
-}
-
-.active{
-display:flex;
-}
-
-button{
-transition:.3s;
-}
-
-.nav-btn{
-display:flex;
-flex-direction:column;
-align-items:center;
-font-size:12px;
-color:#888;
-}
-
-.nav-btn.active{
-color:#f5b942;
-}
-
-.card{
-background:#171717;
-border:1px solid #333;
-border-radius:18px;
-padding:15px;
-}
-
-.gold{
-color:#f5b942;
-}
-
-.gold-bg{
-background:#f5b942;
-color:black;
-}
-
-input,select{
-background:#1f1f1f;
-border:1px solid #444;
-color:white;
-padding:12px;
-border-radius:12px;
-width:100%;
-}
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-height:70px;
-background:#111;
-display:flex;
-justify-content:space-around;
-align-items:center;
-border-top:1px solid #333;
-}
-
-.fade{
-animation:fade .4s;
-}
-
-@keyframes fade{
-from{opacity:0;}
-to{opacity:1;}
-}
-
-.splash-logo{
-font-size:48px;
-font-weight:bold;
-color:#f5b942;
-}
-
-.profile{
-width:70px;
-height:70px;
-border-radius:50%;
-background:#333;
-}
+.screen { display: none; min-height: 100vh; padding-bottom: 90px; }
+.screen.active { display: flex; flex-direction: column; }
+button { transition: 0.3s; cursor: pointer; }
+button:active { transform: scale(0.97); }
+.nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #888; background: none; border: none; }
+.nav-btn.active { color: #f5b942; }
+.card { background: #171717; border: 1px solid #333; border-radius: 18px; padding: 16px; }
+.gold { color: #f5b942; }
+.gold-bg { background: #f5b942; color: black; font-weight: bold; }
+input, select, textarea { background: #1f1f1f; border: 1px solid #444; color: white; padding: 12px; border-radius: 12px; width: 100%; outline: none; }
+input:focus, select:focus { border-color: #f5b942; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; z-index: 50; }
+.fade { animation: fade 0.3s ease-in-out; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.profile-img { width: 65px; height: 65px; border-radius: 50%; background: #333; object-fit: cover; }
+.badge { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: bold; }
 </style>
-
 </head>
 
 <body>
 
-<!-- Splash -->
-
+<!-- 1. SPLASH SCREEN -->
 <div id="splash" class="screen active justify-center items-center flex-col fade">
-
-<div class="splash-logo">
-💈
+  <div class="text-6xl mb-3">💈</div>
+  <h1 class="text-4xl font-bold gold">BarberMe</h1>
+  <p class="text-gray-400 mt-2 text-sm">Professional Home Barber Marketplace</p>
 </div>
 
-<h1 class="text-4xl font-bold mt-4 gold">
-BarberMe
-</h1>
-
-<p class="text-gray-400 mt-2">
-Professional Home Barber Marketplace
-</p>
-
-</div>
-
-<!-- Login -->
-
+<!-- 2. LOGIN SCREEN -->
 <div id="login" class="screen justify-center items-center p-6 flex-col">
+  <div class="card w-full max-w-md text-center">
+    <div class="text-4xl mb-2">💈</div>
+    <h2 class="text-3xl font-bold gold">Welcome Back</h2>
+    <p class="text-gray-400 mt-2 text-sm">Sign in to book elite barbers or offer your services.</p>
+    <button id="googleBtn" class="gold-bg w-full py-3 rounded-xl mt-6 flex items-center justify-center gap-3">
+      <span>Continue with Google</span>
+    </button>
+  </div>
+</div>
 
-<div class="card w-full max-w-md">
+<!-- 3. ROLE SETUP SCREEN -->
+<div id="roleSetup" class="screen justify-center items-center p-6 flex-col">
+  <div class="card w-full max-w-md">
+    <h2 class="text-2xl font-bold gold text-center">Select Your Account Type</h2>
+    <p class="text-center text-gray-400 mt-1 text-sm">Choose how you want to use BarberMe</p>
+    <div class="mt-6 space-y-4">
+      <button onclick="setRole('client')" class="w-full card text-left border-2 hover:border-[#f5b942] flex items-center gap-4">
+        <span class="text-3xl">✂️</span>
+        <div>
+          <h3 class="font-bold text-lg">Client</h3>
+          <p class="text-xs text-gray-400">I want to book barbers for home services.</p>
+        </div>
+      </button>
+      <button onclick="setRole('barber')" class="w-full card text-left border-2 hover:border-[#f5b942] flex items-center gap-4">
+        <span class="text-3xl">💈</span>
+        <div>
+          <h3 class="font-bold text-lg">Barber / Shop Owner</h3>
+          <p class="text-xs text-gray-400">I want to list services, manage bookings & get clients.</p>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
 
-<h2 class="text-3xl font-bold gold text-center">
-Welcome
-</h2>
+<!-- 4. MAIN APP CONTAINER -->
+<div id="mainApp" class="screen">
+  
+  <!-- HOME TAB -->
+  <div id="tab-home" class="tab-content flex flex-col p-5 space-y-4">
+    <header class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold gold">BarberMe</h1>
+        <p class="text-xs text-gray-400">📍 Ghana • <span class="text-green-400 font-semibold">Online</span></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="switchTab('notifications')" class="card p-2 rounded-full relative">🔔</button>
+      </div>
+    </header>
 
-<p class="text-center text-gray-400 mt-2">
-Sign in to continue
-</p>
+    <div class="relative">
+      <input type="text" id="searchInput" placeholder="Search barbers, fades..." oninput="filterBarbers()">
+    </div>
 
-<button id="googleBtn"
-class="gold-bg w-full py-3 rounded-xl mt-6 font-bold">
-Continue with Google
-</button>
+    <!-- Live Stream Banner Card -->
+    <div class="card bg-gradient-to-r from-neutral-900 to-amber-950/40 border-amber-500/30 flex items-center justify-between">
+      <div>
+        <span class="badge bg-red-600 text-white animate-pulse">LIVE NOW</span>
+        <h3 class="font-bold mt-1">Master Fade Tutorial</h3>
+        <p class="text-xs text-gray-400">By John Barber • 142 watching</p>
+      </div>
+      <button onclick="openLiveStream()" class="gold-bg px-4 py-2 rounded-xl text-xs">Watch</button>
+    </div>
+
+    <h2 class="font-bold text-lg mt-2">Top Rated Barbers</h2>
+    <div id="barbersList" class="space-y-3 pb-12"></div>
+  </div>
+
+  <!-- SEARCH / MAP TAB -->
+  <div id="tab-search" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
+    <h2 class="text-xl font-bold gold">Explore Map & Barbers</h2>
+    <div class="card h-48 flex items-center justify-center text-gray-500 bg-neutral-900 border-neutral-800">
+      <div class="text-center">
+        <p class="text-sm">🗺️ Google Maps Integration Active</p>
+        <p class="text-xs text-gray-600 mt-1">Showing active mobile barbers nearby</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHATS TAB -->
+  <div id="tab-chats" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
+    <h2 class="text-xl font-bold gold">Messages</h2>
+    <div id="chatsList" class="space-y-2">
+      <div onclick="openChat('John Barber')" class="card flex items-center gap-3 cursor-pointer">
+        <div class="profile-img"></div>
+        <div class="flex-1">
+          <div class="flex justify-between"><h4 class="font-bold text-sm">John Barber</h4><span class="text-xs text-gray-500">12:45 PM</span></div>
+          <p class="text-xs text-gray-400 truncate">See you at 3 PM for the home cut!</p>
+        </div>
+        <span class="w-2 h-2 rounded-full gold-bg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKINGS TAB -->
+  <div id="tab-bookings" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
+    <h2 class="text-xl font-bold gold">Your Appointments</h2>
+    <div id="bookingsList" class="space-y-3">
+      <div class="card space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="badge bg-amber-500/20 text-amber-400">Confirmed</span>
+          <span class="text-xs text-gray-400">Today, 3:00 PM</span>
+        </div>
+        <h3 class="font-bold">Executive Haircut & Beard Trim</h3>
+        <p class="text-xs text-gray-400">Barber: John Barber (Home Service)</p>
+        <p class="text-xs gold font-semibold">Total: GHS 120.00</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div id="tab-profile" class="tab-content flex flex-col p-5 space-y-6" style="display:none;">
+    <div class="flex items-center gap-4 card">
+      <div class="profile-img" id="profileAvatarDisplay"></div>
+      <div>
+        <h2 class="font-bold text-lg" id="profileNameDisplay">User Name</h2>
+        <p class="text-xs text-gray-400 capitalize" id="profileRoleDisplay">Client</p>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      <h3 class="font-bold text-sm gold">Account Settings</h3>
+      <div class="card space-y-3">
+        <input type="text" id="editName" placeholder="Full Name">
+        <input type="text" id="editPhone" placeholder="Phone Number">
+        <button onclick="saveProfile()" class="gold-bg w-full py-2.5 rounded-xl text-sm">Update Profile</button>
+      </div>
+      <button onclick="logout()" class="w-full py-3 rounded-xl card text-red-400 text-sm font-bold">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS SCREEN -->
+  <div id="tab-notifications" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
+    <div class="flex items-center gap-3">
+      <button onclick="switchTab('home')" class="text-sm gold">← Back</button>
+      <h2 class="text-xl font-bold gold">Notifications</h2>
+    </div>
+    <div class="space-y-2">
+      <div class="card text-xs space-y-1">
+        <p class="font-bold">Booking Confirmed</p>
+        <p class="text-gray-400">John Barber accepted your appointment request for today.</p>
+        <span class="text-gray-500 text-[10px]">10 mins ago</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="bottom-nav">
+    <button onclick="switchTab('home')" class="nav-btn active" id="nav-home">🏠<span>Home</span></button>
+    <button onclick="switchTab('search')" class="nav-btn" id="nav-search">🔍<span>Explore</span></button>
+    <button onclick="switchTab('chats')" class="nav-btn" id="nav-chats">💬<span>Chats</span></button>
+    <button onclick="switchTab('bookings')" class="nav-btn" id="nav-bookings">📅<span>Bookings</span></button>
+    <button onclick="switchTab('profile')" class="nav-btn" id="nav-profile">👤<span>Profile</span></button>
+  </nav>
 
 </div>
 
+<!-- BOOKING MODAL -->
+<div id="bookingModal" class="screen fixed inset-0 bg-black/90 z-50 p-6 overflow-y-auto" style="display:none;">
+  <div class="max-w-md mx-auto space-y-4">
+    <div class="flex justify-between items-center">
+      <h2 class="text-xl font-bold gold" id="modalBarberName">John Barber</h2>
+      <button onclick="closeBookingModal()" class="text-gray-400 text-xl font-bold">✕</button>
+    </div>
+    <div class="card space-y-3">
+      <p class="text-xs text-gray-400">⭐ 4.9 (124 reviews) • Home Service Specialist</p>
+      <hr class="border-neutral-800">
+      <h4 class="font-bold text-sm">Select Service</h4>
+      <select id="serviceSelect">
+        <option value="80">Classic Haircut - GHS 80</option>
+        <option value="120" selected>Executive Cut & Beard - GHS 120</option>
+        <option value="150">Dreadlocks Styling - GHS 150</option>
+      </select>
+      <h4 class="font-bold text-sm">Appointment Date & Time</h4>
+      <input type="datetime-local" id="bookingDateTime">
+      <h4 class="font-bold text-sm">Payment Method</h4>
+      <select id="paymentMethod">
+        <option value="momo">Mobile Money (MTN / Vodafone / AirtelTigo)</option>
+        <option value="card">Credit / Debit Card</option>
+        <option value="cash">Cash on Service</option>
+      </select>
+      <button onclick="confirmBooking()" class="gold-bg w-full py-3 rounded-xl mt-2">Proceed to Payment</button>
+    </div>
+  </div>
 </div>
 
-<!-- Home -->
-
-<div id="home" class="screen flex-col">
-
-<header class="p-5">
-
-<h1 class="text-3xl font-bold gold">
-BarberMe
-</h1>
-
-<p class="text-gray-400">
-Find professional barbers near you
-</p>
-
-</header>
-
-<div class="px-5">
-
-<input
-placeholder="Search barbers...">
-
-</div>
-
-<div class="p-5 space-y-4">
-
-<div class="card">
-
-<div class="flex items-center gap-4">
-
-<div class="profile"></div>
-
-<div>
-
-<h2 class="font-bold">
-John Barber
-</h2>
-
-<p class="text-sm text-gray-400">
-Home Service Barber
-</p>
-
-</div>
-
-</div>
-
-<button class="gold-bg w-full py-3 rounded-xl mt-4">
-View Profile
-</button>
-
-</div>
-
-</div>
-
-<nav class="bottom-nav">
-
-<div class="nav-btn active">
-🏠
-<span>Home</span>
-</div>
-
-<div class="nav-btn">
-🔍
-<span>Search</span>
-</div>
-
-<div class="nav-btn">
-💬
-<span>Chats</span>
-</div>
-
-<div class="nav-btn">
-📅
-<span>Bookings</span>
-</div>
-
-<div class="nav-btn">
-👤
-<span>Profile</span>
-</div>
-
-</nav>
-
-</div>
-
+<!-- APPLICATION CONTROLLER SCRIPT -->
 <script>
+let currentUser = { name: "User", role: "client", phone: "" };
+const mockBarbers = [
+  { id: '1', name: 'John Barber', role: 'Home Service Specialist', rating: 4.9, reviews: 120, price: 'GHS 100' },
+  { id: '2', name: 'Fade Master Studio', role: 'Shop Owner / Elite Hub', rating: 4.8, reviews: 95, price: 'GHS 90' },
+  { id: '3', name: 'Kingsway Grooming', role: 'Mobile Barber', rating: 4.7, reviews: 78, price: 'GHS 110' }
+];
 
-const splash=document.getElementById("splash");
-const login=document.getElementById("login");
-const home=document.getElementById("home");
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if(!window.auth.currentUser) {
+      document.getElementById("splash").classList.remove("active");
+      document.getElementById("login").classList.add("active");
+    }
+  }, 1500);
+  renderBarbers(mockBarbers);
+});
 
-setTimeout(()=>{
-splash.classList.remove("active");
-login.classList.add("active");
-},2500);
+// Live Firebase Google Sign-In Trigger
+document.getElementById("googleBtn").onclick = async function() {
+  try {
+    const result = await window.signInWithPopup(window.auth, window.googleProvider);
+    const user = result.user;
+    
+    const userDocRef = window.doc(window.db, "users", user.uid);
+    const userSnap = await window.getDoc(userDocRef);
 
-document
-.getElementById("googleBtn")
-.onclick=function(){
-
-login.classList.remove("active");
-
-home.classList.add("active");
-
+    if (!userSnap.exists()) {
+      document.getElementById("login").classList.remove("active");
+      document.getElementById("roleSetup").classList.add("active");
+    } else {
+      currentUser = userSnap.data();
+      document.getElementById("login").classList.remove("active");
+      document.getElementById("mainApp").classList.add("active");
+      updateProfileUI();
+    }
+  } catch (error) {
+    console.error("Authentication Error:", error);
+    alert("Google Sign-In failed. Make sure Google Sign-In is enabled in your Firebase Console authentication settings.");
+  }
 };
 
+async function setRole(role) {
+  const user = window.auth.currentUser;
+  currentUser = {
+    uid: user ? user.uid : "local_id",
+    name: user ? user.displayName : "User",
+    email: user ? user.email : "",
+    role: role,
+    phone: user && user.phoneNumber ? user.phoneNumber : ""
+  };
+
+  if (window.auth && window.auth.currentUser) {
+    await window.setDoc(window.doc(window.db, "users", user.uid), currentUser);
+  }
+
+  document.getElementById("roleSetup").classList.remove("active");
+  document.getElementById("mainApp").classList.add("active");
+  updateProfileUI();
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  
+  if(tabId === 'notifications') {
+    document.getElementById('tab-notifications').style.display = 'flex';
+  } else {
+    document.getElementById(`tab-${tabId}`).style.display = 'flex';
+    document.getElementById(`nav-${tabId}`).classList.add('active');
+  }
+}
+
+function renderBarbers(list) {
+  const container = document.getElementById("barbersList");
+  container.innerHTML = list.map(b => `
+    <div class="card flex flex-col gap-3">
+      <div class="flex items-center gap-4">
+        <div class="profile-img bg-neutral-800"></div>
+        <div class="flex-1">
+          <h3 class="font-bold">${b.name}</h3>
+          <p class="text-xs text-gray-400">${b.role}</p>
+          <p class="text-xs gold mt-1">⭐ ${b.rating} (${b.reviews} reviews) • From ${b.price}</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="openBookingModal('${b.name}')" class="gold-bg flex-1 py-2.5 rounded-xl text-xs">Book Appointment</button>
+        <button onclick="openChat('${b.name}')" class="card py-2.5 px-4 rounded-xl text-xs border border-neutral-700">Chat</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterBarbers() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = mockBarbers.filter(b => b.name.toLowerCase().includes(query) || b.role.toLowerCase().includes(query));
+  renderBarbers(filtered);
+}
+
+function openBookingModal(barberName) {
+  document.getElementById("modalBarberName").innerText = barberName;
+  document.getElementById("bookingModal").style.display = "flex";
+}
+
+function closeBookingModal() {
+  document.getElementById("bookingModal").style.display = "none";
+}
+
+function confirmBooking() {
+  alert("Booking request sent successfully! Mobile Money prompt initialized.");
+  closeBookingModal();
+  switchTab("bookings");
+}
+
+function openChat(barberName) {
+  switchTab("chats");
+}
+
+function openLiveStream() {
+  alert("Connecting to live video stream feed...");
+}
+
+function updateProfileUI() {
+  document.getElementById("profileNameDisplay").innerText = currentUser.name || "User";
+  document.getElementById("profileRoleDisplay").innerText = currentUser.role || "client";
+  document.getElementById("editName").value = currentUser.name || "";
+  document.getElementById("editPhone").value = currentUser.phone || "";
+}
+
+async function saveProfile() {
+  currentUser.name = document.getElementById("editName").value;
+  currentUser.phone = document.getElementById("editPhone").value;
+  
+  if(window.auth.currentUser) {
+    await window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), currentUser, { merge: true });
+  }
+  updateProfileUI();
+  alert("Profile updated successfully in Firestore!");
+}
+
+async function logout() {
+  await window.signOut(window.auth);
+  document.getElementById("mainApp").classList.remove("active");
+  document.getElementById("login").classList.add("active");
+}
 </script>
 
 </body>
