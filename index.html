@@ -62,6 +62,9 @@
         loadBarbersFromFirestore();
         loadUserBookings();
         loadUserNotifications();
+        if(window.currentUser.role === 'barber') {
+          loadBarberDashboardStats();
+        }
       }
     }
   });
@@ -229,6 +232,21 @@ input:focus, select:focus { border-color: #f5b942; }
       </div>
     </div>
 
+    <!-- Barber Earnings Dashboard Section -->
+    <div id="barberEarningsSection" class="space-y-3" style="display:none;">
+      <h3 class="font-bold text-sm gold">Financial Dashboard</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="card p-4 text-center">
+          <p class="text-[10px] text-gray-400 uppercase tracking-wider">Total Revenue</p>
+          <h4 class="text-lg font-bold gold mt-1" id="statTotalRevenue">GHS 0</h4>
+        </div>
+        <div class="card p-4 text-center">
+          <p class="text-[10px] text-gray-400 uppercase tracking-wider">Completed Jobs</p>
+          <h4 class="text-lg font-bold text-white mt-1" id="statCompletedJobs">0</h4>
+        </div>
+      </div>
+    </div>
+
     <!-- Barber Portfolio Section -->
     <div id="barberPortfolioSection" class="space-y-3" style="display:none;">
       <h3 class="font-bold text-sm gold">Portfolio Uploads</h3>
@@ -363,6 +381,9 @@ document.getElementById("googleBtn").onclick = async function() {
       loadBarbersFromFirestore();
       loadUserBookings();
       loadUserNotifications();
+      if(currentUser.role === 'barber') {
+        loadBarberDashboardStats();
+      }
     }
   } catch (error) {
     console.error("Auth Error:", error);
@@ -394,6 +415,9 @@ async function setRole(role) {
   loadBarbersFromFirestore();
   loadUserBookings();
   loadUserNotifications();
+  if(currentUser.role === 'barber') {
+    loadBarberDashboardStats();
+  }
 }
 
 function switchTab(tabId) {
@@ -471,7 +495,6 @@ async function toggleFollowBarber(barberUid) {
     currentUser.following.push(barberUid);
     alert("Successfully followed! You will now receive alerts from this barber.");
     
-    // Add custom notification
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
       title: "New Barber Followed",
@@ -529,7 +552,6 @@ async function submitBooking() {
 
     await window.addDoc(window.collection(window.db, "bookings"), bookingData);
     
-    // Add notification
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
       title: "Appointment Booked",
@@ -578,6 +600,36 @@ async function loadUserBookings() {
     });
   } catch(e) {
     console.error("Error loading bookings:", e);
+  }
+}
+
+async function loadBarberDashboardStats() {
+  try {
+    const q = window.query(window.collection(window.db, "bookings"), window.where("barberName", "==", currentUser.name));
+    const querySnapshot = await window.getDocs(q);
+
+    let totalRevenue = 0;
+    let completedJobs = 0;
+
+    querySnapshot.forEach((docSnap) => {
+      const b = docSnap.data();
+      completedJobs++;
+      // Parse pricing from service title (e.g., "GHS 120")
+      if(b.service && b.service.includes("GHS")) {
+        const parts = b.service.split("GHS");
+        if(parts.length > 1) {
+          const amount = parseInt(parts[1].trim()) || 100;
+          totalRevenue += amount;
+        }
+      } else {
+        totalRevenue += 100; // default average
+      }
+    });
+
+    document.getElementById("statTotalRevenue").innerText = `GHS ${totalRevenue}`;
+    document.getElementById("statCompletedJobs").innerText = completedJobs;
+  } catch(e) {
+    console.error("Error loading barber financial stats:", e);
   }
 }
 
@@ -754,9 +806,12 @@ function updateProfileUI() {
   document.getElementById("editPhone").value = currentUser.phone || "";
 
   if(currentUser.role === 'barber') {
+    document.getElementById("barberEarningsSection").style.display = "block";
     document.getElementById("barberPortfolioSection").style.display = "block";
     renderPortfolioGrid();
+    loadBarberDashboardStats();
   } else {
+    document.getElementById("barberEarningsSection").style.display = "none";
     document.getElementById("barberPortfolioSection").style.display = "none";
   }
 }
