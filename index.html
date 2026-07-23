@@ -106,12 +106,12 @@ input:focus, select:focus { border-color: #f5b942; }
   <p class="text-gray-400 mt-2 text-sm">Professional Home Barber Marketplace</p>
 </div>
 
-<!-- 2. LOGIN SCREEN -->
+<!-- 2. LOGIN SCREEN (Google Sign-In Mandatory) -->
 <div id="login" class="screen justify-center items-center p-6 flex-col">
   <div class="card w-full max-w-md text-center">
     <div class="text-4xl mb-2">💈</div>
     <h2 class="text-3xl font-bold gold">Welcome Back</h2>
-    <p class="text-gray-400 mt-2 text-sm">Sign in to book elite barbers or offer your services.</p>
+    <p class="text-gray-400 mt-2 text-sm">Sign in with Google to access elite home barbers.</p>
     <button id="googleBtn" class="gold-bg w-full py-3 rounded-xl mt-6 flex items-center justify-center gap-3">
       <span>Continue with Google</span>
     </button>
@@ -128,14 +128,14 @@ input:focus, select:focus { border-color: #f5b942; }
         <span class="text-3xl">✂️</span>
         <div>
           <h3 class="font-bold text-lg">Client</h3>
-          <p class="text-xs text-gray-400">I want to book barbers for home services.</p>
+          <p class="text-xs text-gray-400">I want to book professional home barber services.</p>
         </div>
       </button>
       <button onclick="setRole('barber')" class="w-full card text-left border-2 hover:border-[#f5b942] flex items-center gap-4">
         <span class="text-3xl">💈</span>
         <div>
           <h3 class="font-bold text-lg">Barber / Shop Owner</h3>
-          <p class="text-xs text-gray-400">I want to list services, manage bookings & get clients.</p>
+          <p class="text-xs text-gray-400">I want to list home barbering services & get clients.</p>
         </div>
       </button>
     </div>
@@ -158,7 +158,7 @@ input:focus, select:focus { border-color: #f5b942; }
     </header>
 
     <div class="relative">
-      <input type="text" id="searchInput" placeholder="Search barbers, fades..." oninput="filterBarbers()">
+      <input type="text" id="searchInput" placeholder="Search home service barbers..." oninput="filterBarbers()">
     </div>
 
     <!-- Live Stream Banner Card -->
@@ -171,7 +171,7 @@ input:focus, select:focus { border-color: #f5b942; }
       <button onclick="openLiveStream()" class="gold-bg px-4 py-2 rounded-xl text-xs">Watch</button>
     </div>
 
-    <h2 class="font-bold text-lg mt-2">Active Marketplace Barbers</h2>
+    <h2 class="font-bold text-lg mt-2">Active Home Barbers</h2>
     <div id="barbersList" class="space-y-3 pb-12"></div>
   </div>
 
@@ -181,7 +181,7 @@ input:focus, select:focus { border-color: #f5b942; }
     <div class="card h-48 flex items-center justify-center text-gray-500 bg-neutral-900 border-neutral-800">
       <div class="text-center">
         <p class="text-sm">🗺️ Google Maps Integration Active</p>
-        <p class="text-xs text-gray-600 mt-1">Showing active mobile barbers nearby</p>
+        <p class="text-xs text-gray-600 mt-1">Showing active mobile home barbers nearby</p>
       </div>
     </div>
   </div>
@@ -301,11 +301,11 @@ input:focus, select:focus { border-color: #f5b942; }
     <div class="card space-y-3">
       <p class="text-xs text-gray-400">⭐ 4.9 • Home Service Specialist</p>
       <hr class="border-neutral-800">
-      <h4 class="font-bold text-sm">Select Service</h4>
+      <h4 class="font-bold text-sm">Select Home Barbering Service</h4>
       <select id="serviceSelect">
-        <option value="Classic Haircut - GHS 80">Classic Haircut - GHS 80</option>
-        <option value="Executive Cut & Beard - GHS 120" selected>Executive Cut & Beard - GHS 120</option>
-        <option value="Dreadlocks Styling - GHS 150">Dreadlocks Styling - GHS 150</option>
+        <option value="Classic Home Haircut - GHS 80">Classic Home Haircut - GHS 80</option>
+        <option value="Executive Home Cut & Beard - GHS 120" selected>Executive Home Cut & Beard - GHS 120</option>
+        <option value="Home Dreadlocks Styling - GHS 150">Home Dreadlocks Styling - GHS 150</option>
       </select>
       <h4 class="font-bold text-sm">Appointment Date & Time</h4>
       <input type="datetime-local" id="bookingDateTime">
@@ -315,7 +315,7 @@ input:focus, select:focus { border-color: #f5b942; }
         <option value="Credit Card">Credit / Debit Card</option>
         <option value="Cash on Service">Cash on Service</option>
       </select>
-      <button onclick="submitBooking()" class="gold-bg w-full py-3 rounded-xl mt-2">Confirm & Book Appointment</button>
+      <button onclick="submitBooking()" class="gold-bg w-full py-3 rounded-xl mt-2">Confirm & Book Home Appointment</button>
     </div>
   </div>
 </div>
@@ -328,7 +328,7 @@ input:focus, select:focus { border-color: #f5b942; }
       <button onclick="closeReviewModal()" class="text-gray-400 text-xl font-bold">✕</button>
     </div>
     <div class="card space-y-3">
-      <p class="text-xs text-gray-400" id="reviewSubtitle">Leave a review for your barber session.</p>
+      <p class="text-xs text-gray-400" id="reviewSubtitle">Leave a review for your home barber session.</p>
       <h4 class="font-bold text-sm">Select Rating (1 to 5 Stars)</h4>
       <select id="ratingStars">
         <option value="5">⭐⭐⭐⭐⭐ (5/5 - Excellent)</option>
@@ -338,8 +338,34 @@ input:focus, select:focus { border-color: #f5b942; }
         <option value="1">⭐ (1/5 - Poor)</option>
       </select>
       <h4 class="font-bold text-sm">Write Feedback</h4>
-      <textarea id="reviewComment" placeholder="Write details about your haircut experience..." rows="3"></textarea>
+      <textarea id="reviewComment" placeholder="Write details about your home haircut experience..." rows="3"></textarea>
       <button onclick="submitReview()" class="gold-bg w-full py-3 rounded-xl mt-2">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE VIEW MODAL FOR BROWSING -->
+<div id="profileViewModal" class="screen fixed inset-0 bg-black/90 z-50 p-6 overflow-y-auto" style="display:none;">
+  <div class="max-w-md mx-auto space-y-4 mt-10">
+    <div class="flex justify-between items-center">
+      <h2 class="text-xl font-bold gold" id="viewProfileTitle">Barber Profile</h2>
+      <button onclick="closeProfileViewModal()" class="text-gray-400 text-xl font-bold">✕</button>
+    </div>
+    <div class="card space-y-4">
+      <div class="flex items-center gap-4">
+        <div class="profile-img bg-neutral-800 flex items-center justify-center text-2xl" id="viewProfileAvatar">✂️</div>
+        <div>
+          <h3 class="font-bold text-lg" id="viewProfileName">Barber Name</h3>
+          <p class="text-xs text-gray-400" id="viewProfileRole">Home Barber Specialist</p>
+          <p class="text-xs gold mt-1" id="viewProfileRating">⭐ 4.9 (0 reviews)</p>
+        </div>
+      </div>
+      <hr class="border-neutral-800">
+      <h4 class="font-bold text-sm gold">Interactive Portfolio Photos</h4>
+      <div id="viewProfilePortfolioGrid" class="grid grid-cols-3 gap-2">
+        <p class="text-xs text-gray-500 col-span-3">No portfolio photos available.</p>
+      </div>
+      <button id="viewProfileBookBtn" class="gold-bg w-full py-3 rounded-xl text-sm mt-2">Book Home Appointment</button>
     </div>
   </div>
 </div>
@@ -448,7 +474,7 @@ async function loadBarbersFromFirestore() {
 
     if(allBarbersCache.length === 0) {
       allBarbersCache = [
-        { uid: 'demo_1', name: 'John Barber', role: 'barber', serviceTitle: 'Home Service Specialist', rating: 4.9, reviewCount: 12 }
+        { uid: 'demo_1', name: 'John Barber', role: 'barber', serviceTitle: 'Home Barber Specialist', rating: 4.9, reviewCount: 12, portfolio: [] }
       ];
     }
 
@@ -466,22 +492,51 @@ function renderBarbers(list) {
     const isFollowing = followingList.includes(b.uid);
     return `
       <div class="card flex flex-col gap-3">
-        <div class="flex items-center gap-4">
-          <div class="profile-img bg-neutral-800"></div>
+        <div class="flex items-center gap-4 cursor-pointer" onclick='openProfileViewModal(${JSON.stringify(b)})'>
+          <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl">✂️</div>
           <div class="flex-1">
             <h3 class="font-bold">${b.name}</h3>
-            <p class="text-xs text-gray-400">${b.serviceTitle || 'Professional Barber'}</p>
+            <p class="text-xs text-gray-400">${b.serviceTitle || 'Home Barber Specialist'}</p>
             <p class="text-xs gold mt-1">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews) • Home Service</p>
           </div>
         </div>
         <div class="flex gap-2">
-          <button onclick="openBookingModal('${b.name}')" class="gold-bg flex-1 py-2.5 rounded-xl text-xs">Book Appointment</button>
+          <button onclick="openBookingModal('${b.name}')" class="gold-bg flex-1 py-2.5 rounded-xl text-xs">Book Home Appointment</button>
           <button onclick="toggleFollowBarber('${b.uid}')" class="card py-2.5 px-3 rounded-xl text-xs border ${isFollowing ? 'border-amber-500 text-amber-400' : 'border-neutral-700 text-gray-300'}">${isFollowing ? '✓ Following' : '+ Follow'}</button>
           <button onclick="openChatRoom('${b.uid}', '${b.name}')" class="card py-2.5 px-3 rounded-xl text-xs border border-neutral-700">Chat</button>
         </div>
       </div>
     `;
   }).join('');
+}
+
+function openProfileViewModal(barberData) {
+  document.getElementById("viewProfileTitle").innerText = barberData.name;
+  document.getElementById("viewProfileName").innerText = barberData.name;
+  document.getElementById("viewProfileRole").innerText = barberData.serviceTitle || 'Home Barber Specialist';
+  document.getElementById("viewProfileRating").innerText = `⭐ ${barberData.rating || '4.9'} (${barberData.reviewCount || 0} reviews)`;
+  
+  const grid = document.getElementById("viewProfilePortfolioGrid");
+  if(!barberData.portfolio || barberData.portfolio.length === 0) {
+    grid.innerHTML = `<p class="text-xs text-gray-500 col-span-3">No portfolio photos available for this barber yet.</p>`;
+  } else {
+    grid.innerHTML = barberData.portfolio.map(url => `
+      <div class="h-20 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700">
+        <img src="${url}" class="w-full h-full object-cover">
+      </div>
+    `).join('');
+  }
+
+  document.getElementById("viewProfileBookBtn").onclick = function() {
+    closeProfileViewModal();
+    openBookingModal(barberData.name);
+  };
+
+  document.getElementById("profileViewModal").style.display = "flex";
+}
+
+function closeProfileViewModal() {
+  document.getElementById("profileViewModal").style.display = "none";
 }
 
 async function toggleFollowBarber(barberUid) {
@@ -498,7 +553,7 @@ async function toggleFollowBarber(barberUid) {
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
       title: "New Barber Followed",
-      message: `You are now following a professional barber. Look out for updates!`,
+      message: `You are now following a home professional barber. Look out for updates!`,
       timestamp: window.serverTimestamp()
     });
   }
@@ -554,12 +609,12 @@ async function submitBooking() {
     
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
-      title: "Appointment Booked",
+      title: "Home Appointment Booked",
       message: `Your home session with ${selectedBarberForBooking} is confirmed.`,
       timestamp: window.serverTimestamp()
     });
 
-    alert("Appointment booked successfully and synced to database!");
+    alert("Home appointment booked successfully and synced to database!");
     closeBookingModal();
     switchTab("bookings");
     loadUserBookings();
@@ -577,7 +632,7 @@ async function loadUserBookings() {
     const querySnapshot = await window.getDocs(q);
     
     if(querySnapshot.empty) {
-      container.innerHTML = `<p class="text-xs text-gray-500 text-center my-6">No active appointments found. Book a barber to get started!</p>`;
+      container.innerHTML = `<p class="text-xs text-gray-500 text-center my-6">No active home appointments found. Book a home barber to get started!</p>`;
       return;
     }
 
@@ -614,7 +669,6 @@ async function loadBarberDashboardStats() {
     querySnapshot.forEach((docSnap) => {
       const b = docSnap.data();
       completedJobs++;
-      // Parse pricing from service title (e.g., "GHS 120")
       if(b.service && b.service.includes("GHS")) {
         const parts = b.service.split("GHS");
         if(parts.length > 1) {
@@ -622,7 +676,7 @@ async function loadBarberDashboardStats() {
           totalRevenue += amount;
         }
       } else {
-        totalRevenue += 100; // default average
+        totalRevenue += 100;
       }
     });
 
@@ -643,7 +697,7 @@ async function loadUserNotifications() {
       container.innerHTML = `
         <div class="card text-xs space-y-1">
           <p class="font-bold">System Online</p>
-          <p class="text-gray-400">Welcome to BarberMe live booking marketplace.</p>
+          <p class="text-gray-400">Welcome to BarberMe home barber marketplace.</p>
         </div>
       `;
       return;
@@ -666,7 +720,7 @@ async function loadUserNotifications() {
 
 function openReviewModal(bookingId, barberName) {
   selectedBookingForReview = { bookingId, barberName };
-  document.getElementById("reviewSubtitle").innerText = `Rate your haircut session with ${barberName}.`;
+  document.getElementById("reviewSubtitle").innerText = `Rate your home haircut session with ${barberName}.`;
   document.getElementById("reviewModal").style.display = "flex";
 }
 
@@ -837,3 +891,4 @@ async function logout() {
 
 </body>
 </html>
+
