@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BarberMe | Professional Home Barber Marketplace</title>
+<title>Barber Me | Home Barbering Services</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <!-- Firebase SDKs & Integration -->
@@ -65,6 +65,23 @@
         if(window.currentUser.role === 'barber') {
           loadBarberDashboardStats();
         }
+      } else {
+        window.currentUser = {
+          uid: user.uid,
+          name: user.displayName || "Gideon",
+          email: user.email,
+          role: 'client',
+          phone: '',
+          portfolio: [],
+          rating: 5.0,
+          following: []
+        };
+        await setDoc(doc(db, "users", user.uid), window.currentUser);
+        document.getElementById("splash").classList.remove("active");
+        document.getElementById("login").classList.remove("active");
+        document.getElementById("mainApp").classList.add("active");
+        updateProfileUI();
+        loadBarbersFromFirestore();
       }
     }
   });
@@ -101,56 +118,32 @@ input:focus, select:focus { border-color: #f5b942; }
 
 <!-- 1. SPLASH SCREEN -->
 <div id="splash" class="screen active justify-center items-center flex-col fade">
-  <div class="text-6xl mb-3">💈</div>
-  <h1 class="text-4xl font-bold gold">BarberMe</h1>
-  <p class="text-gray-400 mt-2 text-sm">Professional Home Barber Marketplace</p>
+  <div class="text-6xl mb-3">✂️</div>
+  <h1 class="text-3xl font-bold gold">BARBER ME</h1>
+  <p class="text-gray-400 mt-2 text-sm">Professional Home Barbering Services</p>
 </div>
 
 <!-- 2. LOGIN SCREEN (Google Sign-In Mandatory) -->
 <div id="login" class="screen justify-center items-center p-6 flex-col">
   <div class="card w-full max-w-md text-center">
-    <div class="text-4xl mb-2">💈</div>
-    <h2 class="text-3xl font-bold gold">Welcome Back</h2>
-    <p class="text-gray-400 mt-2 text-sm">Sign in with Google to access elite home barbers.</p>
+    <div class="text-4xl mb-2">✂️</div>
+    <h2 class="text-2xl font-bold gold">Barber Me</h2>
+    <p class="text-gray-400 mt-2 text-sm">Sign in with Google to access home barbering services.</p>
     <button id="googleBtn" class="gold-bg w-full py-3 rounded-xl mt-6 flex items-center justify-center gap-3">
       <span>Continue with Google</span>
     </button>
   </div>
 </div>
 
-<!-- 3. ROLE SETUP SCREEN -->
-<div id="roleSetup" class="screen justify-center items-center p-6 flex-col">
-  <div class="card w-full max-w-md">
-    <h2 class="text-2xl font-bold gold text-center">Select Your Account Type</h2>
-    <p class="text-center text-gray-400 mt-1 text-sm">Choose how you want to use BarberMe</p>
-    <div class="mt-6 space-y-4">
-      <button onclick="setRole('client')" class="w-full card text-left border-2 hover:border-[#f5b942] flex items-center gap-4">
-        <span class="text-3xl">✂️</span>
-        <div>
-          <h3 class="font-bold text-lg">Client</h3>
-          <p class="text-xs text-gray-400">I want to book professional home barber services.</p>
-        </div>
-      </button>
-      <button onclick="setRole('barber')" class="w-full card text-left border-2 hover:border-[#f5b942] flex items-center gap-4">
-        <span class="text-3xl">💈</span>
-        <div>
-          <h3 class="font-bold text-lg">Barber / Shop Owner</h3>
-          <p class="text-xs text-gray-400">I want to list home barbering services & get clients.</p>
-        </div>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- 4. MAIN APP CONTAINER -->
+<!-- 3. MAIN APP CONTAINER -->
 <div id="mainApp" class="screen">
   
   <!-- HOME TAB -->
   <div id="tab-home" class="tab-content flex flex-col p-5 space-y-4">
     <header class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold gold">BarberMe</h1>
-        <p class="text-xs text-gray-400">📍 Ghana • <span class="text-green-400 font-semibold">Online</span></p>
+        <h1 class="text-xl font-bold gold">BARBER ME</h1>
+        <p class="text-xs text-gray-400">📍 Ghana • <span class="text-green-400 font-semibold">Home Barbering Services</span></p>
       </div>
       <div class="flex items-center gap-2">
         <button onclick="switchTab('notifications')" class="card p-2 rounded-full relative">🔔</button>
@@ -158,30 +151,30 @@ input:focus, select:focus { border-color: #f5b942; }
     </header>
 
     <div class="relative">
-      <input type="text" id="searchInput" placeholder="Search home service barbers..." oninput="filterBarbers()">
+      <input type="text" id="searchInput" placeholder="Search home barbers or services..." oninput="filterBarbers()">
     </div>
 
     <!-- Live Stream Banner Card -->
     <div class="card bg-gradient-to-r from-neutral-900 to-amber-950/40 border-amber-500/30 flex items-center justify-between">
       <div>
         <span class="badge bg-red-600 text-white animate-pulse">LIVE NOW</span>
-        <h3 class="font-bold mt-1">Master Fade Tutorial</h3>
-        <p class="text-xs text-gray-400">By John Barber • 142 watching</p>
+        <h3 class="font-bold mt-1">Master Home Fade Session</h3>
+        <p class="text-xs text-gray-400">Barber Me Professional • Live Feed</p>
       </div>
       <button onclick="openLiveStream()" class="gold-bg px-4 py-2 rounded-xl text-xs">Watch</button>
     </div>
 
-    <h2 class="font-bold text-lg mt-2">Active Home Barbers</h2>
+    <h2 class="font-bold text-lg mt-2">Available Home Barbers</h2>
     <div id="barbersList" class="space-y-3 pb-12"></div>
   </div>
 
   <!-- SEARCH / MAP TAB -->
   <div id="tab-search" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
-    <h2 class="text-xl font-bold gold">Explore Map & Barbers</h2>
+    <h2 class="text-xl font-bold gold">Explore Nearby Home Barbers</h2>
     <div class="card h-48 flex items-center justify-center text-gray-500 bg-neutral-900 border-neutral-800">
       <div class="text-center">
-        <p class="text-sm">🗺️ Google Maps Integration Active</p>
-        <p class="text-xs text-gray-600 mt-1">Showing active mobile home barbers nearby</p>
+        <p class="text-sm">🗺️ Location Map Active</p>
+        <p class="text-xs text-gray-600 mt-1">Showing mobile home barbers available for dispatch</p>
       </div>
     </div>
   </div>
@@ -190,11 +183,11 @@ input:focus, select:focus { border-color: #f5b942; }
   <div id="tab-chats" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <h2 class="text-xl font-bold gold">Messages</h2>
     <div id="chatsList" class="space-y-2">
-      <div onclick="openChatRoom('general_chat', 'General Marketplace Chat')" class="card flex items-center gap-3 cursor-pointer">
+      <div onclick="openChatRoom('general_chat', 'Barber Me Community')" class="card flex items-center gap-3 cursor-pointer">
         <div class="profile-img flex items-center justify-center text-xl">💬</div>
         <div class="flex-1">
           <div class="flex justify-between"><h4 class="font-bold text-sm">Community Chat</h4><span class="text-xs text-gray-500">Live</span></div>
-          <p class="text-xs text-gray-400 truncate">Tap to join live discussions</p>
+          <p class="text-xs text-gray-400 truncate">Tap to join discussions with barbers and clients</p>
         </div>
         <span class="w-2 h-2 rounded-full gold-bg"></span>
       </div>
@@ -232,6 +225,15 @@ input:focus, select:focus { border-color: #f5b942; }
       </div>
     </div>
 
+    <!-- Role Switcher -->
+    <div class="card space-y-3">
+      <h3 class="font-bold text-sm gold">Account Mode</h3>
+      <select id="roleSelect" onchange="changeUserRole(this.value)">
+        <option value="client">Client (Booking Home Services)</option>
+        <option value="barber">Barber / Owner (Barber Me Staff)</option>
+      </select>
+    </div>
+
     <!-- Barber Earnings Dashboard Section -->
     <div id="barberEarningsSection" class="space-y-3" style="display:none;">
       <h3 class="font-bold text-sm gold">Financial Dashboard</h3>
@@ -251,7 +253,7 @@ input:focus, select:focus { border-color: #f5b942; }
     <div id="barberPortfolioSection" class="space-y-3" style="display:none;">
       <h3 class="font-bold text-sm gold">Portfolio Uploads</h3>
       <div class="card space-y-3">
-        <p class="text-xs text-gray-400">Upload your best cuts to show prospective clients.</p>
+        <p class="text-xs text-gray-400">Upload your best home cuts to show prospective clients.</p>
         <input type="file" id="portfolioFile" accept="image/*" class="text-xs">
         <button onclick="uploadPortfolioImage()" class="gold-bg w-full py-2.5 rounded-xl text-sm">Upload to Portfolio</button>
         <div id="portfolioPreviewGrid" class="grid grid-cols-3 gap-2 mt-2"></div>
@@ -295,11 +297,11 @@ input:focus, select:focus { border-color: #f5b942; }
 <div id="bookingModal" class="screen fixed inset-0 bg-black/90 z-50 p-6 overflow-y-auto" style="display:none;">
   <div class="max-w-md mx-auto space-y-4 mt-10">
     <div class="flex justify-between items-center">
-      <h2 class="text-xl font-bold gold" id="modalBarberName">John Barber</h2>
+      <h2 class="text-xl font-bold gold" id="modalBarberName">Barber Me Professional</h2>
       <button onclick="closeBookingModal()" class="text-gray-400 text-xl font-bold">✕</button>
     </div>
     <div class="card space-y-3">
-      <p class="text-xs text-gray-400">⭐ 4.9 • Home Service Specialist</p>
+      <p class="text-xs text-gray-400">⭐ 4.9 • Home Barbering Specialist</p>
       <hr class="border-neutral-800">
       <h4 class="font-bold text-sm">Select Home Barbering Service</h4>
       <select id="serviceSelect">
@@ -353,7 +355,7 @@ input:focus, select:focus { border-color: #f5b942; }
     </div>
     <div class="card space-y-4">
       <div class="flex items-center gap-4">
-        <div class="profile-img bg-neutral-800 flex items-center justify-center text-2xl" id="viewProfileAvatar">✂️</div>
+        <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl" id="viewProfileAvatar">✂️</div>
         <div>
           <h3 class="font-bold text-lg" id="viewProfileName">Barber Name</h3>
           <p class="text-xs text-gray-400" id="viewProfileRole">Home Barber Specialist</p>
@@ -372,7 +374,7 @@ input:focus, select:focus { border-color: #f5b942; }
 
 <!-- APPLICATION CONTROLLER SCRIPT -->
 <script>
-let currentUser = { name: "User", role: "client", phone: "", uid: "", following: [] };
+let currentUser = { name: "Gideon", role: "client", phone: "", uid: "", following: [] };
 let selectedBarberForBooking = "";
 let selectedBookingForReview = null;
 let currentChatRoomId = null;
@@ -385,7 +387,7 @@ window.addEventListener('DOMContentLoaded', () => {
       document.getElementById("splash").classList.remove("active");
       document.getElementById("login").classList.add("active");
     }
-  }, 1500);
+  }, 1200);
 });
 
 document.getElementById("googleBtn").onclick = async function() {
@@ -397,19 +399,29 @@ document.getElementById("googleBtn").onclick = async function() {
     const userSnap = await window.getDoc(userDocRef);
 
     if (!userSnap.exists()) {
-      document.getElementById("login").classList.remove("active");
-      document.getElementById("roleSetup").classList.add("active");
+      currentUser = {
+        uid: user.uid,
+        name: user.displayName || "Gideon",
+        email: user.email,
+        role: 'client',
+        phone: '',
+        portfolio: [],
+        rating: 5.0,
+        following: []
+      };
+      await window.setDoc(userDocRef, currentUser);
     } else {
       currentUser = userSnap.data();
-      document.getElementById("login").classList.remove("active");
-      document.getElementById("mainApp").classList.add("active");
-      updateProfileUI();
-      loadBarbersFromFirestore();
-      loadUserBookings();
-      loadUserNotifications();
-      if(currentUser.role === 'barber') {
-        loadBarberDashboardStats();
-      }
+    }
+
+    document.getElementById("login").classList.remove("active");
+    document.getElementById("mainApp").classList.add("active");
+    updateProfileUI();
+    loadBarbersFromFirestore();
+    loadUserBookings();
+    loadUserNotifications();
+    if(currentUser.role === 'barber') {
+      loadBarberDashboardStats();
     }
   } catch (error) {
     console.error("Auth Error:", error);
@@ -417,33 +429,13 @@ document.getElementById("googleBtn").onclick = async function() {
   }
 };
 
-async function setRole(role) {
-  const user = window.auth.currentUser;
-  currentUser = {
-    uid: user ? user.uid : "local_id",
-    name: user ? user.displayName : "User",
-    email: user ? user.email : "",
-    role: role,
-    phone: "",
-    portfolio: [],
-    rating: 5.0,
-    reviewCount: 0,
-    following: []
-  };
-
-  if (window.auth && window.auth.currentUser) {
-    await window.setDoc(window.doc(window.db, "users", user.uid), currentUser);
+async function changeUserRole(newRole) {
+  currentUser.role = newRole;
+  if(window.auth && window.auth.currentUser) {
+    await window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), { role: newRole }, { merge: true });
   }
-
-  document.getElementById("roleSetup").classList.remove("active");
-  document.getElementById("mainApp").classList.add("active");
   updateProfileUI();
-  loadBarbersFromFirestore();
-  loadUserBookings();
-  loadUserNotifications();
-  if(currentUser.role === 'barber') {
-    loadBarberDashboardStats();
-  }
+  alert(`Switched account role to: ${newRole.toUpperCase()}`);
 }
 
 function switchTab(tabId) {
@@ -474,7 +466,7 @@ async function loadBarbersFromFirestore() {
 
     if(allBarbersCache.length === 0) {
       allBarbersCache = [
-        { uid: 'demo_1', name: 'John Barber', role: 'barber', serviceTitle: 'Home Barber Specialist', rating: 4.9, reviewCount: 12, portfolio: [] }
+        { uid: 'demo_1', name: 'Barber Me Pro', role: 'barber', serviceTitle: 'Home Barbering Specialist', rating: 4.9, reviewCount: 18, portfolio: [] }
       ];
     }
 
@@ -496,7 +488,7 @@ function renderBarbers(list) {
           <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl">✂️</div>
           <div class="flex-1">
             <h3 class="font-bold">${b.name}</h3>
-            <p class="text-xs text-gray-400">${b.serviceTitle || 'Home Barber Specialist'}</p>
+            <p class="text-xs text-gray-400">${b.serviceTitle || 'Home Barbering Specialist'}</p>
             <p class="text-xs gold mt-1">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews) • Home Service</p>
           </div>
         </div>
@@ -513,12 +505,12 @@ function renderBarbers(list) {
 function openProfileViewModal(barberData) {
   document.getElementById("viewProfileTitle").innerText = barberData.name;
   document.getElementById("viewProfileName").innerText = barberData.name;
-  document.getElementById("viewProfileRole").innerText = barberData.serviceTitle || 'Home Barber Specialist';
+  document.getElementById("viewProfileRole").innerText = barberData.serviceTitle || 'Home Barbering Specialist';
   document.getElementById("viewProfileRating").innerText = `⭐ ${barberData.rating || '4.9'} (${barberData.reviewCount || 0} reviews)`;
   
   const grid = document.getElementById("viewProfilePortfolioGrid");
   if(!barberData.portfolio || barberData.portfolio.length === 0) {
-    grid.innerHTML = `<p class="text-xs text-gray-500 col-span-3">No portfolio photos available for this barber yet.</p>`;
+    grid.innerHTML = `<p class="text-xs text-gray-500 col-span-3">No portfolio photos available yet.</p>`;
   } else {
     grid.innerHTML = barberData.portfolio.map(url => `
       <div class="h-20 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700">
@@ -545,15 +537,15 @@ async function toggleFollowBarber(barberUid) {
 
   if(index > -1) {
     currentUser.following.splice(index, 1);
-    alert("Unfollowed barber.");
+    alert("Unfollowed professional.");
   } else {
     currentUser.following.push(barberUid);
-    alert("Successfully followed! You will now receive alerts from this barber.");
+    alert("Successfully followed! You will receive updates.");
     
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
-      title: "New Barber Followed",
-      message: `You are now following a home professional barber. Look out for updates!`,
+      title: "New Professional Followed",
+      message: `You are now following a Barber Me professional.`,
       timestamp: window.serverTimestamp()
     });
   }
@@ -588,7 +580,7 @@ async function submitBooking() {
   const payment = document.getElementById("paymentMethod").value;
 
   if(!dateTime) {
-    alert("Please select a valid date and time for your appointment.");
+    alert("Please select a date and time for your appointment.");
     return;
   }
 
@@ -600,7 +592,7 @@ async function submitBooking() {
       service: service,
       dateTime: dateTime,
       paymentMethod: payment,
-      status: "Confirmed",
+      status: "Confirmed Home Appointment",
       reviewed: false,
       timestamp: window.serverTimestamp()
     };
@@ -610,18 +602,18 @@ async function submitBooking() {
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
       title: "Home Appointment Booked",
-      message: `Your home session with ${selectedBarberForBooking} is confirmed.`,
+      message: `Your home grooming session with ${selectedBarberForBooking} is confirmed.`,
       timestamp: window.serverTimestamp()
     });
 
-    alert("Home appointment booked successfully and synced to database!");
+    alert("Home appointment booked successfully!");
     closeBookingModal();
     switchTab("bookings");
     loadUserBookings();
     loadUserNotifications();
   } catch(e) {
     console.error("Booking error:", e);
-    alert("Failed to save booking. Please check connection.");
+    alert("Failed to save booking.");
   }
 }
 
@@ -632,7 +624,7 @@ async function loadUserBookings() {
     const querySnapshot = await window.getDocs(q);
     
     if(querySnapshot.empty) {
-      container.innerHTML = `<p class="text-xs text-gray-500 text-center my-6">No active home appointments found. Book a home barber to get started!</p>`;
+      container.innerHTML = `<p class="text-xs text-gray-500 text-center my-6">No active home appointments found.</p>`;
       return;
     }
 
@@ -647,7 +639,7 @@ async function loadUserBookings() {
             <span class="text-xs text-gray-400">${b.dateTime.replace('T', ' ')}</span>
           </div>
           <h3 class="font-bold">${b.service}</h3>
-          <p class="text-xs text-gray-400">Barber: ${b.barberName} (Home Service)</p>
+          <p class="text-xs text-gray-400">Professional: ${b.barberName} (Home Service)</p>
           <p class="text-xs gold font-semibold">Payment: ${b.paymentMethod}</p>
           ${!b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName}')" class="w-full mt-2 py-2 rounded-xl text-xs bg-neutral-800 border border-neutral-700 text-amber-400 font-bold">Leave Review ⭐</button>` : `<p class="text-[10px] text-green-400 mt-1">✓ Review submitted</p>`}
         </div>
@@ -672,18 +664,18 @@ async function loadBarberDashboardStats() {
       if(b.service && b.service.includes("GHS")) {
         const parts = b.service.split("GHS");
         if(parts.length > 1) {
-          const amount = parseInt(parts[1].trim()) || 100;
+          const amount = parseInt(parts[1].trim()) || 120;
           totalRevenue += amount;
         }
       } else {
-        totalRevenue += 100;
+        totalRevenue += 120;
       }
     });
 
     document.getElementById("statTotalRevenue").innerText = `GHS ${totalRevenue}`;
     document.getElementById("statCompletedJobs").innerText = completedJobs;
   } catch(e) {
-    console.error("Error loading barber financial stats:", e);
+    console.error("Error loading stats:", e);
   }
 }
 
@@ -697,7 +689,7 @@ async function loadUserNotifications() {
       container.innerHTML = `
         <div class="card text-xs space-y-1">
           <p class="font-bold">System Online</p>
-          <p class="text-gray-400">Welcome to BarberMe home barber marketplace.</p>
+          <p class="text-gray-400">Welcome to Barber Me home service app.</p>
         </div>
       `;
       return;
@@ -770,7 +762,7 @@ function openChatRoom(roomId, roomTitle) {
     container.innerHTML = "";
     
     if(snapshot.empty) {
-      container.innerHTML = `<p class="text-center text-xs text-gray-500 my-4">No messages yet. Start the conversation!</p>`;
+      container.innerHTML = `<p class="text-center text-xs text-gray-500 my-4">No messages yet. Start chatting!</p>`;
       return;
     }
 
@@ -850,14 +842,15 @@ function renderPortfolioGrid() {
 }
 
 function openLiveStream() {
-  alert("Connecting to live video stream feed...");
+  alert("Connecting to Barber Me live video feed...");
 }
 
 function updateProfileUI() {
-  document.getElementById("profileNameDisplay").innerText = currentUser.name || "User";
+  document.getElementById("profileNameDisplay").innerText = currentUser.name || "Gideon";
   document.getElementById("profileRoleDisplay").innerText = currentUser.role || "client";
   document.getElementById("editName").value = currentUser.name || "";
   document.getElementById("editPhone").value = currentUser.phone || "";
+  document.getElementById("roleSelect").value = currentUser.role || "client";
 
   if(currentUser.role === 'barber') {
     document.getElementById("barberEarningsSection").style.display = "block";
@@ -891,4 +884,3 @@ async function logout() {
 
 </body>
 </html>
-
