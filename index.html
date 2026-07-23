@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Barber Me | Home Barbering Services</title>
+<title>Barber Me | Ultimate Home Barbering Services</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Leaflet CSS for Interactive Maps -->
+<!-- Leaflet CSS for Interactive Map -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Firebase SDKs & Integration -->
+<!-- Firebase SDKs & Core Logic -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, orderBy, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
   
   const firebaseConfig = {
@@ -74,12 +74,13 @@
       } else {
         window.currentUser = {
           uid: user.uid,
-          name: user.displayName || "Gideon",
+          name: user.displayName || "Valued Client",
           email: user.email,
           role: 'client',
           phone: '',
           portfolio: [],
           rating: 5.0,
+          reviewCount: 0,
           following: [],
           online: true
         };
@@ -90,6 +91,9 @@
         updateProfileUI();
         loadBarbersFromFirestore();
       }
+    } else {
+      document.getElementById("splash").classList.remove("active");
+      document.getElementById("login").classList.add("active");
     }
   });
 </script>
@@ -97,31 +101,33 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #0d0d0d;
-  color: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #0b0b0b;
+  color: #f3f4f6;
   -webkit-tap-highlight-color: transparent;
 }
 .screen { display: none; min-height: 100vh; padding-bottom: 90px; }
 .screen.active { display: flex; flex-direction: column; }
-button { transition: 0.3s; cursor: pointer; }
+button { transition: all 0.2s ease; cursor: pointer; }
 button:active { transform: scale(0.97); }
-.nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #888; background: none; border: none; }
+.nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #737373; background: none; border: none; }
 .nav-btn.active { color: #f5b942; }
-.card { background: #171717; border: 1px solid #333; border-radius: 18px; padding: 16px; }
+.card { background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 .gold { color: #f5b942; }
-.gold-bg { background: #f5b942; color: black; font-weight: bold; }
-input, select, textarea { background: #1f1f1f; border: 1px solid #444; color: white; padding: 12px; border-radius: 12px; width: 100%; outline: none; }
-input:focus, select:focus { border-color: #f5b942; }
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; z-index: 50; }
-.fade { animation: fade 0.3s ease-in-out; }
-@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-.profile-img { width: 65px; height: 65px; border-radius: 50%; background: #333; object-fit: cover; }
-.badge { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: bold; }
-.presence-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid #111; }
+.gold-bg { background: linear-gradient(135deg, #f5b942 0%, #d49524 100%); color: #000; font-weight: 700; }
+input, select, textarea { background: #1a1a1a; border: 1px solid #333; color: white; padding: 13px; border-radius: 14px; width: 100%; outline: none; font-size: 14px; transition: border-color 0.2s; }
+input:focus, select:focus, textarea:focus { border-color: #f5b942; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #262626; z-index: 50; }
+.fade { animation: fade 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.profile-img { width: 68px; height: 68px; border-radius: 50%; background: #262626; object-fit: cover; flex-shrink: 0; }
+.badge { font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.presence-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid #141414; }
 .presence-online { background-color: #22c55e; }
 .presence-offline { background-color: #737373; }
-#map { width: 100%; height: 250px; border-radius: 16px; }
+#map { width: 100%; height: 260px; border-radius: 16px; z-index: 10; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 </style>
 </head>
 
@@ -129,18 +135,18 @@ input:focus, select:focus { border-color: #f5b942; }
 
 <!-- 1. SPLASH SCREEN -->
 <div id="splash" class="screen active justify-center items-center flex-col fade">
-  <div class="text-6xl mb-3">✂️</div>
-  <h1 class="text-3xl font-bold gold">BARBER ME</h1>
-  <p class="text-gray-400 mt-2 text-sm">Professional Home Barbering Services</p>
+  <div class="text-6xl mb-3 animate-bounce">✂️</div>
+  <h1 class="text-3xl font-bold tracking-wider gold">BARBER ME</h1>
+  <p class="text-gray-400 mt-2 text-xs tracking-wide">Elite Home Barbering & Grooming Services</p>
 </div>
 
-<!-- 2. LOGIN SCREEN (Google Sign-In Mandatory) -->
+<!-- 2. LOGIN SCREEN (Google Auth) -->
 <div id="login" class="screen justify-center items-center p-6 flex-col">
-  <div class="card w-full max-w-md text-center">
-    <div class="text-4xl mb-2">✂️</div>
+  <div class="card w-full max-w-sm text-center space-y-4">
+    <div class="text-5xl mb-1">✂️</div>
     <h2 class="text-2xl font-bold gold">Barber Me</h2>
-    <p class="text-gray-400 mt-2 text-sm">Sign in with Google to access home barbering services.</p>
-    <button id="googleBtn" class="gold-bg w-full py-3 rounded-xl mt-6 flex items-center justify-center gap-3">
+    <p class="text-gray-400 text-xs leading-relaxed">Book top-tier professional home barbers or list your grooming shop instantly with secure Google sign-in.</p>
+    <button id="googleBtn" class="gold-bg w-full py-3.5 rounded-xl flex items-center justify-center gap-3 text-sm shadow-lg shadow-amber-500/10">
       <span>Continue with Google</span>
     </button>
   </div>
@@ -149,56 +155,57 @@ input:focus, select:focus { border-color: #f5b942; }
 <!-- 3. MAIN APP CONTAINER -->
 <div id="mainApp" class="screen">
   
-  <!-- HOME TAB -->
+  <!-- HOME TAB (Marketplace, Live Stream, Search, Barbers) -->
   <div id="tab-home" class="tab-content flex flex-col p-5 space-y-4">
-    <header class="flex justify-between items-center">
+    <header class="flex justify-between items-center pt-2">
       <div>
-        <h1 class="text-xl font-bold gold">BARBER ME</h1>
-        <p class="text-xs text-gray-400">📍 Ghana • <span class="text-green-400 font-semibold">Home Barbering Services</span></p>
+        <h1 class="text-xl font-bold tracking-tight gold">BARBER ME</h1>
+        <p class="text-[11px] text-gray-400">📍 Ghana • <span class="text-green-400 font-medium">Home Service Active</span></p>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="switchTab('notifications')" class="card p-2 rounded-full relative">🔔</button>
-      </div>
+      <button onclick="switchTab('notifications')" class="card p-2.5 rounded-full relative hover:bg-neutral-800">🔔</button>
     </header>
 
     <div class="relative">
-      <input type="text" id="searchInput" placeholder="Search home barbers or services..." oninput="filterBarbers()">
+      <input type="text" id="searchInput" placeholder="Search home barbers or specialties..." oninput="filterBarbers()" class="pl-4">
     </div>
 
     <!-- Live Stream Banner Card -->
-    <div class="card bg-gradient-to-r from-neutral-900 to-amber-950/40 border-amber-500/30 flex items-center justify-between">
+    <div class="card bg-gradient-to-r from-neutral-900 via-neutral-900 to-amber-950/40 border-amber-500/30 flex items-center justify-between">
       <div>
-        <span class="badge bg-red-600 text-white animate-pulse">LIVE NOW</span>
-        <h3 class="font-bold mt-1">Master Home Fade Session</h3>
-        <p class="text-xs text-gray-400">Barber Me Professional • Live Feed</p>
+        <span class="badge bg-red-600 text-white animate-pulse">LIVE FEED</span>
+        <h3 class="font-bold text-sm mt-1.5">Master Home Fade Broadcast</h3>
+        <p class="text-[11px] text-gray-400">Barber Me Global Pro • Watch & Learn</p>
       </div>
-      <button onclick="openLiveStream()" class="gold-bg px-4 py-2 rounded-xl text-xs">Watch</button>
+      <button onclick="openLiveStream()" class="gold-bg px-4 py-2.5 rounded-xl text-xs">Watch</button>
     </div>
 
-    <h2 class="font-bold text-lg mt-2">Available Home Barbers</h2>
+    <div class="flex justify-between items-center mt-2">
+      <h2 class="font-bold text-base text-gray-200">Available Home Barbers</h2>
+      <span class="text-xs text-amber-400 cursor-pointer" onclick="loadBarbersFromFirestore()">Refresh</span>
+    </div>
+    
     <div id="barbersList" class="space-y-3 pb-12"></div>
   </div>
 
   <!-- SEARCH / MAP TAB -->
   <div id="tab-search" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
-    <h2 class="text-xl font-bold gold">Explore Nearby Home Barbers</h2>
+    <h2 class="text-xl font-bold gold">Explore Nearby Dispatches</h2>
     <div class="card p-2 bg-neutral-900 border-neutral-800">
       <div id="map"></div>
     </div>
-    <p class="text-xs text-gray-400 text-center">Interactive map displaying active home barbers ready for dispatch in Accra / Kumasi.</p>
+    <p class="text-xs text-gray-400 text-center leading-relaxed">Interactive tracking showing active mobile home barbers ready for dispatch across your region.</p>
   </div>
 
   <!-- CHATS TAB -->
   <div id="tab-chats" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <h2 class="text-xl font-bold gold">Messages</h2>
     <div id="chatsList" class="space-y-2">
-      <div onclick="openChatRoom('general_chat', 'Barber Me Community')" class="card flex items-center gap-3 cursor-pointer">
-        <div class="profile-img flex items-center justify-center text-xl">💬</div>
+      <div onclick="openChatRoom('general_chat', 'Barber Me Community Hub')" class="card flex items-center gap-3.5 cursor-pointer hover:bg-neutral-800/60">
+        <div class="profile-img flex items-center justify-center text-xl bg-neutral-800 text-amber-400">💬</div>
         <div class="flex-1">
-          <div class="flex justify-between"><h4 class="font-bold text-sm">Community Chat</h4><span class="text-xs text-gray-500">Live</span></div>
-          <p class="text-xs text-gray-400 truncate">Tap to join discussions with barbers and clients</p>
+          <div class="flex justify-between items-center"><h4 class="font-bold text-sm">Community Hub</h4><span class="text-[10px] text-green-400 font-semibold">Live</span></div>
+          <p class="text-xs text-gray-400 truncate mt-0.5">Tap to chat with fellow clients and active barbers</p>
         </div>
-        <span class="w-2 h-2 rounded-full gold-bg"></span>
       </div>
     </div>
   </div>
@@ -206,14 +213,14 @@ input:focus, select:focus { border-color: #f5b942; }
   <!-- CHAT ROOM SUBVIEW -->
   <div id="tab-chat-room" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <div class="flex items-center gap-3">
-      <button onclick="switchTab('chats')" class="text-sm gold">← Back</button>
-      <h2 class="text-xl font-bold gold" id="chatRoomTitle">Chat Room</h2>
+      <button onclick="switchTab('chats')" class="text-xs font-bold gold px-2 py-1 bg-neutral-900 rounded-lg">← Back</button>
+      <h2 class="text-lg font-bold gold truncate" id="chatRoomTitle">Chat Room</h2>
     </div>
-    <div id="chatMessages" class="card flex-1 h-64 overflow-y-auto space-y-3 p-3 bg-neutral-900 border-neutral-800"></div>
+    <div id="chatMessages" class="card flex-1 h-72 overflow-y-auto space-y-3 p-3.5 bg-neutral-900/90 border-neutral-800"></div>
     <!-- Typing Indicator View -->
-    <div id="typingIndicator" class="text-[11px] text-gray-400 italic h-4 px-1"></div>
+    <div id="typingIndicator" class="text-[11px] text-amber-400/80 italic h-4 px-1"></div>
     <div class="flex gap-2">
-      <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1" oninput="handleTypingInput()">
+      <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1" oninput="handleTypingInput()">
       <button onclick="sendChatMessage()" class="gold-bg px-5 rounded-xl text-sm">Send</button>
     </div>
   </div>
@@ -222,78 +229,78 @@ input:focus, select:focus { border-color: #f5b942; }
   <div id="tab-bookings" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <h2 class="text-xl font-bold gold">Your Appointments</h2>
     <div id="bookingsList" class="space-y-3 pb-12">
-      <p class="text-xs text-gray-500">Loading appointments...</p>
+      <p class="text-xs text-gray-500 text-center py-6">Loading appointments...</p>
     </div>
   </div>
 
   <!-- PROFILE TAB -->
-  <div id="tab-profile" class="tab-content flex flex-col p-5 space-y-6" style="display:none;">
+  <div id="tab-profile" class="tab-content flex flex-col p-5 space-y-5" style="display:none;">
     <div class="flex items-center gap-4 card relative">
-      <div class="absolute top-4 right-4 flex items-center gap-1.5">
+      <div class="absolute top-4 right-4 flex items-center gap-1.5 bg-neutral-900/80 px-2.5 py-1 rounded-full border border-neutral-800">
         <span id="userPresenceBadge" class="presence-dot presence-online"></span>
-        <span class="text-[10px] text-gray-400" id="userPresenceText">Online</span>
+        <span class="text-[10px] text-gray-300 font-medium" id="userPresenceText">Online</span>
       </div>
-      <div class="profile-img" id="profileAvatarDisplay"></div>
-      <div>
-        <h2 class="font-bold text-lg" id="profileNameDisplay">User Name</h2>
-        <p class="text-xs text-gray-400 capitalize" id="profileRoleDisplay">Client</p>
+      <div class="profile-img flex items-center justify-center text-2xl font-bold bg-neutral-800 text-amber-400" id="profileAvatarDisplay">👤</div>
+      <div class="pr-12">
+        <h2 class="font-bold text-base truncate" id="profileNameDisplay">User Name</h2>
+        <p class="text-xs text-gray-400 capitalize mt-0.5" id="profileRoleDisplay">Client</p>
       </div>
     </div>
 
     <!-- Role Switcher -->
-    <div class="card space-y-3">
-      <h3 class="font-bold text-sm gold">Account Mode</h3>
+    <div class="card space-y-2.5">
+      <h3 class="font-bold text-xs gold tracking-wide uppercase">Account Mode</h3>
       <select id="roleSelect" onchange="changeUserRole(this.value)">
         <option value="client">Client (Booking Home Services)</option>
-        <option value="barber">Barber / Owner (Barber Me Staff)</option>
+        <option value="barber">Barber / Shop Owner (Offering Services)</option>
       </select>
     </div>
 
     <!-- Barber Earnings Dashboard Section -->
-    <div id="barberEarningsSection" class="space-y-3" style="display:none;">
-      <h3 class="font-bold text-sm gold">Financial Dashboard</h3>
+    <div id="barberEarningsSection" class="space-y-2.5" style="display:none;">
+      <h3 class="font-bold text-xs gold tracking-wide uppercase">Financial Performance</h3>
       <div class="grid grid-cols-2 gap-3">
         <div class="card p-4 text-center">
-          <p class="text-[10px] text-gray-400 uppercase tracking-wider">Total Revenue</p>
+          <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Total Revenue</p>
           <h4 class="text-lg font-bold gold mt-1" id="statTotalRevenue">GHS 0</h4>
         </div>
         <div class="card p-4 text-center">
-          <p class="text-[10px] text-gray-400 uppercase tracking-wider">Completed Jobs</p>
+          <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Completed Jobs</p>
           <h4 class="text-lg font-bold text-white mt-1" id="statCompletedJobs">0</h4>
         </div>
       </div>
     </div>
 
     <!-- Barber Portfolio Section -->
-    <div id="barberPortfolioSection" class="space-y-3" style="display:none;">
-      <h3 class="font-bold text-sm gold">Portfolio Uploads</h3>
+    <div id="barberPortfolioSection" class="space-y-2.5" style="display:none;">
+      <h3 class="font-bold text-xs gold tracking-wide uppercase">Portfolio Showcase</h3>
       <div class="card space-y-3">
-        <p class="text-xs text-gray-400">Upload your best home cuts to show prospective clients.</p>
-        <input type="file" id="portfolioFile" accept="image/*" class="text-xs">
-        <button onclick="uploadPortfolioImage()" class="gold-bg w-full py-2.5 rounded-xl text-sm">Upload to Portfolio</button>
+        <p class="text-xs text-gray-400 leading-relaxed">Upload clear photos of your recent cuts to attract local clients.</p>
+        <input type="file" id="portfolioFile" accept="image/*" class="text-xs py-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-black">
+        <button onclick="uploadPortfolioImage()" class="gold-bg w-full py-2.5 rounded-xl text-xs">Upload Portfolio Image</button>
         <div id="portfolioPreviewGrid" class="grid grid-cols-3 gap-2 mt-2"></div>
       </div>
     </div>
 
-    <div class="space-y-3">
-      <h3 class="font-bold text-sm gold">Account Settings</h3>
+    <div class="space-y-2.5">
+      <h3 class="font-bold text-xs gold tracking-wide uppercase">Personal Info</h3>
       <div class="card space-y-3">
         <input type="text" id="editName" placeholder="Full Name">
-        <input type="text" id="editPhone" placeholder="Phone Number">
-        <button onclick="saveProfile()" class="gold-bg w-full py-2.5 rounded-xl text-sm">Update Profile</button>
+        <input type="text" id="editPhone" placeholder="Phone Number (e.g. +233...)">
+        <button onclick="saveProfile()" class="gold-bg w-full py-2.5 rounded-xl text-xs">Save Profile Changes</button>
       </div>
-      <button onclick="logout()" class="w-full py-3 rounded-xl card text-red-400 text-sm font-bold">Sign Out</button>
+      <button onclick="logout()" class="w-full py-3 rounded-xl card text-red-400 text-xs font-bold border-red-900/30 hover:bg-red-950/20">Sign Out of Account</button>
     </div>
   </div>
 
   <!-- NOTIFICATIONS SCREEN -->
   <div id="tab-notifications" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <div class="flex items-center gap-3">
-      <button onclick="switchTab('home')" class="text-sm gold">← Back</button>
-      <h2 class="text-xl font-bold gold">Notifications</h2>
+      <button onclick="switchTab('home')" class="text-xs font-bold gold px-2 py-1 bg-neutral-900 rounded-lg">← Back</button>
+      <h2 class="text-lg font-bold gold">Notifications</h2>
     </div>
-    <div id="notificationsList" class="space-y-2 pb-12">
-      <p class="text-xs text-gray-500">Loading notifications...</p>
+    <div id="notificationsList" class="space-y-2.5 pb-12">
+      <p class="text-xs text-gray-500 text-center py-6">Loading notifications...</p>
     </div>
   </div>
 
@@ -309,87 +316,88 @@ input:focus, select:focus { border-color: #f5b942; }
 </div>
 
 <!-- BOOKING MODAL -->
-<div id="bookingModal" class="screen fixed inset-0 bg-black/90 z-50 p-6 overflow-y-auto" style="display:none;">
-  <div class="max-w-md mx-auto space-y-4 mt-10">
+<div id="bookingModal" class="screen fixed inset-0 bg-black/95 z-50 p-6 overflow-y-auto" style="display:none;">
+  <div class="max-w-md mx-auto space-y-4 mt-8">
     <div class="flex justify-between items-center">
-      <h2 class="text-xl font-bold gold" id="modalBarberName">Barber Me Professional</h2>
-      <button onclick="closeBookingModal()" class="text-gray-400 text-xl font-bold">✕</button>
+      <div>
+        <h2 class="text-lg font-bold gold" id="modalBarberName">Barber Me Pro</h2>
+        <p class="text-[11px] text-gray-400">Home Dispatch Service</p>
+      </div>
+      <button onclick="closeBookingModal()" class="text-gray-400 text-lg font-bold p-2">✕</button>
     </div>
-    <div class="card space-y-3">
-      <p class="text-xs text-gray-400">⭐ 4.9 • Home Barbering Specialist</p>
-      <hr class="border-neutral-800">
-      <h4 class="font-bold text-sm">Select Home Barbering Service</h4>
+    <div class="card space-y-3.5">
+      <h4 class="font-bold text-xs gold uppercase tracking-wider">Select Service Package</h4>
       <select id="serviceSelect">
         <option value="Classic Home Haircut - GHS 80">Classic Home Haircut - GHS 80</option>
-        <option value="Executive Home Cut & Beard - GHS 120" selected>Executive Home Cut & Beard - GHS 120</option>
-        <option value="Home Dreadlocks Styling - GHS 150">Home Dreadlocks Styling - GHS 150</option>
+        <option value="Executive Home Cut & Beard Trim - GHS 120" selected>Executive Home Cut & Beard Trim - GHS 120</option>
+        <option value="VIP Luxury Home Grooming - GHS 200">VIP Luxury Home Grooming - GHS 200</option>
       </select>
-      <h4 class="font-bold text-sm">Appointment Date & Time</h4>
+      <h4 class="font-bold text-xs gold uppercase tracking-wider">Date & Time</h4>
       <input type="datetime-local" id="bookingDateTime">
-      <h4 class="font-bold text-sm">Payment Method</h4>
+      <h4 class="font-bold text-xs gold uppercase tracking-wider">Payment Method</h4>
       <select id="paymentMethod">
-        <option value="Mobile Money (MoMo)">Mobile Money (MTN / Vodafone / AirtelTigo)</option>
-        <option value="Credit Card">Credit / Debit Card</option>
-        <option value="Cash on Service">Cash on Service</option>
+        <option value="Mobile Money (MTN/Vodafone)">Mobile Money (MoMo)</option>
+        <option value="Credit / Debit Card">Credit / Debit Card</option>
+        <option value="Cash on Service">Cash on Service Completion</option>
       </select>
-      <button onclick="submitBooking()" class="gold-bg w-full py-3 rounded-xl mt-2">Confirm & Book Home Appointment</button>
+      <button onclick="submitBooking()" class="gold-bg w-full py-3.5 rounded-xl text-sm mt-1 shadow-lg shadow-amber-500/10">Confirm Home Appointment</button>
     </div>
   </div>
 </div>
 
 <!-- REVIEW MODAL -->
-<div id="reviewModal" class="screen fixed inset-0 bg-black/90 z-50 p-6 overflow-y-auto" style="display:none;">
-  <div class="max-w-md mx-auto space-y-4 mt-20">
+<div id="reviewModal" class="screen fixed inset-0 bg-black/95 z-50 p-6 overflow-y-auto" style="display:none;">
+  <div class="max-w-md mx-auto space-y-4 mt-16">
     <div class="flex justify-between items-center">
-      <h2 class="text-xl font-bold gold">Rate Your Experience</h2>
-      <button onclick="closeReviewModal()" class="text-gray-400 text-xl font-bold">✕</button>
+      <h2 class="text-lg font-bold gold">Rate Your Session</h2>
+      <button onclick="closeReviewModal()" class="text-gray-400 text-lg font-bold p-2">✕</button>
     </div>
-    <div class="card space-y-3">
-      <p class="text-xs text-gray-400" id="reviewSubtitle">Leave a review for your home barber session.</p>
-      <h4 class="font-bold text-sm">Select Rating (1 to 5 Stars)</h4>
+    <div class="card space-y-3.5">
+      <p class="text-xs text-gray-400" id="reviewSubtitle">Rate your home haircut session.</p>
+      <h4 class="font-bold text-xs gold uppercase tracking-wider">Rating Stars</h4>
       <select id="ratingStars">
-        <option value="5">⭐⭐⭐⭐⭐ (5/5 - Excellent)</option>
+        <option value="5">⭐⭐⭐⭐⭐ (5/5 - Outstanding)</option>
         <option value="4">⭐⭐⭐⭐ (4/5 - Great)</option>
         <option value="3">⭐⭐⭐ (3/5 - Good)</option>
         <option value="2">⭐⭐ (2/5 - Fair)</option>
         <option value="1">⭐ (1/5 - Poor)</option>
       </select>
-      <h4 class="font-bold text-sm">Write Feedback</h4>
-      <textarea id="reviewComment" placeholder="Write details about your home haircut experience..." rows="3"></textarea>
-      <button onclick="submitReview()" class="gold-bg w-full py-3 rounded-xl mt-2">Submit Review</button>
+      <h4 class="font-bold text-xs gold uppercase tracking-wider">Review Comments</h4>
+      <textarea id="reviewComment" placeholder="Write feedback about your experience..." rows="3"></textarea>
+      <button onclick="submitReview()" class="gold-bg w-full py-3.5 rounded-xl text-sm mt-1">Submit Review</button>
     </div>
   </div>
 </div>
 
-<!-- PROFILE VIEW MODAL FOR BROWSING -->
-<div id="profileViewModal" class="screen fixed inset-0 bg-black/90 z-50 p-6 overflow-y-auto" style="display:none;">
-  <div class="max-w-md mx-auto space-y-4 mt-10">
+<!-- PROFILE VIEW MODAL -->
+<div id="profileViewModal" class="screen fixed inset-0 bg-black/95 z-50 p-6 overflow-y-auto" style="display:none;">
+  <div class="max-w-md mx-auto space-y-4 mt-8">
     <div class="flex justify-between items-center">
-      <h2 class="text-xl font-bold gold" id="viewProfileTitle">Barber Profile</h2>
-      <button onclick="closeProfileViewModal()" class="text-gray-400 text-xl font-bold">✕</button>
+      <h2 class="text-lg font-bold gold" id="viewProfileTitle">Barber Profile</h2>
+      <button onclick="closeProfileViewModal()" class="text-gray-400 text-lg font-bold p-2">✕</button>
     </div>
     <div class="card space-y-4">
       <div class="flex items-center gap-4">
-        <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl" id="viewProfileAvatar">✂️</div>
+        <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl text-amber-400 font-bold" id="viewProfileAvatar">✂️</div>
         <div>
-          <h3 class="font-bold text-lg" id="viewProfileName">Barber Name</h3>
-          <p class="text-xs text-gray-400" id="viewProfileRole">Home Barber Specialist</p>
-          <p class="text-xs gold mt-1" id="viewProfileRating">⭐ 4.9 (0 reviews)</p>
+          <h3 class="font-bold text-base" id="viewProfileName">Barber Name</h3>
+          <p class="text-xs text-gray-400" id="viewProfileRole">Home Service Specialist</p>
+          <p class="text-xs gold mt-1 font-semibold" id="viewProfileRating">⭐ 4.9 (0 reviews)</p>
         </div>
       </div>
       <hr class="border-neutral-800">
-      <h4 class="font-bold text-sm gold">Interactive Portfolio Photos</h4>
+      <h4 class="font-bold text-xs gold uppercase tracking-wider">Portfolio Photos</h4>
       <div id="viewProfilePortfolioGrid" class="grid grid-cols-3 gap-2">
         <p class="text-xs text-gray-500 col-span-3">No portfolio photos available.</p>
       </div>
-      <button id="viewProfileBookBtn" class="gold-bg w-full py-3 rounded-xl text-sm mt-2">Book Home Appointment</button>
+      <button id="viewProfileBookBtn" class="gold-bg w-full py-3 rounded-xl text-xs mt-2">Book Appointment Now</button>
     </div>
   </div>
 </div>
 
-<!-- APPLICATION CONTROLLER SCRIPT -->
+<!-- APPLICATION CORE CONTROLLER SCRIPT -->
 <script>
-let currentUser = { name: "Gideon", role: "client", phone: "", uid: "", following: [], online: true };
+let currentUser = { name: "Valued Client", role: "client", phone: "", uid: "", following: [], online: true };
 let selectedBarberForBooking = "";
 let selectedBookingForReview = null;
 let currentChatRoomId = null;
@@ -399,63 +407,12 @@ let allBarbersCache = [];
 let mapInstance = null;
 let typingTimeout = null;
 
-window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    if(!window.auth.currentUser) {
-      document.getElementById("splash").classList.remove("active");
-      document.getElementById("login").classList.add("active");
-    }
-  }, 1200);
-});
-
-document.getElementById("googleBtn").onclick = async function() {
-  try {
-    const result = await window.signInWithPopup(window.auth, window.googleProvider);
-    const user = result.user;
-    
-    const userDocRef = window.doc(window.db, "users", user.uid);
-    const userSnap = await window.getDoc(userDocRef);
-
-    if (!userSnap.exists()) {
-      currentUser = {
-        uid: user.uid,
-        name: user.displayName || "Gideon",
-        email: user.email,
-        role: 'client',
-        phone: '',
-        portfolio: [],
-        rating: 5.0,
-        following: [],
-        online: true
-      };
-      await window.setDoc(userDocRef, currentUser);
-    } else {
-      currentUser = userSnap.data();
-      await window.setDoc(userDocRef, { online: true, lastSeen: window.serverTimestamp() }, { merge: true });
-    }
-
-    document.getElementById("login").classList.remove("active");
-    document.getElementById("mainApp").classList.add("active");
-    updateProfileUI();
-    loadBarbersFromFirestore();
-    loadUserBookings();
-    loadUserNotifications();
-    if(currentUser.role === 'barber') {
-      loadBarberDashboardStats();
-    }
-  } catch (error) {
-    console.error("Auth Error:", error);
-    alert("Google Sign-In failed.");
-  }
-};
-
-async function changeUserRole(newRole) {
+function changeUserRole(newRole) {
   currentUser.role = newRole;
   if(window.auth && window.auth.currentUser) {
-    await window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), { role: newRole }, { merge: true });
+    window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), { role: newRole }, { merge: true });
   }
   updateProfileUI();
-  alert(`Switched account role to: ${newRole.toUpperCase()}`);
 }
 
 function switchTab(tabId) {
@@ -468,8 +425,9 @@ function switchTab(tabId) {
     document.getElementById('tab-chat-room').style.display = 'flex';
   } else {
     document.getElementById(`tab-${tabId}`).style.display = 'flex';
-    document.getElementById(`nav-${tabId}`).classList.add('active');
-
+    if(document.getElementById(`nav-${tabId}`)) {
+      document.getElementById(`nav-${tabId}`).classList.add('active');
+    }
     if(tabId === 'search') {
       setTimeout(() => initMap(), 200);
     }
@@ -478,16 +436,14 @@ function switchTab(tabId) {
 
 function initMap() {
   if(!mapInstance) {
-    // Centered around Accra, Ghana by default
     mapInstance = L.map('map').setView([5.6037, -0.1870], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap'
     }).addTo(mapInstance);
 
-    // Add marker for dispatch mobile unit
     L.marker([5.6037, -0.1870]).addTo(mapInstance)
-      .bindPopup("<b>Barber Me Mobile Dispatch Hub</b><br>Accra, Ghana").openPopup();
+      .bindPopup("<b>Barber Me Dispatch Hub</b><br>Accra, Ghana").openPopup();
   } else {
     mapInstance.invalidateSize();
   }
@@ -507,7 +463,7 @@ async function loadBarbersFromFirestore() {
 
     if(allBarbersCache.length === 0) {
       allBarbersCache = [
-        { uid: 'demo_1', name: 'Barber Me Pro', role: 'barber', serviceTitle: 'Home Barbering Specialist', rating: 4.9, reviewCount: 18, portfolio: [], online: true }
+        { uid: 'demo_1', name: 'Barber Me Pro', role: 'barber', serviceTitle: 'Home Grooming Specialist', rating: 4.9, reviewCount: 24, portfolio: [], online: true }
       ];
     }
 
@@ -525,22 +481,22 @@ function renderBarbers(list) {
     const isFollowing = followingList.includes(b.uid);
     const isOnline = b.online !== false;
     return `
-      <div class="card flex flex-col gap-3">
-        <div class="flex items-center gap-4 cursor-pointer relative" onclick='openProfileViewModal(${JSON.stringify(b)})'>
-          <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl relative">
+      <div class="card flex flex-col gap-3.5">
+        <div class="flex items-center gap-3.5 cursor-pointer" onclick='openProfileViewModal(${JSON.stringify(b)})'>
+          <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl relative text-amber-400 font-bold">
             ✂️
             <span class="absolute bottom-0 right-0 presence-dot ${isOnline ? 'presence-online' : 'presence-offline'}"></span>
           </div>
-          <div class="flex-1">
-            <h3 class="font-bold flex items-center gap-2">${b.name} <span class="text-[10px] text-gray-400 font-normal">(${isOnline ? 'Online' : 'Offline'})</span></h3>
-            <p class="text-xs text-gray-400">${b.serviceTitle || 'Home Barbering Specialist'}</p>
-            <p class="text-xs gold mt-1">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews) • Home Service</p>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-sm truncate flex items-center gap-1.5">${b.name} <span class="text-[10px] text-gray-400 font-normal">(${isOnline ? 'Online' : 'Offline'})</span></h3>
+            <p class="text-xs text-gray-400 truncate mt-0.5">${b.serviceTitle || 'Home Service Professional'}</p>
+            <p class="text-xs gold mt-1 font-semibold">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews)</p>
           </div>
         </div>
-        <div class="flex gap-2">
-          <button onclick="openBookingModal('${b.name}')" class="gold-bg flex-1 py-2.5 rounded-xl text-xs">Book Home Appointment</button>
-          <button onclick="toggleFollowBarber('${b.uid}')" class="card py-2.5 px-3 rounded-xl text-xs border ${isFollowing ? 'border-amber-500 text-amber-400' : 'border-neutral-700 text-gray-300'}">${isFollowing ? '✓ Following' : '+ Follow'}</button>
-          <button onclick="openChatRoom('${b.uid}', '${b.name}')" class="card py-2.5 px-3 rounded-xl text-xs border border-neutral-700">Chat</button>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="openBookingModal('${b.name}')" class="gold-bg col-span-1 py-2.5 rounded-xl text-xs">Book</button>
+          <button onclick="toggleFollowBarber('${b.uid}')" class="card py-2.5 px-2 rounded-xl text-xs border ${isFollowing ? 'border-amber-500/50 text-amber-400' : 'border-neutral-800 text-gray-300'} text-center truncate">${isFollowing ? 'Following' : 'Follow'}</button>
+          <button onclick="openChatRoom('${b.uid}', '${b.name}')" class="card py-2.5 px-2 rounded-xl text-xs border border-neutral-800 text-center">Chat</button>
         </div>
       </div>
     `;
@@ -550,7 +506,7 @@ function renderBarbers(list) {
 function openProfileViewModal(barberData) {
   document.getElementById("viewProfileTitle").innerText = barberData.name;
   document.getElementById("viewProfileName").innerText = barberData.name;
-  document.getElementById("viewProfileRole").innerText = barberData.serviceTitle || 'Home Barbering Specialist';
+  document.getElementById("viewProfileRole").innerText = barberData.serviceTitle || 'Home Service Professional';
   document.getElementById("viewProfileRating").innerText = `⭐ ${barberData.rating || '4.9'} (${barberData.reviewCount || 0} reviews)`;
   
   const grid = document.getElementById("viewProfilePortfolioGrid");
@@ -558,7 +514,7 @@ function openProfileViewModal(barberData) {
     grid.innerHTML = `<p class="text-xs text-gray-500 col-span-3">No portfolio photos available yet.</p>`;
   } else {
     grid.innerHTML = barberData.portfolio.map(url => `
-      <div class="h-20 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700">
+      <div class="h-20 bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800">
         <img src="${url}" class="w-full h-full object-cover">
       </div>
     `).join('');
@@ -582,15 +538,12 @@ async function toggleFollowBarber(barberUid) {
 
   if(index > -1) {
     currentUser.following.splice(index, 1);
-    alert("Unfollowed professional.");
   } else {
     currentUser.following.push(barberUid);
-    alert("Successfully followed! You will receive updates.");
-    
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
-      title: "New Professional Followed",
-      message: `You are now following a Barber Me professional.`,
+      title: "New Follow Registered",
+      message: `You are now following a professional home barber.`,
       timestamp: window.serverTimestamp()
     });
   }
@@ -604,8 +557,8 @@ async function toggleFollowBarber(barberUid) {
 }
 
 function filterBarbers() {
-  const query = document.getElementById("searchInput").value.toLowerCase();
-  const filtered = allBarbersCache.filter(b => b.name.toLowerCase().includes(query));
+  const queryText = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = allBarbersCache.filter(b => b.name.toLowerCase().includes(queryText));
   renderBarbers(filtered);
 }
 
@@ -625,12 +578,12 @@ async function submitBooking() {
   const payment = document.getElementById("paymentMethod").value;
 
   if(!dateTime) {
-    alert("Please select a date and time for your appointment.");
+    alert("Please select appointment date and time.");
     return;
   }
 
   try {
-    const bookingData = {
+    await window.addDoc(window.collection(window.db, "bookings"), {
       clientUid: currentUser.uid,
       clientName: currentUser.name,
       barberName: selectedBarberForBooking,
@@ -640,14 +593,12 @@ async function submitBooking() {
       status: "Confirmed Home Appointment",
       reviewed: false,
       timestamp: window.serverTimestamp()
-    };
-
-    await window.addDoc(window.collection(window.db, "bookings"), bookingData);
+    });
     
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
-      title: "Home Appointment Booked",
-      message: `Your home grooming session with ${selectedBarberForBooking} is confirmed.`,
+      title: "Appointment Booked",
+      message: `Your home session with ${selectedBarberForBooking} is confirmed.`,
       timestamp: window.serverTimestamp()
     });
 
@@ -657,8 +608,8 @@ async function submitBooking() {
     loadUserBookings();
     loadUserNotifications();
   } catch(e) {
-    console.error("Booking error:", e);
-    alert("Failed to save booking.");
+    console.error("Booking submission error:", e);
+    alert("Failed to submit booking.");
   }
 }
 
@@ -669,7 +620,7 @@ async function loadUserBookings() {
     const querySnapshot = await window.getDocs(q);
     
     if(querySnapshot.empty) {
-      container.innerHTML = `<p class="text-xs text-gray-500 text-center my-6">No active home appointments found.</p>`;
+      container.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">No active home appointments found.</p>`;
       return;
     }
 
@@ -678,15 +629,15 @@ async function loadUserBookings() {
       const b = docSnap.data();
       const bookingId = docSnap.id;
       container.innerHTML += `
-        <div class="card space-y-2">
+        <div class="card space-y-2.5">
           <div class="flex justify-between items-center">
-            <span class="badge bg-amber-500/20 text-amber-400">${b.status}</span>
-            <span class="text-xs text-gray-400">${b.dateTime.replace('T', ' ')}</span>
+            <span class="badge bg-amber-500/15 text-amber-400">${b.status}</span>
+            <span class="text-[11px] text-gray-400">${b.dateTime.replace('T', ' ')}</span>
           </div>
-          <h3 class="font-bold">${b.service}</h3>
-          <p class="text-xs text-gray-400">Professional: ${b.barberName} (Home Service)</p>
-          <p class="text-xs gold font-semibold">Payment: ${b.paymentMethod}</p>
-          ${!b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName}')" class="w-full mt-2 py-2 rounded-xl text-xs bg-neutral-800 border border-neutral-700 text-amber-400 font-bold">Leave Review ⭐</button>` : `<p class="text-[10px] text-green-400 mt-1">✓ Review submitted</p>`}
+          <h3 class="font-bold text-sm">${b.service}</h3>
+          <p class="text-xs text-gray-400">Professional: ${b.barberName}</p>
+          <p class="text-xs gold font-medium">Payment: ${b.paymentMethod}</p>
+          ${!b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName}')" class="w-full mt-1.5 py-2 rounded-xl text-xs bg-neutral-900 border border-neutral-800 text-amber-400 font-bold">Leave Review ⭐</button>` : `<p class="text-[10px] text-green-400 mt-1 font-medium">✓ Review Submitted</p>`}
         </div>
       `;
     });
@@ -709,8 +660,7 @@ async function loadBarberDashboardStats() {
       if(b.service && b.service.includes("GHS")) {
         const parts = b.service.split("GHS");
         if(parts.length > 1) {
-          const amount = parseInt(parts[1].trim()) || 120;
-          totalRevenue += amount;
+          totalRevenue += parseInt(parts[1].trim()) || 120;
         }
       } else {
         totalRevenue += 120;
@@ -720,7 +670,7 @@ async function loadBarberDashboardStats() {
     document.getElementById("statTotalRevenue").innerText = `GHS ${totalRevenue}`;
     document.getElementById("statCompletedJobs").innerText = completedJobs;
   } catch(e) {
-    console.error("Error loading stats:", e);
+    console.error("Error loading dashboard stats:", e);
   }
 }
 
@@ -733,8 +683,8 @@ async function loadUserNotifications() {
     if(querySnapshot.empty) {
       container.innerHTML = `
         <div class="card text-xs space-y-1">
-          <p class="font-bold">System Online</p>
-          <p class="text-gray-400">Welcome to Barber Me home service app.</p>
+          <p class="font-bold gold">System Notice</p>
+          <p class="text-gray-400">Welcome to Barber Me mobile dispatch.</p>
         </div>
       `;
       return;
@@ -746,7 +696,7 @@ async function loadUserNotifications() {
       container.innerHTML += `
         <div class="card text-xs space-y-1 border-neutral-800">
           <p class="font-bold gold">${n.title}</p>
-          <p class="text-gray-300">${n.message}</p>
+          <p class="text-gray-300 leading-relaxed">${n.message}</p>
         </div>
       `;
     });
@@ -757,7 +707,7 @@ async function loadUserNotifications() {
 
 function openReviewModal(bookingId, barberName) {
   selectedBookingForReview = { bookingId, barberName };
-  document.getElementById("reviewSubtitle").innerText = `Rate your home haircut session with ${barberName}.`;
+  document.getElementById("reviewSubtitle").innerText = `Rate your home appointment with ${barberName}.`;
   document.getElementById("reviewModal").style.display = "flex";
 }
 
@@ -780,14 +730,13 @@ async function submitReview() {
       timestamp: window.serverTimestamp()
     });
 
-    const bookingRef = window.doc(window.db, "bookings", selectedBookingForReview.bookingId);
-    await window.updateDoc(bookingRef, { reviewed: true });
+    await window.updateDoc(window.doc(window.db, "bookings", selectedBookingForReview.bookingId), { reviewed: true });
 
-    alert("Thank you! Review submitted successfully.");
+    alert("Review submitted successfully!");
     closeReviewModal();
     loadUserBookings();
   } catch(e) {
-    console.error("Review submission error:", e);
+    console.error("Review error:", e);
     alert("Failed to submit review.");
   }
 }
@@ -808,7 +757,7 @@ function openChatRoom(roomId, roomTitle) {
     container.innerHTML = "";
     
     if(snapshot.empty) {
-      container.innerHTML = `<p class="text-center text-xs text-gray-500 my-4">No messages yet. Start chatting!</p>`;
+      container.innerHTML = `<p class="text-center text-xs text-gray-500 my-6">No messages yet. Start the conversation!</p>`;
       return;
     }
 
@@ -819,13 +768,12 @@ function openChatRoom(roomId, roomTitle) {
       container.innerHTML += `
         <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
           <span class="text-[10px] text-gray-400 mb-0.5">${msg.senderName}</span>
-          <div class="card px-3 py-2 text-xs max-w-[80%] ${isMe ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-neutral-800 border-neutral-700'}">
+          <div class="card px-3.5 py-2.5 text-xs max-w-[80%] ${isMe ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-neutral-800 border-neutral-700'}">
             ${msg.text}
           </div>
           <span class="text-[9px] text-gray-500 mt-0.5">${isMe ? readStatus : ''}</span>
         </div>
       `;
-      // Mark incoming message as read
       if(!isMe && !msg.read) {
         window.updateDoc(window.doc(window.db, "chats", roomId, "messages", docSnap.id), { read: true });
       }
@@ -833,7 +781,6 @@ function openChatRoom(roomId, roomTitle) {
     container.scrollTop = container.scrollHeight;
   });
 
-  // Listen for Typing Indicator
   const typingRef = window.doc(window.db, "chats", roomId, "typing", "status");
   unsubscribeTyping = window.onSnapshot(typingRef, (docSnap) => {
     if(docSnap.exists()) {
@@ -866,8 +813,7 @@ async function sendChatMessage() {
   if(!text || !currentChatRoomId) return;
 
   try {
-    const messagesRef = window.collection(window.db, "chats", currentChatRoomId, "messages");
-    await window.addDoc(messagesRef, {
+    await window.addDoc(window.collection(window.db, "chats", currentChatRoomId, "messages"), {
       text: text,
       senderUid: currentUser.uid,
       senderName: currentUser.name,
@@ -875,9 +821,7 @@ async function sendChatMessage() {
       timestamp: window.serverTimestamp()
     });
 
-    const typingRef = window.doc(window.db, "chats", currentChatRoomId, "typing", "status");
-    await window.setDoc(typingRef, { isTyping: false }, { merge: true });
-
+    await window.setDoc(window.doc(window.db, "chats", currentChatRoomId, "typing", "status"), { isTyping: false }, { merge: true });
     input.value = "";
   } catch(e) {
     console.error("Error sending message:", e);
@@ -892,7 +836,7 @@ async function uploadPortfolioImage() {
   const storageRef = window.ref(window.storage, `portfolios/${currentUser.uid}/${Date.now()}_${file.name}`);
 
   try {
-    alert("Uploading to Firebase Storage...");
+    alert("Uploading portfolio image...");
     const snapshot = await window.uploadBytes(storageRef, file);
     const downloadUrl = await window.getDownloadURL(snapshot.ref);
 
@@ -907,7 +851,8 @@ async function uploadPortfolioImage() {
     fileInput.value = "";
     alert("Portfolio updated successfully!");
   } catch(e) {
-    console.error("Upload error:", e);
+    console.error("Portfolio upload error:", e);
+    alert("Upload failed.");
   }
 }
 
@@ -918,18 +863,18 @@ function renderPortfolioGrid() {
     return;
   }
   grid.innerHTML = currentUser.portfolio.map(url => `
-    <div class="h-20 bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700">
+    <div class="h-20 bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800">
       <img src="${url}" class="w-full h-full object-cover">
     </div>
   `).join('');
 }
 
 function openLiveStream() {
-  alert("Connecting to Barber Me live video feed...");
+  alert("Connecting to Barber Me live video feed stream...");
 }
 
 function updateProfileUI() {
-  document.getElementById("profileNameDisplay").innerText = currentUser.name || "Gideon";
+  document.getElementById("profileNameDisplay").innerText = currentUser.name || "Valued Client";
   document.getElementById("profileRoleDisplay").innerText = currentUser.role || "client";
   document.getElementById("editName").value = currentUser.name || "";
   document.getElementById("editPhone").value = currentUser.phone || "";
@@ -967,6 +912,48 @@ async function logout() {
   document.getElementById("mainApp").classList.remove("active");
   document.getElementById("login").classList.add("active");
 }
+
+document.getElementById("googleBtn").onclick = async function() {
+  try {
+    const result = await window.signInWithPopup(window.auth, window.googleProvider);
+    const user = result.user;
+    
+    const userDocRef = window.doc(window.db, "users", user.uid);
+    const userSnap = await window.getDoc(userDocRef);
+
+    if (!userSnap.exists()) {
+      currentUser = {
+        uid: user.uid,
+        name: user.displayName || "Valued Client",
+        email: user.email,
+        role: 'client',
+        phone: '',
+        portfolio: [],
+        rating: 5.0,
+        reviewCount: 0,
+        following: [],
+        online: true
+      };
+      await window.setDoc(userDocRef, currentUser);
+    } else {
+      currentUser = userSnap.data();
+      await window.setDoc(userDocRef, { online: true, lastSeen: window.serverTimestamp() }, { merge: true });
+    }
+
+    document.getElementById("login").classList.remove("active");
+    document.getElementById("mainApp").classList.add("active");
+    updateProfileUI();
+    loadBarbersFromFirestore();
+    loadUserBookings();
+    loadUserNotifications();
+    if(currentUser.role === 'barber') {
+      loadBarberDashboardStats();
+    }
+  } catch (error) {
+    console.error("Google Authentication Error:", error);
+    alert("Google Sign-In failed. Please check popup blockers.");
+  }
+};
 </script>
 
 </body>
