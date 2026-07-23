@@ -70,6 +70,7 @@
         loadUserNotifications();
         if(window.currentUser.role === 'barber') {
           loadBarberDashboardStats();
+          loadBarberIncomingBookings();
         }
       } else {
         window.currentUser = {
@@ -142,7 +143,7 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
   <p class="text-gray-400 mt-2 text-xs tracking-wide">Elite Home Barbering & Grooming Services</p>
 </div>
 
-<!-- 2. LOGIN SCREEN (Google Auth) -->
+<!-- 2. LOGIN SCREEN -->
 <div id="login" class="screen justify-center items-center p-6 flex-col">
   <div class="card w-full max-w-sm text-center space-y-4">
     <div class="text-5xl mb-1">✂️</div>
@@ -257,9 +258,9 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
       </select>
     </div>
 
-    <!-- Barber Earnings Dashboard Section -->
-    <div id="barberEarningsSection" class="space-y-2.5" style="display:none;">
-      <h3 class="font-bold text-xs gold tracking-wide uppercase">Financial Performance</h3>
+    <!-- BARBER DASHBOARD SECTION (Appears only for Barbers) -->
+    <div id="barberDashboardSection" class="space-y-4" style="display:none;">
+      <h3 class="font-bold text-xs gold tracking-wide uppercase">Barber Dispatch Control Center</h3>
       <div class="grid grid-cols-2 gap-3">
         <div class="card p-4 text-center">
           <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Total Revenue</p>
@@ -268,6 +269,13 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
         <div class="card p-4 text-center">
           <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Completed Jobs</p>
           <h4 class="text-lg font-bold text-white mt-1" id="statCompletedJobs">0</h4>
+        </div>
+      </div>
+
+      <div class="card space-y-3">
+        <h4 class="font-bold text-xs gold uppercase tracking-wider">Incoming Booking Requests</h4>
+        <div id="barberIncomingBookingsList" class="space-y-2.5">
+          <p class="text-xs text-gray-500 text-center py-4">No incoming appointment requests.</p>
         </div>
       </div>
     </div>
@@ -396,7 +404,7 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
   </div>
 </div>
 
-<!-- APPLICATION CORE CONTROLLER SCRIPT -->
+<!-- CORE CONTROLLER SCRIPT -->
 <script>
 let currentUser = { name: "Valued Client", role: "client", phone: "", uid: "", following: [], online: true };
 let selectedBarberForBooking = "";
@@ -591,7 +599,7 @@ async function submitBooking() {
       service: service,
       dateTime: dateTime,
       paymentMethod: payment,
-      status: "Confirmed Home Appointment",
+      status: "Pending Appointment",
       reviewed: false,
       timestamp: window.serverTimestamp()
     });
@@ -599,11 +607,11 @@ async function submitBooking() {
     await window.addDoc(window.collection(window.db, "notifications"), {
       userUid: currentUser.uid,
       title: "Appointment Booked",
-      message: `Your home session with ${selectedBarberForBooking} is confirmed.`,
+      message: `Your home session request with ${selectedBarberForBooking} has been sent.`,
       timestamp: window.serverTimestamp()
     });
 
-    alert("Home appointment booked successfully!");
+    alert("Booking request submitted successfully!");
     closeBookingModal();
     switchTab("bookings");
     loadUserBookings();
@@ -638,7 +646,7 @@ async function loadUserBookings() {
           <h3 class="font-bold text-sm">${b.service}</h3>
           <p class="text-xs text-gray-400">Professional: ${b.barberName}</p>
           <p class="text-xs gold font-medium">Payment: ${b.paymentMethod}</p>
-          ${!b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName.replace(/'/g, "\\'")}')" class="w-full mt-1.5 py-2 rounded-xl text-xs bg-neutral-900 border border-neutral-800 text-amber-400 font-bold">Leave Review ⭐</button>` : `<p class="text-[10px] text-green-400 mt-1 font-medium">✓ Review Submitted</p>`}
+          ${b.status === 'Completed Job' && !b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName.replace(/'/g, "\\'")}')" class="w-full mt-1.5 py-2 rounded-xl text-xs bg-neutral-900 border border-neutral-800 text-amber-400 font-bold">Leave Review ⭐</button>` : ''}
         </div>
       `;
     });
@@ -657,14 +665,16 @@ async function loadBarberDashboardStats() {
 
     querySnapshot.forEach((docSnap) => {
       const b = docSnap.data();
-      completedJobs++;
-      if(b.service && b.service.includes("GHS")) {
-        const parts = b.service.split("GHS");
-        if(parts.length > 1) {
-          totalRevenue += parseInt(parts[1].trim()) || 120;
+      if(b.status === 'Completed Job') {
+        completedJobs++;
+        if(b.service && b.service.includes("GHS")) {
+          const parts = b.service.split("GHS");
+          if(parts.length > 1) {
+            totalRevenue += parseInt(parts[1].trim()) || 120;
+          }
+        } else {
+          totalRevenue += 120;
         }
-      } else {
-        totalRevenue += 120;
       }
     });
 
@@ -672,6 +682,54 @@ async function loadBarberDashboardStats() {
     document.getElementById("statCompletedJobs").innerText = completedJobs;
   } catch(e) {
     console.error("Error loading dashboard stats:", e);
+  }
+}
+
+async function loadBarberIncomingBookings() {
+  const container = document.getElementById("barberIncomingBookingsList");
+  try {
+    const q = window.query(window.collection(window.db, "bookings"), window.where("barberName", "==", currentUser.name));
+    const querySnapshot = await window.getDocs(q);
+
+    if(querySnapshot.empty) {
+      container.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">No appointment requests.</p>`;
+      return;
+    }
+
+    container.innerHTML = "";
+    querySnapshot.forEach((docSnap) => {
+      const b = docSnap.data();
+      const bookingId = docSnap.id;
+      container.innerHTML += `
+        <div class="card bg-neutral-900/90 border-neutral-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-amber-400">${b.clientName}</span>
+            <span class="badge bg-neutral-800 text-gray-300">${b.status}</span>
+          </div>
+          <p class="text-xs text-gray-300 font-medium">${b.service}</p>
+          <p class="text-[11px] text-gray-400">📅 ${b.dateTime.replace('T', ' ')}</p>
+          <div class="grid grid-cols-3 gap-2 pt-1">
+            <button onclick="updateBookingStatus('${bookingId}', 'Confirmed Appointment')" class="py-1.5 rounded-lg text-xs bg-green-600/20 text-green-400 font-bold border border-green-800/40">Accept</button>
+            <button onclick="updateBookingStatus('${bookingId}', 'Declined')" class="py-1.5 rounded-lg text-xs bg-red-600/20 text-red-400 font-bold border border-red-800/40">Reject</button>
+            <button onclick="updateBookingStatus('${bookingId}', 'Completed Job')" class="py-1.5 rounded-lg text-xs bg-amber-500/20 text-amber-400 font-bold border border-amber-800/40">Complete</button>
+          </div>
+        </div>
+      `;
+    });
+  } catch(e) {
+    console.error("Error loading barber bookings:", e);
+  }
+}
+
+async function updateBookingStatus(bookingId, newStatus) {
+  try {
+    await window.updateDoc(window.doc(window.db, "bookings", bookingId), { status: newStatus });
+    alert(`Appointment status updated to: ${newStatus}`);
+    loadBarberIncomingBookings();
+    loadBarberDashboardStats();
+  } catch(e) {
+    console.error("Error updating booking status:", e);
+    alert("Failed to update status.");
   }
 }
 
@@ -882,12 +940,13 @@ function updateProfileUI() {
   document.getElementById("roleSelect").value = currentUser.role || "client";
 
   if(currentUser.role === 'barber') {
-    document.getElementById("barberEarningsSection").style.display = "block";
+    document.getElementById("barberDashboardSection").style.display = "block";
     document.getElementById("barberPortfolioSection").style.display = "block";
     renderPortfolioGrid();
     loadBarberDashboardStats();
+    loadBarberIncomingBookings();
   } else {
-    document.getElementById("barberEarningsSection").style.display = "none";
+    document.getElementById("barberDashboardSection").style.display = "none";
     document.getElementById("barberPortfolioSection").style.display = "none";
   }
 }
@@ -949,6 +1008,7 @@ document.getElementById("googleBtn").onclick = async function() {
     loadUserNotifications();
     if(currentUser.role === 'barber') {
       loadBarberDashboardStats();
+      loadBarberIncomingBookings();
     }
   } catch (error) {
     console.error("Google Authentication Error:", error);
