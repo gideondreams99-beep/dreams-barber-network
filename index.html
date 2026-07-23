@@ -108,16 +108,16 @@ body {
 }
 .screen { display: none; min-height: 100vh; padding-bottom: 90px; }
 .screen.active { display: flex; flex-direction: column; }
-button { transition: all 0.2s ease; cursor: pointer; }
+button { transition: all 0.2s ease; cursor: pointer; position: relative; z-index: 5; }
 button:active { transform: scale(0.97); }
 .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #737373; background: none; border: none; }
 .nav-btn.active { color: #f5b942; }
-.card { background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.card { background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); position: relative; z-index: 2; }
 .gold { color: #f5b942; }
 .gold-bg { background: linear-gradient(135deg, #f5b942 0%, #d49524 100%); color: #000; font-weight: 700; }
-input, select, textarea { background: #1a1a1a; border: 1px solid #333; color: white; padding: 13px; border-radius: 14px; width: 100%; outline: none; font-size: 14px; transition: border-color 0.2s; }
+input, select, textarea { background: #1a1a1a; border: 1px solid #333; color: white; padding: 13px; border-radius: 14px; width: 100%; outline: none; font-size: 14px; transition: border-color 0.2s; position: relative; z-index: 5; }
 input:focus, select:focus, textarea:focus { border-color: #f5b942; }
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #262626; z-index: 50; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: rgba(15,15,15,0.98); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #262626; z-index: 100; }
 .fade { animation: fade 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 .profile-img { width: 68px; height: 68px; border-radius: 50%; background: #262626; object-fit: cover; flex-shrink: 0; }
@@ -125,7 +125,9 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
 .presence-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid #141414; }
 .presence-online { background-color: #22c55e; }
 .presence-offline { background-color: #737373; }
-#map { width: 100%; height: 260px; border-radius: 16px; z-index: 10; }
+#map { width: 100%; height: 260px; border-radius: 16px; z-index: 1; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; overflow-y: auto; padding: 24px; }
+.modal-overlay.active { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 </style>
@@ -155,7 +157,7 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
 <!-- 3. MAIN APP CONTAINER -->
 <div id="mainApp" class="screen">
   
-  <!-- HOME TAB (Marketplace, Live Stream, Search, Barbers) -->
+  <!-- HOME TAB -->
   <div id="tab-home" class="tab-content flex flex-col p-5 space-y-4">
     <header class="flex justify-between items-center pt-2">
       <div>
@@ -213,11 +215,10 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
   <!-- CHAT ROOM SUBVIEW -->
   <div id="tab-chat-room" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <div class="flex items-center gap-3">
-      <button onclick="switchTab('chats')" class="text-xs font-bold gold px-2 py-1 bg-neutral-900 rounded-lg">← Back</button>
+      <button onclick="switchTab('chats')" class="text-xs font-bold gold px-3 py-2 bg-neutral-900 rounded-xl border border-neutral-800">← Back</button>
       <h2 class="text-lg font-bold gold truncate" id="chatRoomTitle">Chat Room</h2>
     </div>
     <div id="chatMessages" class="card flex-1 h-72 overflow-y-auto space-y-3 p-3.5 bg-neutral-900/90 border-neutral-800"></div>
-    <!-- Typing Indicator View -->
     <div id="typingIndicator" class="text-[11px] text-amber-400/80 italic h-4 px-1"></div>
     <div class="flex gap-2">
       <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1" oninput="handleTypingInput()">
@@ -235,7 +236,7 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
 
   <!-- PROFILE TAB -->
   <div id="tab-profile" class="tab-content flex flex-col p-5 space-y-5" style="display:none;">
-    <div class="flex items-center gap-4 card relative">
+    <div class="card flex items-center gap-4 relative">
       <div class="absolute top-4 right-4 flex items-center gap-1.5 bg-neutral-900/80 px-2.5 py-1 rounded-full border border-neutral-800">
         <span id="userPresenceBadge" class="presence-dot presence-online"></span>
         <span class="text-[10px] text-gray-300 font-medium" id="userPresenceText">Online</span>
@@ -276,7 +277,7 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
       <h3 class="font-bold text-xs gold tracking-wide uppercase">Portfolio Showcase</h3>
       <div class="card space-y-3">
         <p class="text-xs text-gray-400 leading-relaxed">Upload clear photos of your recent cuts to attract local clients.</p>
-        <input type="file" id="portfolioFile" accept="image/*" class="text-xs py-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-black">
+        <input type="file" id="portfolioFile" accept="image/*" class="text-xs py-2">
         <button onclick="uploadPortfolioImage()" class="gold-bg w-full py-2.5 rounded-xl text-xs">Upload Portfolio Image</button>
         <div id="portfolioPreviewGrid" class="grid grid-cols-3 gap-2 mt-2"></div>
       </div>
@@ -296,7 +297,7 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
   <!-- NOTIFICATIONS SCREEN -->
   <div id="tab-notifications" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <div class="flex items-center gap-3">
-      <button onclick="switchTab('home')" class="text-xs font-bold gold px-2 py-1 bg-neutral-900 rounded-lg">← Back</button>
+      <button onclick="switchTab('home')" class="text-xs font-bold gold px-3 py-2 bg-neutral-900 rounded-xl border border-neutral-800">← Back</button>
       <h2 class="text-lg font-bold gold">Notifications</h2>
     </div>
     <div id="notificationsList" class="space-y-2.5 pb-12">
@@ -316,14 +317,14 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
 </div>
 
 <!-- BOOKING MODAL -->
-<div id="bookingModal" class="screen fixed inset-0 bg-black/95 z-50 p-6 overflow-y-auto" style="display:none;">
-  <div class="max-w-md mx-auto space-y-4 mt-8">
+<div id="bookingModal" class="modal-overlay">
+  <div class="max-w-md w-full mx-auto space-y-4 mt-8">
     <div class="flex justify-between items-center">
       <div>
         <h2 class="text-lg font-bold gold" id="modalBarberName">Barber Me Pro</h2>
         <p class="text-[11px] text-gray-400">Home Dispatch Service</p>
       </div>
-      <button onclick="closeBookingModal()" class="text-gray-400 text-lg font-bold p-2">✕</button>
+      <button onclick="closeBookingModal()" class="text-gray-400 text-lg font-bold p-2 bg-neutral-900 rounded-xl">✕</button>
     </div>
     <div class="card space-y-3.5">
       <h4 class="font-bold text-xs gold uppercase tracking-wider">Select Service Package</h4>
@@ -340,17 +341,17 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
         <option value="Credit / Debit Card">Credit / Debit Card</option>
         <option value="Cash on Service">Cash on Service Completion</option>
       </select>
-      <button onclick="submitBooking()" class="gold-bg w-full py-3.5 rounded-xl text-sm mt-1 shadow-lg shadow-amber-500/10">Confirm Home Appointment</button>
+      <button onclick="submitBooking()" class="gold-bg w-full py-3.5 rounded-xl text-sm mt-1">Confirm Home Appointment</button>
     </div>
   </div>
 </div>
 
 <!-- REVIEW MODAL -->
-<div id="reviewModal" class="screen fixed inset-0 bg-black/95 z-50 p-6 overflow-y-auto" style="display:none;">
-  <div class="max-w-md mx-auto space-y-4 mt-16">
+<div id="reviewModal" class="modal-overlay">
+  <div class="max-w-md w-full mx-auto space-y-4 mt-16">
     <div class="flex justify-between items-center">
       <h2 class="text-lg font-bold gold">Rate Your Session</h2>
-      <button onclick="closeReviewModal()" class="text-gray-400 text-lg font-bold p-2">✕</button>
+      <button onclick="closeReviewModal()" class="text-gray-400 text-lg font-bold p-2 bg-neutral-900 rounded-xl">✕</button>
     </div>
     <div class="card space-y-3.5">
       <p class="text-xs text-gray-400" id="reviewSubtitle">Rate your home haircut session.</p>
@@ -370,11 +371,11 @@ input:focus, select:focus, textarea:focus { border-color: #f5b942; }
 </div>
 
 <!-- PROFILE VIEW MODAL -->
-<div id="profileViewModal" class="screen fixed inset-0 bg-black/95 z-50 p-6 overflow-y-auto" style="display:none;">
-  <div class="max-w-md mx-auto space-y-4 mt-8">
+<div id="profileViewModal" class="modal-overlay">
+  <div class="max-w-md w-full mx-auto space-y-4 mt-8">
     <div class="flex justify-between items-center">
       <h2 class="text-lg font-bold gold" id="viewProfileTitle">Barber Profile</h2>
-      <button onclick="closeProfileViewModal()" class="text-gray-400 text-lg font-bold p-2">✕</button>
+      <button onclick="closeProfileViewModal()" class="text-gray-400 text-lg font-bold p-2 bg-neutral-900 rounded-xl">✕</button>
     </div>
     <div class="card space-y-4">
       <div class="flex items-center gap-4">
@@ -482,7 +483,7 @@ function renderBarbers(list) {
     const isOnline = b.online !== false;
     return `
       <div class="card flex flex-col gap-3.5">
-        <div class="flex items-center gap-3.5 cursor-pointer" onclick='openProfileViewModal(${JSON.stringify(b)})'>
+        <div class="flex items-center gap-3.5 cursor-pointer" onclick='openProfileViewModalFromData(${JSON.stringify(b)})'>
           <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl relative text-amber-400 font-bold">
             ✂️
             <span class="absolute bottom-0 right-0 presence-dot ${isOnline ? 'presence-online' : 'presence-offline'}"></span>
@@ -494,16 +495,16 @@ function renderBarbers(list) {
           </div>
         </div>
         <div class="grid grid-cols-3 gap-2">
-          <button onclick="openBookingModal('${b.name}')" class="gold-bg col-span-1 py-2.5 rounded-xl text-xs">Book</button>
+          <button onclick="openBookingModal('${b.name.replace(/'/g, "\\'")}')" class="gold-bg col-span-1 py-2.5 rounded-xl text-xs">Book</button>
           <button onclick="toggleFollowBarber('${b.uid}')" class="card py-2.5 px-2 rounded-xl text-xs border ${isFollowing ? 'border-amber-500/50 text-amber-400' : 'border-neutral-800 text-gray-300'} text-center truncate">${isFollowing ? 'Following' : 'Follow'}</button>
-          <button onclick="openChatRoom('${b.uid}', '${b.name}')" class="card py-2.5 px-2 rounded-xl text-xs border border-neutral-800 text-center">Chat</button>
+          <button onclick="openChatRoom('${b.uid}', '${b.name.replace(/'/g, "\\'")}')" class="card py-2.5 px-2 rounded-xl text-xs border border-neutral-800 text-center">Chat</button>
         </div>
       </div>
     `;
   }).join('');
 }
 
-function openProfileViewModal(barberData) {
+function openProfileViewModalFromData(barberData) {
   document.getElementById("viewProfileTitle").innerText = barberData.name;
   document.getElementById("viewProfileName").innerText = barberData.name;
   document.getElementById("viewProfileRole").innerText = barberData.serviceTitle || 'Home Service Professional';
@@ -525,11 +526,11 @@ function openProfileViewModal(barberData) {
     openBookingModal(barberData.name);
   };
 
-  document.getElementById("profileViewModal").style.display = "flex";
+  document.getElementById("profileViewModal").classList.add("active");
 }
 
 function closeProfileViewModal() {
-  document.getElementById("profileViewModal").style.display = "none";
+  document.getElementById("profileViewModal").classList.remove("active");
 }
 
 async function toggleFollowBarber(barberUid) {
@@ -565,11 +566,11 @@ function filterBarbers() {
 function openBookingModal(barberName) {
   selectedBarberForBooking = barberName;
   document.getElementById("modalBarberName").innerText = barberName;
-  document.getElementById("bookingModal").style.display = "flex";
+  document.getElementById("bookingModal").classList.add("active");
 }
 
 function closeBookingModal() {
-  document.getElementById("bookingModal").style.display = "none";
+  document.getElementById("bookingModal").classList.remove("active");
 }
 
 async function submitBooking() {
@@ -637,7 +638,7 @@ async function loadUserBookings() {
           <h3 class="font-bold text-sm">${b.service}</h3>
           <p class="text-xs text-gray-400">Professional: ${b.barberName}</p>
           <p class="text-xs gold font-medium">Payment: ${b.paymentMethod}</p>
-          ${!b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName}')" class="w-full mt-1.5 py-2 rounded-xl text-xs bg-neutral-900 border border-neutral-800 text-amber-400 font-bold">Leave Review ⭐</button>` : `<p class="text-[10px] text-green-400 mt-1 font-medium">✓ Review Submitted</p>`}
+          ${!b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName.replace(/'/g, "\\'")}')" class="w-full mt-1.5 py-2 rounded-xl text-xs bg-neutral-900 border border-neutral-800 text-amber-400 font-bold">Leave Review ⭐</button>` : `<p class="text-[10px] text-green-400 mt-1 font-medium">✓ Review Submitted</p>`}
         </div>
       `;
     });
@@ -708,11 +709,11 @@ async function loadUserNotifications() {
 function openReviewModal(bookingId, barberName) {
   selectedBookingForReview = { bookingId, barberName };
   document.getElementById("reviewSubtitle").innerText = `Rate your home appointment with ${barberName}.`;
-  document.getElementById("reviewModal").style.display = "flex";
+  document.getElementById("reviewModal").classList.add("active");
 }
 
 function closeReviewModal() {
-  document.getElementById("reviewModal").style.display = "none";
+  document.getElementById("reviewModal").classList.remove("active");
 }
 
 async function submitReview() {
