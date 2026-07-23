@@ -305,10 +305,35 @@ input:focus, select:focus { border-color: #f5b942; }
   </div>
 </div>
 
+<!-- REVIEW MODAL -->
+<div id="reviewModal" class="screen fixed inset-0 bg-black/90 z-50 p-6 overflow-y-auto" style="display:none;">
+  <div class="max-w-md mx-auto space-y-4 mt-20">
+    <div class="flex justify-between items-center">
+      <h2 class="text-xl font-bold gold">Rate Your Experience</h2>
+      <button onclick="closeReviewModal()" class="text-gray-400 text-xl font-bold">✕</button>
+    </div>
+    <div class="card space-y-3">
+      <p class="text-xs text-gray-400" id="reviewSubtitle">Leave a review for your barber session.</p>
+      <h4 class="font-bold text-sm">Select Rating (1 to 5 Stars)</h4>
+      <select id="ratingStars">
+        <option value="5">⭐⭐⭐⭐⭐ (5/5 - Excellent)</option>
+        <option value="4">⭐⭐⭐⭐ (4/5 - Great)</option>
+        <option value="3">⭐⭐⭐ (3/5 - Good)</option>
+        <option value="2">⭐⭐ (2/5 - Fair)</option>
+        <option value="1">⭐ (1/5 - Poor)</option>
+      </select>
+      <h4 class="font-bold text-sm">Write Feedback</h4>
+      <textarea id="reviewComment" placeholder="Write details about your haircut experience..." rows="3"></textarea>
+      <button onclick="submitReview()" class="gold-bg w-full py-3 rounded-xl mt-2">Submit Review</button>
+    </div>
+  </div>
+</div>
+
 <!-- APPLICATION CONTROLLER SCRIPT -->
 <script>
 let currentUser = { name: "User", role: "client", phone: "", uid: "" };
 let selectedBarberForBooking = "";
+let selectedBookingForReview = null;
 let currentChatRoomId = null;
 let unsubscribeChat = null;
 let allBarbersCache = [];
@@ -355,7 +380,9 @@ async function setRole(role) {
     email: user ? user.email : "",
     role: role,
     phone: "",
-    portfolio: []
+    portfolio: [],
+    rating: 5.0,
+    reviewCount: 0
   };
 
   if (window.auth && window.auth.currentUser) {
@@ -395,7 +422,7 @@ async function loadBarbersFromFirestore() {
 
     if(allBarbersCache.length === 0) {
       allBarbersCache = [
-        { uid: 'demo_1', name: 'John Barber', role: 'barber', serviceTitle: 'Home Service Specialist' }
+        { uid: 'demo_1', name: 'John Barber', role: 'barber', serviceTitle: 'Home Service Specialist', rating: 4.9, reviewCount: 12 }
       ];
     }
 
@@ -414,7 +441,7 @@ function renderBarbers(list) {
         <div class="flex-1">
           <h3 class="font-bold">${b.name}</h3>
           <p class="text-xs text-gray-400">${b.serviceTitle || 'Professional Barber'}</p>
-          <p class="text-xs gold mt-1">⭐ 4.9 • Home Service Available</p>
+          <p class="text-xs gold mt-1">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews) • Home Service</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -441,7 +468,6 @@ function closeBookingModal() {
   document.getElementById("bookingModal").style.display = "none";
 }
 
-// Save Booking directly to Firestore
 async function submitBooking() {
   const service = document.getElementById("serviceSelect").value;
   const dateTime = document.getElementById("bookingDateTime").value;
@@ -461,6 +487,7 @@ async function submitBooking() {
       dateTime: dateTime,
       paymentMethod: payment,
       status: "Confirmed",
+      reviewed: false,
       timestamp: window.serverTimestamp()
     };
 
@@ -475,7 +502,6 @@ async function submitBooking() {
   }
 }
 
-// Load Bookings from Firestore in Real-Time
 async function loadUserBookings() {
   const container = document.getElementById("bookingsList");
   try {
@@ -488,8 +514,9 @@ async function loadUserBookings() {
     }
 
     container.innerHTML = "";
-    querySnapshot.forEach((doc) => {
-      const b = doc.data();
+    querySnapshot.forEach((docSnap) => {
+      const b = docSnap.data();
+      const bookingId = docSnap.id;
       container.innerHTML += `
         <div class="card space-y-2">
           <div class="flex justify-between items-center">
@@ -499,11 +526,51 @@ async function loadUserBookings() {
           <h3 class="font-bold">${b.service}</h3>
           <p class="text-xs text-gray-400">Barber: ${b.barberName} (Home Service)</p>
           <p class="text-xs gold font-semibold">Payment: ${b.paymentMethod}</p>
+          ${!b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName}')" class="w-full mt-2 py-2 rounded-xl text-xs bg-neutral-800 border border-neutral-700 text-amber-400 font-bold">Leave Review ⭐</button>` : `<p class="text-[10px] text-green-400 mt-1">✓ Review submitted</p>`}
         </div>
       `;
     });
   } catch(e) {
     console.error("Error loading bookings:", e);
+  }
+}
+
+function openReviewModal(bookingId, barberName) {
+  selectedBookingForReview = { bookingId, barberName };
+  document.getElementById("reviewSubtitle").innerText = `Rate your haircut session with ${barberName}.`;
+  document.getElementById("reviewModal").style.display = "flex";
+}
+
+function closeReviewModal() {
+  document.getElementById("reviewModal").style.display = "none";
+}
+
+async function submitReview() {
+  const rating = parseInt(document.getElementById("ratingStars").value);
+  const comment = document.getElementById("reviewComment").value.trim();
+
+  if(!selectedBookingForReview) return;
+
+  try {
+    // Save review document
+    await window.addDoc(window.collection(window.db, "reviews"), {
+      barberName: selectedBookingForReview.barberName,
+      clientName: currentUser.name,
+      rating: rating,
+      comment: comment,
+      timestamp: window.serverTimestamp()
+    });
+
+    // Mark booking as reviewed
+    const bookingRef = window.doc(window.db, "bookings", selectedBookingForReview.bookingId);
+    await window.updateDoc(bookingRef, { reviewed: true });
+
+    alert("Thank you! Review submitted successfully.");
+    closeReviewModal();
+    loadUserBookings();
+  } catch(e) {
+    console.error("Review submission error:", e);
+    alert("Failed to submit review.");
   }
 }
 
