@@ -61,6 +61,7 @@
         updateProfileUI();
         loadBarbersFromFirestore();
         loadUserBookings();
+        loadUserNotifications();
       }
     }
   });
@@ -256,12 +257,8 @@ input:focus, select:focus { border-color: #f5b942; }
       <button onclick="switchTab('home')" class="text-sm gold">← Back</button>
       <h2 class="text-xl font-bold gold">Notifications</h2>
     </div>
-    <div class="space-y-2">
-      <div class="card text-xs space-y-1">
-        <p class="font-bold">System Online</p>
-        <p class="text-gray-400">Welcome to BarberMe live booking marketplace.</p>
-        <span class="text-gray-500 text-[10px]">Just now</span>
-      </div>
+    <div id="notificationsList" class="space-y-2 pb-12">
+      <p class="text-xs text-gray-500">Loading notifications...</p>
     </div>
   </div>
 
@@ -331,7 +328,7 @@ input:focus, select:focus { border-color: #f5b942; }
 
 <!-- APPLICATION CONTROLLER SCRIPT -->
 <script>
-let currentUser = { name: "User", role: "client", phone: "", uid: "" };
+let currentUser = { name: "User", role: "client", phone: "", uid: "", following: [] };
 let selectedBarberForBooking = "";
 let selectedBookingForReview = null;
 let currentChatRoomId = null;
@@ -365,6 +362,7 @@ document.getElementById("googleBtn").onclick = async function() {
       updateProfileUI();
       loadBarbersFromFirestore();
       loadUserBookings();
+      loadUserNotifications();
     }
   } catch (error) {
     console.error("Auth Error:", error);
@@ -382,7 +380,8 @@ async function setRole(role) {
     phone: "",
     portfolio: [],
     rating: 5.0,
-    reviewCount: 0
+    reviewCount: 0,
+    following: []
   };
 
   if (window.auth && window.auth.currentUser) {
@@ -394,6 +393,7 @@ async function setRole(role) {
   updateProfileUI();
   loadBarbersFromFirestore();
   loadUserBookings();
+  loadUserNotifications();
 }
 
 function switchTab(tabId) {
@@ -416,8 +416,10 @@ async function loadBarbersFromFirestore() {
     const querySnapshot = await window.getDocs(q);
     
     allBarbersCache = [];
-    querySnapshot.forEach((doc) => {
-      allBarbersCache.push(doc.data());
+    querySnapshot.forEach((docSnap) => {
+      let data = docSnap.data();
+      data.uid = docSnap.id;
+      allBarbersCache.push(data);
     });
 
     if(allBarbersCache.length === 0) {
@@ -434,22 +436,56 @@ async function loadBarbersFromFirestore() {
 
 function renderBarbers(list) {
   const container = document.getElementById("barbersList");
-  container.innerHTML = list.map(b => `
-    <div class="card flex flex-col gap-3">
-      <div class="flex items-center gap-4">
-        <div class="profile-img bg-neutral-800"></div>
-        <div class="flex-1">
-          <h3 class="font-bold">${b.name}</h3>
-          <p class="text-xs text-gray-400">${b.serviceTitle || 'Professional Barber'}</p>
-          <p class="text-xs gold mt-1">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews) • Home Service</p>
+  const followingList = currentUser.following || [];
+
+  container.innerHTML = list.map(b => {
+    const isFollowing = followingList.includes(b.uid);
+    return `
+      <div class="card flex flex-col gap-3">
+        <div class="flex items-center gap-4">
+          <div class="profile-img bg-neutral-800"></div>
+          <div class="flex-1">
+            <h3 class="font-bold">${b.name}</h3>
+            <p class="text-xs text-gray-400">${b.serviceTitle || 'Professional Barber'}</p>
+            <p class="text-xs gold mt-1">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews) • Home Service</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openBookingModal('${b.name}')" class="gold-bg flex-1 py-2.5 rounded-xl text-xs">Book Appointment</button>
+          <button onclick="toggleFollowBarber('${b.uid}')" class="card py-2.5 px-3 rounded-xl text-xs border ${isFollowing ? 'border-amber-500 text-amber-400' : 'border-neutral-700 text-gray-300'}">${isFollowing ? '✓ Following' : '+ Follow'}</button>
+          <button onclick="openChatRoom('${b.uid}', '${b.name}')" class="card py-2.5 px-3 rounded-xl text-xs border border-neutral-700">Chat</button>
         </div>
       </div>
-      <div class="flex gap-2">
-        <button onclick="openBookingModal('${b.name}')" class="gold-bg flex-1 py-2.5 rounded-xl text-xs">Book Appointment</button>
-        <button onclick="openChatRoom('${b.uid || 'general'}', '${b.name}')" class="card py-2.5 px-4 rounded-xl text-xs border border-neutral-700">Chat</button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+}
+
+async function toggleFollowBarber(barberUid) {
+  if(!currentUser.following) currentUser.following = [];
+  const index = currentUser.following.indexOf(barberUid);
+
+  if(index > -1) {
+    currentUser.following.splice(index, 1);
+    alert("Unfollowed barber.");
+  } else {
+    currentUser.following.push(barberUid);
+    alert("Successfully followed! You will now receive alerts from this barber.");
+    
+    // Add custom notification
+    await window.addDoc(window.collection(window.db, "notifications"), {
+      userUid: currentUser.uid,
+      title: "New Barber Followed",
+      message: `You are now following a professional barber. Look out for updates!`,
+      timestamp: window.serverTimestamp()
+    });
+  }
+
+  if(window.auth.currentUser) {
+    await window.setDoc(window.doc(window.db, "users", currentUser.uid), { following: currentUser.following }, { merge: true });
+  }
+
+  renderBarbers(allBarbersCache);
+  loadUserNotifications();
 }
 
 function filterBarbers() {
@@ -492,10 +528,20 @@ async function submitBooking() {
     };
 
     await window.addDoc(window.collection(window.db, "bookings"), bookingData);
+    
+    // Add notification
+    await window.addDoc(window.collection(window.db, "notifications"), {
+      userUid: currentUser.uid,
+      title: "Appointment Booked",
+      message: `Your home session with ${selectedBarberForBooking} is confirmed.`,
+      timestamp: window.serverTimestamp()
+    });
+
     alert("Appointment booked successfully and synced to database!");
     closeBookingModal();
     switchTab("bookings");
     loadUserBookings();
+    loadUserNotifications();
   } catch(e) {
     console.error("Booking error:", e);
     alert("Failed to save booking. Please check connection.");
@@ -535,6 +581,37 @@ async function loadUserBookings() {
   }
 }
 
+async function loadUserNotifications() {
+  const container = document.getElementById("notificationsList");
+  try {
+    const q = window.query(window.collection(window.db, "notifications"), window.where("userUid", "==", currentUser.uid));
+    const querySnapshot = await window.getDocs(q);
+
+    if(querySnapshot.empty) {
+      container.innerHTML = `
+        <div class="card text-xs space-y-1">
+          <p class="font-bold">System Online</p>
+          <p class="text-gray-400">Welcome to BarberMe live booking marketplace.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = "";
+    querySnapshot.forEach((docSnap) => {
+      const n = docSnap.data();
+      container.innerHTML += `
+        <div class="card text-xs space-y-1 border-neutral-800">
+          <p class="font-bold gold">${n.title}</p>
+          <p class="text-gray-300">${n.message}</p>
+        </div>
+      `;
+    });
+  } catch(e) {
+    console.error("Error loading notifications:", e);
+  }
+}
+
 function openReviewModal(bookingId, barberName) {
   selectedBookingForReview = { bookingId, barberName };
   document.getElementById("reviewSubtitle").innerText = `Rate your haircut session with ${barberName}.`;
@@ -552,7 +629,6 @@ async function submitReview() {
   if(!selectedBookingForReview) return;
 
   try {
-    // Save review document
     await window.addDoc(window.collection(window.db, "reviews"), {
       barberName: selectedBookingForReview.barberName,
       clientName: currentUser.name,
@@ -561,7 +637,6 @@ async function submitReview() {
       timestamp: window.serverTimestamp()
     });
 
-    // Mark booking as reviewed
     const bookingRef = window.doc(window.db, "bookings", selectedBookingForReview.bookingId);
     await window.updateDoc(bookingRef, { reviewed: true });
 
