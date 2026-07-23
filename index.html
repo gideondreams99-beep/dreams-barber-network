@@ -6,11 +6,16 @@
 <title>Barber Me | Home Barbering Services</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
+<!-- Leaflet CSS for Interactive Maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <!-- Firebase SDKs & Integration -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, orderBy, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
   
   const firebaseConfig = {
@@ -55,6 +60,7 @@
       const userSnap = await getDoc(doc(db, "users", user.uid));
       if (userSnap.exists()) {
         window.currentUser = userSnap.data();
+        await setDoc(doc(db, "users", user.uid), { online: true, lastSeen: serverTimestamp() }, { merge: true });
         document.getElementById("splash").classList.remove("active");
         document.getElementById("login").classList.remove("active");
         document.getElementById("mainApp").classList.add("active");
@@ -74,7 +80,8 @@
           phone: '',
           portfolio: [],
           rating: 5.0,
-          following: []
+          following: [],
+          online: true
         };
         await setDoc(doc(db, "users", user.uid), window.currentUser);
         document.getElementById("splash").classList.remove("active");
@@ -111,6 +118,10 @@ input:focus, select:focus { border-color: #f5b942; }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 .profile-img { width: 65px; height: 65px; border-radius: 50%; background: #333; object-fit: cover; }
 .badge { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: bold; }
+.presence-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid #111; }
+.presence-online { background-color: #22c55e; }
+.presence-offline { background-color: #737373; }
+#map { width: 100%; height: 250px; border-radius: 16px; }
 </style>
 </head>
 
@@ -171,12 +182,10 @@ input:focus, select:focus { border-color: #f5b942; }
   <!-- SEARCH / MAP TAB -->
   <div id="tab-search" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
     <h2 class="text-xl font-bold gold">Explore Nearby Home Barbers</h2>
-    <div class="card h-48 flex items-center justify-center text-gray-500 bg-neutral-900 border-neutral-800">
-      <div class="text-center">
-        <p class="text-sm">🗺️ Location Map Active</p>
-        <p class="text-xs text-gray-600 mt-1">Showing mobile home barbers available for dispatch</p>
-      </div>
+    <div class="card p-2 bg-neutral-900 border-neutral-800">
+      <div id="map"></div>
     </div>
+    <p class="text-xs text-gray-400 text-center">Interactive map displaying active home barbers ready for dispatch in Accra / Kumasi.</p>
   </div>
 
   <!-- CHATS TAB -->
@@ -200,9 +209,11 @@ input:focus, select:focus { border-color: #f5b942; }
       <button onclick="switchTab('chats')" class="text-sm gold">← Back</button>
       <h2 class="text-xl font-bold gold" id="chatRoomTitle">Chat Room</h2>
     </div>
-    <div id="chatMessages" class="card flex-1 h-72 overflow-y-auto space-y-3 p-3 bg-neutral-900 border-neutral-800"></div>
+    <div id="chatMessages" class="card flex-1 h-64 overflow-y-auto space-y-3 p-3 bg-neutral-900 border-neutral-800"></div>
+    <!-- Typing Indicator View -->
+    <div id="typingIndicator" class="text-[11px] text-gray-400 italic h-4 px-1"></div>
     <div class="flex gap-2">
-      <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1">
+      <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1" oninput="handleTypingInput()">
       <button onclick="sendChatMessage()" class="gold-bg px-5 rounded-xl text-sm">Send</button>
     </div>
   </div>
@@ -217,7 +228,11 @@ input:focus, select:focus { border-color: #f5b942; }
 
   <!-- PROFILE TAB -->
   <div id="tab-profile" class="tab-content flex flex-col p-5 space-y-6" style="display:none;">
-    <div class="flex items-center gap-4 card">
+    <div class="flex items-center gap-4 card relative">
+      <div class="absolute top-4 right-4 flex items-center gap-1.5">
+        <span id="userPresenceBadge" class="presence-dot presence-online"></span>
+        <span class="text-[10px] text-gray-400" id="userPresenceText">Online</span>
+      </div>
       <div class="profile-img" id="profileAvatarDisplay"></div>
       <div>
         <h2 class="font-bold text-lg" id="profileNameDisplay">User Name</h2>
@@ -374,12 +389,15 @@ input:focus, select:focus { border-color: #f5b942; }
 
 <!-- APPLICATION CONTROLLER SCRIPT -->
 <script>
-let currentUser = { name: "Gideon", role: "client", phone: "", uid: "", following: [] };
+let currentUser = { name: "Gideon", role: "client", phone: "", uid: "", following: [], online: true };
 let selectedBarberForBooking = "";
 let selectedBookingForReview = null;
 let currentChatRoomId = null;
 let unsubscribeChat = null;
+let unsubscribeTyping = null;
 let allBarbersCache = [];
+let mapInstance = null;
+let typingTimeout = null;
 
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -407,11 +425,13 @@ document.getElementById("googleBtn").onclick = async function() {
         phone: '',
         portfolio: [],
         rating: 5.0,
-        following: []
+        following: [],
+        online: true
       };
       await window.setDoc(userDocRef, currentUser);
     } else {
       currentUser = userSnap.data();
+      await window.setDoc(userDocRef, { online: true, lastSeen: window.serverTimestamp() }, { merge: true });
     }
 
     document.getElementById("login").classList.remove("active");
@@ -449,6 +469,27 @@ function switchTab(tabId) {
   } else {
     document.getElementById(`tab-${tabId}`).style.display = 'flex';
     document.getElementById(`nav-${tabId}`).classList.add('active');
+
+    if(tabId === 'search') {
+      setTimeout(() => initMap(), 200);
+    }
+  }
+}
+
+function initMap() {
+  if(!mapInstance) {
+    // Centered around Accra, Ghana by default
+    mapInstance = L.map('map').setView([5.6037, -0.1870], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(mapInstance);
+
+    // Add marker for dispatch mobile unit
+    L.marker([5.6037, -0.1870]).addTo(mapInstance)
+      .bindPopup("<b>Barber Me Mobile Dispatch Hub</b><br>Accra, Ghana").openPopup();
+  } else {
+    mapInstance.invalidateSize();
   }
 }
 
@@ -466,7 +507,7 @@ async function loadBarbersFromFirestore() {
 
     if(allBarbersCache.length === 0) {
       allBarbersCache = [
-        { uid: 'demo_1', name: 'Barber Me Pro', role: 'barber', serviceTitle: 'Home Barbering Specialist', rating: 4.9, reviewCount: 18, portfolio: [] }
+        { uid: 'demo_1', name: 'Barber Me Pro', role: 'barber', serviceTitle: 'Home Barbering Specialist', rating: 4.9, reviewCount: 18, portfolio: [], online: true }
       ];
     }
 
@@ -482,12 +523,16 @@ function renderBarbers(list) {
 
   container.innerHTML = list.map(b => {
     const isFollowing = followingList.includes(b.uid);
+    const isOnline = b.online !== false;
     return `
       <div class="card flex flex-col gap-3">
-        <div class="flex items-center gap-4 cursor-pointer" onclick='openProfileViewModal(${JSON.stringify(b)})'>
-          <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl">✂️</div>
+        <div class="flex items-center gap-4 cursor-pointer relative" onclick='openProfileViewModal(${JSON.stringify(b)})'>
+          <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl relative">
+            ✂️
+            <span class="absolute bottom-0 right-0 presence-dot ${isOnline ? 'presence-online' : 'presence-offline'}"></span>
+          </div>
           <div class="flex-1">
-            <h3 class="font-bold">${b.name}</h3>
+            <h3 class="font-bold flex items-center gap-2">${b.name} <span class="text-[10px] text-gray-400 font-normal">(${isOnline ? 'Online' : 'Offline'})</span></h3>
             <p class="text-xs text-gray-400">${b.serviceTitle || 'Home Barbering Specialist'}</p>
             <p class="text-xs gold mt-1">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews) • Home Service</p>
           </div>
@@ -753,6 +798,7 @@ function openChatRoom(roomId, roomTitle) {
   switchTab("chat-room");
 
   if(unsubscribeChat) unsubscribeChat();
+  if(unsubscribeTyping) unsubscribeTyping();
 
   const messagesRef = window.collection(window.db, "chats", roomId, "messages");
   const q = window.query(messagesRef, window.orderBy("timestamp", "asc"));
@@ -766,20 +812,52 @@ function openChatRoom(roomId, roomTitle) {
       return;
     }
 
-    snapshot.forEach((doc) => {
-      const msg = doc.data();
+    snapshot.forEach((docSnap) => {
+      const msg = docSnap.data();
       const isMe = msg.senderUid === currentUser.uid;
+      const readStatus = msg.read ? '✓✓ Read' : '✓ Sent';
       container.innerHTML += `
         <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
           <span class="text-[10px] text-gray-400 mb-0.5">${msg.senderName}</span>
           <div class="card px-3 py-2 text-xs max-w-[80%] ${isMe ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-neutral-800 border-neutral-700'}">
             ${msg.text}
           </div>
+          <span class="text-[9px] text-gray-500 mt-0.5">${isMe ? readStatus : ''}</span>
         </div>
       `;
+      // Mark incoming message as read
+      if(!isMe && !msg.read) {
+        window.updateDoc(window.doc(window.db, "chats", roomId, "messages", docSnap.id), { read: true });
+      }
     });
     container.scrollTop = container.scrollHeight;
   });
+
+  // Listen for Typing Indicator
+  const typingRef = window.doc(window.db, "chats", roomId, "typing", "status");
+  unsubscribeTyping = window.onSnapshot(typingRef, (docSnap) => {
+    if(docSnap.exists()) {
+      const data = docSnap.data();
+      if(data.isTyping && data.userUid !== currentUser.uid) {
+        document.getElementById("typingIndicator").innerText = `${data.userName} is typing...`;
+      } else {
+        document.getElementById("typingIndicator").innerText = "";
+      }
+    } else {
+      document.getElementById("typingIndicator").innerText = "";
+    }
+  });
+}
+
+function handleTypingInput() {
+  if(!currentChatRoomId) return;
+  const typingRef = window.doc(window.db, "chats", currentChatRoomId, "typing", "status");
+  window.setDoc(typingRef, { isTyping: true, userUid: currentUser.uid, userName: currentUser.name }, { merge: true });
+
+  if(typingTimeout) clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(async () => {
+    await window.setDoc(typingRef, { isTyping: false }, { merge: true });
+  }, 1500);
 }
 
 async function sendChatMessage() {
@@ -793,8 +871,13 @@ async function sendChatMessage() {
       text: text,
       senderUid: currentUser.uid,
       senderName: currentUser.name,
+      read: false,
       timestamp: window.serverTimestamp()
     });
+
+    const typingRef = window.doc(window.db, "chats", currentChatRoomId, "typing", "status");
+    await window.setDoc(typingRef, { isTyping: false }, { merge: true });
+
     input.value = "";
   } catch(e) {
     console.error("Error sending message:", e);
@@ -876,6 +959,10 @@ async function saveProfile() {
 
 async function logout() {
   if(unsubscribeChat) unsubscribeChat();
+  if(unsubscribeTyping) unsubscribeTyping();
+  if(window.auth.currentUser) {
+    await window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), { online: false }, { merge: true });
+  }
   await window.signOut(window.auth);
   document.getElementById("mainApp").classList.remove("active");
   document.getElementById("login").classList.add("active");
