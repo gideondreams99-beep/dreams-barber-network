@@ -59,13 +59,13 @@
     <button id="logoutBtn" style="background-color: #ff4444;">Log Out</button>
   </div>
 
-  <script type="module">
+  <!-- Added 'defer' to ensure the HTML loads before the script runs -->
+  <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    
-    // NEW: Import Firestore Database tools
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    // Your live Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
       authDomain: "sjs-saloon.firebaseapp.com",
@@ -88,17 +88,28 @@
     const statusText = document.getElementById('statusText');
     const userRoleDisplay = document.getElementById('userRole');
 
+    // Handle Login with tracker alerts
     loginBtn.addEventListener('click', () => {
-      signInWithPopup(auth, provider).catch(error => alert("Login Failed: " + error.message));
+      alert("Button clicked! Attempting to contact Google...");
+      
+      signInWithPopup(auth, provider)
+        .then((result) => {
+            alert("Google responded!");
+        })
+        .catch((error) => {
+            alert("Login Failed: " + error.code + " - " + error.message);
+        });
     });
 
+    // Handle Logout
     logoutBtn.addEventListener('click', () => {
       signOut(auth);
     });
 
-    // We added "async" here so we can talk to the database
+    // Watch for Login Status Changes
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // They are logged in
         loginBtn.style.display = "none";
         statusText.style.display = "none";
         dashboard.style.display = "block";
@@ -112,7 +123,6 @@
         const docSnap = await getDoc(userRef);
 
         if (docSnap.exists()) {
-          // User exists! Let's check their role and if they are active.
           const userData = docSnap.data();
           
           if (userData.is_active === false) {
@@ -123,17 +133,18 @@
           
           userRoleDisplay.innerText = "Role: " + userData.role.toUpperCase();
         } else {
-          // First time logging in! Create their profile in the database.
+          // First time logging in! Create their profile.
           await setDoc(userRef, {
             name: user.displayName,
             email: user.email,
-            role: "pending", // Default role
+            role: "pending", 
             is_active: true
           });
           userRoleDisplay.innerText = "Role: PENDING (Waiting for Owner)";
         }
 
       } else {
+        // They are logged out
         loginBtn.style.display = "inline-block";
         statusText.style.display = "block";
         dashboard.style.display = "none";
