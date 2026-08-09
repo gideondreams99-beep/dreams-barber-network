@@ -1,1021 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Barber Me | Ultimate Home Barbering Services</title>
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Leaflet CSS for Interactive Map -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- Firebase SDKs & Core Logic -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-  
-  const firebaseConfig = {
-    apiKey: "AIzaSyDDmtTQJsuSSfJf3FgVlDFaoTBCxIGRXYo",
-    authDomain: "dreamssmartapp.firebaseapp.com",
-    projectId: "dreamssmartapp",
-    storageBucket: "dreamssmartapp.firebasestorage.app",
-    messagingSenderId: "679648849916",
-    appId: "1:679648849916:web:9ad24dbfd209dd266a8c79"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-  const googleProvider = new GoogleAuthProvider();
-
-  window.db = db;
-  window.auth = auth;
-  window.storage = storage;
-  window.googleProvider = googleProvider;
-  window.signInWithPopup = signInWithPopup;
-  window.signOut = signOut;
-  window.collection = collection;
-  window.addDoc = addDoc;
-  window.getDocs = getDocs;
-  window.doc = doc;
-  window.setDoc = setDoc;
-  window.getDoc = getDoc;
-  window.updateDoc = updateDoc;
-  window.onSnapshot = onSnapshot;
-  window.query = query;
-  window.where = where;
-  window.orderBy = orderBy;
-  window.serverTimestamp = serverTimestamp;
-  window.ref = ref;
-  window.uploadBytes = uploadBytes;
-  window.getDownloadURL = getDownloadURL;
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const userSnap = await getDoc(doc(db, "users", user.uid));
-      if (userSnap.exists()) {
-        window.currentUser = userSnap.data();
-        await setDoc(doc(db, "users", user.uid), { online: true, lastSeen: serverTimestamp() }, { merge: true });
-        document.getElementById("splash").classList.remove("active");
-        document.getElementById("login").classList.remove("active");
-        document.getElementById("mainApp").classList.add("active");
-        updateProfileUI();
-        loadBarbersFromFirestore();
-        loadUserBookings();
-        loadUserNotifications();
-        if(window.currentUser.role === 'barber') {
-          loadBarberDashboardStats();
-          loadBarberIncomingBookings();
-        }
-      } else {
-        window.currentUser = {
-          uid: user.uid,
-          name: user.displayName || "Valued Client",
-          email: user.email,
-          role: 'client',
-          phone: '',
-          portfolio: [],
-          rating: 5.0,
-          reviewCount: 0,
-          following: [],
-          online: true
-        };
-        await setDoc(doc(db, "users", user.uid), window.currentUser);
-        document.getElementById("splash").classList.remove("active");
-        document.getElementById("login").classList.remove("active");
-        document.getElementById("mainApp").classList.add("active");
-        updateProfileUI();
-        loadBarbersFromFirestore();
-      }
-    } else {
-      document.getElementById("splash").classList.remove("active");
-      document.getElementById("login").classList.add("active");
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SJ'S SALOON</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      background-color: #1a1a1a; 
+      color: white; 
+      text-align: center; 
+      padding: 20px; 
     }
-  });
-</script>
-
-<style>
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0b0b0b;
-  color: #f3f4f6;
-  -webkit-tap-highlight-color: transparent;
-}
-.screen { display: none; min-height: 100vh; padding-bottom: 90px; }
-.screen.active { display: flex; flex-direction: column; }
-button { transition: all 0.2s ease; cursor: pointer; position: relative; z-index: 5; }
-button:active { transform: scale(0.97); }
-.nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #737373; background: none; border: none; }
-.nav-btn.active { color: #f5b942; }
-.card { background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); position: relative; z-index: 2; }
-.gold { color: #f5b942; }
-.gold-bg { background: linear-gradient(135deg, #f5b942 0%, #d49524 100%); color: #000; font-weight: 700; }
-input, select, textarea { background: #1a1a1a; border: 1px solid #333; color: white; padding: 13px; border-radius: 14px; width: 100%; outline: none; font-size: 14px; transition: border-color 0.2s; position: relative; z-index: 5; }
-input:focus, select:focus, textarea:focus { border-color: #f5b942; }
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: rgba(15,15,15,0.98); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #262626; z-index: 100; }
-.fade { animation: fade 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-.profile-img { width: 68px; height: 68px; border-radius: 50%; background: #262626; object-fit: cover; flex-shrink: 0; }
-.badge { font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-.presence-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid #141414; }
-.presence-online { background-color: #22c55e; }
-.presence-offline { background-color: #737373; }
-#map { width: 100%; height: 260px; border-radius: 16px; z-index: 1; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; display: none; overflow-y: auto; padding: 24px; }
-.modal-overlay.active { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-</style>
+    button { 
+      padding: 12px 24px; 
+      font-size: 16px; 
+      background-color: #4285F4; 
+      color: white; 
+      border: none; 
+      border-radius: 8px; 
+      margin-top: 20px;
+    }
+    #dashboard { 
+      display: none; 
+      margin-top: 30px; 
+    }
+    img { 
+      border-radius: 50%; 
+      width: 100px; 
+      height: 100px; 
+      border: 3px solid #d4af37;
+      margin-bottom: 10px;
+    }
+    h2 { margin: 0; }
+    p { margin: 5px 0; }
+    #userRole {
+      background-color: #333;
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- 1. SPLASH SCREEN -->
-<div id="splash" class="screen active justify-center items-center flex-col fade">
-  <div class="text-6xl mb-3 animate-bounce">✂️</div>
-  <h1 class="text-3xl font-bold tracking-wider gold">BARBER ME</h1>
-  <p class="text-gray-400 mt-2 text-xs tracking-wide">Elite Home Barbering & Grooming Services</p>
-</div>
-
-<!-- 2. LOGIN SCREEN -->
-<div id="login" class="screen justify-center items-center p-6 flex-col">
-  <div class="card w-full max-w-sm text-center space-y-4">
-    <div class="text-5xl mb-1">✂️</div>
-    <h2 class="text-2xl font-bold gold">Barber Me</h2>
-    <p class="text-gray-400 text-xs leading-relaxed">Book top-tier professional home barbers or list your grooming shop instantly with secure Google sign-in.</p>
-    <button id="googleBtn" class="gold-bg w-full py-3.5 rounded-xl flex items-center justify-center gap-3 text-sm shadow-lg shadow-amber-500/10">
-      <span>Continue with Google</span>
-    </button>
-  </div>
-</div>
-
-<!-- 3. MAIN APP CONTAINER -->
-<div id="mainApp" class="screen">
+  <h1>SJ'S SALOON</h1>
+  <p id="statusText">Please log in to continue.</p>
   
-  <!-- HOME TAB -->
-  <div id="tab-home" class="tab-content flex flex-col p-5 space-y-4">
-    <header class="flex justify-between items-center pt-2">
-      <div>
-        <h1 class="text-xl font-bold tracking-tight gold">BARBER ME</h1>
-        <p class="text-[11px] text-gray-400">📍 Ghana • <span class="text-green-400 font-medium">Home Service Active</span></p>
-      </div>
-      <button onclick="switchTab('notifications')" class="card p-2.5 rounded-full relative hover:bg-neutral-800">🔔</button>
-    </header>
+  <button id="loginBtn">Sign in with Google</button>
 
-    <div class="relative">
-      <input type="text" id="searchInput" placeholder="Search home barbers or specialties..." oninput="filterBarbers()" class="pl-4">
-    </div>
+  <div id="dashboard">
+    <img id="userPic" src="" alt="Profile Picture">
+    <h2 id="userName"></h2>
+    <p id="userEmail"></p>
+    <p id="userRole" style="color: #d4af37; font-weight: bold;">Loading role...</p>
+    <br>
+    <button id="logoutBtn" style="background-color: #ff4444;">Log Out</button>
+  </div>
 
-    <!-- Live Stream Banner Card -->
-    <div class="card bg-gradient-to-r from-neutral-900 via-neutral-900 to-amber-950/40 border-amber-500/30 flex items-center justify-between">
-      <div>
-        <span class="badge bg-red-600 text-white animate-pulse">LIVE FEED</span>
-        <h3 class="font-bold text-sm mt-1.5">Master Home Fade Broadcast</h3>
-        <p class="text-[11px] text-gray-400">Barber Me Global Pro • Watch & Learn</p>
-      </div>
-      <button onclick="openLiveStream()" class="gold-bg px-4 py-2.5 rounded-xl text-xs">Watch</button>
-    </div>
-
-    <div class="flex justify-between items-center mt-2">
-      <h2 class="font-bold text-base text-gray-200">Available Home Barbers</h2>
-      <span class="text-xs text-amber-400 cursor-pointer" onclick="loadBarbersFromFirestore()">Refresh</span>
-    </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     
-    <div id="barbersList" class="space-y-3 pb-12"></div>
-  </div>
+    // NEW: Import Firestore Database tools
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  <!-- SEARCH / MAP TAB -->
-  <div id="tab-search" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
-    <h2 class="text-xl font-bold gold">Explore Nearby Dispatches</h2>
-    <div class="card p-2 bg-neutral-900 border-neutral-800">
-      <div id="map"></div>
-    </div>
-    <p class="text-xs text-gray-400 text-center leading-relaxed">Interactive tracking showing active mobile home barbers ready for dispatch across your region.</p>
-  </div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
+      authDomain: "sjs-saloon.firebaseapp.com",
+      projectId: "sjs-saloon",
+      storageBucket: "sjs-saloon.firebasestorage.app",
+      messagingSenderId: "346208182886",
+      appId: "1:346208182886:web:0766d465a0c628bd5c03a7"
+    };
 
-  <!-- CHATS TAB -->
-  <div id="tab-chats" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
-    <h2 class="text-xl font-bold gold">Messages</h2>
-    <div id="chatsList" class="space-y-2">
-      <div onclick="openChatRoom('general_chat', 'Barber Me Community Hub')" class="card flex items-center gap-3.5 cursor-pointer hover:bg-neutral-800/60">
-        <div class="profile-img flex items-center justify-center text-xl bg-neutral-800 text-amber-400">💬</div>
-        <div class="flex-1">
-          <div class="flex justify-between items-center"><h4 class="font-bold text-sm">Community Hub</h4><span class="text-[10px] text-green-400 font-semibold">Live</span></div>
-          <p class="text-xs text-gray-400 truncate mt-0.5">Tap to chat with fellow clients and active barbers</p>
-        </div>
-      </div>
-    </div>
-  </div>
+    // Initialize Firebase and Database
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-  <!-- CHAT ROOM SUBVIEW -->
-  <div id="tab-chat-room" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
-    <div class="flex items-center gap-3">
-      <button onclick="switchTab('chats')" class="text-xs font-bold gold px-3 py-2 bg-neutral-900 rounded-xl border border-neutral-800">← Back</button>
-      <h2 class="text-lg font-bold gold truncate" id="chatRoomTitle">Chat Room</h2>
-    </div>
-    <div id="chatMessages" class="card flex-1 h-72 overflow-y-auto space-y-3 p-3.5 bg-neutral-900/90 border-neutral-800"></div>
-    <div id="typingIndicator" class="text-[11px] text-amber-400/80 italic h-4 px-1"></div>
-    <div class="flex gap-2">
-      <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1" oninput="handleTypingInput()">
-      <button onclick="sendChatMessage()" class="gold-bg px-5 rounded-xl text-sm">Send</button>
-    </div>
-  </div>
+    // UI Elements
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const dashboard = document.getElementById('dashboard');
+    const statusText = document.getElementById('statusText');
+    const userRoleDisplay = document.getElementById('userRole');
 
-  <!-- BOOKINGS TAB -->
-  <div id="tab-bookings" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
-    <h2 class="text-xl font-bold gold">Your Appointments</h2>
-    <div id="bookingsList" class="space-y-3 pb-12">
-      <p class="text-xs text-gray-500 text-center py-6">Loading appointments...</p>
-    </div>
-  </div>
-
-  <!-- PROFILE TAB -->
-  <div id="tab-profile" class="tab-content flex flex-col p-5 space-y-5" style="display:none;">
-    <div class="card flex items-center gap-4 relative">
-      <div class="absolute top-4 right-4 flex items-center gap-1.5 bg-neutral-900/80 px-2.5 py-1 rounded-full border border-neutral-800">
-        <span id="userPresenceBadge" class="presence-dot presence-online"></span>
-        <span class="text-[10px] text-gray-300 font-medium" id="userPresenceText">Online</span>
-      </div>
-      <div class="profile-img flex items-center justify-center text-2xl font-bold bg-neutral-800 text-amber-400" id="profileAvatarDisplay">👤</div>
-      <div class="pr-12">
-        <h2 class="font-bold text-base truncate" id="profileNameDisplay">User Name</h2>
-        <p class="text-xs text-gray-400 capitalize mt-0.5" id="profileRoleDisplay">Client</p>
-      </div>
-    </div>
-
-    <!-- Role Switcher -->
-    <div class="card space-y-2.5">
-      <h3 class="font-bold text-xs gold tracking-wide uppercase">Account Mode</h3>
-      <select id="roleSelect" onchange="changeUserRole(this.value)">
-        <option value="client">Client (Booking Home Services)</option>
-        <option value="barber">Barber / Shop Owner (Offering Services)</option>
-      </select>
-    </div>
-
-    <!-- BARBER DASHBOARD SECTION (Appears only for Barbers) -->
-    <div id="barberDashboardSection" class="space-y-4" style="display:none;">
-      <h3 class="font-bold text-xs gold tracking-wide uppercase">Barber Dispatch Control Center</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="card p-4 text-center">
-          <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Total Revenue</p>
-          <h4 class="text-lg font-bold gold mt-1" id="statTotalRevenue">GHS 0</h4>
-        </div>
-        <div class="card p-4 text-center">
-          <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Completed Jobs</p>
-          <h4 class="text-lg font-bold text-white mt-1" id="statCompletedJobs">0</h4>
-        </div>
-      </div>
-
-      <div class="card space-y-3">
-        <h4 class="font-bold text-xs gold uppercase tracking-wider">Incoming Booking Requests</h4>
-        <div id="barberIncomingBookingsList" class="space-y-2.5">
-          <p class="text-xs text-gray-500 text-center py-4">No incoming appointment requests.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Barber Portfolio Section -->
-    <div id="barberPortfolioSection" class="space-y-2.5" style="display:none;">
-      <h3 class="font-bold text-xs gold tracking-wide uppercase">Portfolio Showcase</h3>
-      <div class="card space-y-3">
-        <p class="text-xs text-gray-400 leading-relaxed">Upload clear photos of your recent cuts to attract local clients.</p>
-        <input type="file" id="portfolioFile" accept="image/*" class="text-xs py-2">
-        <button onclick="uploadPortfolioImage()" class="gold-bg w-full py-2.5 rounded-xl text-xs">Upload Portfolio Image</button>
-        <div id="portfolioPreviewGrid" class="grid grid-cols-3 gap-2 mt-2"></div>
-      </div>
-    </div>
-
-    <div class="space-y-2.5">
-      <h3 class="font-bold text-xs gold tracking-wide uppercase">Personal Info</h3>
-      <div class="card space-y-3">
-        <input type="text" id="editName" placeholder="Full Name">
-        <input type="text" id="editPhone" placeholder="Phone Number (e.g. +233...)">
-        <button onclick="saveProfile()" class="gold-bg w-full py-2.5 rounded-xl text-xs">Save Profile Changes</button>
-      </div>
-      <button onclick="logout()" class="w-full py-3 rounded-xl card text-red-400 text-xs font-bold border-red-900/30 hover:bg-red-950/20">Sign Out of Account</button>
-    </div>
-  </div>
-
-  <!-- NOTIFICATIONS SCREEN -->
-  <div id="tab-notifications" class="tab-content flex flex-col p-5 space-y-4" style="display:none;">
-    <div class="flex items-center gap-3">
-      <button onclick="switchTab('home')" class="text-xs font-bold gold px-3 py-2 bg-neutral-900 rounded-xl border border-neutral-800">← Back</button>
-      <h2 class="text-lg font-bold gold">Notifications</h2>
-    </div>
-    <div id="notificationsList" class="space-y-2.5 pb-12">
-      <p class="text-xs text-gray-500 text-center py-6">Loading notifications...</p>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAVIGATION BAR -->
-  <nav class="bottom-nav">
-    <button onclick="switchTab('home')" class="nav-btn active" id="nav-home">🏠<span>Home</span></button>
-    <button onclick="switchTab('search')" class="nav-btn" id="nav-search">🔍<span>Explore</span></button>
-    <button onclick="switchTab('chats')" class="nav-btn" id="nav-chats">💬<span>Chats</span></button>
-    <button onclick="switchTab('bookings')" class="nav-btn" id="nav-bookings">📅<span>Bookings</span></button>
-    <button onclick="switchTab('profile')" class="nav-btn" id="nav-profile">👤<span>Profile</span></button>
-  </nav>
-
-</div>
-
-<!-- BOOKING MODAL -->
-<div id="bookingModal" class="modal-overlay">
-  <div class="max-w-md w-full mx-auto space-y-4 mt-8">
-    <div class="flex justify-between items-center">
-      <div>
-        <h2 class="text-lg font-bold gold" id="modalBarberName">Barber Me Pro</h2>
-        <p class="text-[11px] text-gray-400">Home Dispatch Service</p>
-      </div>
-      <button onclick="closeBookingModal()" class="text-gray-400 text-lg font-bold p-2 bg-neutral-900 rounded-xl">✕</button>
-    </div>
-    <div class="card space-y-3.5">
-      <h4 class="font-bold text-xs gold uppercase tracking-wider">Select Service Package</h4>
-      <select id="serviceSelect">
-        <option value="Classic Home Haircut - GHS 80">Classic Home Haircut - GHS 80</option>
-        <option value="Executive Home Cut & Beard Trim - GHS 120" selected>Executive Home Cut & Beard Trim - GHS 120</option>
-        <option value="VIP Luxury Home Grooming - GHS 200">VIP Luxury Home Grooming - GHS 200</option>
-      </select>
-      <h4 class="font-bold text-xs gold uppercase tracking-wider">Date & Time</h4>
-      <input type="datetime-local" id="bookingDateTime">
-      <h4 class="font-bold text-xs gold uppercase tracking-wider">Payment Method</h4>
-      <select id="paymentMethod">
-        <option value="Mobile Money (MTN/Vodafone)">Mobile Money (MoMo)</option>
-        <option value="Credit / Debit Card">Credit / Debit Card</option>
-        <option value="Cash on Service">Cash on Service Completion</option>
-      </select>
-      <button onclick="submitBooking()" class="gold-bg w-full py-3.5 rounded-xl text-sm mt-1">Confirm Home Appointment</button>
-    </div>
-  </div>
-</div>
-
-<!-- REVIEW MODAL -->
-<div id="reviewModal" class="modal-overlay">
-  <div class="max-w-md w-full mx-auto space-y-4 mt-16">
-    <div class="flex justify-between items-center">
-      <h2 class="text-lg font-bold gold">Rate Your Session</h2>
-      <button onclick="closeReviewModal()" class="text-gray-400 text-lg font-bold p-2 bg-neutral-900 rounded-xl">✕</button>
-    </div>
-    <div class="card space-y-3.5">
-      <p class="text-xs text-gray-400" id="reviewSubtitle">Rate your home haircut session.</p>
-      <h4 class="font-bold text-xs gold uppercase tracking-wider">Rating Stars</h4>
-      <select id="ratingStars">
-        <option value="5">⭐⭐⭐⭐⭐ (5/5 - Outstanding)</option>
-        <option value="4">⭐⭐⭐⭐ (4/5 - Great)</option>
-        <option value="3">⭐⭐⭐ (3/5 - Good)</option>
-        <option value="2">⭐⭐ (2/5 - Fair)</option>
-        <option value="1">⭐ (1/5 - Poor)</option>
-      </select>
-      <h4 class="font-bold text-xs gold uppercase tracking-wider">Review Comments</h4>
-      <textarea id="reviewComment" placeholder="Write feedback about your experience..." rows="3"></textarea>
-      <button onclick="submitReview()" class="gold-bg w-full py-3.5 rounded-xl text-sm mt-1">Submit Review</button>
-    </div>
-  </div>
-</div>
-
-<!-- PROFILE VIEW MODAL -->
-<div id="profileViewModal" class="modal-overlay">
-  <div class="max-w-md w-full mx-auto space-y-4 mt-8">
-    <div class="flex justify-between items-center">
-      <h2 class="text-lg font-bold gold" id="viewProfileTitle">Barber Profile</h2>
-      <button onclick="closeProfileViewModal()" class="text-gray-400 text-lg font-bold p-2 bg-neutral-900 rounded-xl">✕</button>
-    </div>
-    <div class="card space-y-4">
-      <div class="flex items-center gap-4">
-        <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl text-amber-400 font-bold" id="viewProfileAvatar">✂️</div>
-        <div>
-          <h3 class="font-bold text-base" id="viewProfileName">Barber Name</h3>
-          <p class="text-xs text-gray-400" id="viewProfileRole">Home Service Specialist</p>
-          <p class="text-xs gold mt-1 font-semibold" id="viewProfileRating">⭐ 4.9 (0 reviews)</p>
-        </div>
-      </div>
-      <hr class="border-neutral-800">
-      <h4 class="font-bold text-xs gold uppercase tracking-wider">Portfolio Photos</h4>
-      <div id="viewProfilePortfolioGrid" class="grid grid-cols-3 gap-2">
-        <p class="text-xs text-gray-500 col-span-3">No portfolio photos available.</p>
-      </div>
-      <button id="viewProfileBookBtn" class="gold-bg w-full py-3 rounded-xl text-xs mt-2">Book Appointment Now</button>
-    </div>
-  </div>
-</div>
-
-<!-- CORE CONTROLLER SCRIPT -->
-<script>
-let currentUser = { name: "Valued Client", role: "client", phone: "", uid: "", following: [], online: true };
-let selectedBarberForBooking = "";
-let selectedBookingForReview = null;
-let currentChatRoomId = null;
-let unsubscribeChat = null;
-let unsubscribeTyping = null;
-let allBarbersCache = [];
-let mapInstance = null;
-let typingTimeout = null;
-
-function changeUserRole(newRole) {
-  currentUser.role = newRole;
-  if(window.auth && window.auth.currentUser) {
-    window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), { role: newRole }, { merge: true });
-  }
-  updateProfileUI();
-}
-
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-  
-  if(tabId === 'notifications') {
-    document.getElementById('tab-notifications').style.display = 'flex';
-  } else if(tabId === 'chat-room') {
-    document.getElementById('tab-chat-room').style.display = 'flex';
-  } else {
-    document.getElementById(`tab-${tabId}`).style.display = 'flex';
-    if(document.getElementById(`nav-${tabId}`)) {
-      document.getElementById(`nav-${tabId}`).classList.add('active');
-    }
-    if(tabId === 'search') {
-      setTimeout(() => initMap(), 200);
-    }
-  }
-}
-
-function initMap() {
-  if(!mapInstance) {
-    mapInstance = L.map('map').setView([5.6037, -0.1870], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap'
-    }).addTo(mapInstance);
-
-    L.marker([5.6037, -0.1870]).addTo(mapInstance)
-      .bindPopup("<b>Barber Me Dispatch Hub</b><br>Accra, Ghana").openPopup();
-  } else {
-    mapInstance.invalidateSize();
-  }
-}
-
-async function loadBarbersFromFirestore() {
-  try {
-    const q = window.query(window.collection(window.db, "users"), window.where("role", "==", "barber"));
-    const querySnapshot = await window.getDocs(q);
-    
-    allBarbersCache = [];
-    querySnapshot.forEach((docSnap) => {
-      let data = docSnap.data();
-      data.uid = docSnap.id;
-      allBarbersCache.push(data);
+    loginBtn.addEventListener('click', () => {
+      signInWithPopup(auth, provider).catch(error => alert("Login Failed: " + error.message));
     });
 
-    if(allBarbersCache.length === 0) {
-      allBarbersCache = [
-        { uid: 'demo_1', name: 'Barber Me Pro', role: 'barber', serviceTitle: 'Home Grooming Specialist', rating: 4.9, reviewCount: 24, portfolio: [], online: true }
-      ];
-    }
-
-    renderBarbers(allBarbersCache);
-  } catch(e) {
-    console.error("Error loading barbers:", e);
-  }
-}
-
-function renderBarbers(list) {
-  const container = document.getElementById("barbersList");
-  const followingList = currentUser.following || [];
-
-  container.innerHTML = list.map(b => {
-    const isFollowing = followingList.includes(b.uid);
-    const isOnline = b.online !== false;
-    return `
-      <div class="card flex flex-col gap-3.5">
-        <div class="flex items-center gap-3.5 cursor-pointer" onclick='openProfileViewModalFromData(${JSON.stringify(b)})'>
-          <div class="profile-img bg-neutral-800 flex items-center justify-center text-xl relative text-amber-400 font-bold">
-            ✂️
-            <span class="absolute bottom-0 right-0 presence-dot ${isOnline ? 'presence-online' : 'presence-offline'}"></span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-sm truncate flex items-center gap-1.5">${b.name} <span class="text-[10px] text-gray-400 font-normal">(${isOnline ? 'Online' : 'Offline'})</span></h3>
-            <p class="text-xs text-gray-400 truncate mt-0.5">${b.serviceTitle || 'Home Service Professional'}</p>
-            <p class="text-xs gold mt-1 font-semibold">⭐ ${b.rating || '4.9'} (${b.reviewCount || 0} reviews)</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-3 gap-2">
-          <button onclick="openBookingModal('${b.name.replace(/'/g, "\\'")}')" class="gold-bg col-span-1 py-2.5 rounded-xl text-xs">Book</button>
-          <button onclick="toggleFollowBarber('${b.uid}')" class="card py-2.5 px-2 rounded-xl text-xs border ${isFollowing ? 'border-amber-500/50 text-amber-400' : 'border-neutral-800 text-gray-300'} text-center truncate">${isFollowing ? 'Following' : 'Follow'}</button>
-          <button onclick="openChatRoom('${b.uid}', '${b.name.replace(/'/g, "\\'")}')" class="card py-2.5 px-2 rounded-xl text-xs border border-neutral-800 text-center">Chat</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function openProfileViewModalFromData(barberData) {
-  document.getElementById("viewProfileTitle").innerText = barberData.name;
-  document.getElementById("viewProfileName").innerText = barberData.name;
-  document.getElementById("viewProfileRole").innerText = barberData.serviceTitle || 'Home Service Professional';
-  document.getElementById("viewProfileRating").innerText = `⭐ ${barberData.rating || '4.9'} (${barberData.reviewCount || 0} reviews)`;
-  
-  const grid = document.getElementById("viewProfilePortfolioGrid");
-  if(!barberData.portfolio || barberData.portfolio.length === 0) {
-    grid.innerHTML = `<p class="text-xs text-gray-500 col-span-3">No portfolio photos available yet.</p>`;
-  } else {
-    grid.innerHTML = barberData.portfolio.map(url => `
-      <div class="h-20 bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800">
-        <img src="${url}" class="w-full h-full object-cover">
-      </div>
-    `).join('');
-  }
-
-  document.getElementById("viewProfileBookBtn").onclick = function() {
-    closeProfileViewModal();
-    openBookingModal(barberData.name);
-  };
-
-  document.getElementById("profileViewModal").classList.add("active");
-}
-
-function closeProfileViewModal() {
-  document.getElementById("profileViewModal").classList.remove("active");
-}
-
-async function toggleFollowBarber(barberUid) {
-  if(!currentUser.following) currentUser.following = [];
-  const index = currentUser.following.indexOf(barberUid);
-
-  if(index > -1) {
-    currentUser.following.splice(index, 1);
-  } else {
-    currentUser.following.push(barberUid);
-    await window.addDoc(window.collection(window.db, "notifications"), {
-      userUid: currentUser.uid,
-      title: "New Follow Registered",
-      message: `You are now following a professional home barber.`,
-      timestamp: window.serverTimestamp()
-    });
-  }
-
-  if(window.auth.currentUser) {
-    await window.setDoc(window.doc(window.db, "users", currentUser.uid), { following: currentUser.following }, { merge: true });
-  }
-
-  renderBarbers(allBarbersCache);
-  loadUserNotifications();
-}
-
-function filterBarbers() {
-  const queryText = document.getElementById("searchInput").value.toLowerCase();
-  const filtered = allBarbersCache.filter(b => b.name.toLowerCase().includes(queryText));
-  renderBarbers(filtered);
-}
-
-function openBookingModal(barberName) {
-  selectedBarberForBooking = barberName;
-  document.getElementById("modalBarberName").innerText = barberName;
-  document.getElementById("bookingModal").classList.add("active");
-}
-
-function closeBookingModal() {
-  document.getElementById("bookingModal").classList.remove("active");
-}
-
-async function submitBooking() {
-  const service = document.getElementById("serviceSelect").value;
-  const dateTime = document.getElementById("bookingDateTime").value;
-  const payment = document.getElementById("paymentMethod").value;
-
-  if(!dateTime) {
-    alert("Please select appointment date and time.");
-    return;
-  }
-
-  try {
-    await window.addDoc(window.collection(window.db, "bookings"), {
-      clientUid: currentUser.uid,
-      clientName: currentUser.name,
-      barberName: selectedBarberForBooking,
-      service: service,
-      dateTime: dateTime,
-      paymentMethod: payment,
-      status: "Pending Appointment",
-      reviewed: false,
-      timestamp: window.serverTimestamp()
-    });
-    
-    await window.addDoc(window.collection(window.db, "notifications"), {
-      userUid: currentUser.uid,
-      title: "Appointment Booked",
-      message: `Your home session request with ${selectedBarberForBooking} has been sent.`,
-      timestamp: window.serverTimestamp()
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth);
     });
 
-    alert("Booking request submitted successfully!");
-    closeBookingModal();
-    switchTab("bookings");
-    loadUserBookings();
-    loadUserNotifications();
-  } catch(e) {
-    console.error("Booking submission error:", e);
-    alert("Failed to submit booking.");
-  }
-}
+    // We added "async" here so we can talk to the database
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        loginBtn.style.display = "none";
+        statusText.style.display = "none";
+        dashboard.style.display = "block";
+        
+        document.getElementById('userName').innerText = user.displayName;
+        document.getElementById('userEmail').innerText = user.email;
+        document.getElementById('userPic').src = user.photoURL;
 
-async function loadUserBookings() {
-  const container = document.getElementById("bookingsList");
-  try {
-    const q = window.query(window.collection(window.db, "bookings"), window.where("clientUid", "==", currentUser.uid));
-    const querySnapshot = await window.getDocs(q);
-    
-    if(querySnapshot.empty) {
-      container.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">No active home appointments found.</p>`;
-      return;
-    }
+        // DATABASE CHECK: See if this user exists in our Firestore
+        const userRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userRef);
 
-    container.innerHTML = "";
-    querySnapshot.forEach((docSnap) => {
-      const b = docSnap.data();
-      const bookingId = docSnap.id;
-      container.innerHTML += `
-        <div class="card space-y-2.5">
-          <div class="flex justify-between items-center">
-            <span class="badge bg-amber-500/15 text-amber-400">${b.status}</span>
-            <span class="text-[11px] text-gray-400">${b.dateTime.replace('T', ' ')}</span>
-          </div>
-          <h3 class="font-bold text-sm">${b.service}</h3>
-          <p class="text-xs text-gray-400">Professional: ${b.barberName}</p>
-          <p class="text-xs gold font-medium">Payment: ${b.paymentMethod}</p>
-          ${b.status === 'Completed Job' && !b.reviewed ? `<button onclick="openReviewModal('${bookingId}', '${b.barberName.replace(/'/g, "\\'")}')" class="w-full mt-1.5 py-2 rounded-xl text-xs bg-neutral-900 border border-neutral-800 text-amber-400 font-bold">Leave Review ⭐</button>` : ''}
-        </div>
-      `;
-    });
-  } catch(e) {
-    console.error("Error loading bookings:", e);
-  }
-}
-
-async function loadBarberDashboardStats() {
-  try {
-    const q = window.query(window.collection(window.db, "bookings"), window.where("barberName", "==", currentUser.name));
-    const querySnapshot = await window.getDocs(q);
-
-    let totalRevenue = 0;
-    let completedJobs = 0;
-
-    querySnapshot.forEach((docSnap) => {
-      const b = docSnap.data();
-      if(b.status === 'Completed Job') {
-        completedJobs++;
-        if(b.service && b.service.includes("GHS")) {
-          const parts = b.service.split("GHS");
-          if(parts.length > 1) {
-            totalRevenue += parseInt(parts[1].trim()) || 120;
+        if (docSnap.exists()) {
+          // User exists! Let's check their role and if they are active.
+          const userData = docSnap.data();
+          
+          if (userData.is_active === false) {
+             alert("Access Denied: Your account has been deactivated by the Owner.");
+             signOut(auth);
+             return;
           }
+          
+          userRoleDisplay.innerText = "Role: " + userData.role.toUpperCase();
         } else {
-          totalRevenue += 120;
+          // First time logging in! Create their profile in the database.
+          await setDoc(userRef, {
+            name: user.displayName,
+            email: user.email,
+            role: "pending", // Default role
+            is_active: true
+          });
+          userRoleDisplay.innerText = "Role: PENDING (Waiting for Owner)";
         }
-      }
-    });
 
-    document.getElementById("statTotalRevenue").innerText = `GHS ${totalRevenue}`;
-    document.getElementById("statCompletedJobs").innerText = completedJobs;
-  } catch(e) {
-    console.error("Error loading dashboard stats:", e);
-  }
-}
-
-async function loadBarberIncomingBookings() {
-  const container = document.getElementById("barberIncomingBookingsList");
-  try {
-    const q = window.query(window.collection(window.db, "bookings"), window.where("barberName", "==", currentUser.name));
-    const querySnapshot = await window.getDocs(q);
-
-    if(querySnapshot.empty) {
-      container.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">No appointment requests.</p>`;
-      return;
-    }
-
-    container.innerHTML = "";
-    querySnapshot.forEach((docSnap) => {
-      const b = docSnap.data();
-      const bookingId = docSnap.id;
-      container.innerHTML += `
-        <div class="card bg-neutral-900/90 border-neutral-800 space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-amber-400">${b.clientName}</span>
-            <span class="badge bg-neutral-800 text-gray-300">${b.status}</span>
-          </div>
-          <p class="text-xs text-gray-300 font-medium">${b.service}</p>
-          <p class="text-[11px] text-gray-400">📅 ${b.dateTime.replace('T', ' ')}</p>
-          <div class="grid grid-cols-3 gap-2 pt-1">
-            <button onclick="updateBookingStatus('${bookingId}', 'Confirmed Appointment')" class="py-1.5 rounded-lg text-xs bg-green-600/20 text-green-400 font-bold border border-green-800/40">Accept</button>
-            <button onclick="updateBookingStatus('${bookingId}', 'Declined')" class="py-1.5 rounded-lg text-xs bg-red-600/20 text-red-400 font-bold border border-red-800/40">Reject</button>
-            <button onclick="updateBookingStatus('${bookingId}', 'Completed Job')" class="py-1.5 rounded-lg text-xs bg-amber-500/20 text-amber-400 font-bold border border-amber-800/40">Complete</button>
-          </div>
-        </div>
-      `;
-    });
-  } catch(e) {
-    console.error("Error loading barber bookings:", e);
-  }
-}
-
-async function updateBookingStatus(bookingId, newStatus) {
-  try {
-    await window.updateDoc(window.doc(window.db, "bookings", bookingId), { status: newStatus });
-    alert(`Appointment status updated to: ${newStatus}`);
-    loadBarberIncomingBookings();
-    loadBarberDashboardStats();
-  } catch(e) {
-    console.error("Error updating booking status:", e);
-    alert("Failed to update status.");
-  }
-}
-
-async function loadUserNotifications() {
-  const container = document.getElementById("notificationsList");
-  try {
-    const q = window.query(window.collection(window.db, "notifications"), window.where("userUid", "==", currentUser.uid));
-    const querySnapshot = await window.getDocs(q);
-
-    if(querySnapshot.empty) {
-      container.innerHTML = `
-        <div class="card text-xs space-y-1">
-          <p class="font-bold gold">System Notice</p>
-          <p class="text-gray-400">Welcome to Barber Me mobile dispatch.</p>
-        </div>
-      `;
-      return;
-    }
-
-    container.innerHTML = "";
-    querySnapshot.forEach((docSnap) => {
-      const n = docSnap.data();
-      container.innerHTML += `
-        <div class="card text-xs space-y-1 border-neutral-800">
-          <p class="font-bold gold">${n.title}</p>
-          <p class="text-gray-300 leading-relaxed">${n.message}</p>
-        </div>
-      `;
-    });
-  } catch(e) {
-    console.error("Error loading notifications:", e);
-  }
-}
-
-function openReviewModal(bookingId, barberName) {
-  selectedBookingForReview = { bookingId, barberName };
-  document.getElementById("reviewSubtitle").innerText = `Rate your home appointment with ${barberName}.`;
-  document.getElementById("reviewModal").classList.add("active");
-}
-
-function closeReviewModal() {
-  document.getElementById("reviewModal").classList.remove("active");
-}
-
-async function submitReview() {
-  const rating = parseInt(document.getElementById("ratingStars").value);
-  const comment = document.getElementById("reviewComment").value.trim();
-
-  if(!selectedBookingForReview) return;
-
-  try {
-    await window.addDoc(window.collection(window.db, "reviews"), {
-      barberName: selectedBookingForReview.barberName,
-      clientName: currentUser.name,
-      rating: rating,
-      comment: comment,
-      timestamp: window.serverTimestamp()
-    });
-
-    await window.updateDoc(window.doc(window.db, "bookings", selectedBookingForReview.bookingId), { reviewed: true });
-
-    alert("Review submitted successfully!");
-    closeReviewModal();
-    loadUserBookings();
-  } catch(e) {
-    console.error("Review error:", e);
-    alert("Failed to submit review.");
-  }
-}
-
-function openChatRoom(roomId, roomTitle) {
-  currentChatRoomId = roomId;
-  document.getElementById("chatRoomTitle").innerText = roomTitle;
-  switchTab("chat-room");
-
-  if(unsubscribeChat) unsubscribeChat();
-  if(unsubscribeTyping) unsubscribeTyping();
-
-  const messagesRef = window.collection(window.db, "chats", roomId, "messages");
-  const q = window.query(messagesRef, window.orderBy("timestamp", "asc"));
-
-  unsubscribeChat = window.onSnapshot(q, (snapshot) => {
-    const container = document.getElementById("chatMessages");
-    container.innerHTML = "";
-    
-    if(snapshot.empty) {
-      container.innerHTML = `<p class="text-center text-xs text-gray-500 my-6">No messages yet. Start the conversation!</p>`;
-      return;
-    }
-
-    snapshot.forEach((docSnap) => {
-      const msg = docSnap.data();
-      const isMe = msg.senderUid === currentUser.uid;
-      const readStatus = msg.read ? '✓✓ Read' : '✓ Sent';
-      container.innerHTML += `
-        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-          <span class="text-[10px] text-gray-400 mb-0.5">${msg.senderName}</span>
-          <div class="card px-3.5 py-2.5 text-xs max-w-[80%] ${isMe ? 'bg-amber-500/10 border-amber-500/30 text-white' : 'bg-neutral-800 border-neutral-700'}">
-            ${msg.text}
-          </div>
-          <span class="text-[9px] text-gray-500 mt-0.5">${isMe ? readStatus : ''}</span>
-        </div>
-      `;
-      if(!isMe && !msg.read) {
-        window.updateDoc(window.doc(window.db, "chats", roomId, "messages", docSnap.id), { read: true });
-      }
-    });
-    container.scrollTop = container.scrollHeight;
-  });
-
-  const typingRef = window.doc(window.db, "chats", roomId, "typing", "status");
-  unsubscribeTyping = window.onSnapshot(typingRef, (docSnap) => {
-    if(docSnap.exists()) {
-      const data = docSnap.data();
-      if(data.isTyping && data.userUid !== currentUser.uid) {
-        document.getElementById("typingIndicator").innerText = `${data.userName} is typing...`;
       } else {
-        document.getElementById("typingIndicator").innerText = "";
+        loginBtn.style.display = "inline-block";
+        statusText.style.display = "block";
+        dashboard.style.display = "none";
       }
-    } else {
-      document.getElementById("typingIndicator").innerText = "";
-    }
-  });
-}
-
-function handleTypingInput() {
-  if(!currentChatRoomId) return;
-  const typingRef = window.doc(window.db, "chats", currentChatRoomId, "typing", "status");
-  window.setDoc(typingRef, { isTyping: true, userUid: currentUser.uid, userName: currentUser.name }, { merge: true });
-
-  if(typingTimeout) clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(async () => {
-    await window.setDoc(typingRef, { isTyping: false }, { merge: true });
-  }, 1500);
-}
-
-async function sendChatMessage() {
-  const input = document.getElementById("chatInput");
-  const text = input.value.trim();
-  if(!text || !currentChatRoomId) return;
-
-  try {
-    await window.addDoc(window.collection(window.db, "chats", currentChatRoomId, "messages"), {
-      text: text,
-      senderUid: currentUser.uid,
-      senderName: currentUser.name,
-      read: false,
-      timestamp: window.serverTimestamp()
     });
-
-    await window.setDoc(window.doc(window.db, "chats", currentChatRoomId, "typing", "status"), { isTyping: false }, { merge: true });
-    input.value = "";
-  } catch(e) {
-    console.error("Error sending message:", e);
-  }
-}
-
-async function uploadPortfolioImage() {
-  const fileInput = document.getElementById("portfolioFile");
-  if(fileInput.files.length === 0) return alert("Select an image first.");
-
-  const file = fileInput.files[0];
-  const storageRef = window.ref(window.storage, `portfolios/${currentUser.uid}/${Date.now()}_${file.name}`);
-
-  try {
-    alert("Uploading portfolio image...");
-    const snapshot = await window.uploadBytes(storageRef, file);
-    const downloadUrl = await window.getDownloadURL(snapshot.ref);
-
-    if(!currentUser.portfolio) currentUser.portfolio = [];
-    currentUser.portfolio.push(downloadUrl);
-
-    await window.setDoc(window.doc(window.db, "users", currentUser.uid), {
-      portfolio: currentUser.portfolio
-    }, { merge: true });
-
-    renderPortfolioGrid();
-    fileInput.value = "";
-    alert("Portfolio updated successfully!");
-  } catch(e) {
-    console.error("Portfolio upload error:", e);
-    alert("Upload failed.");
-  }
-}
-
-function renderPortfolioGrid() {
-  const grid = document.getElementById("portfolioPreviewGrid");
-  if(!currentUser.portfolio || currentUser.portfolio.length === 0) {
-    grid.innerHTML = `<p class="text-xs text-gray-500 col-span-3">No portfolio images uploaded yet.</p>`;
-    return;
-  }
-  grid.innerHTML = currentUser.portfolio.map(url => `
-    <div class="h-20 bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800">
-      <img src="${url}" class="w-full h-full object-cover">
-    </div>
-  `).join('');
-}
-
-function openLiveStream() {
-  alert("Connecting to Barber Me live video feed stream...");
-}
-
-function updateProfileUI() {
-  document.getElementById("profileNameDisplay").innerText = currentUser.name || "Valued Client";
-  document.getElementById("profileRoleDisplay").innerText = currentUser.role || "client";
-  document.getElementById("editName").value = currentUser.name || "";
-  document.getElementById("editPhone").value = currentUser.phone || "";
-  document.getElementById("roleSelect").value = currentUser.role || "client";
-
-  if(currentUser.role === 'barber') {
-    document.getElementById("barberDashboardSection").style.display = "block";
-    document.getElementById("barberPortfolioSection").style.display = "block";
-    renderPortfolioGrid();
-    loadBarberDashboardStats();
-    loadBarberIncomingBookings();
-  } else {
-    document.getElementById("barberDashboardSection").style.display = "none";
-    document.getElementById("barberPortfolioSection").style.display = "none";
-  }
-}
-
-async function saveProfile() {
-  currentUser.name = document.getElementById("editName").value;
-  currentUser.phone = document.getElementById("editPhone").value;
-  
-  if(window.auth.currentUser) {
-    await window.setDoc(window.doc(window.db, "users", currentUser.uid), currentUser, { merge: true });
-  }
-  updateProfileUI();
-  alert("Profile updated successfully!");
-}
-
-async function logout() {
-  if(unsubscribeChat) unsubscribeChat();
-  if(unsubscribeTyping) unsubscribeTyping();
-  if(window.auth.currentUser) {
-    await window.setDoc(window.doc(window.db, "users", window.auth.currentUser.uid), { online: false }, { merge: true });
-  }
-  await window.signOut(window.auth);
-  document.getElementById("mainApp").classList.remove("active");
-  document.getElementById("login").classList.add("active");
-}
-
-document.getElementById("googleBtn").onclick = async function() {
-  try {
-    const result = await window.signInWithPopup(window.auth, window.googleProvider);
-    const user = result.user;
-    
-    const userDocRef = window.doc(window.db, "users", user.uid);
-    const userSnap = await window.getDoc(userDocRef);
-
-    if (!userSnap.exists()) {
-      currentUser = {
-        uid: user.uid,
-        name: user.displayName || "Valued Client",
-        email: user.email,
-        role: 'client',
-        phone: '',
-        portfolio: [],
-        rating: 5.0,
-        reviewCount: 0,
-        following: [],
-        online: true
-      };
-      await window.setDoc(userDocRef, currentUser);
-    } else {
-      currentUser = userSnap.data();
-      await window.setDoc(userDocRef, { online: true, lastSeen: window.serverTimestamp() }, { merge: true });
-    }
-
-    document.getElementById("login").classList.remove("active");
-    document.getElementById("mainApp").classList.add("active");
-    updateProfileUI();
-    loadBarbersFromFirestore();
-    loadUserBookings();
-    loadUserNotifications();
-    if(currentUser.role === 'barber') {
-      loadBarberDashboardStats();
-      loadBarberIncomingBookings();
-    }
-  } catch (error) {
-    console.error("Google Authentication Error:", error);
-    alert("Google Sign-In failed. Please check popup blockers.");
-  }
-};
-</script>
-
+  </script>
 </body>
 </html>
