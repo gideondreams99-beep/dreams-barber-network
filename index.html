@@ -59,13 +59,12 @@
     <button id="logoutBtn" style="background-color: #ff4444;">Log Out</button>
   </div>
 
-  <!-- Added 'defer' to ensure the HTML loads before the script runs -->
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    // CHANGED: Replaced signInWithPopup with signInWithRedirect
+    import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // Your live Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
       authDomain: "sjs-saloon.firebaseapp.com",
@@ -75,41 +74,28 @@
       appId: "1:346208182886:web:0766d465a0c628bd5c03a7"
     };
 
-    // Initialize Firebase and Database
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    // UI Elements
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const dashboard = document.getElementById('dashboard');
     const statusText = document.getElementById('statusText');
     const userRoleDisplay = document.getElementById('userRole');
 
-    // Handle Login with tracker alerts
+    // Handle Login using Redirect instead of Popup
     loginBtn.addEventListener('click', () => {
-      alert("Button clicked! Attempting to contact Google...");
-      
-      signInWithPopup(auth, provider)
-        .then((result) => {
-            alert("Google responded!");
-        })
-        .catch((error) => {
-            alert("Login Failed: " + error.code + " - " + error.message);
-        });
+      signInWithRedirect(auth, provider);
     });
 
-    // Handle Logout
     logoutBtn.addEventListener('click', () => {
       signOut(auth);
     });
 
-    // Watch for Login Status Changes
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // They are logged in
         loginBtn.style.display = "none";
         statusText.style.display = "none";
         dashboard.style.display = "block";
@@ -118,7 +104,6 @@
         document.getElementById('userEmail').innerText = user.email;
         document.getElementById('userPic').src = user.photoURL;
 
-        // DATABASE CHECK: See if this user exists in our Firestore
         const userRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(userRef);
 
@@ -133,7 +118,6 @@
           
           userRoleDisplay.innerText = "Role: " + userData.role.toUpperCase();
         } else {
-          // First time logging in! Create their profile.
           await setDoc(userRef, {
             name: user.displayName,
             email: user.email,
@@ -142,9 +126,7 @@
           });
           userRoleDisplay.innerText = "Role: PENDING (Waiting for Owner)";
         }
-
       } else {
-        // They are logged out
         loginBtn.style.display = "inline-block";
         statusText.style.display = "block";
         dashboard.style.display = "none";
