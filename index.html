@@ -53,7 +53,7 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage { display: none; margin-top: 15px; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage { display: none; margin-top: 15px; }
     
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
@@ -264,11 +264,11 @@
     <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
   </div>
 
-  <!-- EDIT PROFILE VIEW (STAFF UPDATE PENDING OWNER APPROVAL) -->
+  <!-- EDIT PROFILE VIEW -->
   <div id="editProfileView" class="panel" style="border-color: #4285F4;">
     <button onclick="cancelEditProfile()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
     <h3 style="color: #4285F4;">Edit My Profile & ID Credentials</h3>
-    <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">Updating your info will submit it to the owner for review and replacement.</p>
+    <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">Owners update instantly. Staff updates require owner approval.</p>
 
     <label>Full Display Name</label>
     <input type="text" id="editDisplayName">
@@ -303,7 +303,7 @@
     <label>Upload New Profile Picture (Optional)</label>
     <input type="file" id="editPhoto" accept="image/*">
 
-    <button id="submitEditProfileBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Submit Updates for Owner Approval</button>
+    <button id="submitEditProfileBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Save & Update Profile</button>
   </div>
 
   <!-- DEDICATED OWNER STAFF MANAGEMENT PAGE -->
@@ -347,7 +347,39 @@
     <div id="blacklistList"></div>
   </div>
 
-  <!-- UNIVERSAL SETTINGS PAGE (CONTAINS OWNER WIPE & ACCOUNT CONTROLS FOR ALL) -->
+  <!-- DEDICATED TEAM CHAT PAGE -->
+  <div id="chatPage" class="panel" style="border-color: #d4af37;">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: #d4af37;">💬 Shop Team Chat Room</h3>
+    <p style="color: #aaa; font-size: 13px; text-align: center; margin-bottom: 15px;">Real-time messaging between Owners, Barbers, and Secretaries.</p>
+
+    <div id="chatMessagesBox" style="background: #111; border: 1px solid #444; border-radius: 8px; padding: 15px; height: 300px; overflow-y: auto; margin-bottom: 15px; text-align: left;">
+      <p style="color: #666; text-align: center; font-style: italic;">Loading chat messages...</p>
+    </div>
+
+    <div class="flex-row">
+      <input type="text" id="chatInputMessage" placeholder="Type message here..." autocomplete="off" style="margin-bottom: 0;">
+      <button id="sendChatMessageBtn" style="background: #28a745; border-color: #28a745; width: 120px;">Send</button>
+    </div>
+  </div>
+
+  <!-- DEDICATED ANNOUNCEMENTS PAGE -->
+  <div id="announcementsPage" class="panel" style="border-color: #ffc107;">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: #ffc107;">📢 Announcements & Instructions</h3>
+    
+    <div id="ownerAnnouncementCreator" style="display: none; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #ffc107; margin-bottom: 20px;">
+      <h4 style="color: #ffc107; margin-top: 0;">Publish Announcement (Owner Only)</h4>
+      <textarea id="announcementText" rows="3" placeholder="Enter instructions or announcements for staff..."></textarea>
+      <button id="publishAnnouncementBtn" class="btn-submit" style="background: #ffc107; color: #111; border-color: #ffc107; font-weight: bold;">Post Announcement</button>
+    </div>
+
+    <div id="announcementsListContainer">
+      <p style="color: #666; font-style: italic;">Loading announcements...</p>
+    </div>
+  </div>
+
+  <!-- UNIVERSAL SETTINGS PAGE -->
   <div id="settingsPage" class="panel" style="border-color: #d4af37;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #d4af37;">Settings & Controls</h3>
@@ -426,9 +458,13 @@
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
 
-    <!-- EDIT PROFILE & SETTINGS BUTTONS FOR STAFF & USERS -->
+    <!-- QUICK NAV BUTTONS FOR PROFILE, CHAT, ANNOUNCEMENTS, SETTINGS -->
     <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 15px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
-    <button onclick="openSettingsPage()" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #d4af37; margin-top: 10px; width: 100%; font-weight: bold;">⚙️ Settings</button>
+    <div class="flex-row" style="margin-top: 10px; margin-bottom: 0;">
+      <button onclick="openChatPage()" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; font-size: 13px;">💬 Team Chat</button>
+      <button onclick="openAnnouncementsPage()" style="flex: 1; background: linear-gradient(145deg, #ffc107, #b28704); color: #111; border-color: #ffc107; font-size: 13px;">📢 Announcements</button>
+      <button onclick="openSettingsPage()" style="flex: 1; background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #d4af37; font-size: 13px;">⚙️ Settings</button>
+    </div>
     
     <!-- OWNER MANAGEMENT HUB -->
     <div id="adminPanel" class="panel" style="display: none;">
@@ -496,7 +532,7 @@
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
@@ -577,13 +613,15 @@
       });
     };
 
-    // --- OWNER DEDICATED PAGES & SETTINGS NAVIGATION ---
+    // --- NAVIGATION FOR OWNER PAGES, CHAT, & ANNOUNCEMENTS ---
     window.openOwnerPage = (pageName) => {
       dashboard.style.display = "none";
       document.getElementById('ownerStaffPage').style.display = "none";
       document.getElementById('ownerServicesPage').style.display = "none";
       document.getElementById('ownerBlacklistPage').style.display = "none";
       document.getElementById('settingsPage').style.display = "none";
+      document.getElementById('chatPage').style.display = "none";
+      document.getElementById('announcementsPage').style.display = "none";
 
       if (pageName === 'staff') document.getElementById('ownerStaffPage').style.display = "block";
       else if (pageName === 'services') document.getElementById('ownerServicesPage').style.display = "block";
@@ -599,6 +637,8 @@
       paymentPage.style.display = "none";
       blacklistPage.style.display = "none";
       editProfileView.style.display = "none";
+      document.getElementById('chatPage').style.display = "none";
+      document.getElementById('announcementsPage').style.display = "none";
 
       if (currentUserDoc && currentUserDoc.role === "owner") {
         document.getElementById('ownerDangerZoneBox').style.display = "block";
@@ -607,6 +647,21 @@
       }
 
       document.getElementById('settingsPage').style.display = "block";
+    };
+
+    window.openChatPage = () => {
+      dashboard.style.display = "none";
+      document.getElementById('chatPage').style.display = "block";
+      startChatListener();
+    };
+
+    window.openAnnouncementsPage = () => {
+      dashboard.style.display = "none";
+      document.getElementById('announcementsPage').style.display = "block";
+      if (currentUserDoc && currentUserDoc.role === "owner") {
+        document.getElementById('ownerAnnouncementCreator').style.display = "block";
+      }
+      startAnnouncementsListener();
     };
 
     // --- GLOBAL ID VERIFICATION VALIDATOR ---
@@ -698,6 +753,8 @@
       document.getElementById('ownerServicesPage').style.display = "none";
       document.getElementById('ownerBlacklistPage').style.display = "none";
       document.getElementById('settingsPage').style.display = "none";
+      document.getElementById('chatPage').style.display = "none";
+      document.getElementById('announcementsPage').style.display = "none";
       dashboard.style.display = "block";
       document.getElementById('customerDetailView').style.display = "none";
       document.getElementById('directoryListView').style.display = "block";
@@ -799,13 +856,14 @@
           }
         }
 
+        const isOwner = (role === "owner");
         await setDoc(doc(db, "users", user.uid), {
           name: displayName, email: user.email, photoURL: photoUrlToSave,
           role: role, country: country, idType: idType, idNumber: idNumber,
-          isApproved: false, createdAt: new Date().getTime()
+          isApproved: isOwner, createdAt: new Date().getTime()
         });
 
-        showToast("Profile & ID submitted successfully!");
+        showToast("Profile submitted successfully!");
         setTimeout(() => window.location.reload(), 1500);
       } catch (error) {
         await customPopup('alert', "Error saving profile: " + error.message);
@@ -814,7 +872,7 @@
       }
     });
 
-    // --- EDIT PROFILE NAVIGATION & SUBMISSION ---
+    // --- EDIT PROFILE NAVIGATION & SUBMISSION (INSTANT FOR OWNERS) ---
     window.openEditProfile = () => {
       dashboard.style.display = "none";
       editProfileView.style.display = "block";
@@ -866,21 +924,119 @@
             method: "POST", body: formData
           });
           const uploadData = await uploadRes.json();
-          if (uploadData.secure_url) photoUrlToSave = uploadData.secure_url;
+          if (uploadData.secure_url) {
+            photoUrlToSave = uploadData.secure_url;
+            await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
+          }
         }
 
-        await updateDoc(doc(db, "users", user.uid), {
-          pendingUpdates: {
-            name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime()
-          }
-        });
+        if (currentUserDoc.role === "owner") {
+          // Owner updates instantly without requiring approval
+          await updateDoc(doc(db, "users", user.uid), {
+            name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave
+          });
+          showToast("Profile updated successfully!");
+        } else {
+          // Staff updates go to approval queue
+          await updateDoc(doc(db, "users", user.uid), {
+            pendingUpdates: {
+              name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime()
+            }
+          });
+          showToast("Profile updates submitted for owner approval!");
+        }
 
-        showToast("Profile updates submitted for owner approval!");
         setTimeout(() => window.location.reload(), 1500);
       } catch (err) {
-        await customPopup('alert', "Error submitting updates: " + err.message);
-        btn.innerText = "Submit Updates for Owner Approval";
+        await customPopup('alert', "Error updating profile: " + err.message);
+        btn.innerText = "Save & Update Profile";
         btn.disabled = false;
+      }
+    });
+
+    // --- REAL-TIME TEAM CHAT SYSTEM ---
+    function startChatListener() {
+      const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
+      onSnapshot(q, (snapshot) => {
+        let html = "";
+        snapshot.forEach((docSnap) => {
+          const msg = docSnap.data();
+          const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const isMe = msg.senderId === auth.currentUser.uid;
+          
+          html += `
+            <div style="margin-bottom: 12px; text-align: ${isMe ? 'right' : 'left'};">
+              <span style="font-size: 11px; color: #d4af37;">${msg.senderName} (${msg.senderRole.toUpperCase()}) - ${timeStr}</span><br>
+              <div style="display: inline-block; background: ${isMe ? '#1a4b8c' : '#2a2a2a'}; color: #fff; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px;">
+                ${msg.text}
+              </div>
+            </div>
+          `;
+        });
+        const box = document.getElementById('chatMessagesBox');
+        box.innerHTML = html === "" ? "<p style='color:#666; text-align: center;'>No messages yet. Start the conversation!</p>" : html;
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+
+    document.getElementById('sendChatMessageBtn').addEventListener('click', async () => {
+      const input = document.getElementById('chatInputMessage');
+      const text = input.value.trim();
+      if (!text) return;
+
+      try {
+        await addDoc(collection(db, "team_chat"), {
+          senderId: auth.currentUser.uid,
+          senderName: currentUserDoc.name,
+          senderRole: currentUserDoc.role,
+          text: text,
+          timestamp: new Date().getTime()
+        });
+        input.value = "";
+      } catch (err) {
+        await customPopup('alert', "Error sending message: " + err.message);
+      }
+    });
+
+    // --- ANNOUNCEMENTS SYSTEM ---
+    function startAnnouncementsListener() {
+      const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+      onSnapshot(q, (snapshot) => {
+        let html = "";
+        snapshot.forEach((docSnap) => {
+          const ann = docSnap.data();
+          const dateStr = new Date(ann.timestamp).toLocaleString();
+          html += `
+            <div class="list-item" style="border-left-color: #ffc107;">
+              <div class="ticket-title" style="color: #ffc107;">📢 Announcement</div>
+              <div class="ticket-details" style="color: #fff; font-size: 15px; margin-top: 5px; margin-bottom: 10px;">
+                ${ann.text}
+              </div>
+              <div style="font-size: 11px; color: #888; text-align: right;">
+                Posted by: <strong>${ann.author}</strong> | ${dateStr}
+              </div>
+            </div>
+          `;
+        });
+        document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='color:#666;'>No announcements posted yet.</p>" : html;
+      });
+    }
+
+    document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => {
+      const textarea = document.getElementById('announcementText');
+      const text = textarea.value.trim();
+      if (!text) return await customPopup('alert', "Please write an announcement.");
+
+      try {
+        await addDoc(collection(db, "announcements"), {
+          text: text,
+          author: currentUserDoc.name,
+          timestamp: new Date().getTime()
+        });
+        textarea.value = "";
+        showToast("Announcement published successfully!");
+      } catch (err) {
+        await customPopup('alert', "Error publishing announcement: " + err.message);
       }
     });
 
