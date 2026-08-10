@@ -139,9 +139,22 @@
     .btn-finish { background: linear-gradient(145deg, #444, #222); color: #fff; border-color: #666; }
     .btn-pay { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
 
-    /* OWNER VAULT SPECIAL STYLING */
-    #ownerPanel { border-color: #145523; background: linear-gradient(145deg, #18281a, #0d140e); }
-    #ownerPanel h3 { color: #28a745; border-color: #145523; }
+    /* ANALYTICS GRID */
+    #analyticsPanel { border-color: #145523; background: linear-gradient(145deg, #18281a, #0d140e); }
+    #analyticsTitle { color: #28a745; border-color: #145523; margin-bottom: 20px; }
+    
+    .stats-grid { display: flex; justify-content: space-between; gap: 8px; }
+    .stat-box { 
+      flex: 1; 
+      background: rgba(0,0,0,0.4); 
+      padding: 12px 5px; 
+      border-radius: 8px; 
+      text-align: center; 
+      border: 1px solid #145523; 
+    }
+    .stat-box p { color: #888; font-size: 11px; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: 0.5px; }
+    .stat-box .money { margin: 0; color: #28a745; font-size: 15px; font-weight: bold; }
+    .stat-box .cuts { margin: 5px 0 0 0; color: #bbb; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -184,17 +197,24 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- OWNER VAULT -->
-    <div id="ownerPanel" class="panel" style="display: none;">
-      <h3>The Vault (Owner)</h3>
-      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 5px;">
-        <div style="text-align: left;">
-          <p style="color: #888; margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Today's Cash</p>
-          <h2 style="margin: 5px 0 0 0; color: #28a745; font-weight: normal;">GHS <span id="totalRevenue" style="font-weight: bold;">0.00</span></h2>
+    <!-- DYNAMIC ANALYTICS VAULT -->
+    <div id="analyticsPanel" class="panel" style="display: none;">
+      <h3 id="analyticsTitle">Shop Analytics</h3>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <p>Today</p>
+          <h2 class="money">GHS <span id="todayRev">0.00</span></h2>
+          <p class="cuts"><span id="todayCuts">0</span> cuts</p>
         </div>
-        <div style="text-align: right;">
-          <p style="color: #888; margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Total Cuts</p>
-          <h2 style="margin: 5px 0 0 0; color: white;"><span id="totalCuts">0</span></h2>
+        <div class="stat-box">
+          <p>This Week</p>
+          <h2 class="money">GHS <span id="weekRev">0.00</span></h2>
+          <p class="cuts"><span id="weekCuts">0</span> cuts</p>
+        </div>
+        <div class="stat-box">
+          <p>This Month</p>
+          <h2 class="money">GHS <span id="monthRev">0.00</span></h2>
+          <p class="cuts"><span id="monthCuts">0</span> cuts</p>
         </div>
       </div>
     </div>
@@ -231,7 +251,8 @@
     
     const secretaryPanel = document.getElementById('secretaryPanel');
     const queuePanel = document.getElementById('queuePanel');
-    const ownerPanel = document.getElementById('ownerPanel');
+    const analyticsPanel = document.getElementById('analyticsPanel');
+    const analyticsTitle = document.getElementById('analyticsTitle');
 
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -256,18 +277,25 @@
           currentRole = "owner";
           userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
           secretaryPanel.style.display = "block"; 
-          ownerPanel.style.display = "block"; 
+          analyticsPanel.style.display = "block"; 
+          analyticsTitle.innerText = "The Vault (Shop Analytics)";
           startLiveQueue(); 
-          startOwnerTracker(); 
+          startAnalyticsTracker(); // No name passed = track everything
         } else if (user.email === "kuukua@gmail.com") {
           currentRole = "secretary";
           userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
           secretaryPanel.style.display = "block";
+          analyticsPanel.style.display = "block"; 
+          analyticsTitle.innerText = "Shop Analytics";
           startLiveQueue();
+          startAnalyticsTracker(); // No name passed = track everything
         } else {
           currentRole = "barber";
           userRoleDisplay.innerText = "👤 ROLE: BARBER";
+          analyticsPanel.style.display = "block"; 
+          analyticsTitle.innerText = "My Work History";
           startLiveQueue();
+          startAnalyticsTracker(user.displayName); // Pass Google Name to filter
         }
 
       } else {
@@ -345,24 +373,55 @@
       });
     }
 
-    function startOwnerTracker() {
+    // --- ROLE-BASED ANALYTICS ---
+    function startAnalyticsTracker(barberNameFilter = null) {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
-        let totalCash = 0;
-        let cutsCompleted = 0;
+        let todayCash = 0, todayCuts = 0;
+        let weekCash = 0, weekCuts = 0;
+        let monthCash = 0, monthCuts = 0;
         
-        const startOfToday = new Date();
-        startOfToday.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()).getTime();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
-          if (ticket.status === "paid" && ticket.timestamp >= startOfToday.getTime()) {
-            totalCash += ticket.price;
-            cutsCompleted++;
+          if (ticket.status === "paid") {
+            
+            // If logged in as a Barber, skip tickets assigned to other people
+            if (barberNameFilter) {
+              const firstName = barberNameFilter.split(' ')[0].toLowerCase();
+              if (ticket.assignedBarber.toLowerCase() !== firstName) {
+                return; // Skips this ticket
+              }
+            }
+
+            const time = ticket.timestamp;
+            
+            if (time >= startOfToday) {
+              todayCash += ticket.price;
+              todayCuts++;
+            }
+            if (time >= startOfWeek) {
+              weekCash += ticket.price;
+              weekCuts++;
+            }
+            if (time >= startOfMonth) {
+              monthCash += ticket.price;
+              monthCuts++;
+            }
           }
         });
 
-        document.getElementById('totalRevenue').innerText = totalCash.toFixed(2);
-        document.getElementById('totalCuts').innerText = cutsCompleted;
+        document.getElementById('todayRev').innerText = todayCash.toFixed(2);
+        document.getElementById('todayCuts').innerText = todayCuts;
+        
+        document.getElementById('weekRev').innerText = weekCash.toFixed(2);
+        document.getElementById('weekCuts').innerText = weekCuts;
+        
+        document.getElementById('monthRev').innerText = monthCash.toFixed(2);
+        document.getElementById('monthCuts').innerText = monthCuts;
       });
     }
   </script>
