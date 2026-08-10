@@ -1,429 +1,2363 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SJ'S SALOON</title>
-  <style>
-    /* PREMIUM DARK METALLIC THEME */
-    body { 
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-      color: #e0e0e0; 
-      text-align: center; 
-      padding: 15px; 
-      margin: 0;
-      min-height: 100vh;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SJ'S SALOON — Management System</title>
 
-    h1 {
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: #d4af37;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-      margin-top: 10px;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    /* POLISHED BUTTONS */
-    button { 
-      padding: 14px 24px; 
-      font-size: 16px; 
-      font-weight: bold;
-      background: linear-gradient(145deg, #333, #111);
-      color: #d4af37; 
-      border: 1px solid #555; 
-      border-radius: 8px; 
-      cursor: pointer;
-      box-shadow: 3px 3px 8px rgba(0,0,0,0.6);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    button:active {
-      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8);
-    }
-    
-    #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
-    #logoutBtn { background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; margin-top: 30px; width: 100%; }
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, #0b0b0b 0%, #1a1a1a 100%);
+  color: #e0e0e0;
+  text-align: center;
+  padding: 15px;
+  margin: 0;
+  min-height: 100vh;
+}
 
-    /* USER PROFILE */
-    img { 
-      border-radius: 50%; 
-      width: 90px; 
-      height: 90px; 
-      border: 2px solid #d4af37;
-      margin-bottom: 5px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.8);
-    }
-    #dashboard { display: none; margin-top: 15px; }
-    #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
-    
-    #userRole {
-      background: linear-gradient(145deg, #2a2a2a, #111);
-      display: inline-block;
-      padding: 6px 18px;
-      border-radius: 20px;
-      margin-top: 8px;
-      color: #d4af37;
-      font-weight: bold;
-      font-size: 12px;
-      letter-spacing: 1px;
-      border: 1px solid #444;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-    }
-    
-    /* SLEEK PANELS */
-    .panel {
-      background: linear-gradient(145deg, #222, #181818);
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 25px;
-      text-align: left;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
-    }
-    .panel h3 { 
-      margin-top: 0; 
-      color: #d4af37; 
-      text-align: center; 
-      border-bottom: 1px solid #333; 
-      padding-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 16px;
-    }
+h1 {
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #d4af37;
+  text-shadow: 2px 2px 4px rgba(0,0,0,.8);
+  margin-top: 10px;
+}
 
-    /* INPUTS & DROPDOWNS */
-    label { font-size: 14px; color: #aaa; margin-bottom: 5px; display: block; }
-    input, select {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 20px;
-      background-color: #111;
-      color: white;
-      border: 1px solid #444;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-size: 16px;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
-    }
-    input:focus, select:focus { outline: none; border-color: #d4af37; }
-    
-    .btn-submit { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%; }
-    
-    /* LIVE QUEUE TICKETS */
-    .ticket {
-      background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-      padding: 16px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      border-left: 4px solid #d4af37;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-    }
-    .ticket-title { font-size: 18px; font-weight: bold; margin-bottom: 6px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-    .ticket-details { font-size: 14px; color: #aaa; margin-bottom: 12px; line-height: 1.4; }
-    .ticket-details strong { color: #d4af37; }
-    
-    .status-badge {
-      font-size: 11px;
-      padding: 5px 10px;
-      border-radius: 12px;
-      background: linear-gradient(145deg, #ffc107, #b28704);
-      color: #111;
-      font-weight: bold;
-      display: inline-block;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-    }
-    
-    .btn-action { width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
-    .btn-finish { background: linear-gradient(145deg, #444, #222); color: #fff; border-color: #666; }
-    .btn-pay { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
+h2, h3 {
+  color: #d4af37;
+}
 
-    /* ANALYTICS GRID */
-    #analyticsPanel { border-color: #145523; background: linear-gradient(145deg, #18281a, #0d140e); }
-    #analyticsTitle { color: #28a745; border-color: #145523; margin-bottom: 20px; }
-    
-    .stats-grid { display: flex; justify-content: space-between; gap: 8px; }
-    .stat-box { 
-      flex: 1; 
-      background: rgba(0,0,0,0.4); 
-      padding: 12px 5px; 
-      border-radius: 8px; 
-      text-align: center; 
-      border: 1px solid #145523; 
-    }
-    .stat-box p { color: #888; font-size: 11px; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: 0.5px; }
-    .stat-box .money { margin: 0; color: #28a745; font-size: 15px; font-weight: bold; }
-    .stat-box .cuts { margin: 5px 0 0 0; color: #bbb; font-size: 12px; }
-  </style>
+button {
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: bold;
+  background: linear-gradient(145deg,#333,#111);
+  color: #d4af37;
+  border: 1px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 3px 3px 8px rgba(0,0,0,.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,.8);
+}
+
+button:hover {
+  filter: brightness(1.15);
+}
+
+#loginBtn {
+  background: linear-gradient(145deg,#1a4b8c,#0a2342);
+  color: white;
+  border-color: #2a6bcc;
+}
+
+#logoutBtn {
+  background: linear-gradient(145deg,#8c1a1a,#420a0a);
+  color: white;
+  border-color: #cc2a2a;
+  margin-top: 30px;
+  width: 100%;
+}
+
+img {
+  border-radius: 50%;
+  width: 90px;
+  height: 90px;
+  border: 2px solid #d4af37;
+  margin-bottom: 5px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.8);
+}
+
+#dashboard {
+  display:none;
+  margin-top:15px;
+}
+
+#userName {
+  margin:5px 0 0;
+}
+
+#userRole {
+  background:linear-gradient(145deg,#2a2a2a,#111);
+  display:inline-block;
+  padding:6px 18px;
+  border-radius:20px;
+  margin-top:8px;
+  color:#d4af37;
+  font-weight:bold;
+  font-size:12px;
+  letter-spacing:1px;
+  border:1px solid #444;
+}
+
+.panel {
+  background:linear-gradient(145deg,#222,#181818);
+  border:1px solid #333;
+  border-radius:12px;
+  padding:20px;
+  margin-top:25px;
+  text-align:left;
+  box-shadow:0 8px 16px rgba(0,0,0,.6);
+}
+
+.panel h3 {
+  margin-top:0;
+  text-align:center;
+  border-bottom:1px solid #333;
+  padding-bottom:12px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-size:16px;
+}
+
+label {
+  font-size:14px;
+  color:#aaa;
+  margin-bottom:5px;
+  display:block;
+}
+
+input,
+select {
+  width:100%;
+  padding:14px;
+  margin-bottom:18px;
+  background:#111;
+  color:white;
+  border:1px solid #444;
+  border-radius:8px;
+  font-size:16px;
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.8);
+}
+
+input:focus,
+select:focus {
+  outline:none;
+  border-color:#d4af37;
+}
+
+.btn-submit {
+  background:linear-gradient(145deg,#28a745,#145523);
+  color:white;
+  border-color:#28a745;
+  width:100%;
+}
+
+.btn-blue {
+  background:linear-gradient(145deg,#246bb2,#102f50);
+  color:white;
+  border-color:#3987d7;
+  width:100%;
+}
+
+.btn-danger {
+  background:linear-gradient(145deg,#8c1a1a,#420a0a);
+  color:white;
+  border-color:#cc2a2a;
+}
+
+.btn-action {
+  width:100%;
+  padding:12px;
+  font-size:13px;
+  margin-top:6px;
+}
+
+.btn-finish {
+  background:linear-gradient(145deg,#444,#222);
+  color:white;
+  border-color:#666;
+}
+
+.btn-pay {
+  background:linear-gradient(145deg,#28a745,#145523);
+  color:white;
+  border-color:#28a745;
+}
+
+.ticket {
+  background:linear-gradient(145deg,#2a2a2a,#1a1a1a);
+  padding:16px;
+  border-radius:10px;
+  margin-bottom:15px;
+  border-left:4px solid #d4af37;
+  box-shadow:0 4px 8px rgba(0,0,0,.4);
+}
+
+.ticket-number {
+  font-size:14px;
+  color:#d4af37;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+.ticket-title {
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:6px;
+  color:#fff;
+  text-transform:uppercase;
+}
+
+.ticket-details {
+  font-size:14px;
+  color:#aaa;
+  margin-bottom:12px;
+  line-height:1.6;
+}
+
+.ticket-details strong {
+  color:#d4af37;
+}
+
+.status-badge {
+  font-size:11px;
+  padding:5px 10px;
+  border-radius:12px;
+  background:linear-gradient(145deg,#ffc107,#b28704);
+  color:#111;
+  font-weight:bold;
+  display:inline-block;
+  margin-bottom:10px;
+  letter-spacing:1px;
+}
+
+.stats-grid {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.stat-box {
+  flex:1;
+  min-width:90px;
+  background:rgba(0,0,0,.4);
+  padding:12px 5px;
+  border-radius:8px;
+  text-align:center;
+  border:1px solid #145523;
+}
+
+.stat-box p {
+  color:#888;
+  font-size:11px;
+  text-transform:uppercase;
+  margin:0 0 5px;
+}
+
+.stat-box .money {
+  margin:0;
+  color:#28a745;
+  font-size:15px;
+}
+
+.stat-box .cuts {
+  margin:5px 0 0;
+  color:#bbb;
+  font-size:12px;
+}
+
+.search-box {
+  margin-bottom:15px;
+}
+
+.customer-card,
+.appointment-card {
+  background:linear-gradient(145deg,#292929,#181818);
+  border:1px solid #3a3a3a;
+  border-left:4px solid #d4af37;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:12px;
+}
+
+.customer-name {
+  color:#fff;
+  font-size:17px;
+  font-weight:bold;
+}
+
+.small-text {
+  color:#999;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.gold {
+  color:#d4af37;
+}
+
+.green {
+  color:#28a745;
+}
+
+.red {
+  color:#e74c3c;
+}
+
+.blue {
+  color:#5da9ff;
+}
+
+.queue-number-big {
+  font-size:30px;
+  font-weight:bold;
+  color:#d4af37;
+}
+
+.tabs {
+  display:flex;
+  gap:5px;
+  overflow-x:auto;
+  margin-top:20px;
+}
+
+.tab-btn {
+  flex:1;
+  min-width:110px;
+  padding:11px 8px;
+  font-size:11px;
+}
+
+.hidden {
+  display:none !important;
+}
+
+.empty {
+  color:#666;
+  text-align:center;
+  padding:20px;
+  font-style:italic;
+}
+
+.modal {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.82);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  padding:15px;
+}
+
+.modal-content {
+  width:100%;
+  max-width:500px;
+  max-height:90vh;
+  overflow-y:auto;
+  background:linear-gradient(145deg,#242424,#111);
+  border:1px solid #555;
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 15px 50px rgba(0,0,0,.8);
+}
+
+.close-btn {
+  float:right;
+  padding:7px 12px;
+  font-size:12px;
+}
+
+.customer-stat {
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px solid #333;
+}
+
+@media(max-width:600px) {
+  body {
+    padding:10px;
+  }
+
+  .panel {
+    padding:15px;
+  }
+
+  .stats-grid {
+    gap:5px;
+  }
+
+  .stat-box {
+    min-width:29%;
+  }
+
+  h1 {
+    font-size:25px;
+  }
+}
+</style>
 </head>
+
 <body>
 
-  <h1>SJ'S SALOON</h1>
-  <p id="statusText" style="color: #888;">Please log in to continue.</p>
-  
-  <button id="loginBtn">Sign in with Google</button>
+<h1>SJ'S SALOON</h1>
 
-  <div id="dashboard">
-    <img id="userPic" src="" alt="Profile Picture">
-    <h3 id="userName"></h3>
-    <div id="userRole">Role: LOADING...</div>
-    
-    <!-- SECRETARY FRONT DESK PANEL -->
-    <div id="secretaryPanel" class="panel" style="display: none;">
-      <h3>Front Desk Intake</h3>
-      <label>Customer Name</label>
-      <input type="text" id="custName" placeholder="Enter full name...">
+<p id="statusText" style="color:#888;">
+  Please log in to continue.
+</p>
 
-      <label>Service Type</label>
-      <select id="serviceType">
-        <option value="Adult Fade|50">Adult Fade - 50.00 GHS</option>
-        <option value="Line-Up|20">Line-Up - 20.00 GHS</option>
-        <option value="Kids Cut|30">Kids Cut - 30.00 GHS</option>
-      </select>
+<button id="loginBtn">Sign in with Google</button>
 
-      <label>Assign To Barber</label>
-      <select id="barberName">
-        <option value="Angel">Angel</option>
-        <option value="Gideon">Gideon</option>
-      </select>
+<div id="dashboard">
 
-      <button id="sendBtn" class="btn-submit">Send to Barber Chair</button>
-    </div>
+  <img id="userPic" src="" alt="Profile Picture">
 
-    <!-- LIVE SHOP QUEUE -->
-    <div id="queuePanel" class="panel" style="display: none;">
-      <h3>Live Shop Queue</h3>
-      <div id="queueList"></div>
-    </div>
+  <h3 id="userName"></h3>
 
-    <!-- DYNAMIC ANALYTICS VAULT -->
-    <div id="analyticsPanel" class="panel" style="display: none;">
-      <h3 id="analyticsTitle">Shop Analytics</h3>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <p>Today</p>
-          <h2 class="money">GHS <span id="todayRev">0.00</span></h2>
-          <p class="cuts"><span id="todayCuts">0</span> cuts</p>
-        </div>
-        <div class="stat-box">
-          <p>This Week</p>
-          <h2 class="money">GHS <span id="weekRev">0.00</span></h2>
-          <p class="cuts"><span id="weekCuts">0</span> cuts</p>
-        </div>
-        <div class="stat-box">
-          <p>This Month</p>
-          <h2 class="money">GHS <span id="monthRev">0.00</span></h2>
-          <p class="cuts"><span id="monthCuts">0</span> cuts</p>
-        </div>
-      </div>
-    </div>
-    
-    <button id="logoutBtn">Log Out</button>
+  <div id="userRole">
+    Role: LOADING...
   </div>
 
-  <script type="module" defer>
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  <!-- NAVIGATION -->
+  <div class="tabs">
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
-      authDomain: "sjs-saloon.firebaseapp.com",
-      projectId: "sjs-saloon",
-      storageBucket: "sjs-saloon.firebasestorage.app",
-      messagingSenderId: "346208182886",
-      appId: "1:346208182886:web:0766d465a0c628bd5c03a7"
-    };
+    <button class="tab-btn" onclick="showSection('queuePanel')">
+      Queue
+    </button>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
+    <button class="tab-btn" onclick="showSection('secretaryPanel')">
+      New Customer
+    </button>
 
-    let currentRole = ""; 
+    <button class="tab-btn" onclick="showSection('appointmentPanel')">
+      Appointments
+    </button>
 
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const dashboard = document.getElementById('dashboard');
-    const statusText = document.getElementById('statusText');
-    const userRoleDisplay = document.getElementById('userRole');
-    
-    const secretaryPanel = document.getElementById('secretaryPanel');
-    const queuePanel = document.getElementById('queuePanel');
-    const analyticsPanel = document.getElementById('analyticsPanel');
-    const analyticsTitle = document.getElementById('analyticsTitle');
+    <button class="tab-btn" onclick="showSection('customersPanel')">
+      Customers
+    </button>
 
-    loginBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      signInWithPopup(auth, provider).catch((error) => alert("Login failed: " + error.message));
+    <button class="tab-btn" onclick="showSection('analyticsPanel')">
+      Analytics
+    </button>
+
+  </div>
+
+  <!-- CUSTOMER INTAKE -->
+  <div id="secretaryPanel" class="panel">
+
+    <h3>Customer Intake</h3>
+
+    <label>Customer Full Name</label>
+    <input
+      type="text"
+      id="custName"
+      placeholder="Enter full name..."
+    >
+
+    <label>Customer Phone Number</label>
+    <input
+      type="tel"
+      id="custPhone"
+      placeholder="e.g. 0241234567"
+    >
+
+    <label>Service Type</label>
+
+    <select id="serviceType">
+
+      <option value="Adult Fade|50|30">
+        Adult Fade - GHS 50 - 30 min
+      </option>
+
+      <option value="Line-Up|20|15">
+        Line-Up - GHS 20 - 15 min
+      </option>
+
+      <option value="Kids Cut|30|25">
+        Kids Cut - GHS 30 - 25 min
+      </option>
+
+      <option value="Beard Trim|25|20">
+        Beard Trim - GHS 25 - 20 min
+      </option>
+
+      <option value="Hair Dye|80|60">
+        Hair Dye - GHS 80 - 60 min
+      </option>
+
+    </select>
+
+    <label>Assign To Barber</label>
+
+    <select id="barberName">
+      <option value="Angel">Angel</option>
+      <option value="Gideon">Gideon</option>
+    </select>
+
+    <label>Customer Type</label>
+
+    <select id="customerType">
+      <option value="walk_in">Walk-In</option>
+      <option value="appointment">Appointment</option>
+    </select>
+
+    <button id="sendBtn" class="btn-submit">
+      Generate Queue Ticket
+    </button>
+
+  </div>
+
+  <!-- LIVE QUEUE -->
+  <div id="queuePanel" class="panel">
+
+    <h3>Live Shop Queue</h3>
+
+    <div id="queueList"></div>
+
+  </div>
+
+  <!-- APPOINTMENTS -->
+  <div id="appointmentPanel" class="panel">
+
+    <h3>Book Appointment</h3>
+
+    <label>Customer Name</label>
+    <input id="appointmentName" placeholder="Customer name">
+
+    <label>Phone Number</label>
+    <input id="appointmentPhone" placeholder="0241234567">
+
+    <label>Service</label>
+
+    <select id="appointmentService">
+
+      <option value="Adult Fade|50|30">
+        Adult Fade - GHS 50
+      </option>
+
+      <option value="Line-Up|20|15">
+        Line-Up - GHS 20
+      </option>
+
+      <option value="Kids Cut|30|25">
+        Kids Cut - GHS 30
+      </option>
+
+      <option value="Beard Trim|25|20">
+        Beard Trim - GHS 25
+      </option>
+
+      <option value="Hair Dye|80|60">
+        Hair Dye - GHS 80
+      </option>
+
+    </select>
+
+    <label>Barber</label>
+
+    <select id="appointmentBarber">
+      <option value="Angel">Angel</option>
+      <option value="Gideon">Gideon</option>
+    </select>
+
+    <label>Date</label>
+    <input type="date" id="appointmentDate">
+
+    <label>Time</label>
+    <input type="time" id="appointmentTime">
+
+    <button id="bookAppointmentBtn" class="btn-blue">
+      Book Appointment
+    </button>
+
+    <hr style="border-color:#333;margin:25px 0;">
+
+    <h3>Upcoming Appointments</h3>
+
+    <div id="appointmentsList"></div>
+
+  </div>
+
+  <!-- CUSTOMER DATABASE -->
+  <div id="customersPanel" class="panel">
+
+    <h3>Customer Database</h3>
+
+    <input
+      id="customerSearch"
+      class="search-box"
+      placeholder="🔎 Search name or phone..."
+    >
+
+    <div id="customersList"></div>
+
+  </div>
+
+  <!-- ANALYTICS -->
+  <div id="analyticsPanel" class="panel">
+
+    <h3 id="analyticsTitle">
+      Shop Analytics
+    </h3>
+
+    <div class="stats-grid">
+
+      <div class="stat-box">
+        <p>Today</p>
+        <h2 class="money">
+          GHS <span id="todayRev">0.00</span>
+        </h2>
+        <p class="cuts">
+          <span id="todayCuts">0</span> cuts
+        </p>
+      </div>
+
+      <div class="stat-box">
+        <p>This Week</p>
+        <h2 class="money">
+          GHS <span id="weekRev">0.00</span>
+        </h2>
+        <p class="cuts">
+          <span id="weekCuts">0</span> cuts
+        </p>
+      </div>
+
+      <div class="stat-box">
+        <p>This Month</p>
+        <h2 class="money">
+          GHS <span id="monthRev">0.00</span>
+        </h2>
+        <p class="cuts">
+          <span id="monthCuts">0</span> cuts
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <button id="logoutBtn">
+    Log Out
+  </button>
+
+</div>
+
+<!-- CUSTOMER PROFILE MODAL -->
+
+<div id="customerModal" class="modal">
+
+  <div class="modal-content">
+
+    <button
+      class="close-btn btn-danger"
+      onclick="closeCustomerModal()"
+    >
+      X
+    </button>
+
+    <h3 id="modalCustomerName">
+      Customer
+    </h3>
+
+    <div id="customerDetails"></div>
+
+  </div>
+
+</div>
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  doc,
+  updateDoc,
+  setDoc,
+  getDoc,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+
+/* =========================
+   FIREBASE
+========================= */
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
+
+  authDomain: "sjs-saloon.firebaseapp.com",
+
+  projectId: "sjs-saloon",
+
+  storageBucket: "sjs-saloon.firebasestorage.app",
+
+  messagingSenderId: "346208182886",
+
+  appId: "1:346208182886:web:0766d465a0c628bd5c03a7"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+const provider = new GoogleAuthProvider();
+
+
+/* =========================
+   GLOBAL STATE
+========================= */
+
+let currentRole = "";
+
+let currentUser = null;
+
+let allCustomers = [];
+
+let allAppointments = [];
+
+let allTickets = [];
+
+let queueListener = null;
+
+let customerListener = null;
+
+let appointmentListener = null;
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const loginBtn =
+  document.getElementById("loginBtn");
+
+const logoutBtn =
+  document.getElementById("logoutBtn");
+
+const dashboard =
+  document.getElementById("dashboard");
+
+const statusText =
+  document.getElementById("statusText");
+
+const userRoleDisplay =
+  document.getElementById("userRole");
+
+
+/* =========================
+   LOGIN
+========================= */
+
+loginBtn.addEventListener("click", async (e) => {
+
+  e.preventDefault();
+
+  try {
+
+    await signInWithPopup(auth, provider);
+
+  } catch(error) {
+
+    alert("Login failed: " + error.message);
+
+  }
+
+});
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+logoutBtn.addEventListener("click", async () => {
+
+  await signOut(auth);
+
+  window.location.reload();
+
+});
+
+
+/* =========================
+   AUTH STATE
+========================= */
+
+onAuthStateChanged(auth, (user) => {
+
+  if(user) {
+
+    currentUser = user;
+
+    loginBtn.style.display = "none";
+
+    statusText.style.display = "none";
+
+    dashboard.style.display = "block";
+
+    document.getElementById("userName").innerText =
+      user.displayName || "User";
+
+    document.getElementById("userPic").src =
+      user.photoURL || "";
+
+    determineRole(user);
+
+    startLiveQueue();
+
+    startCustomerDatabase();
+
+    startAppointments();
+
+    startAnalyticsTracker();
+
+  } else {
+
+    loginBtn.style.display = "inline-block";
+
+    statusText.style.display = "block";
+
+    dashboard.style.display = "none";
+
+  }
+
+});
+
+
+/* =========================
+   ROLE SYSTEM
+========================= */
+
+function determineRole(user) {
+
+  if(user.email === "gismartsghana@gmail.com") {
+
+    currentRole = "owner";
+
+    userRoleDisplay.innerText =
+      "👑 ROLE: SHOP OWNER";
+
+  }
+
+  else if(user.email === "kuukua@gmail.com") {
+
+    currentRole = "secretary";
+
+    userRoleDisplay.innerText =
+      "👩‍💼 ROLE: SECRETARY";
+
+  }
+
+  else {
+
+    currentRole = "barber";
+
+    userRoleDisplay.innerText =
+      "✂️ ROLE: BARBER";
+
+  }
+
+}
+
+
+/* =========================
+   SECTION NAVIGATION
+========================= */
+
+window.showSection = function(sectionId) {
+
+  const sections = [
+    "secretaryPanel",
+    "queuePanel",
+    "appointmentPanel",
+    "customersPanel",
+    "analyticsPanel"
+  ];
+
+  sections.forEach(id => {
+
+    const el = document.getElementById(id);
+
+    if(el) {
+
+      el.style.display =
+        id === sectionId ? "block" : "none";
+
+    }
+
+  });
+
+};
+
+
+/* =========================
+   INITIAL SECTION
+========================= */
+
+window.addEventListener("load", () => {
+
+  setTimeout(() => {
+
+    showSection("queuePanel");
+
+  }, 500);
+
+});
+
+
+/* =========================
+   CUSTOMER INTAKE
+========================= */
+
+document
+.getElementById("sendBtn")
+.addEventListener("click", async () => {
+
+  const name =
+    document.getElementById("custName").value.trim();
+
+  const phone =
+    document.getElementById("custPhone").value.trim();
+
+  const serviceData =
+    document.getElementById("serviceType").value.split("|");
+
+  const barber =
+    document.getElementById("barberName").value;
+
+  const customerType =
+    document.getElementById("customerType").value;
+
+
+  if(!name) {
+
+    alert("Please enter the customer's name.");
+
+    return;
+
+  }
+
+
+  if(!phone) {
+
+    alert("Please enter the customer's phone number.");
+
+    return;
+
+  }
+
+
+  try {
+
+    /* CREATE / UPDATE CUSTOMER */
+
+    await createOrUpdateCustomer(
+      name,
+      phone
+    );
+
+
+    /* GENERATE QUEUE NUMBER */
+
+    const queueNumber =
+      await generateQueueNumber();
+
+
+    /* CREATE TICKET */
+
+    await addDoc(
+      collection(db, "daily_tickets"),
+      {
+
+        queueNumber,
+
+        customerName: name,
+
+        customerPhone: phone,
+
+        serviceName: serviceData[0],
+
+        price: Number(serviceData[1]),
+
+        duration: Number(serviceData[2]),
+
+        assignedBarber: barber,
+
+        customerType,
+
+        status: "in_progress",
+
+        paymentMethod: "",
+
+        timestamp: Date.now(),
+
+        createdBy:
+          currentUser ? currentUser.uid : ""
+
+      }
+    );
+
+
+    /* CLEAR FORM */
+
+    document.getElementById("custName").value = "";
+
+    document.getElementById("custPhone").value = "";
+
+
+    alert(
+      `Customer added successfully!\n\nQueue Number: ${queueNumber}`
+    );
+
+
+    showSection("queuePanel");
+
+
+  } catch(error) {
+
+    alert(
+      "Could not create customer: " +
+      error.message
+    );
+
+  }
+
+});
+
+
+/* =========================
+   CUSTOMER CREATION
+========================= */
+
+async function createOrUpdateCustomer(name, phone) {
+
+  const customerId =
+    normalizePhone(phone);
+
+
+  const customerRef =
+    doc(db, "customers", customerId);
+
+
+  const existing =
+    await getDoc(customerRef);
+
+
+  if(existing.exists()) {
+
+    await updateDoc(customerRef, {
+
+      name,
+
+      phone,
+
+      lastVisit: Date.now()
+
     });
 
-    logoutBtn.addEventListener('click', () => {
-      signOut(auth).then(() => window.location.reload());
+  } else {
+
+    await setDoc(customerRef, {
+
+      name,
+
+      phone,
+
+      totalVisits: 0,
+
+      totalSpent: 0,
+
+      lastVisit: Date.now(),
+
+      createdAt: Date.now()
+
     });
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        loginBtn.style.display = "none";
-        statusText.style.display = "none";
-        dashboard.style.display = "block";
-        queuePanel.style.display = "block";
-        
-        document.getElementById('userName').innerText = user.displayName;
-        document.getElementById('userPic').src = user.photoURL;
+  }
 
-        if (user.email === "gismartsghana@gmail.com") {
-          currentRole = "owner";
-          userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
-          secretaryPanel.style.display = "block"; 
-          analyticsPanel.style.display = "block"; 
-          analyticsTitle.innerText = "The Vault (Shop Analytics)";
-          startLiveQueue(); 
-          startAnalyticsTracker(); // No name passed = track everything
-        } else if (user.email === "kuukua@gmail.com") {
-          currentRole = "secretary";
-          userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
-          secretaryPanel.style.display = "block";
-          analyticsPanel.style.display = "block"; 
-          analyticsTitle.innerText = "Shop Analytics";
-          startLiveQueue();
-          startAnalyticsTracker(); // No name passed = track everything
-        } else {
-          currentRole = "barber";
-          userRoleDisplay.innerText = "👤 ROLE: BARBER";
-          analyticsPanel.style.display = "block"; 
-          analyticsTitle.innerText = "My Work History";
-          startLiveQueue();
-          startAnalyticsTracker(user.displayName); // Pass Google Name to filter
+}
+
+
+/* =========================
+   PHONE NORMALIZATION
+========================= */
+
+function normalizePhone(phone) {
+
+  return phone
+    .replace(/\D/g, "")
+    .slice(-10);
+
+}
+
+
+/* =========================
+   QUEUE NUMBER
+========================= */
+
+async function generateQueueNumber() {
+
+  const today =
+    new Date().toISOString().slice(0,10);
+
+  const counterRef =
+    doc(db, "queue_counters", today);
+
+  const counterSnap =
+    await getDoc(counterRef);
+
+
+  let number = 1;
+
+
+  if(counterSnap.exists()) {
+
+    number =
+      Number(counterSnap.data().number || 0) + 1;
+
+  }
+
+
+  await setDoc(counterRef, {
+
+    number
+
+  });
+
+
+  return "SJ-" +
+    String(number).padStart(3,"0");
+
+}
+
+
+/* =========================
+   LIVE QUEUE
+========================= */
+
+function startLiveQueue() {
+
+  const queueList =
+    document.getElementById("queueList");
+
+
+  if(queueListener) {
+
+    queueListener();
+
+  }
+
+
+  queueListener =
+    onSnapshot(
+      collection(db,"daily_tickets"),
+      (snapshot) => {
+
+        allTickets = [];
+
+
+        snapshot.forEach(docSnap => {
+
+          allTickets.push({
+
+            id: docSnap.id,
+
+            ...docSnap.data()
+
+          });
+
+        });
+
+
+        allTickets.sort(
+          (a,b) =>
+            Number(a.timestamp || 0) -
+            Number(b.timestamp || 0)
+        );
+
+
+        renderQueue();
+
+      },
+      error => {
+
+        console.error(
+          "Queue error:",
+          error
+        );
+
+      }
+    );
+
+}
+
+
+/* =========================
+   RENDER QUEUE
+========================= */
+
+function renderQueue() {
+
+  const queueList =
+    document.getElementById("queueList");
+
+
+  let html = "";
+
+
+  allTickets.forEach(ticket => {
+
+    if(ticket.status === "paid") {
+
+      return;
+
+    }
+
+
+    /* Barber sees only their own tickets */
+
+    if(
+      currentRole === "barber" &&
+      ticket.assignedBarber &&
+      ticket.assignedBarber.toLowerCase() !==
+      (currentUser.displayName || "")
+      .split(" ")[0]
+      .toLowerCase()
+    ) {
+
+      return;
+
+    }
+
+
+    let actionButton = "";
+
+
+    if(
+      ticket.status === "in_progress" &&
+      (
+        currentRole === "barber" ||
+        currentRole === "owner"
+      )
+    ) {
+
+      actionButton = `
+        <button
+          class="btn-action btn-finish"
+          onclick="finishTicket('${ticket.id}')"
+        >
+          FINISH CUT
+        </button>
+      `;
+
+    }
+
+
+    if(
+      ticket.status === "completed" &&
+      (
+        currentRole === "secretary" ||
+        currentRole === "owner"
+      )
+    ) {
+
+      actionButton = `
+        <button
+          class="btn-action btn-pay"
+          onclick="collectPayment('${ticket.id}')"
+        >
+          COLLECT PAYMENT
+        </button>
+      `;
+
+    }
+
+
+    const type =
+      ticket.customerType === "appointment"
+        ? "📅 APPOINTMENT"
+        : "🚶 WALK-IN";
+
+
+    html += `
+
+      <div class="ticket">
+
+        <div class="queue-number-big">
+          ${escapeHtml(ticket.queueNumber || "—")}
+        </div>
+
+        <div class="ticket-title">
+          ${escapeHtml(ticket.customerName || "")}
+        </div>
+
+        <div class="ticket-details">
+
+          📞 ${escapeHtml(ticket.customerPhone || "No phone")}<br>
+
+          ✂️ ${escapeHtml(ticket.serviceName || "")}<br>
+
+          💰 GHS ${Number(ticket.price || 0).toFixed(2)}<br>
+
+          ⏱️ ${Number(ticket.duration || 0)} minutes<br>
+
+          👤 Assigned to:
+          <strong>
+            ${escapeHtml(ticket.assignedBarber || "")}
+          </strong>
+
+          <br>
+
+          ${type}
+
+        </div>
+
+        <span class="status-badge">
+          ${escapeHtml(
+            String(ticket.status || "")
+            .replace("_"," ")
+            .toUpperCase()
+          )}
+        </span>
+
+        ${actionButton}
+
+      </div>
+
+    `;
+
+  });
+
+
+  queueList.innerHTML =
+    html ||
+    `<div class="empty">
+      No active customers in the shop.
+    </div>`;
+
+}
+
+
+/* =========================
+   FINISH TICKET
+========================= */
+
+window.finishTicket = async function(ticketId) {
+
+  try {
+
+    await updateDoc(
+      doc(db,"daily_tickets",ticketId),
+      {
+
+        status:"completed",
+
+        completedAt:Date.now(),
+
+        completedBy:
+          currentUser
+            ? currentUser.displayName
+            : ""
+
+      }
+    );
+
+  } catch(error) {
+
+    alert(
+      "Could not finish ticket: " +
+      error.message
+    );
+
+  }
+
+};
+
+
+/* =========================
+   COLLECT PAYMENT
+========================= */
+
+window.collectPayment = async function(ticketId) {
+
+  const method =
+    prompt(
+      "Enter payment method:\n\n1 = Cash\n2 = MTN MoMo\n3 = Telecel Cash\n4 = AirtelTigo Money\n5 = Card"
+    );
+
+
+  if(!method) return;
+
+
+  const methods = {
+
+    "1":"Cash",
+
+    "2":"MTN MoMo",
+
+    "3":"Telecel Cash",
+
+    "4":"AirtelTigo Money",
+
+    "5":"Card"
+
+  };
+
+
+  const paymentMethod =
+    methods[method] || method;
+
+
+  try {
+
+    const ticket =
+      allTickets.find(
+        t => t.id === ticketId
+      );
+
+
+    if(!ticket) {
+
+      alert("Ticket not found.");
+
+      return;
+
+    }
+
+
+    await updateDoc(
+      doc(db,"daily_tickets",ticketId),
+      {
+
+        status:"paid",
+
+        paymentMethod,
+
+        paidAt:Date.now(),
+
+        paidBy:
+          currentUser
+            ? currentUser.displayName
+            : ""
+
+      }
+    );
+
+
+    /* UPDATE CUSTOMER TOTALS */
+
+    await updateCustomerAfterPayment(
+      ticket
+    );
+
+
+    alert(
+      `Payment recorded.\n\nMethod: ${paymentMethod}\nAmount: GHS ${Number(ticket.price).toFixed(2)}`
+    );
+
+
+  } catch(error) {
+
+    alert(
+      "Payment failed: " +
+      error.message
+    );
+
+  }
+
+};
+
+
+/* =========================
+   UPDATE CUSTOMER AFTER PAYMENT
+========================= */
+
+async function updateCustomerAfterPayment(ticket) {
+
+  if(!ticket.customerPhone) return;
+
+
+  const id =
+    normalizePhone(ticket.customerPhone);
+
+
+  const ref =
+    doc(db,"customers",id);
+
+
+  const snap =
+    await getDoc(ref);
+
+
+  if(!snap.exists()) return;
+
+
+  const data =
+    snap.data();
+
+
+  await updateDoc(ref, {
+
+    totalVisits:
+      Number(data.totalVisits || 0) + 1,
+
+    totalSpent:
+      Number(data.totalSpent || 0) +
+      Number(ticket.price || 0),
+
+    lastVisit:
+      Date.now()
+
+  });
+
+}
+
+
+/* =========================
+   CUSTOMER DATABASE
+========================= */
+
+function startCustomerDatabase() {
+
+  if(customerListener) {
+
+    customerListener();
+
+  }
+
+
+  customerListener =
+    onSnapshot(
+      collection(db,"customers"),
+      snapshot => {
+
+        allCustomers = [];
+
+
+        snapshot.forEach(docSnap => {
+
+          allCustomers.push({
+
+            id:docSnap.id,
+
+            ...docSnap.data()
+
+          });
+
+        });
+
+
+        allCustomers.sort(
+          (a,b) =>
+            Number(b.lastVisit || 0) -
+            Number(a.lastVisit || 0)
+        );
+
+
+        renderCustomers();
+
+      }
+    );
+
+
+  document
+  .getElementById("customerSearch")
+  .addEventListener(
+    "input",
+    renderCustomers
+  );
+
+}
+
+
+/* =========================
+   RENDER CUSTOMERS
+========================= */
+
+function renderCustomers() {
+
+  const list =
+    document.getElementById("customersList");
+
+
+  const search =
+    (
+      document
+      .getElementById("customerSearch")
+      .value || ""
+    )
+    .toLowerCase()
+    .trim();
+
+
+  const filtered =
+    allCustomers.filter(customer =>
+
+      String(customer.name || "")
+      .toLowerCase()
+      .includes(search)
+
+      ||
+
+      String(customer.phone || "")
+      .includes(search)
+
+    );
+
+
+  if(!filtered.length) {
+
+    list.innerHTML =
+      `<div class="empty">
+        No customers found.
+      </div>`;
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    filtered.map(customer => `
+
+      <div class="customer-card">
+
+        <div class="customer-name">
+
+          ${escapeHtml(customer.name || "Unknown")}
+
+        </div>
+
+        <div class="small-text">
+
+          📞 ${escapeHtml(customer.phone || "")}<br>
+
+          ✂️ ${Number(customer.totalVisits || 0)}
+          visits<br>
+
+          💰 GHS
+          ${Number(customer.totalSpent || 0).toFixed(2)}
+          spent
+
+        </div>
+
+        <button
+          class="btn-action btn-blue"
+          onclick="viewCustomer('${customer.id}')"
+        >
+          VIEW CUSTOMER
+        </button>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* =========================
+   CUSTOMER PROFILE
+========================= */
+
+window.viewCustomer = async function(customerId) {
+
+  const customer =
+    allCustomers.find(
+      c => c.id === customerId
+    );
+
+
+  if(!customer) return;
+
+
+  document
+  .getElementById("modalCustomerName")
+  .innerText =
+    customer.name || "Customer";
+
+
+  const visits =
+    allTickets.filter(ticket =>
+
+      normalizePhone(
+        ticket.customerPhone || ""
+      ) === customerId
+
+    );
+
+
+  let history = "";
+
+
+  visits.forEach(ticket => {
+
+    history += `
+
+      <div
+        style="
+          padding:10px 0;
+          border-bottom:1px solid #333;
+        "
+      >
+
+        <strong class="gold">
+          ${escapeHtml(ticket.serviceName || "")}
+        </strong>
+
+        <br>
+
+        <span class="small-text">
+
+          GHS ${Number(ticket.price || 0).toFixed(2)}
+          —
+          ${escapeHtml(ticket.assignedBarber || "")}
+
+        </span>
+
+      </div>
+
+    `;
+
+  });
+
+
+  document
+  .getElementById("customerDetails")
+  .innerHTML = `
+
+    <div class="customer-stat">
+
+      <span>Phone</span>
+
+      <strong>
+        ${escapeHtml(customer.phone || "")}
+      </strong>
+
+    </div>
+
+    <div class="customer-stat">
+
+      <span>Total Visits</span>
+
+      <strong class="gold">
+        ${Number(customer.totalVisits || 0)}
+      </strong>
+
+    </div>
+
+    <div class="customer-stat">
+
+      <span>Total Spent</span>
+
+      <strong class="green">
+        GHS ${Number(customer.totalSpent || 0).toFixed(2)}
+      </strong>
+
+    </div>
+
+    <div class="customer-stat">
+
+      <span>Last Visit</span>
+
+      <strong>
+        ${formatDate(customer.lastVisit)}
+      </strong>
+
+    </div>
+
+    <h3 style="margin-top:25px;">
+      Visit History
+    </h3>
+
+    ${
+      history ||
+      `<div class="empty">
+        No visit history yet.
+      </div>`
+    }
+
+  `;
+
+
+  document
+  .getElementById("customerModal")
+  .style.display = "flex";
+
+};
+
+
+window.closeCustomerModal = function() {
+
+  document
+  .getElementById("customerModal")
+  .style.display = "none";
+
+};
+
+
+/* =========================
+   APPOINTMENTS
+========================= */
+
+document
+.getElementById("bookAppointmentBtn")
+.addEventListener("click", async () => {
+
+  const name =
+    document
+    .getElementById("appointmentName")
+    .value.trim();
+
+  const phone =
+    document
+    .getElementById("appointmentPhone")
+    .value.trim();
+
+  const service =
+    document
+    .getElementById("appointmentService")
+    .value.split("|");
+
+  const barber =
+    document
+    .getElementById("appointmentBarber")
+    .value;
+
+  const date =
+    document
+    .getElementById("appointmentDate")
+    .value;
+
+  const time =
+    document
+    .getElementById("appointmentTime")
+    .value;
+
+
+  if(!name || !phone || !date || !time) {
+
+    alert(
+      "Please complete all appointment fields."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    await createOrUpdateCustomer(
+      name,
+      phone
+    );
+
+
+    await addDoc(
+      collection(db,"appointments"),
+      {
+
+        customerName:name,
+
+        customerPhone:phone,
+
+        serviceName:service[0],
+
+        price:Number(service[1]),
+
+        duration:Number(service[2]),
+
+        barber,
+
+        date,
+
+        time,
+
+        status:"pending",
+
+        createdAt:Date.now(),
+
+        createdBy:
+          currentUser
+            ? currentUser.uid
+            : ""
+
+      }
+    );
+
+
+    document
+    .getElementById("appointmentName")
+    .value = "";
+
+    document
+    .getElementById("appointmentPhone")
+    .value = "";
+
+
+    alert("Appointment booked successfully.");
+
+
+  } catch(error) {
+
+    alert(
+      "Appointment error: " +
+      error.message
+    );
+
+  }
+
+});
+
+
+/* =========================
+   APPOINTMENT LISTENER
+========================= */
+
+function startAppointments() {
+
+  if(appointmentListener) {
+
+    appointmentListener();
+
+  }
+
+
+  appointmentListener =
+    onSnapshot(
+      collection(db,"appointments"),
+      snapshot => {
+
+        allAppointments = [];
+
+
+        snapshot.forEach(docSnap => {
+
+          allAppointments.push({
+
+            id:docSnap.id,
+
+            ...docSnap.data()
+
+          });
+
+        });
+
+
+        allAppointments.sort(
+          (a,b) =>
+            String(a.date + a.time)
+            .localeCompare(
+              String(b.date + b.time)
+            )
+        );
+
+
+        renderAppointments();
+
+      }
+    );
+
+}
+
+
+/* =========================
+   RENDER APPOINTMENTS
+========================= */
+
+function renderAppointments() {
+
+  const list =
+    document.getElementById(
+      "appointmentsList"
+    );
+
+
+  const upcoming =
+    allAppointments.filter(
+      a =>
+        a.status !== "completed" &&
+        a.status !== "cancelled"
+    );
+
+
+  if(!upcoming.length) {
+
+    list.innerHTML =
+      `<div class="empty">
+        No upcoming appointments.
+      </div>`;
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    upcoming.map(a => `
+
+      <div class="appointment-card">
+
+        <div class="customer-name">
+
+          📅 ${escapeHtml(a.customerName)}
+
+        </div>
+
+        <div class="small-text">
+
+          📞 ${escapeHtml(a.customerPhone)}<br>
+
+          ✂️ ${escapeHtml(a.serviceName)}<br>
+
+          👤 Barber:
+          <strong class="gold">
+            ${escapeHtml(a.barber)}
+          </strong>
+
+          <br>
+
+          🗓️ ${escapeHtml(a.date)}
+
+          <br>
+
+          ⏰ ${escapeHtml(a.time)}
+
+          <br>
+
+          💰 GHS
+          ${Number(a.price || 0).toFixed(2)}
+
+        </div>
+
+        <span class="status-badge">
+
+          ${escapeHtml(
+            String(a.status || "pending")
+            .toUpperCase()
+          )}
+
+        </span>
+
+        ${
+          currentRole === "owner" ||
+          currentRole === "secretary"
+          ? `
+
+            <button
+              class="btn-action btn-submit"
+              onclick="approveAppointment('${a.id}')"
+            >
+              ACCEPT
+            </button>
+
+            <button
+              class="btn-action btn-danger"
+              onclick="cancelAppointment('${a.id}')"
+            >
+              CANCEL
+            </button>
+
+          `
+          : ""
         }
 
-      } else {
-        loginBtn.style.display = "inline-block";
-        statusText.style.display = "block";
-        dashboard.style.display = "none";
+      </div>
+
+    `).join("");
+
+}
+
+
+/* =========================
+   ACCEPT APPOINTMENT
+========================= */
+
+window.approveAppointment =
+async function(id) {
+
+  try {
+
+    await updateDoc(
+      doc(db,"appointments",id),
+      {
+
+        status:"confirmed",
+
+        confirmedAt:Date.now(),
+
+        confirmedBy:
+          currentUser
+            ? currentUser.displayName
+            : ""
+
       }
-    });
+    );
 
-    document.getElementById('sendBtn').addEventListener('click', async () => {
-      const name = document.getElementById('custName').value;
-      const serviceData = document.getElementById('serviceType').value.split('|'); 
-      const barber = document.getElementById('barberName').value;
+  } catch(error) {
 
-      if (name.trim() === "") return alert("Please enter the customer's name!");
+    alert(
+      "Could not confirm appointment: " +
+      error.message
+    );
 
-      try {
-        await addDoc(collection(db, "daily_tickets"), {
-          customerName: name,
-          serviceName: serviceData[0],
-          price: Number(serviceData[1]),
-          assignedBarber: barber,
-          status: "in_progress",
-          timestamp: new Date().getTime()
-        });
-        document.getElementById('custName').value = "";
-      } catch (error) {
-        alert("Error saving: " + error.message);
+  }
+
+};
+
+
+/* =========================
+   CANCEL APPOINTMENT
+========================= */
+
+window.cancelAppointment =
+async function(id) {
+
+  if(
+    !confirm(
+      "Cancel this appointment?"
+    )
+  ) return;
+
+
+  try {
+
+    await updateDoc(
+      doc(db,"appointments",id),
+      {
+
+        status:"cancelled",
+
+        cancelledAt:Date.now()
+
       }
-    });
+    );
 
-    window.updateTicketStatus = async (ticketId, newStatus) => {
-      try {
-        const ticketRef = doc(db, "daily_tickets", ticketId);
-        await updateDoc(ticketRef, { status: newStatus });
-      } catch (error) {
-        alert("Action failed: " + error.message);
-      }
-    };
+  } catch(error) {
 
-    function startLiveQueue() {
-      const queueList = document.getElementById('queueList');
-      
-      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
-        let html = "";
-        
-        snapshot.forEach((docSnap) => {
-          const ticket = docSnap.data();
-          const ticketId = docSnap.id; 
-          
-          if (ticket.status !== "paid") {
-            let actionButton = "";
-            
-            if (ticket.status === "in_progress" && (currentRole === "barber" || currentRole === "owner")) {
-               actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>`;
-            } else if (ticket.status === "completed" && (currentRole === "secretary" || currentRole === "owner")) {
-               actionButton = `<button class="btn-action btn-pay" onclick="updateTicketStatus('${ticketId}', 'paid')">COLLECT PAYMENT</button>`;
-            }
+    alert(
+      "Could not cancel appointment: " +
+      error.message
+    );
 
-            html += `
-              <div class="ticket">
-                <div class="ticket-title">${ticket.customerName}</div>
-                <div class="ticket-details">
-                  ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
-                  Assigned to: <strong>${ticket.assignedBarber}</strong>
-                </div>
-                <span class="status-badge">${ticket.status.toUpperCase().replace('_', ' ')}</span>
-                ${actionButton}
-              </div>
-            `;
+  }
+
+};
+
+
+/* =========================
+   ANALYTICS
+========================= */
+
+function startAnalyticsTracker() {
+
+  onSnapshot(
+    collection(db,"daily_tickets"),
+    snapshot => {
+
+      let todayCash = 0;
+
+      let todayCuts = 0;
+
+      let weekCash = 0;
+
+      let weekCuts = 0;
+
+      let monthCash = 0;
+
+      let monthCuts = 0;
+
+
+      const now = new Date();
+
+
+      const startOfToday =
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        ).getTime();
+
+
+      const startOfWeek =
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() -
+          now.getDay()
+        ).getTime();
+
+
+      const startOfMonth =
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          1
+        ).getTime();
+
+
+      snapshot.forEach(docSnap => {
+
+        const ticket =
+          docSnap.data();
+
+
+        if(ticket.status !== "paid") {
+
+          return;
+
+        }
+
+
+        /* Barber sees only own work */
+
+        if(currentRole === "barber") {
+
+          const firstName =
+            (
+              currentUser.displayName || ""
+            )
+            .split(" ")[0]
+            .toLowerCase();
+
+
+          if(
+            String(ticket.assignedBarber || "")
+            .toLowerCase() !== firstName
+          ) {
+
+            return;
+
           }
-        });
-        
-        queueList.innerHTML = html === "" ? "<p style='color:#666; font-style: italic;'>No active customers in the shop.</p>" : html;
+
+        }
+
+
+        const time =
+          Number(ticket.paidAt ||
+          ticket.timestamp || 0);
+
+
+        const price =
+          Number(ticket.price || 0);
+
+
+        if(time >= startOfToday) {
+
+          todayCash += price;
+
+          todayCuts++;
+
+        }
+
+
+        if(time >= startOfWeek) {
+
+          weekCash += price;
+
+          weekCuts++;
+
+        }
+
+
+        if(time >= startOfMonth) {
+
+          monthCash += price;
+
+          monthCuts++;
+
+        }
+
       });
+
+
+      document.getElementById("todayRev")
+      .innerText =
+        todayCash.toFixed(2);
+
+      document.getElementById("todayCuts")
+      .innerText =
+        todayCuts;
+
+
+      document.getElementById("weekRev")
+      .innerText =
+        weekCash.toFixed(2);
+
+      document.getElementById("weekCuts")
+      .innerText =
+        weekCuts;
+
+
+      document.getElementById("monthRev")
+      .innerText =
+        monthCash.toFixed(2);
+
+      document.getElementById("monthCuts")
+      .innerText =
+        monthCuts;
+
     }
+  );
 
-    // --- ROLE-BASED ANALYTICS ---
-    function startAnalyticsTracker(barberNameFilter = null) {
-      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
-        let todayCash = 0, todayCuts = 0;
-        let weekCash = 0, weekCuts = 0;
-        let monthCash = 0, monthCuts = 0;
-        
-        const now = new Date();
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()).getTime();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+}
 
-        snapshot.forEach((docSnap) => {
-          const ticket = docSnap.data();
-          if (ticket.status === "paid") {
-            
-            // If logged in as a Barber, skip tickets assigned to other people
-            if (barberNameFilter) {
-              const firstName = barberNameFilter.split(' ')[0].toLowerCase();
-              if (ticket.assignedBarber.toLowerCase() !== firstName) {
-                return; // Skips this ticket
-              }
-            }
 
-            const time = ticket.timestamp;
-            
-            if (time >= startOfToday) {
-              todayCash += ticket.price;
-              todayCuts++;
-            }
-            if (time >= startOfWeek) {
-              weekCash += ticket.price;
-              weekCuts++;
-            }
-            if (time >= startOfMonth) {
-              monthCash += ticket.price;
-              monthCuts++;
-            }
-          }
-        });
+/* =========================
+   HELPERS
+========================= */
 
-        document.getElementById('todayRev').innerText = todayCash.toFixed(2);
-        document.getElementById('todayCuts').innerText = todayCuts;
-        
-        document.getElementById('weekRev').innerText = weekCash.toFixed(2);
-        document.getElementById('weekCuts').innerText = weekCuts;
-        
-        document.getElementById('monthRev').innerText = monthCash.toFixed(2);
-        document.getElementById('monthCuts').innerText = monthCuts;
-      });
-    }
-  </script>
+function formatDate(timestamp) {
+
+  if(!timestamp) return "—";
+
+  return new Date(timestamp)
+    .toLocaleDateString(
+      "en-GH",
+      {
+        day:"2-digit",
+        month:"short",
+        year:"numeric"
+      }
+    );
+
+}
+
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+</script>
+
 </body>
 </html>
