@@ -40,8 +40,6 @@
     button:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8); }
     
     #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
-    #logoutBtn { background: linear-gradient(145deg, #444, #222); color: white; border-color: #555; margin-top: 30px; width: 100%; }
-    #deleteAccountBtn { background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; margin-top: 15px; width: 100%; }
 
     img { 
       border-radius: 50%; 
@@ -55,7 +53,7 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #ownerSettingsPage { display: none; margin-top: 15px; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage { display: none; margin-top: 15px; }
     
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
@@ -349,13 +347,13 @@
     <div id="blacklistList"></div>
   </div>
 
-  <!-- DEDICATED OWNER SETTINGS PAGE (CONTAINS WIPE, LOGOUT, DELETE ACCOUNT) -->
-  <div id="ownerSettingsPage" class="panel" style="border-color: #d4af37;">
+  <!-- UNIVERSAL SETTINGS PAGE (CONTAINS OWNER WIPE & ACCOUNT CONTROLS FOR ALL) -->
+  <div id="settingsPage" class="panel" style="border-color: #d4af37;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-    <h3 style="color: #d4af37;">Shop Settings & Maintenance</h3>
+    <h3 style="color: #d4af37;">Settings & Controls</h3>
 
-    <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #444; margin-bottom: 20px;">
-      <h4 style="color: #ff4444; margin-top: 0;">⚠️ Danger Zone</h4>
+    <div id="ownerDangerZoneBox" style="display: none; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px;">
+      <h4 style="color: #ff4444; margin-top: 0;">⚠️ Owner Danger Zone</h4>
       <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Permanently delete all recorded past customer tickets, history reports, and logs from the database.</p>
       <button onclick="wipeShopHistory()" style="background: #8c1a1a; border-color: #ff4444; width: 100%; color: white;">Wipe All Shop Data History</button>
     </div>
@@ -428,10 +426,11 @@
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
 
-    <!-- EDIT PROFILE BUTTON FOR STAFF -->
+    <!-- EDIT PROFILE & SETTINGS BUTTONS FOR STAFF & USERS -->
     <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 15px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
+    <button onclick="openSettingsPage()" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #d4af37; margin-top: 10px; width: 100%; font-weight: bold;">⚙️ Settings</button>
     
-    <!-- OWNER MANAGEMENT HUB (GROUPS OPENING DEDICATED PAGES) -->
+    <!-- OWNER MANAGEMENT HUB -->
     <div id="adminPanel" class="panel" style="display: none;">
       <h3>Shop Management Hub</h3>
       <p style="color: #aaa; font-size: 13px; text-align: center; margin-bottom: 20px;">Manage your shop operations across dedicated management screens.</p>
@@ -440,7 +439,6 @@
         <button onclick="openOwnerPage('staff')" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;">👥 Staff Management</button>
         <button onclick="openOwnerPage('services')" style="background: linear-gradient(145deg, #145523, #0a2311); color: white; border-color: #28a745;">✂️ Services & Pricing</button>
         <button onclick="openOwnerPage('blacklist')" style="background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;">🚫 Customer Blacklist</button>
-        <button onclick="openOwnerPage('settings')" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #d4af37;">⚙️ Shop Settings & Data</button>
       </div>
     </div>
 
@@ -493,9 +491,6 @@
         <div class="stat-box"><p>This Month</p><h2 class="money">GHS <span id="monthRev">0.00</span></h2><p class="cuts"><span id="monthCuts">0</span> cuts</p></div>
       </div>
     </div>
-    
-    <button id="logoutBtn">Log Out</button>
-    <button id="deleteAccountBtn" onclick="deleteMyAccount()">Delete My Account & Leave Shop</button>
   </div>
 
   <script type="module" defer>
@@ -582,18 +577,36 @@
       });
     };
 
-    // --- OWNER DEDICATED PAGES NAVIGATION ---
+    // --- OWNER DEDICATED PAGES & SETTINGS NAVIGATION ---
     window.openOwnerPage = (pageName) => {
       dashboard.style.display = "none";
       document.getElementById('ownerStaffPage').style.display = "none";
       document.getElementById('ownerServicesPage').style.display = "none";
       document.getElementById('ownerBlacklistPage').style.display = "none";
-      document.getElementById('ownerSettingsPage').style.display = "none";
+      document.getElementById('settingsPage').style.display = "none";
 
       if (pageName === 'staff') document.getElementById('ownerStaffPage').style.display = "block";
       else if (pageName === 'services') document.getElementById('ownerServicesPage').style.display = "block";
       else if (pageName === 'blacklist') document.getElementById('ownerBlacklistPage').style.display = "block";
-      else if (pageName === 'settings') document.getElementById('ownerSettingsPage').style.display = "block";
+    };
+
+    window.openSettingsPage = () => {
+      dashboard.style.display = "none";
+      document.getElementById('ownerStaffPage').style.display = "none";
+      document.getElementById('ownerServicesPage').style.display = "none";
+      document.getElementById('ownerBlacklistPage').style.display = "none";
+      customerDirectoryPage.style.display = "none";
+      paymentPage.style.display = "none";
+      blacklistPage.style.display = "none";
+      editProfileView.style.display = "none";
+
+      if (currentUserDoc && currentUserDoc.role === "owner") {
+        document.getElementById('ownerDangerZoneBox').style.display = "block";
+      } else {
+        document.getElementById('ownerDangerZoneBox').style.display = "none";
+      }
+
+      document.getElementById('settingsPage').style.display = "block";
     };
 
     // --- GLOBAL ID VERIFICATION VALIDATOR ---
@@ -651,7 +664,6 @@
       }
     };
     
-    document.getElementById('logoutBtn').addEventListener('click', performLogout);
     document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout);
     document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
 
@@ -685,7 +697,7 @@
       document.getElementById('ownerStaffPage').style.display = "none";
       document.getElementById('ownerServicesPage').style.display = "none";
       document.getElementById('ownerBlacklistPage').style.display = "none";
-      document.getElementById('ownerSettingsPage').style.display = "none";
+      document.getElementById('settingsPage').style.display = "none";
       dashboard.style.display = "block";
       document.getElementById('customerDetailView').style.display = "none";
       document.getElementById('directoryListView').style.display = "block";
