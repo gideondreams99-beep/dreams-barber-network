@@ -136,16 +136,9 @@
     .flex-row input { margin-bottom: 0; }
     
     #customerHistoryBox {
-      background: #111;
-      border: 1px solid #444;
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 15px;
-      font-size: 13px;
-      color: #aaa;
-      max-height: 120px;
-      overflow-y: auto;
-      text-align: left;
+      background: #111; border: 1px solid #444; border-radius: 8px;
+      padding: 10px; margin-bottom: 15px; font-size: 13px; color: #aaa;
+      max-height: 120px; overflow-y: auto; text-align: left;
     }
   </style>
 </head>
@@ -187,12 +180,15 @@
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
     
-    <!-- OWNER SETTINGS: STAFF APPROVAL, SERVICES & BLACKLIST -->
+    <!-- OWNER SETTINGS: STAFF APPROVAL, SERVICES, BLACKLIST & REPORTS -->
     <div id="adminPanel" class="panel" style="display: none;">
       <h3>Shop Management (Owner)</h3>
       
       <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals</h4>
       <div id="approvalList"></div>
+
+      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Pending Blacklist Reports</h4>
+      <div id="reportsList"></div>
 
       <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Manage Services & Prices</h4>
       <div class="flex-row">
@@ -202,21 +198,16 @@
       <button id="addServiceBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4; margin-bottom: 15px;">Add Service</button>
       <div id="servicesList"></div>
 
-      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Customer Blacklist / Bans</h4>
-      <div class="flex-row">
-        <input type="text" id="blacklistName" placeholder="Full name to ban">
-      </div>
-      <button id="addBlacklistBtn" class="btn-submit" style="background: #ff4444; border-color: #ff4444; margin-bottom: 15px;">Block Customer</button>
+      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Customer Blacklist</h4>
       <div id="blacklistList"></div>
     </div>
 
-    <!-- SECRETARY FRONT DESK PANEL -->
+    <!-- SECRETARY FRONT DESK PANEL (Owner Removed) -->
     <div id="secretaryPanel" class="panel" style="display: none;">
       <h3>Front Desk Intake</h3>
       <label>Customer Full Name</label>
       <input type="text" id="custName" placeholder="Enter full name..." autocomplete="off">
       
-      <!-- Real-time customer history display box -->
       <div id="customerHistoryBox" style="display: none;">
         <strong>Customer Visit History:</strong>
         <div id="historyContent">No previous history found.</div>
@@ -239,6 +230,12 @@
     <div id="queuePanel" class="panel" style="display: none;">
       <h3>Live Shop Queue</h3>
       <div id="queueList"></div>
+    </div>
+
+    <!-- PAST CUSTOMERS DIRECTORY PANEL (All Roles) -->
+    <div id="customerDirectoryPanel" class="panel" style="display: none; border-color: #d4af37;">
+      <h3 style="color: #d4af37;">Customer Database (Completed Services)</h3>
+      <div id="customerDirectoryList"></div>
     </div>
 
     <!-- ANALYTICS PANEL -->
@@ -274,7 +271,7 @@
     const provider = new GoogleAuthProvider();
 
     let currentUserDoc = null; 
-    let allPaidTicketsCache = []; // Cache for live customer history search
+    let allPaidTicketsCache = []; 
 
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -288,6 +285,7 @@
     const adminPanel = document.getElementById('adminPanel');
     const secretaryPanel = document.getElementById('secretaryPanel');
     const queuePanel = document.getElementById('queuePanel');
+    const customerDirectoryPanel = document.getElementById('customerDirectoryPanel');
     const analyticsPanel = document.getElementById('analyticsPanel');
 
     loginBtn.addEventListener('click', (e) => {
@@ -394,6 +392,7 @@
     function loadApp(user, docData) {
       dashboard.style.display = "block";
       queuePanel.style.display = "block";
+      customerDirectoryPanel.style.display = "block";
       
       document.getElementById('userName').innerText = docData.name;
       document.getElementById('userPic').src = docData.photoURL;
@@ -403,7 +402,7 @@
       if (docData.role === "owner") {
         roleDisplay.innerText = "👑 ROLE: SHOP OWNER";
         adminPanel.style.display = "block";
-        secretaryPanel.style.display = "block";
+        // SECRETARY PANEL EXPLICITLY HIDDEN FROM OWNER
         analyticsPanel.style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History";
         startAdminListeners(); 
@@ -411,7 +410,7 @@
       } 
       else if (docData.role === "secretary") {
         roleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
-        secretaryPanel.style.display = "block";
+        secretaryPanel.style.display = "block"; // Only Secretary gets Intake
         analyticsPanel.style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
         startAnalyticsTracker();
@@ -424,11 +423,13 @@
       }
 
       startLiveQueue();
-      populateIntakeForm();
+      if (docData.role === "secretary") {
+        populateIntakeForm();
+      }
       cacheAllTickets();
+      startCustomerDirectoryListener();
     }
 
-    // Cache tickets for instant customer history lookup
     function cacheAllTickets() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         allPaidTicketsCache = [];
@@ -438,7 +439,7 @@
       });
     }
 
-    // Real-time customer history search as secretary types name
+    // Real-time customer history search for secretary
     const custNameInput = document.getElementById('custName');
     if (custNameInput) {
       custNameInput.addEventListener('input', (e) => {
@@ -473,7 +474,7 @@
       });
     }
 
-    // --- OWNER ADMIN CONTROLS (Approvals, Services, Blacklist) ---
+    // --- OWNER ADMIN CONTROLS (Approvals, Services, Blacklist, Reports) ---
     function startAdminListeners() {
       // Pending approvals
       const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
@@ -495,6 +496,27 @@
           `;
         });
         document.getElementById('approvalList').innerHTML = html === "" ? "<p style='color:#666;'>No pending approvals.</p>" : html;
+      });
+
+      // Pending Blacklist Reports from Barbers/Secretaries
+      onSnapshot(collection(db, "blacklist_reports"), (snapshot) => {
+        let html = "";
+        snapshot.forEach((rDoc) => {
+          const r = rDoc.data();
+          const dateStr = new Date(r.timestamp).toLocaleString();
+          html += `
+            <div class="list-item" style="border-left-color: #ff4444;">
+              <div class="ticket-title" style="color: #ff4444;">Customer: ${r.customerName}</div>
+              <div class="ticket-details">
+                Reported By: <strong>${r.reportedBy}</strong><br>
+                Feedback / Reason: <em>"${r.feedback}"</em><br>
+                Date: ${dateStr}
+              </div>
+              <button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="confirmBlacklistFromReport('${rDoc.id}', '${r.customerName}')">Confirm & Add to Blacklist</button>
+            </div>
+          `;
+        });
+        document.getElementById('reportsList').innerHTML = html === "" ? "<p style='color:#666;'>No pending blacklist reports.</p>" : html;
       });
 
       // Services
@@ -522,21 +544,13 @@
       });
 
       // Blacklist
-      document.getElementById('addBlacklistBtn').addEventListener('click', async () => {
-        const bName = document.getElementById('blacklistName').value.trim();
-        if (!bName) return alert("Enter customer name to block.");
-        await addDoc(collection(db, "blacklist"), { name: bName.toLowerCase(), createdAt: new Date().getTime() });
-        document.getElementById('blacklistName').value = "";
-        alert("Customer successfully added to the shop blacklist.");
-      });
-
       onSnapshot(collection(db, "blacklist"), (snapshot) => {
         let html = "";
         snapshot.forEach((bDoc) => {
           const b = bDoc.data();
           html += `
             <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-left-color: #ff4444;">
-              <span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()}</span>
+              <span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; color:#aaa; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span>
               <button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Unblock</button>
             </div>
           `;
@@ -548,6 +562,69 @@
     window.approveUser = async (uid) => { await updateDoc(doc(db, "users", uid), { isApproved: true }); };
     window.deleteService = async (sid) => { await deleteDoc(doc(db, "services", sid)); };
     window.removeBlacklist = async (bid) => { await deleteDoc(doc(db, "blacklist", bid)); };
+    
+    window.confirmBlacklistFromReport = async (reportId, customerName) => {
+      await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() });
+      await deleteDoc(doc(db, "blacklist_reports", reportId));
+      alert(customerName + " has been officially blacklisted.");
+    };
+
+    // --- CUSTOMER DIRECTORY LISTENER (Completed Services) ---
+    function startCustomerDirectoryListener() {
+      const container = document.getElementById('customerDirectoryList');
+      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
+        let html = "";
+        let completedCustomers = [];
+
+        snapshot.forEach((docSnap) => {
+          const t = docSnap.data();
+          if (t.status === "paid" || t.status === "completed") {
+            completedCustomers.push(t);
+          }
+        });
+
+        // Sort latest first
+        completedCustomers.sort((a, b) => b.timestamp - a.timestamp);
+
+        if (completedCustomers.length === 0) {
+          container.innerHTML = "<p style='color:#666; font-style: italic;'>No past customer records yet.</p>";
+          return;
+        }
+
+        completedCustomers.forEach(c => {
+          const dateStr = new Date(c.timestamp).toLocaleString();
+          html += `
+            <div class="list-item">
+              <div class="ticket-title">${c.customerName}</div>
+              <div class="ticket-details">
+                Service: <strong>${c.serviceName}</strong> - GHS ${c.price.toFixed(2)}<br>
+                Barber: <strong>${c.assignedBarber}</strong> | Paid via: <strong>${c.paymentMethod || 'Cash'}</strong><br>
+                Date: ${dateStr}
+              </div>
+              <button class="btn-action" style="background: #ff4444; border-color: #ff4444; font-size: 12px; padding: 8px;" onclick="reportCustomerForBlacklist('${c.customerName}')">Report for Blacklist</button>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      });
+    }
+
+    window.reportCustomerForBlacklist = async (customerName) => {
+      const feedback = prompt("Enter feedback / reason why " + customerName + " should be blacklisted from the shop:");
+      if (!feedback || feedback.trim() === "") return;
+
+      try {
+        await addDoc(collection(db, "blacklist_reports"), {
+          customerName: customerName,
+          reportedBy: currentUserDoc.name,
+          feedback: feedback.trim(),
+          timestamp: new Date().getTime()
+        });
+        alert("Report submitted to the Owner successfully!");
+      } catch (err) {
+        alert("Error sending report: " + err.message);
+      }
+    };
 
     function populateIntakeForm() {
       onSnapshot(collection(db, "services"), (snapshot) => {
@@ -572,51 +649,52 @@
     }
 
     // --- TICKET CREATION WITH BLACKLIST CHECK ---
-    document.getElementById('sendBtn').addEventListener('click', async () => {
-      const name = document.getElementById('custName').value.trim();
-      const serviceVal = document.getElementById('serviceType').value; 
-      const barber = document.getElementById('barberName').value;
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) {
+      sendBtn.addEventListener('click', async () => {
+        const name = document.getElementById('custName').value.trim();
+        const serviceVal = document.getElementById('serviceType').value; 
+        const barber = document.getElementById('barberName').value;
 
-      if (!name || !serviceVal || !barber) return alert("Please fill out all fields.");
+        if (!name || !serviceVal || !barber) return alert("Please fill out all fields.");
 
-      // Check Blacklist before issuing ticket
-      const blacklistSnap = await getDocs(collection(db, "blacklist"));
-      let isBanned = false;
-      blacklistSnap.forEach(bDoc => {
-        if (bDoc.data().name === name.toLowerCase()) {
-          isBanned = true;
+        const blacklistSnap = await getDocs(collection(db, "blacklist"));
+        let isBanned = false;
+        blacklistSnap.forEach(bDoc => {
+          if (bDoc.data().name === name.toLowerCase()) {
+            isBanned = true;
+          }
+        });
+
+        if (isBanned) {
+          alert("🚫 ACCESS DENIED: This customer is blacklisted and cannot be assigned services at SJ'S SALOON!");
+          return;
+        }
+
+        const serviceData = serviceVal.split('|');
+
+        try {
+          const querySnapshot = await getDocs(collection(db, "daily_tickets"));
+          const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
+
+          await addDoc(collection(db, "daily_tickets"), {
+            ticketNo: ticketNumber,
+            customerName: name,
+            serviceName: serviceData[0],
+            price: Number(serviceData[1]),
+            assignedBarber: barber,
+            status: "in_progress",
+            timestamp: new Date().getTime()
+          });
+          document.getElementById('custName').value = "";
+          document.getElementById('customerHistoryBox').style.display = "none";
+          alert("Ticket issued successfully!");
+        } catch (error) {
+          alert("Error saving: " + error.message);
         }
       });
+    }
 
-      if (isBanned) {
-        alert("🚫 ACCESS DENIED: This customer is blacklisted and cannot be assigned services at SJ'S SALOON!");
-        return;
-      }
-
-      const serviceData = serviceVal.split('|');
-
-      try {
-        const querySnapshot = await getDocs(collection(db, "daily_tickets"));
-        const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
-
-        await addDoc(collection(db, "daily_tickets"), {
-          ticketNo: ticketNumber,
-          customerName: name,
-          serviceName: serviceData[0],
-          price: Number(serviceData[1]),
-          assignedBarber: barber,
-          status: "in_progress",
-          timestamp: new Date().getTime()
-        });
-        document.getElementById('custName').value = "";
-        document.getElementById('customerHistoryBox').style.display = "none";
-        alert("Ticket issued successfully!");
-      } catch (error) {
-        alert("Error saving: " + error.message);
-      }
-    });
-
-    // --- PAYMENT METHOD & OWNER MOMO / CARD POP-UP ---
     window.promptPayment = (ticketId) => {
       let method = prompt("Select Payment Method:\n1. Cash\n2. MTN MoMo\n3. Telecel Cash\n4. Card", "Cash");
       if (!method) return;
@@ -629,7 +707,6 @@
         else if (m.includes("telecel") || m.includes("vodafone")) paymentMethod = "Telecel Cash";
         else paymentMethod = "Card";
 
-        // Pop up Owner's payment reference number
         alert("📱 OWNER PAYMENT REFERENCE:\nPlease send funds to Owner's Merchant / Number:\n➡️ MTN MoMo / Card: 0240000000 (SJ'S SALOON)\n\n(The app will now record and tick this payment as completed).");
       }
 
