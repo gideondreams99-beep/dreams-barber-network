@@ -54,7 +54,8 @@
     }
     
     /* VIEWS */
-    #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView { display: none; margin-top: 15px; }
+    #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #ownerSettingsPage { display: none; margin-top: 15px; }
     
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
@@ -307,6 +308,65 @@
     <button id="submitEditProfileBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Submit Updates for Owner Approval</button>
   </div>
 
+  <!-- DEDICATED OWNER STAFF MANAGEMENT PAGE -->
+  <div id="ownerStaffPage" class="panel" style="border-color: #4285F4;">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: #4285F4;">Staff Management</h3>
+    
+    <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals & Updates</h4>
+    <div id="approvalList"></div>
+
+    <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Staff Management</h4>
+    <p style="color: #aaa; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
+    <div id="activeStaffList"></div>
+  </div>
+
+  <!-- DEDICATED OWNER SERVICES MANAGEMENT PAGE -->
+  <div id="ownerServicesPage" class="panel" style="border-color: #4285F4;">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: #4285F4;">Services & Prices</h3>
+
+    <h4 style="color: #fff; margin-top: 0;">Add New Service</h4>
+    <div class="flex-row">
+      <input type="text" id="newServiceName" placeholder="Service (e.g. Dye)">
+      <input type="number" id="newServicePrice" placeholder="Price (GHS)">
+    </div>
+    <button id="addServiceBtn" style="background: #4285F4; border-color: #4285F4; width: 100%; margin-bottom: 20px;">Add Service</button>
+    
+    <h4 style="color: #fff; margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">Existing Services</h4>
+    <div id="servicesList"></div>
+  </div>
+
+  <!-- DEDICATED OWNER BLACKLIST MANAGEMENT PAGE -->
+  <div id="ownerBlacklistPage" class="panel" style="border-color: #ff4444;">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: #ff4444;">Customer Blacklist Management</h3>
+
+    <h4 style="color: #fff; margin-top: 0;">Pending Blacklist Reports</h4>
+    <div id="reportsList"></div>
+
+    <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Customer Blacklist</h4>
+    <div id="blacklistList"></div>
+  </div>
+
+  <!-- DEDICATED OWNER SETTINGS PAGE (CONTAINS WIPE, LOGOUT, DELETE ACCOUNT) -->
+  <div id="ownerSettingsPage" class="panel" style="border-color: #d4af37;">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: #d4af37;">Shop Settings & Maintenance</h3>
+
+    <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #444; margin-bottom: 20px;">
+      <h4 style="color: #ff4444; margin-top: 0;">⚠️ Danger Zone</h4>
+      <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Permanently delete all recorded past customer tickets, history reports, and logs from the database.</p>
+      <button onclick="wipeShopHistory()" style="background: #8c1a1a; border-color: #ff4444; width: 100%; color: white;">Wipe All Shop Data History</button>
+    </div>
+
+    <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #444;">
+      <h4 style="color: #d4af37; margin-top: 0;">🔒 Account Controls</h4>
+      <button id="settingsLogoutBtn" style="background: linear-gradient(145deg, #444, #222); color: white; border-color: #555; width: 100%; margin-bottom: 15px;">Log Out</button>
+      <button id="settingsDeleteAccountBtn" onclick="deleteMyAccount()" style="background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; width: 100%;">Delete My Account & Leave Shop</button>
+    </div>
+  </div>
+
   <!-- DEDICATED PAYMENT PAGE VIEW -->
   <div id="paymentPage" class="panel" style="border-color: #28a745;">
     <button onclick="cancelPayment()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
@@ -371,53 +431,16 @@
     <!-- EDIT PROFILE BUTTON FOR STAFF -->
     <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 15px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
     
-    <!-- OWNER GROUPED TABBED DASHBOARD & SETTINGS PANEL -->
+    <!-- OWNER MANAGEMENT HUB (GROUPS OPENING DEDICATED PAGES) -->
     <div id="adminPanel" class="panel" style="display: none;">
-      <h3>Shop Management & Settings</h3>
+      <h3>Shop Management Hub</h3>
+      <p style="color: #aaa; font-size: 13px; text-align: center; margin-bottom: 20px;">Manage your shop operations across dedicated management screens.</p>
       
-      <!-- Owner Navigation Tabs -->
-      <div style="display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">
-        <button onclick="switchOwnerTab('staff')" id="tabStaffBtn" style="flex:1; padding: 10px 5px; font-size: 12px; background: #1a4b8c; color: #fff;">Staff</button>
-        <button onclick="switchOwnerTab('services')" id="tabServicesBtn" style="flex:1; padding: 10px 5px; font-size: 12px; background: #222; color: #d4af37;">Services</button>
-        <button onclick="switchOwnerTab('blacklist')" id="tabBlacklistBtn" style="flex:1; padding: 10px 5px; font-size: 12px; background: #222; color: #d4af37;">Blacklist</button>
-        <button onclick="switchOwnerTab('settings')" id="tabSettingsBtn" style="flex:1; padding: 10px 5px; font-size: 12px; background: #222; color: #d4af37;">⚙️ Settings</button>
-      </div>
-
-      <!-- TAB 1: STAFF -->
-      <div id="ownerTabStaff" class="owner-tab-content">
-        <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals & Updates</h4>
-        <div id="approvalList"></div>
-
-        <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Staff Management</h4>
-        <p style="color: #aaa; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
-        <div id="activeStaffList"></div>
-      </div>
-
-      <!-- TAB 2: SERVICES -->
-      <div id="ownerTabServices" class="owner-tab-content" style="display: none;">
-        <h4 style="color: #fff; margin-top: 0;">Manage Services & Prices</h4>
-        <div class="flex-row">
-          <input type="text" id="newServiceName" placeholder="Service (e.g. Dye)">
-          <input type="number" id="newServicePrice" placeholder="Price (GHS)">
-        </div>
-        <button id="addServiceBtn" style="background: #4285F4; border-color: #4285F4; width: auto; padding: 10px 20px; font-size: 14px; margin-bottom: 15px;">Add Service</button>
-        <div id="servicesList"></div>
-      </div>
-
-      <!-- TAB 3: BLACKLIST -->
-      <div id="ownerTabBlacklist" class="owner-tab-content" style="display: none;">
-        <h4 style="color: #fff; margin-top: 0;">Pending Blacklist Reports</h4>
-        <div id="reportsList"></div>
-
-        <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Customer Blacklist</h4>
-        <div id="blacklistList"></div>
-      </div>
-
-      <!-- TAB 4: SETTINGS PANEL -->
-      <div id="ownerTabSettings" class="owner-tab-content" style="display: none;">
-        <h4 style="color: #ff4444; margin-top: 0;">⚠️ Danger Zone & Shop Maintenance</h4>
-        <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">This will permanently delete all recorded past customer tickets, history reports, and logs from the database.</p>
-        <button onclick="wipeShopHistory()" style="background: #8c1a1a; border-color: #ff4444; width: auto; padding: 10px 20px; font-size: 14px; color: white;">Wipe All Shop Data History</button>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <button onclick="openOwnerPage('staff')" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;">👥 Staff Management</button>
+        <button onclick="openOwnerPage('services')" style="background: linear-gradient(145deg, #145523, #0a2311); color: white; border-color: #28a745;">✂️ Services & Pricing</button>
+        <button onclick="openOwnerPage('blacklist')" style="background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;">🚫 Customer Blacklist</button>
+        <button onclick="openOwnerPage('settings')" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #d4af37;">⚙️ Shop Settings & Data</button>
       </div>
     </div>
 
@@ -454,7 +477,7 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- BUTTON TO OPEN FULL CUSTOMER HISTORY DIRECTORY PAGE -->
+    <!-- BUTTON TO OPEN FULL CUSTOMER RECORDS PAGE -->
     <div class="panel" style="text-align: center; border-color: #d4af37;">
       <h3 style="color: #d4af37; margin-bottom: 10px;">Customer Records</h3>
       <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Access past customer visits, history reports, and blacklist logs.</p>
@@ -559,21 +582,18 @@
       });
     };
 
-    // --- OWNER TABS NAVIGATION ---
-    window.switchOwnerTab = (tabName) => {
-      ['Staff', 'Services', 'Blacklist', 'Settings'].forEach(t => {
-        const content = document.getElementById(`ownerTab${t}`);
-        const btn = document.getElementById(`tab${t}Btn`);
-        if (t.toLowerCase() === tabName.toLowerCase()) {
-          content.style.display = 'block';
-          btn.style.background = '#1a4b8c';
-          btn.style.color = '#fff';
-        } else {
-          content.style.display = 'none';
-          btn.style.background = '#222';
-          btn.style.color = '#d4af37';
-        }
-      });
+    // --- OWNER DEDICATED PAGES NAVIGATION ---
+    window.openOwnerPage = (pageName) => {
+      dashboard.style.display = "none";
+      document.getElementById('ownerStaffPage').style.display = "none";
+      document.getElementById('ownerServicesPage').style.display = "none";
+      document.getElementById('ownerBlacklistPage').style.display = "none";
+      document.getElementById('ownerSettingsPage').style.display = "none";
+
+      if (pageName === 'staff') document.getElementById('ownerStaffPage').style.display = "block";
+      else if (pageName === 'services') document.getElementById('ownerServicesPage').style.display = "block";
+      else if (pageName === 'blacklist') document.getElementById('ownerBlacklistPage').style.display = "block";
+      else if (pageName === 'settings') document.getElementById('ownerSettingsPage').style.display = "block";
     };
 
     // --- GLOBAL ID VERIFICATION VALIDATOR ---
@@ -633,6 +653,7 @@
     
     document.getElementById('logoutBtn').addEventListener('click', performLogout);
     document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout);
+    document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
 
     // --- ACCOUNT DELETION (LEAVE SHOP) ---
     window.deleteMyAccount = async () => {
@@ -661,6 +682,10 @@
       paymentPage.style.display = "none";
       blacklistPage.style.display = "none";
       editProfileView.style.display = "none";
+      document.getElementById('ownerStaffPage').style.display = "none";
+      document.getElementById('ownerServicesPage').style.display = "none";
+      document.getElementById('ownerBlacklistPage').style.display = "none";
+      document.getElementById('ownerSettingsPage').style.display = "none";
       dashboard.style.display = "block";
       document.getElementById('customerDetailView').style.display = "none";
       document.getElementById('directoryListView').style.display = "block";
