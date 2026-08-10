@@ -258,7 +258,7 @@
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
     
-    <!-- OWNER SETTINGS: STAFF APPROVAL, SERVICES, BLACKLIST & REPORTS -->
+    <!-- OWNER SETTINGS: STAFF APPROVAL, SERVICES, BLACKLIST -->
     <div id="adminPanel" class="panel" style="display: none;">
       <h3>Shop Management (Owner)</h3>
       
@@ -368,7 +368,7 @@
       toast.classList.add('show');
       setTimeout(() => {
         toast.classList.remove('show');
-      }, 3000);
+      }, 3500);
     };
 
     const loginBtn = document.getElementById('loginBtn');
@@ -402,7 +402,6 @@
       dashboard.style.display = "none";
       customerDirectoryPage.style.display = "block";
       renderCustomerDirectoryList();
-      showToast("Directory opened");
     });
 
     window.backToDashboard = () => {
@@ -682,15 +681,18 @@
         `;
       });
 
-      html += `
-        <button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="reportCustomerForBlacklist('${customerName}')">Report ${customerName} for Blacklist</button>
-      `;
+      // Role-based Blacklisting Logic
+      if (currentUserDoc.role === "owner") {
+        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="ownerDirectBlacklist('${customerName}')">Blacklist ${customerName} Instantly</button>`;
+      } else {
+        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="reportCustomerForBlacklist('${customerName}')">Report ${customerName} for Blacklist</button>`;
+      }
 
       document.getElementById('customerDetailContent').innerHTML = html;
-      showToast("Customer history loaded");
     };
 
     function startAdminListeners() {
+      // Pending Approvals
       const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
       onSnapshot(qUsers, (snapshot) => {
         let html = "";
@@ -712,6 +714,7 @@
         document.getElementById('approvalList').innerHTML = html === "" ? "<p style='color:#666;'>No pending approvals.</p>" : html;
       });
 
+      // Staff Reports sent to the Owner for approval
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => {
         let html = "";
         snapshot.forEach((rDoc) => {
@@ -778,22 +781,40 @@
     
     window.deleteService = async (sid) => { 
       await deleteDoc(doc(db, "services", sid)); 
-      showToast("Service deleted");
     };
     
     window.removeBlacklist = async (bid) => { 
       await deleteDoc(doc(db, "blacklist", bid)); 
       showToast("Customer unblocked");
     };
-    
+
+    // Owner confirms a staff member's report
     window.confirmBlacklistFromReport = async (reportId, customerName) => {
       await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() });
       await deleteDoc(doc(db, "blacklist_reports", reportId));
       showToast(`${customerName} added to blacklist!`);
     };
 
+    // Owner instantly blacklists a customer without approval
+    window.ownerDirectBlacklist = async (customerName) => {
+      const reason = prompt("Enter reason for instantly blacklisting " + customerName + ":");
+      if (!reason || reason.trim() === "") return;
+
+      try {
+        await addDoc(collection(db, "blacklist"), {
+          name: customerName.toLowerCase(),
+          reason: reason.trim(),
+          createdAt: new Date().getTime()
+        });
+        showToast(`${customerName} has been instantly blacklisted!`);
+      } catch (err) {
+        alert("Error blacklisting: " + err.message);
+      }
+    };
+
+    // Staff sends a report to the Owner for approval
     window.reportCustomerForBlacklist = async (customerName) => {
-      const feedback = prompt("Enter feedback / reason why " + customerName + " should be blacklisted from the shop:");
+      const feedback = prompt("Enter feedback / reason why " + customerName + " should be blacklisted:");
       if (!feedback || feedback.trim() === "") return;
 
       try {
@@ -889,7 +910,6 @@
       dashboard.style.display = "none";
       document.getElementById('ownerRefBox').style.display = "none";
       paymentPage.style.display = "block";
-      showToast("Payment checkout opened");
     };
 
     window.cancelPayment = () => {
