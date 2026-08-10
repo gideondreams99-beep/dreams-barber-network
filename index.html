@@ -232,7 +232,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
@@ -246,7 +245,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
     const provider = new GoogleAuthProvider();
 
     let currentUserDoc = null; 
@@ -279,74 +277,96 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         loginBtn.style.display = "none";
-        statusText.style.display = "none";
+        statusText.style.display = "block";
+        statusText.innerText = "Connecting to database... ⏳"; 
 
-        // Check if user exists in Firestore
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
+        try {
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
 
-        if (!userSnap.exists()) {
-          // New User: Show setup screen
-          setupView.style.display = "block";
-        } else {
-          currentUserDoc = userSnap.data();
-          
-          // Failsafe: Ensure Owner is automatically approved
-          if (user.email === "gismartsghana@gmail.com" && !currentUserDoc.isApproved) {
-            await updateDoc(userRef, { isApproved: true, role: "owner" });
-            currentUserDoc.isApproved = true;
-            currentUserDoc.role = "owner";
-          }
+          statusText.style.display = "none";
 
-          if (currentUserDoc.isApproved) {
-            loadApp(user, currentUserDoc);
+          if (!userSnap.exists()) {
+            setupView.style.display = "block";
           } else {
-            pendingView.style.display = "block";
+            currentUserDoc = userSnap.data();
+            
+            if (user.email === "gismartsghana@gmail.com" && !currentUserDoc.isApproved) {
+              await updateDoc(userRef, { isApproved: true, role: "owner" });
+              currentUserDoc.isApproved = true;
+              currentUserDoc.role = "owner";
+            }
+
+            if (currentUserDoc.isApproved) {
+              loadApp(user, currentUserDoc);
+            } else {
+              pendingView.style.display = "block";
+            }
           }
+        } catch (error) {
+          statusText.style.display = "block";
+          statusText.innerText = "Error: " + error.message;
+          alert("Firebase Error: " + error.message + "\n\nPlease check your Firestore Database Rules.");
         }
       } else {
         loginBtn.style.display = "inline-block";
         statusText.style.display = "block";
+        statusText.innerText = "Please log in to continue.";
         dashboard.style.display = "none";
         setupView.style.display = "none";
         pendingView.style.display = "none";
       }
     });
 
-    // PROFILE CREATION & UPLOAD
+    // PROFILE CREATION & CLOUDINARY UPLOAD
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser;
       const role = document.getElementById('setupRole').value;
       const fileInput = document.getElementById('setupPhoto');
       
-      let photoUrlToSave = user.photoURL; // Default to Google picture
+      let photoUrlToSave = user.photoURL; 
       const saveBtn = document.getElementById('saveProfileBtn');
-      saveBtn.innerText = "Uploading & Saving...";
+      saveBtn.innerText = "Uploading & Saving... ⏳";
       saveBtn.disabled = true;
 
+      // --- CLOUDINARY CREDENTIALS INSTALLED ---
+      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; 
+      const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+
       try {
-        // Upload custom picture if provided
         if (fileInput.files.length > 0) {
           const file = fileInput.files[0];
-          const storageRef = ref(storage, `profile_pics/${user.uid}`);
-          await uploadBytes(storageRef, file);
-          photoUrlToSave = await getDownloadURL(storageRef);
           
-          // Update Firebase Auth profile
-          await updateProfile(user, { photoURL: photoUrlToSave });
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+          // Upload directly to Cloudinary
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+            method: "POST",
+            body: formData
+          });
+          
+          const uploadData = await uploadRes.json();
+          
+          if (uploadData.secure_url) {
+             photoUrlToSave = uploadData.secure_url;
+             await updateProfile(user, { photoURL: photoUrlToSave });
+          } else {
+             throw new Error(uploadData.error?.message || "Cloudinary upload failed");
+          }
         }
 
-        // Save to Firestore
         await setDoc(doc(db, "users", user.uid), {
           name: user.displayName,
           email: user.email,
           photoURL: photoUrlToSave,
           role: role,
-          isApproved: false, // Must be approved by owner
+          isApproved: false, 
           createdAt: new Date().getTime()
         });
 
-        window.location.reload(); // Reload to hit the pending screen
+        window.location.reload(); 
       } catch (error) {
         alert("Error saving profile: " + error.message);
         saveBtn.innerText = "Submit Profile";
@@ -371,7 +391,7 @@
         analyticsPanel.style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
         
-        startAdminListeners(); // Approvals & Services
+        startAdminListeners(); 
         startAnalyticsTracker();
       } 
       else if (docData.role === "secretary") {
@@ -394,7 +414,6 @@
 
     // --- OWNER ADMIN CONTROLS (Approvals & Services) ---
     function startAdminListeners() {
-      // 1. Listen for Pending Users
       const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
       onSnapshot(qUsers, (snapshot) => {
         let html = "";
@@ -416,7 +435,6 @@
         document.getElementById('approvalList').innerHTML = html === "" ? "<p style='color:#666;'>No pending approvals.</p>" : html;
       });
 
-      // 2. Add New Service
       document.getElementById('addServiceBtn').addEventListener('click', async () => {
         const name = document.getElementById('newServiceName').value;
         const price = document.getElementById('newServicePrice').value;
@@ -427,7 +445,6 @@
         document.getElementById('newServicePrice').value = "";
       });
 
-      // 3. Listen for Existing Services (To Delete)
       onSnapshot(collection(db, "services"), (snapshot) => {
         let html = "";
         snapshot.forEach((sDoc) => {
@@ -435,7 +452,7 @@
           html += `
             <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
               <span style="color: #fff;">${s.name} - GHS ${s.price}</span>
-              <button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px;">Delete</button>
+              <button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Delete</button>
             </div>
           `;
         });
@@ -452,7 +469,6 @@
 
     // --- DYNAMIC FRONT DESK POPULATION ---
     function populateIntakeForm() {
-      // Load Services
       onSnapshot(collection(db, "services"), (snapshot) => {
         let html = '<option value="">Select Service...</option>';
         snapshot.forEach((sDoc) => {
@@ -462,13 +478,11 @@
         document.getElementById('serviceType').innerHTML = html;
       });
 
-      // Load Approved Barbers
       const qBarbers = query(collection(db, "users"), where("role", "==", "barber"), where("isApproved", "==", true));
       onSnapshot(qBarbers, (snapshot) => {
         let html = '<option value="">Select Barber...</option>';
         snapshot.forEach((bDoc) => {
           const b = bDoc.data();
-          // Extract first name
           const firstName = b.name.split(' ')[0];
           html += `<option value="${firstName}">${firstName}</option>`;
         });
@@ -525,7 +539,6 @@
       } catch (error) { alert("Action failed: " + error.message); }
     };
 
-    // --- LIVE QUEUE & ANALYTICS ---
     function startLiveQueue() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let html = "";
@@ -541,7 +554,6 @@
             const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
             const ticketBarber = ticket.assignedBarber.toLowerCase();
 
-            // Barbers can only finish THEIR OWN cuts. Owner can finish any.
             if (ticket.status === "in_progress" && (isOwner || (isBarber && ticketBarber === myFirstName))) {
                actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>`;
             } else if (ticket.status === "completed" && (isSec || isOwner)) {
