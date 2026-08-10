@@ -3,2642 +3,449 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>SJ'S SALOON</title>
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #0d0d0d, #1b1b1b);
-      color: #ffffff;
+    /* PREMIUM DARK METALLIC THEME */
+    body { 
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      color: #e0e0e0; 
+      text-align: center; 
+      padding: 15px; 
       margin: 0;
       min-height: 100vh;
-      padding: 15px;
     }
 
-    h1, h2, h3, p {
-      margin-top: 0;
-    }
-
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 14px 18px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .app-container {
-      max-width: 650px;
-      margin: auto;
-    }
-
-    .logo {
-      text-align: center;
-      color: #d4af37;
+    h1 {
       letter-spacing: 3px;
-      margin: 10px 0 5px;
       text-transform: uppercase;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #888;
-      margin-bottom: 20px;
-    }
-
-    .panel {
-      background: linear-gradient(145deg, #252525, #171717);
-      border: 1px solid #3d3d3d;
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    }
-
-    .panel-title {
       color: #d4af37;
-      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      margin-top: 10px;
+    }
+
+    /* POLISHED BUTTONS */
+    button { 
+      padding: 14px 24px; 
+      font-size: 16px; 
+      font-weight: bold;
+      background: linear-gradient(145deg, #333, #111);
+      color: #d4af37; 
+      border: 1px solid #555; 
+      border-radius: 8px; 
+      cursor: pointer;
+      box-shadow: 3px 3px 8px rgba(0,0,0,0.6);
       text-transform: uppercase;
       letter-spacing: 1px;
+    }
+    button:active {
+      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8);
+    }
+    
+    #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
+    #logoutBtn { background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; margin-top: 30px; width: 100%; }
+
+    /* USER PROFILE */
+    img { 
+      border-radius: 50%; 
+      width: 90px; 
+      height: 90px; 
+      border: 2px solid #d4af37;
+      margin-bottom: 5px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    }
+    #dashboard { display: none; margin-top: 15px; }
+    #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
+    
+    #userRole {
+      background: linear-gradient(145deg, #2a2a2a, #111);
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-top: 8px;
+      color: #d4af37;
+      font-weight: bold;
+      font-size: 12px;
+      letter-spacing: 1px;
+      border: 1px solid #444;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    /* SLEEK PANELS */
+    .panel {
+      background: linear-gradient(145deg, #222, #181818);
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 25px;
+      text-align: left;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+    }
+    .panel h3 { 
+      margin-top: 0; 
+      color: #d4af37; 
+      text-align: center; 
+      border-bottom: 1px solid #333; 
       padding-bottom: 12px;
-      border-bottom: 1px solid #444;
-      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 16px;
     }
 
-    label {
-      display: block;
-      color: #aaa;
-      margin: 12px 0 6px;
-      font-size: 13px;
-    }
-
-    input, select, textarea {
+    /* INPUTS & DROPDOWNS */
+    label { font-size: 14px; color: #aaa; margin-bottom: 5px; display: block; }
+    input, select {
       width: 100%;
       padding: 14px;
-      border-radius: 10px;
+      margin-bottom: 20px;
+      background-color: #111;
+      color: white;
       border: 1px solid #444;
-      background: #101010;
-      color: white;
-      font-size: 15px;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      outline: none;
-      border-color: #d4af37;
-    }
-
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-
-    .btn-primary {
-      width: 100%;
-      margin-top: 15px;
-      background: linear-gradient(145deg, #d4af37, #9e7a16);
-      color: #111;
-    }
-
-    .btn-blue {
-      width: 100%;
-      margin-top: 15px;
-      background: linear-gradient(145deg, #287bd1, #15508d);
-      color: white;
-    }
-
-    .btn-green {
-      width: 100%;
-      margin-top: 15px;
-      background: linear-gradient(145deg, #28a745, #145523);
-      color: white;
-    }
-
-    .btn-red {
-      background: linear-gradient(145deg, #b83333, #671515);
-      color: white;
-    }
-
-    .btn-dark {
-      background: #333;
-      color: white;
-      border: 1px solid #555;
-    }
-
-    .btn-small {
-      padding: 9px 12px;
-      font-size: 12px;
-    }
-
-    .profile-header {
-      text-align: center;
-    }
-
-    .profile-image {
-      width: 105px;
-      height: 105px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #d4af37;
-      background: #111;
-    }
-
-    .role-badge {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 7px 14px;
-      border-radius: 20px;
-      background: #111;
-      border: 1px solid #d4af37;
-      color: #d4af37;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .approval-badge {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 7px 14px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
-    .approved {
-      background: #123b20;
-      color: #55db7a;
-      border: 1px solid #298a47;
-    }
-
-    .pending {
-      background: #453810;
-      color: #ffd84d;
-      border: 1px solid #aa8612;
-    }
-
-    .rejected {
-      background: #421414;
-      color: #ff7777;
-      border: 1px solid #992929;
-    }
-
-    .shop-code {
-      text-align: center;
-      font-size: 28px;
-      letter-spacing: 5px;
-      color: #d4af37;
-      font-weight: bold;
-      padding: 15px;
-      background: #111;
-      border-radius: 12px;
-      border: 1px dashed #d4af37;
-      margin: 15px 0;
-    }
-
-    .info-box {
-      background: #111;
-      border-left: 4px solid #d4af37;
-      padding: 13px;
       border-radius: 8px;
-      color: #bbb;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .service-item,
-    .staff-item,
-    .ticket {
-      background: #181818;
-      border: 1px solid #383838;
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 12px;
-    }
-
-    .service-name,
-    .staff-name,
-    .ticket-name {
-      font-size: 17px;
-      font-weight: bold;
-      color: white;
-    }
-
-    .service-price {
-      color: #55db7a;
-      font-weight: bold;
-      margin-top: 5px;
-    }
-
-    .staff-role,
-    .ticket-details {
-      color: #999;
-      font-size: 13px;
-      margin-top: 6px;
-    }
-
-    .staff-image {
-      width: 55px;
-      height: 55px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 2px solid #d4af37;
-    }
-
-    .staff-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .staff-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .staff-actions button {
-      flex: 1;
-    }
-
-    .ticket-status {
-      display: inline-block;
-      margin-top: 10px;
-      background: #4d3c0c;
-      color: #ffd54d;
-      padding: 5px 10px;
-      border-radius: 15px;
-      font-size: 10px;
-      font-weight: bold;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .stat {
-      text-align: center;
-      background: #111;
-      border: 1px solid #244f30;
-      border-radius: 10px;
-      padding: 12px 5px;
-    }
-
-    .stat-label {
-      color: #888;
-      font-size: 10px;
-      text-transform: uppercase;
-    }
-
-    .stat-money {
-      color: #55db7a;
+      box-sizing: border-box;
       font-size: 16px;
-      font-weight: bold;
-      margin: 8px 0;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
     }
-
-    .stat-cuts {
-      color: #aaa;
+    input:focus, select:focus { outline: none; border-color: #d4af37; }
+    
+    .btn-submit { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%; }
+    
+    /* LIVE QUEUE TICKETS */
+    .ticket {
+      background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      border-left: 4px solid #d4af37;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .ticket-number { font-size: 16px; font-weight: bold; color: #d4af37; background: #111; padding: 4px 10px; border-radius: 6px; border: 1px solid #444; }
+    .ticket-title { font-size: 16px; font-weight: bold; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+    .ticket-details { font-size: 14px; color: #aaa; margin-bottom: 12px; line-height: 1.4; }
+    .ticket-details strong { color: #d4af37; }
+    
+    .status-badge {
       font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #ffc107, #b28704);
+      color: #111;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
     }
+    
+    .btn-action { width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
+    .btn-finish { background: linear-gradient(145deg, #444, #222); color: #fff; border-color: #666; }
+    .btn-pay { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
 
-    .loading {
-      text-align: center;
-      color: #d4af37;
-      padding: 20px;
+    /* ANALYTICS GRID */
+    #analyticsPanel { border-color: #145523; background: linear-gradient(145deg, #18281a, #0d140e); }
+    #analyticsTitle { color: #28a745; border-color: #145523; margin-bottom: 20px; }
+    
+    .stats-grid { display: flex; justify-content: space-between; gap: 8px; }
+    .stat-box { 
+      flex: 1; 
+      background: rgba(0,0,0,0.4); 
+      padding: 12px 5px; 
+      border-radius: 8px; 
+      text-align: center; 
+      border: 1px solid #145523; 
     }
-
-    .upload-status {
-      text-align: center;
-      color: #d4af37;
-      font-size: 13px;
-      margin-top: 8px;
-    }
-
-    .danger-text {
-      color: #ff7777;
-      text-align: center;
-      line-height: 1.5;
-    }
-
-    #logoutBtn {
-      width: 100%;
-      margin-top: 20px;
-    }
+    .stat-box p { color: #888; font-size: 11px; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: 0.5px; }
+    .stat-box .money { margin: 0; color: #28a745; font-size: 15px; font-weight: bold; }
+    .stat-box .cuts { margin: 5px 0 0 0; color: #bbb; font-size: 12px; }
   </style>
 </head>
-
 <body>
 
-<div class="app-container">
+  <h1>SJ'S SALOON</h1>
+  <p id="statusText" style="color: #888;">Please log in to continue.</p>
+  
+  <button id="loginBtn">Sign in with Google</button>
 
-  <h1 class="logo">SJ'S SALOON</h1>
-  <p class="subtitle">Private Salon Management System</p>
-
-  <!-- LOGIN -->
-  <div id="loginScreen">
-    <div class="panel">
-      <h3 class="panel-title">Welcome</h3>
-
-      <div class="info-box">
-        Sign in with Google to create your salon profile or access your approved staff account.
-      </div>
-
-      <button id="loginBtn" class="btn-blue">
-        SIGN IN WITH GOOGLE
-      </button>
-    </div>
-  </div>
-
-
-  <!-- LOADING -->
-  <div id="loadingScreen" class="hidden">
-    <div class="panel loading">
-      Loading your account...
-    </div>
-  </div>
-
-
-  <!-- FIRST TIME ROLE SELECTION -->
-  <div id="roleScreen" class="hidden">
-
-    <div class="panel">
-      <h3 class="panel-title">Choose Your Role</h3>
-
-      <label>Your Full Name</label>
-      <input id="setupName" type="text" placeholder="Enter your full name">
-
-      <label>Phone Number</label>
-      <input id="setupPhone" type="tel" placeholder="Example: 0240000000">
-
-      <label>Choose Role</label>
-      <select id="setupRole">
-        <option value="">-- Select your role --</option>
-        <option value="owner">Shop Owner</option>
-        <option value="barber">Barber</option>
-        <option value="secretary">Secretary</option>
-      </select>
-
-      <div id="ownerSetupBox" class="hidden">
-        <label>Salon / Shop Name</label>
-        <input id="shopNameInput" type="text" placeholder="Example: SJ'S SALOON">
-
-        <label>Shop Location</label>
-        <input id="shopLocationInput" type="text" placeholder="Example: Accra, Ghana">
-      </div>
-
-      <div id="staffSetupBox" class="hidden">
-        <label>Private Shop Code</label>
-        <input id="joinShopCode" type="text" placeholder="Enter code from your shop owner">
-
-        <div class="info-box" style="margin-top:12px;">
-          After joining a shop, your account will remain pending until the shop owner approves you.
-        </div>
-      </div>
-
-      <label>About You</label>
-      <textarea id="setupBio" placeholder="Tell customers or your shop owner about yourself..."></textarea>
-
-      <label>Profile Picture</label>
-      <input id="profilePictureInput" type="file" accept="image/*">
-
-      <div id="uploadStatus" class="upload-status"></div>
-
-      <button id="createProfileBtn" class="btn-primary">
-        CREATE MY PROFILE
-      </button>
-    </div>
-
-  </div>
-
-
-  <!-- PENDING APPROVAL -->
-  <div id="pendingScreen" class="hidden">
-    <div class="panel">
-      <h3 class="panel-title">Approval Required</h3>
-
-      <div class="profile-header">
-        <img id="pendingProfileImage" class="profile-image" src="" alt="Profile">
-        <h2 id="pendingProfileName"></h2>
-        <div id="pendingProfileRole" class="role-badge"></div>
-        <br>
-        <div id="pendingStatus" class="approval-badge pending">
-          PENDING OWNER APPROVAL
-        </div>
-      </div>
-
-      <div class="info-box" style="margin-top:20px;">
-        Your profile has been sent to your shop owner for verification.
-        You will be able to use the salon system after approval.
-      </div>
-
-      <button id="pendingRefreshBtn" class="btn-blue">
-        REFRESH APPROVAL STATUS
-      </button>
-
-      <button id="pendingLogoutBtn" class="btn-red">
-        LOG OUT
-      </button>
-    </div>
-  </div>
-
-
-  <!-- MAIN DASHBOARD -->
-  <div id="dashboard" class="hidden">
-
-    <!-- PROFILE -->
-    <div class="panel profile-header">
-      <img id="userPic" class="profile-image" src="" alt="Profile Picture">
-
-      <h2 id="userName"></h2>
-      <p id="userShopName" style="color:#aaa;"></p>
-
-      <div id="userRole" class="role-badge"></div>
-      <br>
-      <div id="userApproval" class="approval-badge approved"></div>
-
-      <button id="editProfileBtn" class="btn-dark" style="margin-top:15px;">
-        EDIT PROFILE
-      </button>
-    </div>
-
-
-    <!-- OWNER SHOP CODE -->
-    <div id="ownerShopPanel" class="panel hidden">
-      <h3 class="panel-title">Private Shop Code</h3>
-
-      <div class="info-box">
-        Give this code only to barbers and secretaries you want to join your salon.
-        They will still need your approval before they can access the system.
-      </div>
-
-      <div id="ownerShopCode" class="shop-code"></div>
-
-      <button id="copyShopCodeBtn" class="btn-blue">
-        COPY SHOP CODE
-      </button>
-    </div>
-
-
-    <!-- OWNER SERVICE MANAGEMENT -->
-    <div id="serviceManagementPanel" class="panel hidden">
-      <h3 class="panel-title">Services & Prices</h3>
-
-      <label>Service Name</label>
-      <input id="newServiceName" type="text" placeholder="Example: Adult Haircut">
-
-      <label>Price in GHS</label>
-      <input id="newServicePrice" type="number" min="0" step="0.01" placeholder="Example: 50">
-
-      <button id="addServiceBtn" class="btn-green">
-        ADD SERVICE
-      </button>
-
-      <div style="margin-top:20px;">
-        <h3 style="color:#d4af37;">Your Services</h3>
-        <div id="ownerServicesList"></div>
-      </div>
-    </div>
-
-
-    <!-- OWNER STAFF APPROVAL -->
-    <div id="staffManagementPanel" class="panel hidden">
-      <h3 class="panel-title">Staff Approval</h3>
-
-      <div class="info-box">
-        Only approved staff can access the salon queue and work system.
-      </div>
-
-      <h3 style="color:#ffd54d; margin-top:20px;">
-        Pending Requests
-      </h3>
-
-      <div id="pendingStaffList"></div>
-
-      <h3 style="color:#55db7a; margin-top:20px;">
-        Approved Staff
-      </h3>
-
-      <div id="approvedStaffList"></div>
-    </div>
-
-
-    <!-- SECRETARY / OWNER FRONT DESK -->
-    <div id="frontDeskPanel" class="panel hidden">
-      <h3 class="panel-title">Front Desk Intake</h3>
-
+  <div id="dashboard">
+    <img id="userPic" src="" alt="Profile Picture">
+    <h3 id="userName"></h3>
+    <div id="userRole">Role: LOADING...</div>
+    
+    <!-- SECRETARY FRONT DESK PANEL -->
+    <div id="secretaryPanel" class="panel" style="display: none;">
+      <h3>Front Desk Intake</h3>
       <label>Customer Name</label>
-      <input id="customerNameInput" type="text" placeholder="Enter customer's name">
+      <input type="text" id="custName" placeholder="Enter full name...">
 
-      <label>Choose Service</label>
-      <select id="customerServiceSelect">
-        <option value="">Loading services...</option>
+      <label>Service Type</label>
+      <select id="serviceType">
+        <option value="Adult Fade|50">Adult Fade - 50.00 GHS</option>
+        <option value="Line-Up|20">Line-Up - 20.00 GHS</option>
+        <option value="Kids Cut|30">Kids Cut - 30.00 GHS</option>
       </select>
 
-      <label>Assign Barber</label>
-      <select id="customerBarberSelect">
-        <option value="">Loading approved barbers...</option>
+      <label>Assign To Barber</label>
+      <select id="barberName">
+        <option value="Angel">Angel</option>
+        <option value="Gideon">Gideon</option>
       </select>
 
-      <button id="sendCustomerBtn" class="btn-primary">
-        SEND TO BARBER CHAIR
-      </button>
+      <button id="sendBtn" class="btn-submit">Issue Ticket & Send to Chair</button>
     </div>
 
-
-    <!-- LIVE QUEUE -->
-    <div class="panel">
-      <h3 class="panel-title">Live Shop Queue</h3>
+    <!-- LIVE SHOP QUEUE -->
+    <div id="queuePanel" class="panel" style="display: none;">
+      <h3>Live Shop Queue</h3>
       <div id="queueList"></div>
     </div>
 
-
-    <!-- ANALYTICS -->
-    <div class="panel">
-      <h3 id="analyticsTitle" class="panel-title">Analytics</h3>
-
+    <!-- ANALYTICS VAULT -->
+    <div id="analyticsPanel" class="panel" style="display: none;">
+      <h3 id="analyticsTitle">Shop Analytics</h3>
       <div class="stats-grid">
-
-        <div class="stat">
-          <div class="stat-label">Today</div>
-          <div class="stat-money">
-            GHS <span id="todayRevenue">0.00</span>
-          </div>
-          <div class="stat-cuts">
-            <span id="todayCuts">0</span> cuts
-          </div>
+        <div class="stat-box">
+          <p>Today</p>
+          <h2 class="money">GHS <span id="todayRev">0.00</span></h2>
+          <p class="cuts"><span id="todayCuts">0</span> cuts</p>
         </div>
-
-        <div class="stat">
-          <div class="stat-label">Week</div>
-          <div class="stat-money">
-            GHS <span id="weekRevenue">0.00</span>
-          </div>
-          <div class="stat-cuts">
-            <span id="weekCuts">0</span> cuts
-          </div>
+        <div class="stat-box">
+          <p>This Week</p>
+          <h2 class="money">GHS <span id="weekRev">0.00</span></h2>
+          <p class="cuts"><span id="weekCuts">0</span> cuts</p>
         </div>
-
-        <div class="stat">
-          <div class="stat-label">Month</div>
-          <div class="stat-money">
-            GHS <span id="monthRevenue">0.00</span>
-          </div>
-          <div class="stat-cuts">
-            <span id="monthCuts">0</span> cuts
-          </div>
+        <div class="stat-box">
+          <p>This Month</p>
+          <h2 class="money">GHS <span id="monthRev">0.00</span></h2>
+          <p class="cuts"><span id="monthCuts">0</span> cuts</p>
         </div>
-
       </div>
     </div>
-
-
-    <!-- EDIT PROFILE -->
-    <div id="editProfilePanel" class="panel hidden">
-      <h3 class="panel-title">Edit My Profile</h3>
-
-      <label>Full Name</label>
-      <input id="editName" type="text">
-
-      <label>Phone Number</label>
-      <input id="editPhone" type="tel">
-
-      <label>About Me</label>
-      <textarea id="editBio"></textarea>
-
-      <label>Change Profile Picture</label>
-      <input id="editPictureInput" type="file" accept="image/*">
-
-      <div id="editUploadStatus" class="upload-status"></div>
-
-      <button id="saveProfileBtn" class="btn-green">
-        SAVE PROFILE
-      </button>
-
-      <button id="cancelEditBtn" class="btn-dark" style="width:100%; margin-top:10px;">
-        CANCEL
-      </button>
-    </div>
-
-
-    <button id="logoutBtn" class="btn-red">
-      LOG OUT
-    </button>
-
+    
+    <button id="logoutBtn">Log Out</button>
   </div>
 
-</div>
+  <script type="module" defer>
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
+      authDomain: "sjs-saloon.firebaseapp.com",
+      projectId: "sjs-saloon",
+      storageBucket: "sjs-saloon.firebasestorage.app",
+      messagingSenderId: "346208182886",
+      appId: "1:346208182886:web:0766d465a0c628bd5c03a7"
+    };
 
-<script type="module">
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-  import {
-    initializeApp
-  } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    let currentRole = ""; 
 
-  import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signOut,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const dashboard = document.getElementById('dashboard');
+    const statusText = document.getElementById('statusText');
+    const userRoleDisplay = document.getElementById('userRole');
+    
+    const secretaryPanel = document.getElementById('secretaryPanel');
+    const queuePanel = document.getElementById('queuePanel');
+    const analyticsPanel = document.getElementById('analyticsPanel');
+    const analyticsTitle = document.getElementById('analyticsTitle');
 
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDoc,
-    getDocs,
-    setDoc,
-    updateDoc,
-    deleteDoc,
-    doc,
-    query,
-    where,
-    orderBy,
-    onSnapshot
-  } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    loginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      signInWithPopup(auth, provider).catch((error) => alert("Login failed: " + error.message));
+    });
 
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth).then(() => window.location.reload());
+    });
 
-  /* ================================
-     FIREBASE CONFIGURATION
-  ================================= */
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginBtn.style.display = "none";
+        statusText.style.display = "none";
+        dashboard.style.display = "block";
+        queuePanel.style.display = "block";
+        
+        document.getElementById('userName').innerText = user.displayName;
+        document.getElementById('userPic').src = user.photoURL;
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
-    authDomain: "sjs-saloon.firebaseapp.com",
-    projectId: "sjs-saloon",
-    storageBucket: "sjs-saloon.firebasestorage.app",
-    messagingSenderId: "346208182886",
-    appId: "1:346208182886:web:0766d465a0c628bd5c03a7"
-  };
+        if (user.email === "gismartsghana@gmail.com") {
+          currentRole = "owner";
+          userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
+          secretaryPanel.style.display = "block"; 
+          analyticsPanel.style.display = "block"; 
+          analyticsTitle.innerText = "The Vault (Shop Analytics)";
+          startLiveQueue(); 
+          startAnalyticsTracker(); 
+        } else if (user.email === "kuukua@gmail.com") {
+          currentRole = "secretary";
+          userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
+          secretaryPanel.style.display = "block";
+          analyticsPanel.style.display = "block"; 
+          analyticsTitle.innerText = "Shop Analytics";
+          startLiveQueue();
+          startAnalyticsTracker(); 
+        } else {
+          currentRole = "barber";
+          userRoleDisplay.innerText = "👤 ROLE: BARBER";
+          analyticsPanel.style.display = "block"; 
+          analyticsTitle.innerText = "My Work History";
+          startLiveQueue();
+          startAnalyticsTracker(user.displayName); 
+        }
 
+      } else {
+        loginBtn.style.display = "inline-block";
+        statusText.style.display = "block";
+        dashboard.style.display = "none";
+      }
+    });
 
-  /* ================================
-     CLOUDINARY CONFIGURATION
-  ================================= */
+    // --- FRONT DESK LOGIC WITH AUTOMATIC TICKET NUMBERING ---
+    document.getElementById('sendBtn').addEventListener('click', async () => {
+      const name = document.getElementById('custName').value;
+      const serviceData = document.getElementById('serviceType').value.split('|'); 
+      const barber = document.getElementById('barberName').value;
 
-  const CLOUDINARY_CLOUD_NAME = "vs5fuvnv";
-
-  const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
-
-
-  /* ================================
-     INITIALIZE FIREBASE
-  ================================= */
-
-  const app = initializeApp(firebaseConfig);
-
-  const auth = getAuth(app);
-
-  const db = getFirestore(app);
-
-  const provider = new GoogleAuthProvider();
-
-
-  /* ================================
-     APP VARIABLES
-  ================================= */
-
-  let currentUser = null;
-
-  let currentProfile = null;
-
-  let currentShop = null;
-
-  let queueUnsubscribe = null;
-
-  let staffUnsubscribe = null;
-
-  let servicesUnsubscribe = null;
-
-  let analyticsUnsubscribe = null;
-
-
-  /* ================================
-     SCREEN ELEMENTS
-  ================================= */
-
-  const loginScreen =
-    document.getElementById("loginScreen");
-
-  const loadingScreen =
-    document.getElementById("loadingScreen");
-
-  const roleScreen =
-    document.getElementById("roleScreen");
-
-  const pendingScreen =
-    document.getElementById("pendingScreen");
-
-  const dashboard =
-    document.getElementById("dashboard");
-
-
-  function hideAllScreens() {
-
-    loginScreen.classList.add("hidden");
-    loadingScreen.classList.add("hidden");
-    roleScreen.classList.add("hidden");
-    pendingScreen.classList.add("hidden");
-    dashboard.classList.add("hidden");
-
-  }
-
-
-  /* ================================
-     GOOGLE LOGIN
-  ================================= */
-
-  document.getElementById("loginBtn")
-    .addEventListener("click", async () => {
+      if (name.trim() === "") return alert("Please enter the customer's name!");
 
       try {
+        // Fetch current tickets to generate sequence # (e.g. #001, #002)
+        const querySnapshot = await getDocs(collection(db, "daily_tickets"));
+        const ticketCount = querySnapshot.size + 1;
+        const ticketNumber = "Ticket #" + String(ticketCount).padStart(3, '0');
 
-        await signInWithPopup(auth, provider);
-
+        await addDoc(collection(db, "daily_tickets"), {
+          ticketNo: ticketNumber,
+          customerName: name,
+          serviceName: serviceData[0],
+          price: Number(serviceData[1]),
+          assignedBarber: barber,
+          status: "in_progress",
+          timestamp: new Date().getTime()
+        });
+        document.getElementById('custName').value = "";
       } catch (error) {
-
-        alert("Login failed: " + error.message);
-
+        alert("Error saving: " + error.message);
       }
-
     });
 
-
-  /* ================================
-     LOGOUT
-  ================================= */
-
-  async function logoutUser() {
-
-    try {
-
-      if (queueUnsubscribe) queueUnsubscribe();
-      if (staffUnsubscribe) staffUnsubscribe();
-      if (servicesUnsubscribe) servicesUnsubscribe();
-      if (analyticsUnsubscribe) analyticsUnsubscribe();
-
-      await signOut(auth);
-
-    } catch (error) {
-
-      alert(error.message);
-
-    }
-
-  }
-
-
-  document.getElementById("logoutBtn")
-    .addEventListener("click", logoutUser);
-
-  document.getElementById("pendingLogoutBtn")
-    .addEventListener("click", logoutUser);
-
-
-  /* ================================
-     ROLE SELECTION
-  ================================= */
-
-  document.getElementById("setupRole")
-    .addEventListener("change", function() {
-
-      const role = this.value;
-
-      document.getElementById("ownerSetupBox")
-        .classList.add("hidden");
-
-      document.getElementById("staffSetupBox")
-        .classList.add("hidden");
-
-      if (role === "owner") {
-
-        document.getElementById("ownerSetupBox")
-          .classList.remove("hidden");
-
-      }
-
-      if (
-        role === "barber" ||
-        role === "secretary"
-      ) {
-
-        document.getElementById("staffSetupBox")
-          .classList.remove("hidden");
-
-      }
-
-    });
-
-
-  /* ================================
-     CLOUDINARY IMAGE UPLOAD
-  ================================= */
-
-  async function uploadToCloudinary(file, statusElementId) {
-
-    if (!file) return "";
-
-    const statusElement =
-      document.getElementById(statusElementId);
-
-    try {
-
-      statusElement.innerText =
-        "Uploading picture...";
-
-      const formData = new FormData();
-
-      formData.append("file", file);
-
-      formData.append(
-        "upload_preset",
-        CLOUDINARY_UPLOAD_PRESET
-      );
-
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.error?.message ||
-          "Cloudinary upload failed"
-        );
-
-      }
-
-      statusElement.innerText =
-        "Picture uploaded successfully.";
-
-      return data.secure_url;
-
-    } catch (error) {
-
-      statusElement.innerText =
-        "Upload failed: " + error.message;
-
-      throw error;
-
-    }
-
-  }
-
-
-  /* ================================
-     CREATE SHOP CODE
-  ================================= */
-
-  function generateShopCode() {
-
-    const letters =
-      "ABCDEFGHJKLMNPQRSTUVWXYZ";
-
-    const numbers =
-      "23456789";
-
-    let code = "SJ-";
-
-    for (let i = 0; i < 4; i++) {
-
-      code +=
-        letters[
-          Math.floor(
-            Math.random() * letters.length
-          )
-        ];
-
-    }
-
-    code += "-";
-
-    for (let i = 0; i < 4; i++) {
-
-      code +=
-        numbers[
-          Math.floor(
-            Math.random() * numbers.length
-          )
-        ];
-
-    }
-
-    return code;
-
-  }
-
-
-  /* ================================
-     CREATE PROFILE
-  ================================= */
-
-  document.getElementById("createProfileBtn")
-    .addEventListener("click", async () => {
-
-      const name =
-        document.getElementById("setupName").value.trim();
-
-      const phone =
-        document.getElementById("setupPhone").value.trim();
-
-      const role =
-        document.getElementById("setupRole").value;
-
-      const bio =
-        document.getElementById("setupBio").value.trim();
-
-      const pictureFile =
-        document.getElementById("profilePictureInput").files[0];
-
-      if (!name || !role) {
-
-        alert(
-          "Please enter your name and choose your role."
-        );
-
-        return;
-
-      }
-
+    // --- PAYMENT METHOD SELECTION MODAL ---
+    window.promptPayment = (ticketId) => {
+      let method = prompt("Select Payment Method:\n1. Cash\n2. MTN MoMo\n3. Telecel Cash\n4. Card", "Cash");
+      if (!method) return;
+      
+      let paymentMethod = "Cash";
+      const m = method.toLowerCase();
+      if (m.includes("momo") || m.includes("mtn")) paymentMethod = "MTN MoMo";
+      else if (m.includes("telecel") || m.includes("vodafone")) paymentMethod = "Telecel Cash";
+      else if (m.includes("card")) paymentMethod = "Card";
+
+      updateTicketStatus(ticketId, 'paid', paymentMethod);
+    };
+
+    window.updateTicketStatus = async (ticketId, newStatus, paymentMethod = null) => {
       try {
-
-        const createButton =
-          document.getElementById("createProfileBtn");
-
-        createButton.disabled = true;
-
-        createButton.innerText =
-          "CREATING ACCOUNT...";
-
-        let profilePicture =
-          currentUser.photoURL || "";
-
-        if (pictureFile) {
-
-          profilePicture =
-            await uploadToCloudinary(
-              pictureFile,
-              "uploadStatus"
-            );
-
+        const ticketRef = doc(db, "daily_tickets", ticketId);
+        let updateData = { status: newStatus };
+        if (paymentMethod) {
+          updateData.paymentMethod = paymentMethod;
         }
+        await updateDoc(ticketRef, updateData);
+      } catch (error) {
+        alert("Action failed: " + error.message);
+      }
+    };
 
-
-        /* OWNER CREATES SHOP */
-
-        if (role === "owner") {
-
-          const shopName =
-            document.getElementById("shopNameInput").value.trim();
-
-          const shopLocation =
-            document.getElementById("shopLocationInput").value.trim();
-
-          if (!shopName) {
-
-            throw new Error(
-              "Please enter your salon name."
-            );
-
-          }
-
-          let shopCode =
-            generateShopCode();
-
-          const shopRef =
-            doc(collection(db, "shops"));
-
-          await setDoc(shopRef, {
-
-            name: shopName,
-            location: shopLocation,
-            shopCode: shopCode,
-            ownerId: currentUser.uid,
-            createdAt: Date.now()
-
-          });
-
-          await setDoc(
-            doc(db, "users", currentUser.uid),
-            {
-
-              uid: currentUser.uid,
-              name: name,
-              email: currentUser.email,
-              phone: phone,
-              role: "owner",
-              bio: bio,
-              profilePicture: profilePicture,
-              shopId: shopRef.id,
-              shopName: shopName,
-              shopCode: shopCode,
-              approvalStatus: "approved",
-              createdAt: Date.now()
-
+    function startLiveQueue() {
+      const queueList = document.getElementById('queueList');
+      
+      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
+        let html = "";
+        
+        snapshot.forEach((docSnap) => {
+          const ticket = docSnap.data();
+          const ticketId = docSnap.id; 
+          
+          if (ticket.status !== "paid") {
+            let actionButton = "";
+            
+            if (ticket.status === "in_progress" && (currentRole === "barber" || currentRole === "owner")) {
+               actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>`;
+            } else if (ticket.status === "completed" && (currentRole === "secretary" || currentRole === "owner")) {
+               actionButton = `<button class="btn-action btn-pay" onclick="promptPayment('${ticketId}')">COLLECT PAYMENT</button>`;
             }
-          );
 
-        }
-
-
-        /* BARBER OR SECRETARY JOINS SHOP */
-
-        else {
-
-          const enteredCode =
-            document.getElementById("joinShopCode")
-              .value
-              .trim()
-              .toUpperCase();
-
-          if (!enteredCode) {
-
-            throw new Error(
-              "Please enter the private shop code."
-            );
-
-          }
-
-          const shopQuery =
-            query(
-              collection(db, "shops"),
-              where(
-                "shopCode",
-                "==",
-                enteredCode
-              )
-            );
-
-          const shopSnapshot =
-            await getDocs(shopQuery);
-
-          if (shopSnapshot.empty) {
-
-            throw new Error(
-              "Shop code not found. Please ask your owner for the correct code."
-            );
-
-          }
-
-          const shopDoc =
-            shopSnapshot.docs[0];
-
-          const shop =
-            shopDoc.data();
-
-          await setDoc(
-            doc(db, "users", currentUser.uid),
-            {
-
-              uid: currentUser.uid,
-              name: name,
-              email: currentUser.email,
-              phone: phone,
-              role: role,
-              bio: bio,
-              profilePicture: profilePicture,
-              shopId: shopDoc.id,
-              shopName: shop.name,
-              shopCode: shop.shopCode,
-              approvalStatus: "pending",
-              createdAt: Date.now()
-
-            }
-          );
-
-        }
-
-        await loadUserProfile();
-
-      } catch (error) {
-
-        alert(
-          "Account creation failed: " +
-          error.message
-        );
-
-      } finally {
-
-        document.getElementById("createProfileBtn")
-          .disabled = false;
-
-        document.getElementById("createProfileBtn")
-          .innerText =
-          "CREATE MY PROFILE";
-
-      }
-
-    });
-
-
-  /* ================================
-     AUTH STATE
-  ================================= */
-
-  onAuthStateChanged(
-    auth,
-    async (user) => {
-
-      currentUser = user;
-
-      if (!user) {
-
-        hideAllScreens();
-
-        loginScreen.classList.remove("hidden");
-
-        currentProfile = null;
-
-        currentShop = null;
-
-        return;
-
-      }
-
-      hideAllScreens();
-
-      loadingScreen.classList.remove("hidden");
-
-      await loadUserProfile();
-
-    }
-  );
-
-
-  /* ================================
-     LOAD USER PROFILE
-  ================================= */
-
-  async function loadUserProfile() {
-
-    const userRef =
-      doc(db, "users", currentUser.uid);
-
-    const userSnapshot =
-      await getDoc(userRef);
-
-    if (!userSnapshot.exists()) {
-
-      hideAllScreens();
-
-      roleScreen.classList.remove("hidden");
-
-      document.getElementById("setupName").value =
-        currentUser.displayName || "";
-
-      return;
-
-    }
-
-    currentProfile =
-      userSnapshot.data();
-
-    if (
-      currentProfile.role !== "owner" &&
-      currentProfile.approvalStatus !== "approved"
-    ) {
-
-      showPendingScreen();
-
-      return;
-
-    }
-
-    if (currentProfile.shopId) {
-
-      const shopSnapshot =
-        await getDoc(
-          doc(
-            db,
-            "shops",
-            currentProfile.shopId
-          )
-        );
-
-      if (shopSnapshot.exists()) {
-
-        currentShop =
-          {
-            id: shopSnapshot.id,
-            ...shopSnapshot.data()
-          };
-
-      }
-
-    }
-
-    showDashboard();
-
-  }
-
-
-  /* ================================
-     PENDING SCREEN
-  ================================= */
-
-  function showPendingScreen() {
-
-    hideAllScreens();
-
-    pendingScreen.classList.remove("hidden");
-
-    document.getElementById(
-      "pendingProfileName"
-    ).innerText =
-      currentProfile.name;
-
-    document.getElementById(
-      "pendingProfileRole"
-    ).innerText =
-      "ROLE: " +
-      currentProfile.role.toUpperCase();
-
-    document.getElementById(
-      "pendingProfileImage"
-    ).src =
-      currentProfile.profilePicture ||
-      currentUser.photoURL ||
-      "";
-
-    const status =
-      currentProfile.approvalStatus;
-
-    const statusElement =
-      document.getElementById(
-        "pendingStatus"
-      );
-
-    if (status === "rejected") {
-
-      statusElement.className =
-        "approval-badge rejected";
-
-      statusElement.innerText =
-        "PROFILE REQUEST REJECTED";
-
-    } else {
-
-      statusElement.className =
-        "approval-badge pending";
-
-      statusElement.innerText =
-        "PENDING OWNER APPROVAL";
-
-    }
-
-  }
-
-
-  document.getElementById(
-    "pendingRefreshBtn"
-  ).addEventListener(
-    "click",
-    async () => {
-
-      await loadUserProfile();
-
-    }
-  );
-
-
-  /* ================================
-     SHOW DASHBOARD
-  ================================= */
-
-  function showDashboard() {
-
-    hideAllScreens();
-
-    dashboard.classList.remove("hidden");
-
-    document.getElementById(
-      "userPic"
-    ).src =
-      currentProfile.profilePicture ||
-      currentUser.photoURL ||
-      "";
-
-    document.getElementById(
-      "userName"
-    ).innerText =
-      currentProfile.name;
-
-    document.getElementById(
-      "userShopName"
-    ).innerText =
-      currentProfile.shopName || "";
-
-    document.getElementById(
-      "userRole"
-    ).innerText =
-      "ROLE: " +
-      currentProfile.role.toUpperCase();
-
-    document.getElementById(
-      "userApproval"
-    ).innerText =
-      "✓ APPROVED";
-
-    document.getElementById(
-      "userApproval"
-    ).className =
-      "approval-badge approved";
-
-
-    const isOwner =
-      currentProfile.role === "owner";
-
-    const isSecretary =
-      currentProfile.role === "secretary";
-
-
-    /* OWNER PANELS */
-
-    if (isOwner) {
-
-      document.getElementById(
-        "ownerShopPanel"
-      ).classList.remove("hidden");
-
-      document.getElementById(
-        "serviceManagementPanel"
-      ).classList.remove("hidden");
-
-      document.getElementById(
-        "staffManagementPanel"
-      ).classList.remove("hidden");
-
-      document.getElementById(
-        "frontDeskPanel"
-      ).classList.remove("hidden");
-
-      document.getElementById(
-        "ownerShopCode"
-      ).innerText =
-        currentProfile.shopCode;
-
-      document.getElementById(
-        "analyticsTitle"
-      ).innerText =
-        "Shop Analytics";
-
-    } else {
-
-      document.getElementById(
-        "ownerShopPanel"
-      ).classList.add("hidden");
-
-      document.getElementById(
-        "serviceManagementPanel"
-      ).classList.add("hidden");
-
-      document.getElementById(
-        "staffManagementPanel"
-      ).classList.add("hidden");
-
-    }
-
-
-    /* SECRETARY */
-
-    if (isSecretary) {
-
-      document.getElementById(
-        "frontDeskPanel"
-      ).classList.remove("hidden");
-
-      document.getElementById(
-        "analyticsTitle"
-      ).innerText =
-        "Shop Analytics";
-
-    }
-
-
-    /* BARBER */
-
-    if (
-      currentProfile.role === "barber"
-    ) {
-
-      document.getElementById(
-        "frontDeskPanel"
-      ).classList.add("hidden");
-
-      document.getElementById(
-        "analyticsTitle"
-      ).innerText =
-        "My Work Analytics";
-
-    }
-
-
-    startServicesListener();
-
-    startStaffListener();
-
-    startQueueListener();
-
-    startAnalyticsListener();
-
-  }
-
-
-  /* ================================
-     COPY SHOP CODE
-  ================================= */
-
-  document.getElementById(
-    "copyShopCodeBtn"
-  ).addEventListener(
-    "click",
-    async () => {
-
-      try {
-
-        await navigator.clipboard.writeText(
-          currentProfile.shopCode
-        );
-
-        alert(
-          "Shop code copied: " +
-          currentProfile.shopCode
-        );
-
-      } catch {
-
-        alert(
-          "Your Shop Code is: " +
-          currentProfile.shopCode
-        );
-
-      }
-
-    }
-  );
-
-
-  /* ================================
-     SERVICES
-  ================================= */
-
-  document.getElementById(
-    "addServiceBtn"
-  ).addEventListener(
-    "click",
-    async () => {
-
-      const name =
-        document.getElementById(
-          "newServiceName"
-        ).value.trim();
-
-      const price =
-        Number(
-          document.getElementById(
-            "newServicePrice"
-          ).value
-        );
-
-      if (!name || price < 0) {
-
-        alert(
-          "Please enter a valid service and price."
-        );
-
-        return;
-
-      }
-
-      try {
-
-        await addDoc(
-          collection(
-            db,
-            "shops",
-            currentProfile.shopId,
-            "services"
-          ),
-          {
-
-            name: name,
-            price: price,
-            active: true,
-            createdAt: Date.now()
-
-          }
-        );
-
-        document.getElementById(
-          "newServiceName"
-        ).value = "";
-
-        document.getElementById(
-          "newServicePrice"
-        ).value = "";
-
-      } catch (error) {
-
-        alert(error.message);
-
-      }
-
-    }
-  );
-
-
-  function startServicesListener() {
-
-    if (!currentProfile.shopId) return;
-
-    if (servicesUnsubscribe) {
-
-      servicesUnsubscribe();
-
-    }
-
-    const serviceRef =
-      collection(
-        db,
-        "shops",
-        currentProfile.shopId,
-        "services"
-      );
-
-    servicesUnsubscribe =
-      onSnapshot(
-        serviceRef,
-        (snapshot) => {
-
-          let ownerHtml = "";
-
-          let selectHtml =
-            '<option value="">-- Select service --</option>';
-
-          snapshot.forEach(
-            (serviceDoc) => {
-
-              const service =
-                serviceDoc.data();
-
-              ownerHtml += `
-                <div class="service-item">
-                  <div class="service-name">
-                    ${escapeHtml(service.name)}
-                  </div>
-
-                  <div class="service-price">
-                    GHS ${Number(service.price).toFixed(2)}
-                  </div>
-
-                  ${
-                    currentProfile.role === "owner"
-                    ? `
-                      <button
-                        class="btn-red btn-small"
-                        style="margin-top:10px;"
-                        onclick="deleteService('${serviceDoc.id}')"
-                      >
-                        DELETE
-                      </button>
-                    `
-                    : ""
-                  }
+            html += `
+              <div class="ticket">
+                <div class="ticket-header">
+                  <span class="ticket-number">${ticket.ticketNo || 'Ticket #--'}</span>
+                  <span class="status-badge">${ticket.status.toUpperCase().replace('_', ' ')}</span>
                 </div>
-              `;
-
-              selectHtml += `
-                <option
-                  value="${serviceDoc.id}"
-                  data-name="${escapeHtmlAttribute(service.name)}"
-                  data-price="${service.price}"
-                >
-                  ${escapeHtml(service.name)} -
-                  GHS ${Number(service.price).toFixed(2)}
-                </option>
-              `;
-
-            }
-          );
-
-          const ownerList =
-            document.getElementById(
-              "ownerServicesList"
-            );
-
-          if (ownerList) {
-
-            ownerList.innerHTML =
-              ownerHtml ||
-              "<p style='color:#777;'>No services added yet.</p>";
-
-          }
-
-          const serviceSelect =
-            document.getElementById(
-              "customerServiceSelect"
-            );
-
-          serviceSelect.innerHTML =
-            selectHtml;
-
-        }
-      );
-
-  }
-
-
-  window.deleteService =
-    async function(serviceId) {
-
-      if (
-        !confirm(
-          "Delete this service?"
-        )
-      ) return;
-
-      await deleteDoc(
-        doc(
-          db,
-          "shops",
-          currentProfile.shopId,
-          "services",
-          serviceId
-        )
-      );
-
-    };
-
-
-  /* ================================
-     STAFF LISTENER
-  ================================= */
-
-  function startStaffListener() {
-
-    if (!currentProfile.shopId) return;
-
-    if (staffUnsubscribe) {
-
-      staffUnsubscribe();
-
-    }
-
-    const staffQuery =
-      query(
-        collection(db, "users"),
-        where(
-          "shopId",
-          "==",
-          currentProfile.shopId
-        )
-      );
-
-    staffUnsubscribe =
-      onSnapshot(
-        staffQuery,
-        (snapshot) => {
-
-          let pendingHtml = "";
-
-          let approvedHtml = "";
-
-          let barberSelectHtml =
-            '<option value="">-- Select barber --</option>';
-
-          snapshot.forEach(
-            (staffDoc) => {
-
-              const staff =
-                staffDoc.data();
-
-              if (
-                staff.uid === currentProfile.uid
-              ) {
-
-                return;
-
-              }
-
-              const image =
-                staff.profilePicture ||
-                "";
-
-              if (
-                staff.approvalStatus === "pending"
-              ) {
-
-                pendingHtml += `
-                  <div class="staff-item">
-                    <div class="staff-row">
-
-                      <img
-                        class="staff-image"
-                        src="${escapeHtmlAttribute(image)}"
-                        alt="Profile"
-                      >
-
-                      <div>
-                        <div class="staff-name">
-                          ${escapeHtml(staff.name)}
-                        </div>
-
-                        <div class="staff-role">
-                          ${escapeHtml(staff.role)}
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <div class="staff-actions">
-
-                      <button
-                        class="btn-green btn-small"
-                        onclick="approveStaff('${staffDoc.id}')"
-                      >
-                        APPROVE
-                      </button>
-
-                      <button
-                        class="btn-red btn-small"
-                        onclick="rejectStaff('${staffDoc.id}')"
-                      >
-                        REJECT
-                      </button>
-
-                    </div>
-                  </div>
-                `;
-
-              }
-
-              if (
-                staff.approvalStatus === "approved"
-              ) {
-
-                approvedHtml += `
-                  <div class="staff-item">
-
-                    <div class="staff-row">
-
-                      <img
-                        class="staff-image"
-                        src="${escapeHtmlAttribute(image)}"
-                        alt="Profile"
-                      >
-
-                      <div>
-                        <div class="staff-name">
-                          ${escapeHtml(staff.name)}
-                        </div>
-
-                        <div class="staff-role">
-                          ${escapeHtml(staff.role)}
-                        </div>
-                      </div>
-
-                    </div>
-
-                    ${
-                      currentProfile.role === "owner"
-                      ? `
-                        <button
-                          class="btn-red btn-small"
-                          style="margin-top:10px;"
-                          onclick="removeStaff('${staffDoc.id}')"
-                        >
-                          REMOVE APPROVAL
-                        </button>
-                      `
-                      : ""
-                    }
-
-                  </div>
-                `;
-
-                if (
-                  staff.role === "barber"
-                ) {
-
-                  barberSelectHtml += `
-                    <option
-                      value="${staff.uid}"
-                      data-name="${escapeHtmlAttribute(staff.name)}"
-                    >
-                      ${escapeHtml(staff.name)}
-                    </option>
-                  `;
-
-                }
-
-              }
-
-            }
-          );
-
-          const pendingList =
-            document.getElementById(
-              "pendingStaffList"
-            );
-
-          const approvedList =
-            document.getElementById(
-              "approvedStaffList"
-            );
-
-          if (pendingList) {
-
-            pendingList.innerHTML =
-              pendingHtml ||
-              "<p style='color:#777;'>No pending staff.</p>";
-
-          }
-
-          if (approvedList) {
-
-            approvedList.innerHTML =
-              approvedHtml ||
-              "<p style='color:#777;'>No approved staff yet.</p>";
-
-          }
-
-          document.getElementById(
-            "customerBarberSelect"
-          ).innerHTML =
-            barberSelectHtml;
-
-        }
-      );
-
-  }
-
-
-  window.approveStaff =
-    async function(uid) {
-
-      await updateDoc(
-        doc(db, "users", uid),
-        {
-          approvalStatus: "approved"
-        }
-      );
-
-    };
-
-
-  window.rejectStaff =
-    async function(uid) {
-
-      if (
-        !confirm(
-          "Reject this staff request?"
-        )
-      ) return;
-
-      await updateDoc(
-        doc(db, "users", uid),
-        {
-          approvalStatus: "rejected"
-        }
-      );
-
-    };
-
-
-  window.removeStaff =
-    async function(uid) {
-
-      if (
-        !confirm(
-          "Remove this staff member's approval?"
-        )
-      ) return;
-
-      await updateDoc(
-        doc(db, "users", uid),
-        {
-          approvalStatus: "rejected"
-        }
-      );
-
-    };
-
-
-  /* ================================
-     CREATE CUSTOMER TICKET
-  ================================= */
-
-  document.getElementById(
-    "sendCustomerBtn"
-  ).addEventListener(
-    "click",
-    async () => {
-
-      const customerName =
-        document.getElementById(
-          "customerNameInput"
-        ).value.trim();
-
-      const serviceSelect =
-        document.getElementById(
-          "customerServiceSelect"
-        );
-
-      const barberSelect =
-        document.getElementById(
-          "customerBarberSelect"
-        );
-
-      if (
-        !customerName ||
-        !serviceSelect.value ||
-        !barberSelect.value
-      ) {
-
-        alert(
-          "Please enter customer name, service and barber."
-        );
-
-        return;
-
-      }
-
-      const selectedService =
-        serviceSelect.options[
-          serviceSelect.selectedIndex
-        ];
-
-      const selectedBarber =
-        barberSelect.options[
-          barberSelect.selectedIndex
-        ];
-
-      try {
-
-        await addDoc(
-          collection(
-            db,
-            "tickets"
-          ),
-          {
-
-            shopId:
-              currentProfile.shopId,
-
-            customerName:
-              customerName,
-
-            serviceId:
-              serviceSelect.value,
-
-            serviceName:
-              selectedService.dataset.name,
-
-            price:
-              Number(
-                selectedService.dataset.price
-              ),
-
-            assignedBarberId:
-              barberSelect.value,
-
-            assignedBarberName:
-              selectedBarber.dataset.name,
-
-            status:
-              "in_progress",
-
-            createdAt:
-              Date.now(),
-
-            completedAt:
-              null,
-
-            paidAt:
-              null
-
-          }
-        );
-
-        document.getElementById(
-          "customerNameInput"
-        ).value = "";
-
-        serviceSelect.value = "";
-
-        barberSelect.value = "";
-
-      } catch (error) {
-
-        alert(
-          "Could not create customer ticket: " +
-          error.message
-        );
-
-      }
-
-    }
-  );
-
-
-  /* ================================
-     LIVE QUEUE
-  ================================= */
-
-  function startQueueListener() {
-
-    if (!currentProfile.shopId) return;
-
-    if (queueUnsubscribe) {
-
-      queueUnsubscribe();
-
-    }
-
-    const queueQuery =
-      query(
-        collection(db, "tickets"),
-        where(
-          "shopId",
-          "==",
-          currentProfile.shopId
-        )
-      );
-
-    queueUnsubscribe =
-      onSnapshot(
-        queueQuery,
-        (snapshot) => {
-
-          const tickets = [];
-
-          snapshot.forEach(
-            (ticketDoc) => {
-
-              tickets.push(
-                {
-                  id: ticketDoc.id,
-                  ...ticketDoc.data()
-                }
-              );
-
-            }
-          );
-
-          tickets.sort(
-            (a, b) =>
-              (a.createdAt || 0) -
-              (b.createdAt || 0)
-          );
-
-          let html = "";
-
-          tickets.forEach(
-            (ticket) => {
-
-              if (
-                ticket.status === "paid"
-              ) return;
-
-              /* Barber only sees own customers */
-
-              if (
-                currentProfile.role === "barber" &&
-                ticket.assignedBarberId !==
-                currentUser.uid
-              ) {
-
-                return;
-
-              }
-
-              let action = "";
-
-              if (
-                ticket.status === "in_progress" &&
-                (
-                  currentProfile.role === "barber" ||
-                  currentProfile.role === "owner"
-                )
-              ) {
-
-                if (
-                  currentProfile.role === "owner" ||
-                  ticket.assignedBarberId ===
-                  currentUser.uid
-                ) {
-
-                  action = `
-                    <button
-                      class="btn-dark"
-                      style="width:100%; margin-top:12px;"
-                      onclick="updateTicketStatus('${ticket.id}', 'completed')"
-                    >
-                      FINISH CUT
-                    </button>
-                  `;
-
-                }
-
-              }
-
-              if (
-                ticket.status === "completed" &&
-                (
-                  currentProfile.role === "secretary" ||
-                  currentProfile.role === "owner"
-                )
-              ) {
-
-                action = `
-                  <button
-                    class="btn-green"
-                    style="width:100%; margin-top:12px;"
-                    onclick="updateTicketStatus('${ticket.id}', 'paid')"
-                  >
-                    COLLECT PAYMENT
-                  </button>
-                `;
-
-              }
-
-              html += `
-                <div class="ticket">
-
-                  <div class="ticket-name">
-                    ${escapeHtml(ticket.customerName)}
-                  </div>
-
-                  <div class="ticket-details">
-                    ${escapeHtml(ticket.serviceName)}
-                    <br>
-                    GHS ${Number(ticket.price).toFixed(2)}
-                    <br>
-                    Barber:
-                    <strong>
-                      ${escapeHtml(ticket.assignedBarberName)}
-                    </strong>
-                  </div>
-
-                  <div class="ticket-status">
-                    ${ticket.status
-                      .replace("_", " ")
-                      .toUpperCase()}
-                  </div>
-
-                  ${action}
-
+                <div class="ticket-title">${ticket.customerName}</div>
+                <div class="ticket-details">
+                  ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
+                  Assigned to: <strong>${ticket.assignedBarber}</strong>
                 </div>
-              `;
-
-            }
-          );
-
-          document.getElementById(
-            "queueList"
-          ).innerHTML =
-            html ||
-            "<p style='color:#777;'>No active customers.</p>";
-
-        }
-      );
-
-  }
-
-
-  window.updateTicketStatus =
-    async function(
-      ticketId,
-      newStatus
-    ) {
-
-      const updateData = {
-        status: newStatus
-      };
-
-      if (
-        newStatus === "completed"
-      ) {
-
-        updateData.completedAt =
-          Date.now();
-
-      }
-
-      if (
-        newStatus === "paid"
-      ) {
-
-        updateData.paidAt =
-          Date.now();
-
-      }
-
-      await updateDoc(
-        doc(
-          db,
-          "tickets",
-          ticketId
-        ),
-        updateData
-      );
-
-    };
-
-
-  /* ================================
-     ANALYTICS
-  ================================= */
-
-  function startAnalyticsListener() {
-
-    if (analyticsUnsubscribe) {
-
-      analyticsUnsubscribe();
-
-    }
-
-    const analyticsQuery =
-      query(
-        collection(db, "tickets"),
-        where(
-          "shopId",
-          "==",
-          currentProfile.shopId
-        )
-      );
-
-    analyticsUnsubscribe =
-      onSnapshot(
-        analyticsQuery,
-        (snapshot) => {
-
-          let todayRevenue = 0;
-          let todayCuts = 0;
-
-          let weekRevenue = 0;
-          let weekCuts = 0;
-
-          let monthRevenue = 0;
-          let monthCuts = 0;
-
-          const now =
-            new Date();
-
-          const todayStart =
-            new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              now.getDate()
-            ).getTime();
-
-          const weekStartDate =
-            new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              now.getDate()
-            );
-
-          const day =
-            weekStartDate.getDay();
-
-          const daysSinceMonday =
-            day === 0 ? 6 : day - 1;
-
-          weekStartDate.setDate(
-            weekStartDate.getDate() -
-            daysSinceMonday
-          );
-
-          weekStartDate.setHours(
-            0, 0, 0, 0
-          );
-
-          const weekStart =
-            weekStartDate.getTime();
-
-          const monthStart =
-            new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              1
-            ).getTime();
-
-
-          snapshot.forEach(
-            (ticketDoc) => {
-
-              const ticket =
-                ticketDoc.data();
-
-              if (
-                ticket.status !== "paid"
-              ) return;
-
-              if (
-                currentProfile.role === "barber" &&
-                ticket.assignedBarberId !==
-                currentUser.uid
-              ) {
-
-                return;
-
-              }
-
-              const paymentTime =
-                ticket.paidAt ||
-                ticket.createdAt;
-
-              const price =
-                Number(ticket.price) || 0;
-
-              if (
-                paymentTime >= todayStart
-              ) {
-
-                todayRevenue += price;
-                todayCuts++;
-
-              }
-
-              if (
-                paymentTime >= weekStart
-              ) {
-
-                weekRevenue += price;
-                weekCuts++;
-
-              }
-
-              if (
-                paymentTime >= monthStart
-              ) {
-
-                monthRevenue += price;
-                monthCuts++;
-
-              }
-
-            }
-          );
-
-          document.getElementById(
-            "todayRevenue"
-          ).innerText =
-            todayRevenue.toFixed(2);
-
-          document.getElementById(
-            "todayCuts"
-          ).innerText =
-            todayCuts;
-
-          document.getElementById(
-            "weekRevenue"
-          ).innerText =
-            weekRevenue.toFixed(2);
-
-          document.getElementById(
-            "weekCuts"
-          ).innerText =
-            weekCuts;
-
-          document.getElementById(
-            "monthRevenue"
-          ).innerText =
-            monthRevenue.toFixed(2);
-
-          document.getElementById(
-            "monthCuts"
-          ).innerText =
-            monthCuts;
-
-        }
-      );
-
-  }
-
-
-  /* ================================
-     EDIT PROFILE
-  ================================= */
-
-  document.getElementById(
-    "editProfileBtn"
-  ).addEventListener(
-    "click",
-    () => {
-
-      const panel =
-        document.getElementById(
-          "editProfilePanel"
-        );
-
-      panel.classList.remove("hidden");
-
-      document.getElementById(
-        "editName"
-      ).value =
-        currentProfile.name || "";
-
-      document.getElementById(
-        "editPhone"
-      ).value =
-        currentProfile.phone || "";
-
-      document.getElementById(
-        "editBio"
-      ).value =
-        currentProfile.bio || "";
-
-      panel.scrollIntoView(
-        {
-          behavior: "smooth"
-        }
-      );
-
-    }
-  );
-
-
-  document.getElementById(
-    "cancelEditBtn"
-  ).addEventListener(
-    "click",
-    () => {
-
-      document.getElementById(
-        "editProfilePanel"
-      ).classList.add("hidden");
-
-    }
-  );
-
-
-  document.getElementById(
-    "saveProfileBtn"
-  ).addEventListener(
-    "click",
-    async () => {
-
-      try {
-
-        const newName =
-          document.getElementById(
-            "editName"
-          ).value.trim();
-
-        const newPhone =
-          document.getElementById(
-            "editPhone"
-          ).value.trim();
-
-        const newBio =
-          document.getElementById(
-            "editBio"
-          ).value.trim();
-
-        const pictureFile =
-          document.getElementById(
-            "editPictureInput"
-          ).files[0];
-
-        let pictureUrl =
-          currentProfile.profilePicture;
-
-        if (
-          pictureFile
-        ) {
-
-          pictureUrl =
-            await uploadToCloudinary(
-              pictureFile,
-              "editUploadStatus"
-            );
-
-        }
-
-        await updateDoc(
-          doc(
-            db,
-            "users",
-            currentUser.uid
-          ),
-          {
-
-            name:
-              newName,
-
-            phone:
-              newPhone,
-
-            bio:
-              newBio,
-
-            profilePicture:
-              pictureUrl
-
+                ${actionButton}
+              </div>
+            `;
           }
-        );
-
-        currentProfile.name =
-          newName;
-
-        currentProfile.phone =
-          newPhone;
-
-        currentProfile.bio =
-          newBio;
-
-        currentProfile.profilePicture =
-          pictureUrl;
-
-        document.getElementById(
-          "userName"
-        ).innerText =
-          newName;
-
-        document.getElementById(
-          "userPic"
-        ).src =
-          pictureUrl ||
-          currentUser.photoURL ||
-          "";
-
-        document.getElementById(
-          "editProfilePanel"
-        ).classList.add("hidden");
-
-        alert(
-          "Profile updated successfully."
-        );
-
-      } catch (error) {
-
-        alert(
-          "Profile update failed: " +
-          error.message
-        );
-
-      }
-
+        });
+        
+        queueList.innerHTML = html === "" ? "<p style='color:#666; font-style: italic;'>No active customers in the shop.</p>" : html;
+      });
     }
-  );
 
+    function startAnalyticsTracker(barberNameFilter = null) {
+      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
+        let todayCash = 0, todayCuts = 0;
+        let weekCash = 0, weekCuts = 0;
+        let monthCash = 0, monthCuts = 0;
+        
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()).getTime();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
-  /* ================================
-     SAFE TEXT FUNCTIONS
-  ================================= */
+        snapshot.forEach((docSnap) => {
+          const ticket = docSnap.data();
+          if (ticket.status === "paid") {
+            if (barberNameFilter) {
+              const firstName = barberNameFilter.split(' ')[0].toLowerCase();
+              if (ticket.assignedBarber.toLowerCase() !== firstName) return;
+            }
 
-  function escapeHtml(text) {
+            const time = ticket.timestamp;
+            if (time >= startOfToday) {
+              todayCash += ticket.price;
+              todayCuts++;
+            }
+            if (time >= startOfWeek) {
+              weekCash += ticket.price;
+              weekCuts++;
+            }
+            if (time >= startOfMonth) {
+              monthCash += ticket.price;
+              monthCuts++;
+            }
+          }
+        });
 
-    if (
-      text === undefined ||
-      text === null
-    ) return "";
-
-    return String(text)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-
-  }
-
-
-  function escapeHtmlAttribute(text) {
-
-    return escapeHtml(text);
-
-  }
-
-</script>
-
+        document.getElementById('todayRev').innerText = todayCash.toFixed(2);
+        document.getElementById('todayCuts').innerText = todayCuts;
+        document.getElementById('weekRev').innerText = weekCash.toFixed(2);
+        document.getElementById('weekCuts').innerText = weekCuts;
+        document.getElementById('monthRev').innerText = monthCash.toFixed(2);
+        document.getElementById('monthCuts').innerText = monthCuts;
+      });
+    }
+  </script>
 </body>
 </html>
