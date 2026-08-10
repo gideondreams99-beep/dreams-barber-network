@@ -879,7 +879,7 @@
       }
     });
 
-    // --- EDIT PROFILE NAVIGATION & SUBMISSION (INSTANT FOR OWNERS) ---
+    // --- EDIT PROFILE NAVIGATION & INSTANT DASHBOARD RETURN ---
     window.openEditProfile = () => {
       dashboard.style.display = "none";
       editProfileView.style.display = "block";
@@ -938,11 +938,24 @@
         }
 
         if (currentUserDoc.role === "owner") {
+          // Owner updates instantly without requiring approval
           await updateDoc(doc(db, "users", user.uid), {
             name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave
           });
+          
+          // Instantly update the dashboard visuals for the owner
+          currentUserDoc.name = displayName;
+          currentUserDoc.country = country;
+          currentUserDoc.idType = idType;
+          currentUserDoc.idNumber = idNumber;
+          currentUserDoc.photoURL = photoUrlToSave;
+          
+          document.getElementById('userName').innerText = displayName;
+          document.getElementById('userPic').src = photoUrlToSave;
+          
           showToast("Profile updated successfully!");
         } else {
+          // Staff updates go to approval queue
           await updateDoc(doc(db, "users", user.uid), {
             pendingUpdates: {
               name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime()
@@ -951,7 +964,12 @@
           showToast("Profile updates submitted for owner approval!");
         }
 
-        setTimeout(() => window.location.reload(), 1500);
+        // Instantly reset the button and return to the dashboard without reloading the page
+        btn.innerText = "Save & Update Profile";
+        btn.disabled = false;
+        fileInput.value = ""; // Clear the file input for next time
+        cancelEditProfile(); // Switches view straight back to dashboard
+        
       } catch (err) {
         await customPopup('alert', "Error updating profile: " + err.message);
         btn.innerText = "Save & Update Profile";
