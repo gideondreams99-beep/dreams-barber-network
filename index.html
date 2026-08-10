@@ -82,7 +82,7 @@
       font-size: 12px;
       padding: 4px 8px;
       border-radius: 10px;
-      background-color: #ffc107; /* Yellow for in_progress */
+      background-color: #ffc107;
       color: black;
       font-weight: bold;
     }
@@ -134,9 +134,8 @@
 
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    
-    // IMPORTING NEW DATABASE TOOLS FOR THE QUEUE
+    // CHANGED: We are importing signInWithPopup instead of signInWithRedirect
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -160,9 +159,12 @@
     const userRoleDisplay = document.getElementById('userRole');
     const secretaryPanel = document.getElementById('secretaryPanel');
 
+    // CHANGED: Using the popup method so Chrome doesn't drop the login cookies
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      signInWithRedirect(auth, provider);
+      signInWithPopup(auth, provider).catch((error) => {
+         alert("Login failed: " + error.message);
+      });
     });
 
     logoutBtn.addEventListener('click', () => {
@@ -178,11 +180,10 @@
         document.getElementById('userName').innerText = user.displayName;
         document.getElementById('userPic').src = user.photoURL;
 
-        // INSTANT ROLE ASSIGNMENT
         if (user.email === "gismartsghana@gmail.com") {
           userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
-          secretaryPanel.style.display = "block"; // Show panel so you can test it
-          startLiveQueue(); // Turn on the live database listener
+          secretaryPanel.style.display = "block"; 
+          startLiveQueue(); 
         } else if (user.email === "kuukua@gmail.com") {
           userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
           secretaryPanel.style.display = "block";
@@ -198,12 +199,10 @@
       }
     });
 
-    // --- SECRETARY DATABASE LOGIC ---
-
-    // 1. Sending a customer to the database
+    // Front Desk Database Logic
     document.getElementById('sendBtn').addEventListener('click', async () => {
       const name = document.getElementById('custName').value;
-      const serviceData = document.getElementById('serviceType').value.split('|'); // Splits "Adult Fade|50"
+      const serviceData = document.getElementById('serviceType').value.split('|'); 
       const barber = document.getElementById('barberName').value;
 
       if (name.trim() === "") {
@@ -211,7 +210,6 @@
         return;
       }
 
-      // Save to Firestore
       try {
         await addDoc(collection(db, "daily_tickets"), {
           customerName: name,
@@ -221,26 +219,18 @@
           status: "in_progress",
           timestamp: new Date().getTime()
         });
-        
-        // Clear the form after sending
         document.getElementById('custName').value = "";
       } catch (error) {
         alert("Error saving: " + error.message);
       }
     });
 
-    // 2. Listening to the database for live updates
     function startLiveQueue() {
       const queueList = document.getElementById('queueList');
-      
-      // onSnapshot automatically updates the screen when the database changes
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let html = "";
-        
         snapshot.forEach((doc) => {
           const ticket = doc.data();
-          
-          // Only show active cuts in the queue (we hide 'paid' ones)
           if (ticket.status !== "paid") {
             html += `
               <div class="ticket">
@@ -254,12 +244,7 @@
             `;
           }
         });
-
-        if (html === "") {
-          queueList.innerHTML = "<p style='color:#bbb;'>No active customers in the shop.</p>";
-        } else {
-          queueList.innerHTML = html;
-        }
+        queueList.innerHTML = html === "" ? "<p style='color:#bbb;'>No active customers in the shop.</p>" : html;
       });
     }
   </script>
