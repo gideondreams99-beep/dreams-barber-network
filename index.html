@@ -551,7 +551,7 @@
       if (idType === "Passport" && cleanNum.length < 6) {
         return "Invalid Passport number length. Must be at least 6 characters.";
       }
-      return null; // Valid
+      return null; 
     }
 
     // --- EYE-CATCHING CONFIRMATION TOAST HELPER ---
@@ -795,7 +795,6 @@
           if (uploadData.secure_url) photoUrlToSave = uploadData.secure_url;
         }
 
-        // Save as pending update so owner reviews replacement
         await updateDoc(doc(db, "users", user.uid), {
           pendingUpdates: {
             name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime()
@@ -969,17 +968,19 @@
         `;
       });
 
+      const encoded = encodeURIComponent(customerName);
       if (currentUserDoc.role === "owner") {
-        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${customerName}', 'instant')">Blacklist ${customerName} Instantly</button>`;
+        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'instant')">Blacklist ${customerName} Instantly</button>`;
       } else {
-        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${customerName}', 'report')">Report ${customerName} for Blacklist</button>`;
+        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'report')">Report ${customerName} for Blacklist</button>`;
       }
 
       document.getElementById('customerDetailContent').innerHTML = html;
     };
 
     // --- DEDICATED BLACKLIST UI LOGIC ---
-    window.openBlacklistUI = (customerName, actionType) => {
+    window.openBlacklistUI = (encodedName, actionType) => {
+      const customerName = decodeURIComponent(encodedName);
       activeBlacklistCustomer = customerName;
       activeBlacklistActionType = actionType;
 
@@ -1028,7 +1029,6 @@
 
     // --- OWNER ADMIN & DATA WIPING ---
     function startAdminListeners() {
-      // Listen for both brand new approvals and pending profile/ID updates
       onSnapshot(collection(db, "users"), (snapshot) => {
         let approvalHtml = "";
         let activeHtml = "";
@@ -1048,7 +1048,7 @@
                     <div class="ticket-details" style="margin-bottom: 0; color: #d4af37;">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
                   </div>
                 </div>
-                <button class="btn-action btn-submit" onclick="approveUser('${uid}', '${u.name}')">Approve New Account</button>
+                <button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve New Account</button>
               </div>
             `;
           } else if (u.pendingUpdates) {
@@ -1061,7 +1061,7 @@
                   New Country: <strong>${p.country}</strong><br>
                   New ID: <strong>${p.idType}</strong> (${p.idNumber})
                 </div>
-                <button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}', '${u.name}')">Approve Profile Update</button>
+                <button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Profile Update</button>
               </div>
             `;
           }
@@ -1076,7 +1076,7 @@
                     <span style="font-size: 11px; color: #aaa;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span>
                   </div>
                 </div>
-                <button onclick="fireStaff('${uid}', '${u.name}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button>
+                <button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button>
               </div>
             `;
           }
@@ -1145,26 +1145,33 @@
       });
     }
 
-    window.approveUser = async (uid, userName) => { 
-      await updateDoc(doc(db, "users", uid), { isApproved: true }); 
+    window.approveUser = async (uid) => { 
+      const userRef = doc(db, "users", uid);
+      const snap = await getDoc(userRef);
+      const userName = snap.exists() ? (snap.data().name || "User") : "User";
+      await updateDoc(userRef, { isApproved: true }); 
       showToast(`${userName} approved successfully!`);
     };
 
-    window.approveProfileUpdate = async (uid, userName) => {
+    window.approveProfileUpdate = async (uid) => {
       const userRef = doc(db, "users", uid);
       const snap = await getDoc(userRef);
       if (snap.exists() && snap.data().pendingUpdates) {
         const p = snap.data().pendingUpdates;
+        const updatedName = p.name || snap.data().name || "User";
         await updateDoc(userRef, {
           name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null
         });
-        showToast(`Profile updates approved for ${userName}!`);
+        showToast(`Profile updates approved for ${updatedName}!`);
       }
     };
 
-    window.fireStaff = async (uid, userName) => {
+    window.fireStaff = async (uid) => {
+      const userRef = doc(db, "users", uid);
+      const snap = await getDoc(userRef);
+      const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff";
       if(await customPopup('confirm', `Are you sure you want to fire ${userName} and revoke their access to the shop?`)) {
-        await deleteDoc(doc(db, "users", uid));
+        await deleteDoc(userRef);
         showToast(`${userName} removed from the shop.`);
       }
     };
@@ -1238,7 +1245,7 @@
     if (sendBtn) {
       sendBtn.addEventListener('click', async () => {
         const name = document.getElementById('custName').value.trim();
-        const phone = document.getElementById('custPhone').value.trim(); // Optional now
+        const phone = document.getElementById('custPhone').value.trim(); 
         const serviceVal = document.getElementById('serviceType').value; 
         const barber = document.getElementById('barberName').value;
 
