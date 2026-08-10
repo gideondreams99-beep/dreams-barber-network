@@ -41,7 +41,7 @@
       font-size: 14px;
     }
     
-    /* SECRETARY PANEL STYLES */
+    /* PANEL STYLES */
     .panel {
       background-color: #222;
       border: 1px solid #d4af37;
@@ -50,7 +50,7 @@
       margin-top: 20px;
       text-align: left;
     }
-    .panel h3 { margin-top: 0; color: #d4af37; text-align: center; }
+    .panel h3 { margin-top: 0; color: #d4af37; text-align: center; border-bottom: 1px solid #555; padding-bottom: 10px; }
     input, select {
       width: 100%;
       padding: 12px;
@@ -62,16 +62,12 @@
       box-sizing: border-box;
       font-size: 16px;
     }
-    .btn-submit {
-      background-color: #28a745;
-      width: 100%;
-      font-weight: bold;
-    }
+    .btn-submit { background-color: #28a745; width: 100%; font-weight: bold; }
     
     /* LIVE QUEUE TICKETS */
     .ticket {
       background-color: #333;
-      padding: 12px;
+      padding: 15px;
       border-radius: 8px;
       margin-bottom: 10px;
       border-left: 5px solid #d4af37;
@@ -85,7 +81,14 @@
       background-color: #ffc107;
       color: black;
       font-weight: bold;
+      display: inline-block;
+      margin-bottom: 10px;
     }
+    
+    /* NEW: ACTION BUTTONS */
+    .btn-action { width: 100%; padding: 10px; font-size: 15px; font-weight: bold; border-radius: 5px; margin-top: 5px; }
+    .btn-finish { background-color: #007bff; color: white; }
+    .btn-pay { background-color: #28a745; color: white; }
   </style>
 </head>
 <body>
@@ -99,12 +102,10 @@
     <img id="userPic" src="" alt="Profile Picture">
     <h3 id="userName" style="margin:0;"></h3>
     <div id="userRole">Role: LOADING...</div>
-    <br><br>
-
-    <!-- SECRETARY FRONT DESK PANEL -->
+    
+    <!-- SECRETARY FRONT DESK PANEL (Hidden from Barbers) -->
     <div id="secretaryPanel" class="panel" style="display: none;">
       <h3>Front Desk Intake</h3>
-      
       <label>Customer Name:</label>
       <input type="text" id="custName" placeholder="Enter name...">
 
@@ -122,10 +123,13 @@
       </select>
 
       <button id="sendBtn" class="btn-submit">Send to Barber Chair</button>
+    </div>
 
-      <h3 style="margin-top: 25px; border-top: 1px solid #555; padding-top: 15px;">Live Queue</h3>
+    <!-- LIVE SHOP QUEUE (Visible to Everyone) -->
+    <div id="queuePanel" class="panel" style="display: none;">
+      <h3>Live Shop Queue</h3>
       <div id="queueList">
-        <!-- Tickets will appear here automatically -->
+        <!-- Tickets appear here -->
       </div>
     </div>
     
@@ -134,9 +138,10 @@
 
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    // CHANGED: We are importing signInWithPopup instead of signInWithRedirect
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    // NEW: Imported 'doc' and 'updateDoc' to change ticket statuses
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
@@ -152,19 +157,19 @@
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
+    let currentRole = ""; // Stores the role so the app knows which buttons to show
+
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const dashboard = document.getElementById('dashboard');
     const statusText = document.getElementById('statusText');
     const userRoleDisplay = document.getElementById('userRole');
     const secretaryPanel = document.getElementById('secretaryPanel');
+    const queuePanel = document.getElementById('queuePanel');
 
-    // CHANGED: Using the popup method so Chrome doesn't drop the login cookies
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      signInWithPopup(auth, provider).catch((error) => {
-         alert("Login failed: " + error.message);
-      });
+      signInWithPopup(auth, provider).catch((error) => alert("Login failed: " + error.message));
     });
 
     logoutBtn.addEventListener('click', () => {
@@ -176,21 +181,26 @@
         loginBtn.style.display = "none";
         statusText.style.display = "none";
         dashboard.style.display = "block";
+        queuePanel.style.display = "block"; // Everyone sees the queue
         
         document.getElementById('userName').innerText = user.displayName;
         document.getElementById('userPic').src = user.photoURL;
 
+        // Check Role
         if (user.email === "gismartsghana@gmail.com") {
+          currentRole = "owner";
           userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
           secretaryPanel.style.display = "block"; 
-          startLiveQueue(); 
         } else if (user.email === "kuukua@gmail.com") {
+          currentRole = "secretary";
           userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
           secretaryPanel.style.display = "block";
-          startLiveQueue();
         } else {
+          currentRole = "barber";
           userRoleDisplay.innerText = "👤 ROLE: BARBER";
         }
+
+        startLiveQueue(); 
 
       } else {
         loginBtn.style.display = "inline-block";
@@ -199,16 +209,13 @@
       }
     });
 
-    // Front Desk Database Logic
+    // --- FRONT DESK LOGIC ---
     document.getElementById('sendBtn').addEventListener('click', async () => {
       const name = document.getElementById('custName').value;
       const serviceData = document.getElementById('serviceType').value.split('|'); 
       const barber = document.getElementById('barberName').value;
 
-      if (name.trim() === "") {
-        alert("Please enter the customer's name!");
-        return;
-      }
+      if (name.trim() === "") return alert("Please enter the customer's name!");
 
       try {
         await addDoc(collection(db, "daily_tickets"), {
@@ -225,13 +232,40 @@
       }
     });
 
+    // --- NEW: TICKET UPDATE SYSTEM ---
+    // Attaching this to window so the HTML buttons can click it
+    window.updateTicketStatus = async (ticketId, newStatus) => {
+      try {
+        const ticketRef = doc(db, "daily_tickets", ticketId);
+        await updateDoc(ticketRef, { status: newStatus });
+      } catch (error) {
+        alert("Action failed: " + error.message);
+      }
+    };
+
+    // --- LIVE QUEUE DISPLAY LOGIC ---
     function startLiveQueue() {
       const queueList = document.getElementById('queueList');
+      
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let html = "";
-        snapshot.forEach((doc) => {
-          const ticket = doc.data();
+        
+        snapshot.forEach((docSnap) => {
+          const ticket = docSnap.data();
+          const ticketId = docSnap.id; 
+          
           if (ticket.status !== "paid") {
+            let actionButton = "";
+            
+            // Show FINISH CUT button to Barbers and Owners
+            if (ticket.status === "in_progress" && (currentRole === "barber" || currentRole === "owner")) {
+               actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">Finish Cut</button>`;
+            } 
+            // Show COLLECT PAYMENT button to Secretary and Owners
+            else if (ticket.status === "completed" && (currentRole === "secretary" || currentRole === "owner")) {
+               actionButton = `<button class="btn-action btn-pay" onclick="updateTicketStatus('${ticketId}', 'paid')">Collect Payment</button>`;
+            }
+
             html += `
               <div class="ticket">
                 <div class="ticket-title">${ticket.customerName}</div>
@@ -240,10 +274,12 @@
                   Assigned to: <strong>${ticket.assignedBarber}</strong>
                 </div>
                 <span class="status-badge">${ticket.status.toUpperCase().replace('_', ' ')}</span>
+                ${actionButton}
               </div>
             `;
           }
         });
+        
         queueList.innerHTML = html === "" ? "<p style='color:#bbb;'>No active customers in the shop.</p>" : html;
       });
     }
