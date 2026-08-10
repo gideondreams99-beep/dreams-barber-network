@@ -1,20 +1,23 @@
 {
   "name": "SJ'S SALOON",
   "short_name": "SJ Saloon",
+  "description": "Real-time salon management system for SJ'S SALOON",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#d4af37",
   "icons": [
     {
-      "src": "https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/sample.jpg",
+      "src": "https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/sample.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/sample.jpg",
+      "src": "https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/sample.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
