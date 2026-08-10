@@ -199,7 +199,7 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- ANALYTICS & COMMISSION VAULT -->
+    <!-- ANALYTICS PANEL -->
     <div id="analyticsPanel" class="panel" style="display: none;">
       <h3 id="analyticsTitle">Shop Analytics</h3>
       <div class="stats-grid">
@@ -280,9 +280,9 @@
           userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
           secretaryPanel.style.display = "block"; 
           analyticsPanel.style.display = "block"; 
-          analyticsTitle.innerText = "The Vault (Gross Shop Revenue)";
+          analyticsTitle.innerText = "The Vault (Shop Revenue)";
           startLiveQueue(); 
-          startAnalyticsTracker(false); // False = Gross Revenue for shop
+          startAnalyticsTracker(); 
         } else if (user.email === "kuukua@gmail.com") {
           currentRole = "secretary";
           userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
@@ -290,14 +290,14 @@
           analyticsPanel.style.display = "block"; 
           analyticsTitle.innerText = "Shop Revenue Tracker";
           startLiveQueue();
-          startAnalyticsTracker(false); 
+          startAnalyticsTracker(); 
         } else {
           currentRole = "barber";
           userRoleDisplay.innerText = "👤 ROLE: BARBER";
           analyticsPanel.style.display = "block"; 
-          analyticsTitle.innerText = "My Commission Earnings (60%)";
+          analyticsTitle.innerText = "My Work History";
           startLiveQueue();
-          startAnalyticsTracker(true, user.displayName); // True = Calculate 60% Commission for this barber
+          startAnalyticsTracker(user.displayName); 
         }
 
       } else {
@@ -400,8 +400,7 @@
       });
     }
 
-    // --- ANALYTICS & 60% COMMISSION CALCULATOR ---
-    function startAnalyticsTracker(isBarber = false, barberNameFilter = null) {
+    function startAnalyticsTracker(barberNameFilter = null) {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let todayVal = 0, todayCuts = 0;
         let weekVal = 0, weekCuts = 0;
@@ -415,14 +414,12 @@
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
           if (ticket.status === "paid") {
-            if (isBarber && barberNameFilter) {
+            if (barberNameFilter) {
               const firstName = barberNameFilter.split(' ')[0].toLowerCase();
               if (ticket.assignedBarber.toLowerCase() !== firstName) return;
             }
 
-            // Apply 60% commission rate if it's a barber, otherwise 100% gross for shop
-            const multiplier = isBarber ? 0.60 : 1.0;
-            const amount = ticket.price * multiplier;
+            const amount = ticket.price;
 
             const time = ticket.timestamp;
             if (time >= startOfToday) {
