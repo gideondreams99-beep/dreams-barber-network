@@ -40,7 +40,8 @@
     button:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8); }
     
     #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
-    #logoutBtn { background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; margin-top: 30px; width: 100%; }
+    #logoutBtn { background: linear-gradient(145deg, #444, #222); color: white; border-color: #555; margin-top: 30px; width: 100%; }
+    #deleteAccountBtn { background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; margin-top: 15px; width: 100%; }
 
     img { 
       border-radius: 50%; 
@@ -53,7 +54,7 @@
     }
     
     /* VIEWS */
-    #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage { display: none; margin-top: 15px; }
+    #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage { display: none; margin-top: 15px; }
     
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
@@ -87,12 +88,13 @@
     }
 
     label { font-size: 14px; color: #aaa; margin-bottom: 5px; display: block; }
-    input, select {
+    input, select, textarea {
       width: 100%; padding: 14px; margin-bottom: 20px;
       background-color: #111; color: white;
       border: 1px solid #444; border-radius: 8px; box-sizing: border-box; font-size: 16px;
+      font-family: inherit;
     }
-    input:focus, select:focus { outline: none; border-color: #d4af37; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #d4af37; }
     
     .btn-submit { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%; }
     
@@ -155,29 +157,15 @@
 
     /* EYE-CATCHING CONFIRMATION TOAST */
     #toastNotification {
-      position: fixed;
-      top: 20px;
-      left: 50%;
+      position: fixed; top: 20px; left: 50%;
       transform: translateX(-50%) translateY(-120px);
-      background: linear-gradient(145deg, #113518, #07190a);
-      color: #28a745;
-      border: 2px solid #28a745;
-      padding: 14px 28px;
-      border-radius: 35px;
-      font-weight: bold;
-      font-size: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.9);
-      z-index: 99999;
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      background: linear-gradient(145deg, #113518, #07190a); color: #28a745;
+      border: 2px solid #28a745; padding: 14px 28px; border-radius: 35px;
+      font-weight: bold; font-size: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+      z-index: 99999; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex; align-items: center; gap: 12px; letter-spacing: 1px; text-transform: uppercase;
     }
-    #toastNotification.show {
-      transform: translateX(-50%) translateY(0);
-    }
+    #toastNotification.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -197,10 +185,8 @@
       <option value="secretary">Secretary</option>
       <option value="owner">Shop Owner</option>
     </select>
-
     <label>Upload Profile Picture (Optional)</label>
     <input type="file" id="setupPhoto" accept="image/*">
-
     <button id="saveProfileBtn" class="btn-submit">Submit Profile</button>
   </div>
 
@@ -215,7 +201,7 @@
   <!-- DEDICATED PAYMENT PAGE VIEW -->
   <div id="paymentPage" class="panel" style="border-color: #28a745;">
     <button onclick="cancelPayment()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
-    <h3 style="color: #28a745;">Checkout & Payment Collection</h3>
+    <h3 style="color: #28a745;">Checkout & Payment</h3>
     
     <div id="paymentInfoBox" style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; text-align: left;">
       <p style="margin: 0 0 5px 0; color: #aaa;">Customer: <strong id="payCustName" style="color: #fff;">--</strong></p>
@@ -233,6 +219,21 @@
     <button class="pay-btn pay-momo" onclick="processPayment('MTN MoMo')">📱 MTN MoMo</button>
     <button class="pay-btn pay-telecel" onclick="processPayment('Telecel Cash')">🟠 Telecel Cash</button>
     <button class="pay-btn pay-card" onclick="processPayment('Card')">💳 Card Payment</button>
+  </div>
+
+  <!-- DEDICATED BLACKLIST PAGE VIEW -->
+  <div id="blacklistPage" class="panel" style="border-color: #ff4444;">
+    <button onclick="cancelBlacklistPage()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Go Back</button>
+    <h3 style="color: #ff4444;" id="blacklistPageTitle">Blacklist Customer</h3>
+    
+    <div style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; text-align: left;">
+      <p style="margin: 0; color: #aaa;">Target Customer: <strong id="blPageCustName" style="color: #fff; font-size: 18px;">--</strong></p>
+    </div>
+
+    <label style="color: #fff;">Reason for Blacklist / Report:</label>
+    <textarea id="blPageReason" rows="4" placeholder="Enter detailed reason here..."></textarea>
+
+    <button id="blPageSubmitBtn" class="btn-submit" style="background: #ff4444; border-color: #ff4444;">Submit Blacklist</button>
   </div>
 
   <!-- DEDICATED CUSTOMER HISTORY DIRECTORY PAGE -->
@@ -258,15 +259,16 @@
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
     
-    <!-- OWNER SETTINGS: STAFF APPROVAL, SERVICES, BLACKLIST -->
+    <!-- OWNER SETTINGS: STAFF APPROVAL, STAFF MANAGEMENT, SERVICES, BLACKLIST -->
     <div id="adminPanel" class="panel" style="display: none;">
       <h3>Shop Management (Owner)</h3>
       
       <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals</h4>
       <div id="approvalList"></div>
 
-      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Pending Blacklist Reports</h4>
-      <div id="reportsList"></div>
+      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Staff Management</h4>
+      <p style="color: #aaa; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
+      <div id="activeStaffList"></div>
 
       <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Manage Services & Prices</h4>
       <div class="flex-row">
@@ -276,8 +278,15 @@
       <button id="addServiceBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4; margin-bottom: 15px;">Add Service</button>
       <div id="servicesList"></div>
 
+      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Pending Blacklist Reports</h4>
+      <div id="reportsList"></div>
+
       <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Customer Blacklist</h4>
       <div id="blacklistList"></div>
+
+      <h4 style="color: #ff4444; margin-top: 40px; border-top: 2px dashed #ff4444; padding-top: 15px;">⚠️ DANGER ZONE</h4>
+      <p style="color: #aaa; font-size: 12px;">This will permanently delete all recorded past customer tickets and history from the database.</p>
+      <button onclick="wipeShopHistory()" class="btn-submit" style="background: #8c1a1a; border-color: #ff4444;">Wipe All Shop Data History</button>
     </div>
 
     <!-- SECRETARY FRONT DESK PANEL -->
@@ -331,6 +340,7 @@
     </div>
     
     <button id="logoutBtn">Log Out</button>
+    <button id="deleteAccountBtn" onclick="deleteMyAccount()">Delete My Account & Leave Shop</button>
   </div>
 
   <script type="module" defer>
@@ -355,6 +365,8 @@
     let currentUserDoc = null; 
     let allPaidTicketsCache = []; 
     let activePaymentTicketId = null;
+    let activeBlacklistCustomer = null;
+    let activeBlacklistActionType = null; // 'report' or 'instant'
 
     // --- EYE-CATCHING CONFIRMATION TOAST HELPER ---
     window.showToast = (message) => {
@@ -366,26 +378,16 @@
       }
       toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`;
       toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3500);
+      setTimeout(() => { toast.classList.remove('show'); }, 3500);
     };
 
     const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const pendingLogoutBtn = document.getElementById('pendingLogoutBtn');
     const statusText = document.getElementById('statusText');
     
-    const setupView = document.getElementById('setupView');
-    const pendingView = document.getElementById('pendingView');
     const dashboard = document.getElementById('dashboard');
     const customerDirectoryPage = document.getElementById('customerDirectoryPage');
     const paymentPage = document.getElementById('paymentPage');
-    
-    const adminPanel = document.getElementById('adminPanel');
-    const secretaryPanel = document.getElementById('secretaryPanel');
-    const queuePanel = document.getElementById('queuePanel');
-    const analyticsPanel = document.getElementById('analyticsPanel');
+    const blacklistPage = document.getElementById('blacklistPage');
 
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -394,10 +396,25 @@
       }).catch((error) => alert("Login failed: " + error.message));
     });
 
-    const performLogout = () => signOut(auth).then(() => window.location.reload());
-    logoutBtn.addEventListener('click', performLogout);
-    pendingLogoutBtn.addEventListener('click', performLogout);
+    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
+    document.getElementById('pendingLogoutBtn').addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
 
+    // --- ACCOUNT DELETION (LEAVE SHOP) ---
+    window.deleteMyAccount = async () => {
+      const confirm1 = confirm("Are you sure you want to delete your account and leave SJ'S SALOON?");
+      if (!confirm1) return;
+      
+      const confirm2 = confirm("This action is PERMANENT. You will lose access to the shop instantly. Proceed?");
+      if (!confirm2) return;
+
+      try {
+        await deleteDoc(doc(db, "users", auth.currentUser.uid));
+        await signOut(auth);
+        window.location.reload();
+      } catch (err) { alert("Error deleting account: " + err.message); }
+    };
+
+    // --- UI NAVIGATION ---
     document.getElementById('openDirectoryBtn').addEventListener('click', () => {
       dashboard.style.display = "none";
       customerDirectoryPage.style.display = "block";
@@ -407,6 +424,7 @@
     window.backToDashboard = () => {
       customerDirectoryPage.style.display = "none";
       paymentPage.style.display = "none";
+      blacklistPage.style.display = "none";
       dashboard.style.display = "block";
       document.getElementById('customerDetailView').style.display = "none";
       document.getElementById('directoryListView').style.display = "block";
@@ -426,11 +444,10 @@
         try {
           const userRef = doc(db, "users", user.uid);
           const userSnap = await getDoc(userRef);
-
           statusText.style.display = "none";
 
           if (!userSnap.exists()) {
-            setupView.style.display = "block";
+            document.getElementById('setupView').style.display = "block";
           } else {
             currentUserDoc = userSnap.data();
             
@@ -443,23 +460,23 @@
             if (currentUserDoc.isApproved) {
               loadApp(user, currentUserDoc);
             } else {
-              pendingView.style.display = "block";
+              document.getElementById('pendingView').style.display = "block";
             }
           }
         } catch (error) {
           statusText.style.display = "block";
           statusText.innerText = "Error: " + error.message;
-          alert("Firebase Error: " + error.message);
         }
       } else {
         loginBtn.style.display = "inline-block";
         statusText.style.display = "block";
         statusText.innerText = "Please log in to continue.";
         dashboard.style.display = "none";
-        setupView.style.display = "none";
-        pendingView.style.display = "none";
+        document.getElementById('setupView').style.display = "none";
+        document.getElementById('pendingView').style.display = "none";
         customerDirectoryPage.style.display = "none";
         paymentPage.style.display = "none";
+        blacklistPage.style.display = "none";
       }
     });
 
@@ -495,12 +512,8 @@
         }
 
         await setDoc(doc(db, "users", user.uid), {
-          name: user.displayName,
-          email: user.email,
-          photoURL: photoUrlToSave,
-          role: role,
-          isApproved: false, 
-          createdAt: new Date().getTime()
+          name: user.displayName, email: user.email, photoURL: photoUrlToSave,
+          role: role, isApproved: false, createdAt: new Date().getTime()
         });
 
         showToast("Profile submitted successfully!");
@@ -514,7 +527,7 @@
 
     function loadApp(user, docData) {
       dashboard.style.display = "block";
-      queuePanel.style.display = "block";
+      document.getElementById('queuePanel').style.display = "block";
       
       document.getElementById('userName').innerText = docData.name;
       document.getElementById('userPic').src = docData.photoURL;
@@ -523,22 +536,22 @@
 
       if (docData.role === "owner") {
         roleDisplay.innerText = "👑 ROLE: SHOP OWNER";
-        adminPanel.style.display = "block";
-        analyticsPanel.style.display = "block";
+        document.getElementById('adminPanel').style.display = "block";
+        document.getElementById('analyticsPanel').style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History";
         startAdminListeners(); 
         startAnalyticsTracker();
       } 
       else if (docData.role === "secretary") {
         roleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
-        secretaryPanel.style.display = "block"; 
-        analyticsPanel.style.display = "block";
+        document.getElementById('secretaryPanel').style.display = "block"; 
+        document.getElementById('analyticsPanel').style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
         startAnalyticsTracker();
       } 
       else {
         roleDisplay.innerText = "👤 ROLE: BARBER";
-        analyticsPanel.style.display = "block";
+        document.getElementById('analyticsPanel').style.display = "block";
         document.getElementById('analyticsTitle').innerText = "My Work History";
         startAnalyticsTracker(docData.name);
       }
@@ -569,10 +582,7 @@
         const historyBox = document.getElementById('customerHistoryBox');
         const historyContent = document.getElementById('historyContent');
 
-        if (typedName.length < 2) {
-          historyBox.style.display = "none";
-          return;
-        }
+        if (typedName.length < 2) { historyBox.style.display = "none"; return; }
 
         const matches = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase().includes(typedName));
         
@@ -598,7 +608,6 @@
 
     function renderCustomerDirectoryList() {
       const listContainer = document.getElementById('directoryCustomerList');
-      
       let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed");
 
       if (currentUserDoc.role === "barber") {
@@ -610,11 +619,7 @@
       ticketsToProcess.forEach(t => {
         const nameKey = t.customerName.trim().toLowerCase();
         if (!customerMap[nameKey]) {
-          customerMap[nameKey] = {
-            displayName: t.customerName,
-            phone: t.customerPhone || 'Not Provided',
-            visits: []
-          };
+          customerMap[nameKey] = { displayName: t.customerName, phone: t.customerPhone || 'Not Provided', visits: [] };
         }
         customerMap[nameKey].visits.push(t);
       });
@@ -681,20 +686,75 @@
         `;
       });
 
-      // Role-based Blacklisting Logic
       if (currentUserDoc.role === "owner") {
-        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="ownerDirectBlacklist('${customerName}')">Blacklist ${customerName} Instantly</button>`;
+        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${customerName}', 'instant')">Blacklist ${customerName} Instantly</button>`;
       } else {
-        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="reportCustomerForBlacklist('${customerName}')">Report ${customerName} for Blacklist</button>`;
+        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${customerName}', 'report')">Report ${customerName} for Blacklist</button>`;
       }
 
       document.getElementById('customerDetailContent').innerHTML = html;
     };
 
+    // --- DEDICATED BLACKLIST UI LOGIC ---
+    window.openBlacklistUI = (customerName, actionType) => {
+      activeBlacklistCustomer = customerName;
+      activeBlacklistActionType = actionType;
+
+      document.getElementById('blPageCustName').innerText = customerName;
+      document.getElementById('blPageReason').value = "";
+      
+      if (actionType === 'instant') {
+        document.getElementById('blacklistPageTitle').innerText = "Instantly Blacklist Customer";
+        document.getElementById('blPageSubmitBtn').innerText = "Banish & Add to Blacklist";
+      } else {
+        document.getElementById('blacklistPageTitle').innerText = "Report Customer for Blacklist";
+        document.getElementById('blPageSubmitBtn').innerText = "Send Report to Owner";
+      }
+
+      customerDirectoryPage.style.display = "none";
+      blacklistPage.style.display = "block";
+    };
+
+    window.cancelBlacklistPage = () => {
+      blacklistPage.style.display = "none";
+      customerDirectoryPage.style.display = "block";
+      activeBlacklistCustomer = null;
+    };
+
+    document.getElementById('blPageSubmitBtn').addEventListener('click', async () => {
+      const reason = document.getElementById('blPageReason').value.trim();
+      if (!reason) return alert("Please provide a reason.");
+
+      try {
+        if (activeBlacklistActionType === 'instant') {
+          await addDoc(collection(db, "blacklist"), {
+            name: activeBlacklistCustomer.toLowerCase(),
+            reason: reason,
+            createdAt: new Date().getTime()
+          });
+          showToast(`${activeBlacklistCustomer} is instantly blacklisted!`);
+        } else {
+          await addDoc(collection(db, "blacklist_reports"), {
+            customerName: activeBlacklistCustomer,
+            reportedBy: currentUserDoc.name,
+            feedback: reason,
+            timestamp: new Date().getTime()
+          });
+          showToast("Blacklist report sent to Owner!");
+        }
+        cancelBlacklistPage();
+        backToDirectoryList();
+      } catch (err) {
+        alert("Action failed: " + err.message);
+      }
+    });
+
+
+    // --- OWNER ADMIN & DATA WIPING ---
     function startAdminListeners() {
       // Pending Approvals
-      const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
-      onSnapshot(qUsers, (snapshot) => {
+      const qPending = query(collection(db, "users"), where("isApproved", "==", false));
+      onSnapshot(qPending, (snapshot) => {
         let html = "";
         snapshot.forEach((userDoc) => {
           const u = userDoc.data();
@@ -714,7 +774,30 @@
         document.getElementById('approvalList').innerHTML = html === "" ? "<p style='color:#666;'>No pending approvals.</p>" : html;
       });
 
-      // Staff Reports sent to the Owner for approval
+      // Active Staff Management
+      const qActive = query(collection(db, "users"), where("isApproved", "==", true));
+      onSnapshot(qActive, (snapshot) => {
+        let html = "";
+        snapshot.forEach((userDoc) => {
+          const u = userDoc.data();
+          if (u.role !== "owner") { // Hide other owners from getting fired
+            html += `
+              <div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;">
+                  <div>
+                    <strong style="color: #fff;">${u.name}</strong><br>
+                    <span style="font-size: 11px; color: #aaa;">Role: ${u.role.toUpperCase()}</span>
+                  </div>
+                </div>
+                <button onclick="fireStaff('${userDoc.id}', '${u.name}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button>
+              </div>
+            `;
+          }
+        });
+        document.getElementById('activeStaffList').innerHTML = html === "" ? "<p style='color:#666;'>No active staff found.</p>" : html;
+      });
+
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => {
         let html = "";
         snapshot.forEach((rDoc) => {
@@ -778,58 +861,48 @@
       await updateDoc(doc(db, "users", uid), { isApproved: true }); 
       showToast(`${userName} approved successfully!`);
     };
-    
-    window.deleteService = async (sid) => { 
-      await deleteDoc(doc(db, "services", sid)); 
+
+    window.fireStaff = async (uid, userName) => {
+      if(confirm(`Are you sure you want to fire ${userName} and revoke their access to the shop?`)) {
+        await deleteDoc(doc(db, "users", uid));
+        showToast(`${userName} removed from the shop.`);
+      }
     };
+    
+    window.deleteService = async (sid) => { await deleteDoc(doc(db, "services", sid)); };
     
     window.removeBlacklist = async (bid) => { 
       await deleteDoc(doc(db, "blacklist", bid)); 
       showToast("Customer unblocked");
     };
 
-    // Owner confirms a staff member's report
     window.confirmBlacklistFromReport = async (reportId, customerName) => {
       await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() });
       await deleteDoc(doc(db, "blacklist_reports", reportId));
       showToast(`${customerName} added to blacklist!`);
     };
 
-    // Owner instantly blacklists a customer without approval
-    window.ownerDirectBlacklist = async (customerName) => {
-      const reason = prompt("Enter reason for instantly blacklisting " + customerName + ":");
-      if (!reason || reason.trim() === "") return;
+    window.wipeShopHistory = async () => {
+      const c1 = prompt("DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history from the database.");
+      if (c1 !== 'DELETE') return alert("Data wipe cancelled.");
+
+      const c2 = confirm("Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly. It cannot be undone.");
+      if (!c2) return;
 
       try {
-        await addDoc(collection(db, "blacklist"), {
-          name: customerName.toLowerCase(),
-          reason: reason.trim(),
-          createdAt: new Date().getTime()
-        });
-        showToast(`${customerName} has been instantly blacklisted!`);
-      } catch (err) {
-        alert("Error blacklisting: " + err.message);
+        const ticketSnaps = await getDocs(collection(db, "daily_tickets"));
+        ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id)));
+        
+        const reportSnaps = await getDocs(collection(db, "blacklist_reports"));
+        reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id)));
+
+        showToast("All customer data history wiped successfully.");
+      } catch(e) {
+        alert("Error wiping data: " + e.message);
       }
     };
 
-    // Staff sends a report to the Owner for approval
-    window.reportCustomerForBlacklist = async (customerName) => {
-      const feedback = prompt("Enter feedback / reason why " + customerName + " should be blacklisted:");
-      if (!feedback || feedback.trim() === "") return;
-
-      try {
-        await addDoc(collection(db, "blacklist_reports"), {
-          customerName: customerName,
-          reportedBy: currentUserDoc.name,
-          feedback: feedback.trim(),
-          timestamp: new Date().getTime()
-        });
-        showToast("Blacklist report sent to Owner!");
-      } catch (err) {
-        alert("Error sending report: " + err.message);
-      }
-    };
-
+    // --- OTHER CORE FUNCTIONS ---
     function populateIntakeForm() {
       onSnapshot(collection(db, "services"), (snapshot) => {
         let html = '<option value="">Select Service...</option>';
@@ -865,15 +938,10 @@
         const blacklistSnap = await getDocs(collection(db, "blacklist"));
         let isBanned = false;
         blacklistSnap.forEach(bDoc => {
-          if (bDoc.data().name === name.toLowerCase()) {
-            isBanned = true;
-          }
+          if (bDoc.data().name === name.toLowerCase()) { isBanned = true; }
         });
 
-        if (isBanned) {
-          alert("🚫 ACCESS DENIED: This customer is blacklisted and cannot be assigned services at SJ'S SALOON!");
-          return;
-        }
+        if (isBanned) return alert("🚫 ACCESS DENIED: This customer is blacklisted!");
 
         const serviceData = serviceVal.split('|');
 
@@ -882,22 +950,14 @@
           const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
 
           await addDoc(collection(db, "daily_tickets"), {
-            ticketNo: ticketNumber,
-            customerName: name,
-            customerPhone: phone,
-            serviceName: serviceData[0],
-            price: Number(serviceData[1]),
-            assignedBarber: barber,
-            status: "in_progress",
-            timestamp: new Date().getTime()
+            ticketNo: ticketNumber, customerName: name, customerPhone: phone,
+            serviceName: serviceData[0], price: Number(serviceData[1]),
+            assignedBarber: barber, status: "in_progress", timestamp: new Date().getTime()
           });
-          document.getElementById('custName').value = "";
-          document.getElementById('custPhone').value = "";
+          document.getElementById('custName').value = ""; document.getElementById('custPhone').value = "";
           document.getElementById('customerHistoryBox').style.display = "none";
           showToast("Ticket issued & sent to chair!");
-        } catch (error) {
-          alert("Error saving: " + error.message);
-        }
+        } catch (error) { alert("Error saving: " + error.message); }
       });
     }
 
@@ -927,25 +987,17 @@
       }
 
       try {
-        await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), {
-          status: "paid",
-          paymentMethod: method
-        });
+        await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method });
         showToast(`Payment recorded as ${method}!`);
-        paymentPage.style.display = "none";
-        dashboard.style.display = "block";
+        paymentPage.style.display = "none"; dashboard.style.display = "block";
         activePaymentTicketId = null;
-      } catch (error) {
-        alert("Error updating payment: " + error.message);
-      }
+      } catch (error) { alert("Error updating payment: " + error.message); }
     };
 
     window.updateTicketStatus = async (ticketId, newStatus) => {
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
-        if(newStatus === 'completed') {
-          showToast("Cut marked as completed!");
-        }
+        if(newStatus === 'completed') showToast("Cut marked as completed!");
       } catch (error) { alert("Action failed: " + error.message); }
     };
 
