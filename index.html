@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SJ'S SALOON</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d4af37">
   <style>
     /* PREMIUM DARK METALLIC THEME */
     body { 
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-      background: #121212; /* Solid dark background to prevent any gradient line artifacts */
+      background: #121212; 
       color: #e0e0e0; 
       text-align: center; 
       padding: 15px; 
@@ -167,7 +169,7 @@
     }
     #toastNotification.show { transform: translateX(-50%) translateY(0); }
 
-    /* CUSTOM POPUP MODAL (REPLACES ALERT/CONFIRM/PROMPT) */
+    /* CUSTOM POPUP MODAL */
     #customModalOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
@@ -184,7 +186,7 @@
     }
     #customModalOverlay.show #customModalBox { transform: scale(1); }
     #customModalTitle { margin-top: 0; color: #d4af37; letter-spacing: 1px; font-size: 18px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 15px; }
-    #customModalMessage { color: #ccc; font-size: 15px; margin-bottom: 20px; line-height: 1.5; }
+    #customModalMessage { color: #ccc; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; }
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
   </style>
 </head>
@@ -207,7 +209,7 @@
     </div>
   </div>
 
-  <!-- SETUP PROFILE VIEW (GLOBAL ID + COUNTRY SELECT) -->
+  <!-- SETUP PROFILE VIEW -->
   <div id="setupView" class="panel">
     <h3>Complete Your Profile & ID Verification</h3>
     <p style="color: #aaa; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your details, select your country, and enter a valid government-issued ID for identity verification.</p>
@@ -385,6 +387,13 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #d4af37;">Settings & Controls</h3>
 
+    <!-- INSTALL APP SECTION FOR IOS & ANDROID -->
+    <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #d4af37; margin-bottom: 20px;">
+      <h4 style="color: #d4af37; margin-top: 0;">📱 Install App on Phone</h4>
+      <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen for quick, full-screen access.</p>
+      <button onclick="triggerInstall()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Install App Now</button>
+    </div>
+
     <div id="ownerDangerZoneBox" style="display: none; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px;">
       <h4 style="color: #ff4444; margin-top: 0;">⚠️ Owner Danger Zone</h4>
       <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Permanently delete all recorded past customer tickets, history reports, and logs from the database.</p>
@@ -542,6 +551,43 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    // --- SERVICE WORKER REGISTRATION FOR PWA ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed: ', err));
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    // --- CROSS-PLATFORM INSTALL HANDLER (iOS & Android) ---
+    window.triggerInstall = async () => {
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase());
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+      if (isStandalone) {
+        await customPopup('alert', "The app is already installed on your device!");
+        return;
+      }
+
+      if (isIOS) {
+        await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share</b> button in Safari (the square with an arrow pointing upward).<br>2. Scroll down the menu and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>Add</b> in the top right corner!");
+      } else if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          showToast("App installed successfully!");
+        }
+        deferredPrompt = null;
+      } else {
+        await customPopup('alert', "To install this app, open your browser menu (the three dots in the corner) and select <b>'Install app'</b> or <b>'Add to Home screen'</b>.");
+      }
+    };
+
     const firebaseConfig = {
       apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
       authDomain: "sjs-saloon.firebaseapp.com",
@@ -562,7 +608,7 @@
     let activeBlacklistCustomer = null;
     let activeBlacklistActionType = null; 
 
-    // --- REUSABLE CUSTOM POPUP UI FUNCTION (Replaces Alert, Confirm, Prompt) ---
+    // --- REUSABLE CUSTOM POPUP UI FUNCTION ---
     window.customPopup = function(type, message, placeholder = "Enter details...") {
       return new Promise((resolve) => {
         const overlay = document.getElementById('customModalOverlay');
@@ -687,7 +733,7 @@
       return null; 
     }
 
-    // --- EYE-CATCHING CONFIRMATION TOAST HELPER ---
+    // --- TOAST HELPER ---
     window.showToast = (message) => {
       let toast = document.getElementById('toastNotification');
       if(!toast) {
@@ -718,7 +764,6 @@
       }
     });
 
-    // --- SECURE LOGOUT FLOW ---
     const performLogout = async () => {
       const confirmLogout = await customPopup('confirm', "Are you sure you want to log out of SJ'S SALOON?");
       if (confirmLogout) {
@@ -730,7 +775,6 @@
     document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout);
     document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
 
-    // --- ACCOUNT DELETION (LEAVE SHOP) ---
     window.deleteMyAccount = async () => {
       const confirm1 = await customPopup('confirm', "Are you sure you want to delete your account and leave SJ'S SALOON?");
       if (!confirm1) return;
@@ -745,7 +789,6 @@
       } catch (err) { await customPopup('alert', "Error deleting account: " + err.message); }
     };
 
-    // --- UI NAVIGATION ---
     document.getElementById('openDirectoryBtn').addEventListener('click', () => {
       dashboard.style.display = "none";
       customerDirectoryPage.style.display = "block";
@@ -880,7 +923,6 @@
       }
     });
 
-    // --- EDIT PROFILE NAVIGATION & INSTANT DASHBOARD RETURN ---
     window.openEditProfile = () => {
       dashboard.style.display = "none";
       editProfileView.style.display = "block";
@@ -939,12 +981,10 @@
         }
 
         if (currentUserDoc.role === "owner") {
-          // Owner updates instantly without requiring approval
           await updateDoc(doc(db, "users", user.uid), {
             name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave
           });
           
-          // Instantly update the dashboard visuals for the owner
           currentUserDoc.name = displayName;
           currentUserDoc.country = country;
           currentUserDoc.idType = idType;
@@ -956,7 +996,6 @@
           
           showToast("Profile updated successfully!");
         } else {
-          // Staff updates go to approval queue
           await updateDoc(doc(db, "users", user.uid), {
             pendingUpdates: {
               name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime()
@@ -965,11 +1004,10 @@
           showToast("Profile updates submitted for owner approval!");
         }
 
-        // Instantly reset the button and return to the dashboard without reloading the page
         btn.innerText = "Save & Update Profile";
         btn.disabled = false;
-        fileInput.value = ""; // Clear the file input for next time
-        cancelEditProfile(); // Switches view straight back to dashboard
+        fileInput.value = ""; 
+        cancelEditProfile(); 
         
       } catch (err) {
         await customPopup('alert', "Error updating profile: " + err.message);
@@ -978,7 +1016,6 @@
       }
     });
 
-    // --- REAL-TIME TEAM CHAT SYSTEM ---
     function startChatListener() {
       const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
       onSnapshot(q, (snapshot) => {
@@ -1022,7 +1059,6 @@
       }
     });
 
-    // --- ANNOUNCEMENTS SYSTEM ---
     function startAnnouncementsListener() {
       const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
       onSnapshot(q, (snapshot) => {
@@ -1064,7 +1100,6 @@
       }
     });
 
-    // --- BARBER AVAILABILITY TOGGLE ---
     window.toggleAvailability = async () => {
       if (!currentUserDoc) return;
       const isCurrentlyOff = currentUserDoc.isAvailable === false;
@@ -1088,7 +1123,6 @@
       }
     };
 
-    // --- TICKET STATUS (UPDATED WITH DENY LOGIC) ---
     window.updateTicketStatus = async (ticketId, newStatus) => {
       if (newStatus === 'denied') {
         const confirmDeny = await customPopup('confirm', "Are you sure you want to DENY this customer? The Secretary will be notified to reassign or dismiss the ticket.");
@@ -1134,7 +1168,6 @@
         document.getElementById('analyticsTitle').innerText = "My Work History";
         startAnalyticsTracker(docData.name);
         
-        // SHOW BARBER TOGGLE LOGIC
         const isOff = docData.isAvailable === false;
         const btn = document.getElementById('toggleAvailabilityBtn');
         btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)";
@@ -1280,7 +1313,6 @@
       document.getElementById('customerDetailContent').innerHTML = html;
     };
 
-    // --- DEDICATED BLACKLIST UI LOGIC ---
     window.openBlacklistUI = (encodedName, actionType) => {
       const customerName = decodeURIComponent(encodedName);
       activeBlacklistCustomer = customerName;
@@ -1329,7 +1361,6 @@
       } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
     });
 
-    // --- OWNER ADMIN & DATA WIPING ---
     function startAdminListeners() {
       onSnapshot(collection(db, "users"), (snapshot) => {
         let approvalHtml = "";
@@ -1520,7 +1551,6 @@
       }
     };
 
-    // --- OTHER CORE FUNCTIONS ---
     function populateIntakeForm() {
       onSnapshot(collection(db, "services"), (snapshot) => {
         let html = '<option value="">Select Service...</option>';
@@ -1536,7 +1566,6 @@
         let html = '<option value="">Select Barber...</option>';
         snapshot.forEach((bDoc) => {
           const b = bDoc.data();
-          // FILTER OUT OFF-DUTY BARBERS FROM THE INTAKE FORM
           if (b.isAvailable === false) return; 
 
           const firstName = b.name.split(' ')[0];
@@ -1622,7 +1651,6 @@
           const ticket = docSnap.data();
           const ticketId = docSnap.id; 
           
-          // HIDE CANCELLED AND PAID TICKETS FROM THE QUEUE
           if (ticket.status !== "paid" && ticket.status !== "cancelled") {
             let actionButton = "";
             let statusColor = ticket.status === "denied" ? "#ff4444" : "#ffc107"; 
@@ -1633,7 +1661,6 @@
             const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
             const ticketBarber = ticket.assignedBarber.toLowerCase();
 
-            // FINISH & DENY SIDE-BY-SIDE
             if (ticket.status === "in_progress" && (isOwner || (isBarber && ticketBarber === myFirstName))) {
                actionButton = `
                  <div style="display: flex; gap: 8px;">
@@ -1645,7 +1672,6 @@
             else if (ticket.status === "completed" && (isSec || isOwner)) {
                actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
             }
-            // SECRETARY/OWNER SEES DENIED TICKET AND CAN DISMISS IT
             else if (ticket.status === "denied" && (isSec || isOwner)) {
                actionButton = `<button class="btn-action" style="background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">DISMISS TICKET (DENIED)</button>`;
             }
