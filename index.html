@@ -53,7 +53,7 @@
     }
     
     /* VIEWS */
-    #dashboard, #setupView, #pendingView, #customerDirectoryPage { display: none; margin-top: 15px; }
+    #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage { display: none; margin-top: 15px; }
     
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
@@ -143,6 +143,22 @@
     
     .clickable-customer { cursor: pointer; transition: 0.2s; }
     .clickable-customer:hover { border-left-color: #28a745; background: #222; }
+
+    .pay-btn {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: 1px solid #555;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    .pay-cash { background: #28a745; color: white; border-color: #28a745; }
+    .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
+    .pay-telecel {background: #e65c00; color: white; border-color: #e65c00; }
+    .pay-card { background: #4285F4; color: white; border-color: #4285F4; }
   </style>
 </head>
 <body>
@@ -175,6 +191,29 @@
     <p style="color: #ccc;">Your profile has been submitted.</p>
     <p style="color: #aaa; font-size: 14px;">Please wait for the Shop Owner to approve your account.</p>
     <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
+  </div>
+
+  <!-- DEDICATED PAYMENT PAGE VIEW -->
+  <div id="paymentPage" class="panel" style="border-color: #28a745;">
+    <button onclick="cancelPayment()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
+    <h3 style="color: #28a745;">Checkout & Payment Collection</h3>
+    
+    <div id="paymentInfoBox" style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; text-align: left;">
+      <p style="margin: 0 0 5px 0; color: #aaa;">Customer: <strong id="payCustName" style="color: #fff;">--</strong></p>
+      <p style="margin: 0 0 5px 0; color: #aaa;">Service: <strong id="payServiceName" style="color: #fff;">--</strong></p>
+      <p style="margin: 0; color: #aaa;">Amount Due: <strong id="payAmount" style="color: #28a745; font-size: 18px;">GHS 0.00</strong></p>
+    </div>
+
+    <div id="ownerRefBox" style="display: none; background: #1e1e00; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+      <strong style="color: #ffc107;">📱 OWNER PAYMENT REFERENCE:</strong>
+      <p style="margin: 5px 0 0 0; color: #fff; font-size: 14px;">Please have funds sent to Owner's Merchant / Number:<br><strong style="color: #d4af37; font-size: 16px;">0240000000 (SJ'S SALOON)</strong></p>
+    </div>
+
+    <label style="margin-bottom: 15px; font-weight: bold; color: #fff;">Select Payment Method:</label>
+    <button class="pay-btn pay-cash" onclick="processPayment('Cash')">💵 Cash Payment</button>
+    <button class="pay-btn pay-momo" onclick="processPayment('MTN MoMo')">📱 MTN MoMo</button>
+    <button class="pay-btn pay-telecel" onclick="processPayment('Telecel Cash')">🟠 Telecel Cash</button>
+    <button class="pay-btn pay-card" onclick="processPayment('Card')">💳 Card Payment</button>
   </div>
 
   <!-- DEDICATED CUSTOMER HISTORY DIRECTORY PAGE -->
@@ -227,6 +266,9 @@
       <h3>Front Desk Intake</h3>
       <label>Customer Full Name</label>
       <input type="text" id="custName" placeholder="Enter full name..." autocomplete="off">
+
+      <label>Customer Phone Number</label>
+      <input type="tel" id="custPhone" placeholder="Enter phone number..." autocomplete="off">
       
       <div id="customerHistoryBox" style="display: none;">
         <strong>Customer Visit History:</strong>
@@ -293,6 +335,7 @@
 
     let currentUserDoc = null; 
     let allPaidTicketsCache = []; 
+    let activePaymentTicketId = null; // Stores ticket ID currently checking out
 
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -303,6 +346,7 @@
     const pendingView = document.getElementById('pendingView');
     const dashboard = document.getElementById('dashboard');
     const customerDirectoryPage = document.getElementById('customerDirectoryPage');
+    const paymentPage = document.getElementById('paymentPage');
     
     const adminPanel = document.getElementById('adminPanel');
     const secretaryPanel = document.getElementById('secretaryPanel');
@@ -327,6 +371,7 @@
 
     window.backToDashboard = () => {
       customerDirectoryPage.style.display = "none";
+      paymentPage.style.display = "none";
       dashboard.style.display = "block";
       document.getElementById('customerDetailView').style.display = "none";
       document.getElementById('directoryListView').style.display = "block";
@@ -379,6 +424,7 @@
         setupView.style.display = "none";
         pendingView.style.display = "none";
         customerDirectoryPage.style.display = "none";
+        paymentPage.style.display = "none";
       }
     });
 
@@ -472,9 +518,8 @@
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         allPaidTicketsCache = [];
         snapshot.forEach((doc) => {
-          allPaidTicketsCache.push(doc.data());
+          allPaidTicketsCache.push({ id: doc.id, ...doc.data() });
         });
-        // Refresh directory if open
         if (customerDirectoryPage.style.display === "block") {
           renderCustomerDirectoryList();
         }
@@ -501,7 +546,7 @@
           matches.forEach(m => {
             const dateStr = new Date(m.timestamp).toLocaleString();
             html += `<div style="border-bottom: 1px dashed #444; padding: 4px 0;">
-              <strong>${m.customerName}</strong><br>
+              <strong>${m.customerName}</strong> (${m.customerPhone || 'No Phone'})<br>
               Service: ${m.serviceName} (GHS ${m.price})<br>
               Date: ${dateStr}<br>
               Status: ${m.status.toUpperCase()} (${m.paymentMethod || 'N/A'})
@@ -520,7 +565,6 @@
     function renderCustomerDirectoryList() {
       const listContainer = document.getElementById('directoryCustomerList');
       
-      // Filter based on role: Barbers see only their own customers, Owner/Secretary see all
       let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed");
 
       if (currentUserDoc.role === "barber") {
@@ -528,13 +572,13 @@
         ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName);
       }
 
-      // Group tickets by unique customer name
       let customerMap = {};
       ticketsToProcess.forEach(t => {
         const nameKey = t.customerName.trim().toLowerCase();
         if (!customerMap[nameKey]) {
           customerMap[nameKey] = {
             displayName: t.customerName,
+            phone: t.customerPhone || 'Not Provided',
             visits: []
           };
         }
@@ -551,13 +595,12 @@
 
       customerKeys.forEach(key => {
         const cust = customerMap[key];
-        // Sort visits by newest first
         cust.visits.sort((a, b) => b.timestamp - a.timestamp);
         const lastVisit = new Date(cust.visits[0].timestamp).toLocaleDateString();
 
         html += `
           <div class="list-item clickable-customer" onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')">
-            <div class="ticket-title">👤 ${cust.displayName}</div>
+            <div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; color: #aaa;">(${cust.phone})</span></div>
             <div class="ticket-details">
               Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>
               Tap to view full service history & report options ➡
@@ -569,7 +612,6 @@
       listContainer.innerHTML = html;
     }
 
-    // Open detailed history for a specific customer
     window.openCustomerDetail = (encodedName) => {
       const customerName = decodeURIComponent(encodedName);
       document.getElementById('directoryListView').style.display = "none";
@@ -583,9 +625,11 @@
       }
 
       ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp);
+      const phoneNum = ticketsToProcess[0]?.customerPhone || 'Not Provided';
 
       let html = `
         <h3 style="color: #d4af37; margin-bottom: 5px;">History for: ${customerName}</h3>
+        <p style="color: #aaa; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>
         <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>
       `;
 
@@ -595,7 +639,7 @@
           <div class="ticket" style="border-left-color: #28a745;">
             <div class="ticket-details" style="margin-bottom: 5px;">
               Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)}<br>
-              Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || 'Cash'}</strong><br>
+              Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || 'Pending'}</strong><br>
               Date & Time: ${dateStr}<br>
               Ticket Status: <span style="color: #ffc107;">${t.status.toUpperCase()}</span>
             </div>
@@ -740,14 +784,16 @@
       });
     }
 
+    // --- TICKET CREATION WITH PHONE & BLACKLIST CHECK ---
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
       sendBtn.addEventListener('click', async () => {
         const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
         const serviceVal = document.getElementById('serviceType').value; 
         const barber = document.getElementById('barberName').value;
 
-        if (!name || !serviceVal || !barber) return alert("Please fill out all fields.");
+        if (!name || !phone || !serviceVal || !barber) return alert("Please fill out all fields including phone number.");
 
         const blacklistSnap = await getDocs(collection(db, "blacklist"));
         let isBanned = false;
@@ -771,6 +817,7 @@
           await addDoc(collection(db, "daily_tickets"), {
             ticketNo: ticketNumber,
             customerName: name,
+            customerPhone: phone,
             serviceName: serviceData[0],
             price: Number(serviceData[1]),
             assignedBarber: barber,
@@ -778,6 +825,7 @@
             timestamp: new Date().getTime()
           });
           document.getElementById('custName').value = "";
+          document.getElementById('custPhone').value = "";
           document.getElementById('customerHistoryBox').style.display = "none";
           alert("Ticket issued successfully!");
         } catch (error) {
@@ -786,29 +834,50 @@
       });
     }
 
-    window.promptPayment = (ticketId) => {
-      let method = prompt("Select Payment Method:\n1. Cash\n2. MTN MoMo\n3. Telecel Cash\n4. Card", "Cash");
-      if (!method) return;
+    // --- DEDICATED PAYMENT PAGE WORKFLOW ---
+    window.openPaymentPage = (ticketId, custName, serviceName, price) => {
+      activePaymentTicketId = ticketId;
+      document.getElementById('payCustName').innerText = custName;
+      document.getElementById('payServiceName').innerText = serviceName;
+      document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2);
       
-      let paymentMethod = "Cash";
-      const m = method.toLowerCase();
-      
-      if (m.includes("momo") || m.includes("mtn") || m.includes("telecel") || m.includes("vodafone") || m.includes("card")) {
-        if (m.includes("momo") || m.includes("mtn")) paymentMethod = "MTN MoMo";
-        else if (m.includes("telecel") || m.includes("vodafone")) paymentMethod = "Telecel Cash";
-        else paymentMethod = "Card";
-
-        alert("📱 OWNER PAYMENT REFERENCE:\nPlease send funds to Owner's Merchant / Number:\n➡️ MTN MoMo / Card: 0240000000 (SJ'S SALOON)\n\n(The app will now record and tick this payment as completed).");
-      }
-
-      updateTicketStatus(ticketId, 'paid', paymentMethod);
+      // Hide dashboard/queue, show payment view
+      dashboard.style.display = "none";
+      document.getElementById('ownerRefBox').style.display = "none";
+      paymentPage.style.display = "block";
     };
 
-    window.updateTicketStatus = async (ticketId, newStatus, paymentMethod = null) => {
+    window.cancelPayment = () => {
+      paymentPage.style.display = "none";
+      dashboard.style.display = "block";
+      activePaymentTicketId = null;
+    };
+
+    window.processPayment = async (method) => {
+      if (!activePaymentTicketId) return;
+
+      if (method === "MTN MoMo" || method === "Telecel Cash" || method === "Card") {
+        document.getElementById('ownerRefBox').style.display = "block";
+        alert("📱 Please collect the transfer or card swipe using Owner Number: 0240000000. Click OK once confirmed.");
+      }
+
       try {
-        let updateData = { status: newStatus };
-        if (paymentMethod) updateData.paymentMethod = paymentMethod;
-        await updateDoc(doc(db, "daily_tickets", ticketId), updateData);
+        await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), {
+          status: "paid",
+          paymentMethod: method
+        });
+        alert("Payment successfully recorded as " + method + "!");
+        paymentPage.style.display = "none";
+        dashboard.style.display = "block";
+        activePaymentTicketId = null;
+      } catch (error) {
+        alert("Error updating payment: " + error.message);
+      }
+    };
+
+    window.updateTicketStatus = async (ticketId, newStatus) => {
+      try {
+        await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
       } catch (error) { alert("Action failed: " + error.message); }
     };
 
@@ -827,10 +896,13 @@
             const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
             const ticketBarber = ticket.assignedBarber.toLowerCase();
 
+            // Barber finishes cut -> sets status to 'completed' (payment remains pending)
             if (ticket.status === "in_progress" && (isOwner || (isBarber && ticketBarber === myFirstName))) {
                actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>`;
-            } else if (ticket.status === "completed" && (isSec || isOwner)) {
-               actionButton = `<button class="btn-action btn-pay" onclick="promptPayment('${ticketId}')">COLLECT PAYMENT</button>`;
+            } 
+            // Secretary collects payment -> opens dedicated payment page
+            else if (ticket.status === "completed" && (isSec || isOwner)) {
+               actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
             }
 
             html += `
@@ -839,7 +911,7 @@
                   <span class="ticket-number">${ticket.ticketNo || '--'}</span>
                   <span class="status-badge">${ticket.status.toUpperCase().replace('_', ' ')}</span>
                 </div>
-                <div class="ticket-title">${ticket.customerName}</div>
+                <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; color: #aaa;">(${ticket.customerPhone || 'No Phone'})</span></div>
                 <div class="ticket-details">
                   ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
                   Assigned to: <strong>${ticket.assignedBarber}</strong>
