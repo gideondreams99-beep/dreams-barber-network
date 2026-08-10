@@ -53,7 +53,7 @@
     }
     
     /* VIEWS */
-    #dashboard, #setupView, #pendingView { display: none; margin-top: 15px; }
+    #dashboard, #setupView, #pendingView, #customerDirectoryPage { display: none; margin-top: 15px; }
     
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
@@ -140,6 +140,9 @@
       padding: 10px; margin-bottom: 15px; font-size: 13px; color: #aaa;
       max-height: 120px; overflow-y: auto; text-align: left;
     }
+    
+    .clickable-customer { cursor: pointer; transition: 0.2s; }
+    .clickable-customer:hover { border-left-color: #28a745; background: #222; }
   </style>
 </head>
 <body>
@@ -174,6 +177,23 @@
     <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
   </div>
 
+  <!-- DEDICATED CUSTOMER HISTORY DIRECTORY PAGE -->
+  <div id="customerDirectoryPage" class="panel">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 id="directoryPageTitle" style="color: #d4af37;">Customer History Directory</h3>
+    
+    <div id="directoryListView">
+      <p style="color: #888; font-size: 14px; margin-bottom: 15px;">Click on any customer to view their complete service timeline and history.</p>
+      <div id="directoryCustomerList"></div>
+    </div>
+
+    <!-- Individual Customer Detail View -->
+    <div id="customerDetailView" style="display: none;">
+      <button onclick="backToDirectoryList()" style="margin-bottom: 15px; background: #222; border:1px solid #555; color:#d4af37; padding: 8px 15px; border-radius:6px; font-size: 12px;">⬅ Back to Customer List</button>
+      <div id="customerDetailContent"></div>
+    </div>
+  </div>
+
   <!-- MAIN DASHBOARD -->
   <div id="dashboard">
     <img id="userPic" src="" alt="Profile Picture">
@@ -202,7 +222,7 @@
       <div id="blacklistList"></div>
     </div>
 
-    <!-- SECRETARY FRONT DESK PANEL (Owner Removed) -->
+    <!-- SECRETARY FRONT DESK PANEL -->
     <div id="secretaryPanel" class="panel" style="display: none;">
       <h3>Front Desk Intake</h3>
       <label>Customer Full Name</label>
@@ -232,10 +252,11 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- PAST CUSTOMERS DIRECTORY PANEL (All Roles) -->
-    <div id="customerDirectoryPanel" class="panel" style="display: none; border-color: #d4af37;">
-      <h3 style="color: #d4af37;">Customer Database (Completed Services)</h3>
-      <div id="customerDirectoryList"></div>
+    <!-- BUTTON TO OPEN FULL CUSTOMER HISTORY DIRECTORY PAGE -->
+    <div class="panel" style="text-align: center; border-color: #d4af37;">
+      <h3 style="color: #d4af37; margin-bottom: 10px;">Customer Database Records</h3>
+      <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Access past customer visits, history reports, and blacklist logs.</p>
+      <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; font-weight: bold;">📂 Open Customer History Directory</button>
     </div>
 
     <!-- ANALYTICS PANEL -->
@@ -281,11 +302,11 @@
     const setupView = document.getElementById('setupView');
     const pendingView = document.getElementById('pendingView');
     const dashboard = document.getElementById('dashboard');
+    const customerDirectoryPage = document.getElementById('customerDirectoryPage');
     
     const adminPanel = document.getElementById('adminPanel');
     const secretaryPanel = document.getElementById('secretaryPanel');
     const queuePanel = document.getElementById('queuePanel');
-    const customerDirectoryPanel = document.getElementById('customerDirectoryPanel');
     const analyticsPanel = document.getElementById('analyticsPanel');
 
     loginBtn.addEventListener('click', (e) => {
@@ -296,6 +317,25 @@
     const performLogout = () => signOut(auth).then(() => window.location.reload());
     logoutBtn.addEventListener('click', performLogout);
     pendingLogoutBtn.addEventListener('click', performLogout);
+
+    // Page Navigation for Directory
+    document.getElementById('openDirectoryBtn').addEventListener('click', () => {
+      dashboard.style.display = "none";
+      customerDirectoryPage.style.display = "block";
+      renderCustomerDirectoryList();
+    });
+
+    window.backToDashboard = () => {
+      customerDirectoryPage.style.display = "none";
+      dashboard.style.display = "block";
+      document.getElementById('customerDetailView').style.display = "none";
+      document.getElementById('directoryListView').style.display = "block";
+    };
+
+    window.backToDirectoryList = () => {
+      document.getElementById('customerDetailView').style.display = "none";
+      document.getElementById('directoryListView').style.display = "block";
+    };
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -338,6 +378,7 @@
         dashboard.style.display = "none";
         setupView.style.display = "none";
         pendingView.style.display = "none";
+        customerDirectoryPage.style.display = "none";
       }
     });
 
@@ -392,7 +433,6 @@
     function loadApp(user, docData) {
       dashboard.style.display = "block";
       queuePanel.style.display = "block";
-      customerDirectoryPanel.style.display = "block";
       
       document.getElementById('userName').innerText = docData.name;
       document.getElementById('userPic').src = docData.photoURL;
@@ -402,7 +442,6 @@
       if (docData.role === "owner") {
         roleDisplay.innerText = "👑 ROLE: SHOP OWNER";
         adminPanel.style.display = "block";
-        // SECRETARY PANEL EXPLICITLY HIDDEN FROM OWNER
         analyticsPanel.style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History";
         startAdminListeners(); 
@@ -410,7 +449,7 @@
       } 
       else if (docData.role === "secretary") {
         roleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
-        secretaryPanel.style.display = "block"; // Only Secretary gets Intake
+        secretaryPanel.style.display = "block"; 
         analyticsPanel.style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
         startAnalyticsTracker();
@@ -427,7 +466,6 @@
         populateIntakeForm();
       }
       cacheAllTickets();
-      startCustomerDirectoryListener();
     }
 
     function cacheAllTickets() {
@@ -436,6 +474,10 @@
         snapshot.forEach((doc) => {
           allPaidTicketsCache.push(doc.data());
         });
+        // Refresh directory if open
+        if (customerDirectoryPage.style.display === "block") {
+          renderCustomerDirectoryList();
+        }
       });
     }
 
@@ -474,9 +516,102 @@
       });
     }
 
+    // --- RENDER FULL CUSTOMER DIRECTORY PAGE WITH ROLE FILTERING ---
+    function renderCustomerDirectoryList() {
+      const listContainer = document.getElementById('directoryCustomerList');
+      
+      // Filter based on role: Barbers see only their own customers, Owner/Secretary see all
+      let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed");
+
+      if (currentUserDoc.role === "barber") {
+        const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
+        ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName);
+      }
+
+      // Group tickets by unique customer name
+      let customerMap = {};
+      ticketsToProcess.forEach(t => {
+        const nameKey = t.customerName.trim().toLowerCase();
+        if (!customerMap[nameKey]) {
+          customerMap[nameKey] = {
+            displayName: t.customerName,
+            visits: []
+          };
+        }
+        customerMap[nameKey].visits.push(t);
+      });
+
+      let html = "";
+      const customerKeys = Object.keys(customerMap);
+
+      if (customerKeys.length === 0) {
+        listContainer.innerHTML = "<p style='color:#666; font-style: italic;'>No past customer records available.</p>";
+        return;
+      }
+
+      customerKeys.forEach(key => {
+        const cust = customerMap[key];
+        // Sort visits by newest first
+        cust.visits.sort((a, b) => b.timestamp - a.timestamp);
+        const lastVisit = new Date(cust.visits[0].timestamp).toLocaleDateString();
+
+        html += `
+          <div class="list-item clickable-customer" onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')">
+            <div class="ticket-title">👤 ${cust.displayName}</div>
+            <div class="ticket-details">
+              Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>
+              Tap to view full service history & report options ➡
+            </div>
+          </div>
+        `;
+      });
+
+      listContainer.innerHTML = html;
+    }
+
+    // Open detailed history for a specific customer
+    window.openCustomerDetail = (encodedName) => {
+      const customerName = decodeURIComponent(encodedName);
+      document.getElementById('directoryListView').style.display = "none";
+      const detailView = document.getElementById('customerDetailView');
+      detailView.style.display = "block";
+
+      let ticketsToProcess = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase() === customerName.toLowerCase());
+      if (currentUserDoc.role === "barber") {
+        const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
+        ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName);
+      }
+
+      ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp);
+
+      let html = `
+        <h3 style="color: #d4af37; margin-bottom: 5px;">History for: ${customerName}</h3>
+        <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>
+      `;
+
+      ticketsToProcess.forEach(t => {
+        const dateStr = new Date(t.timestamp).toLocaleString();
+        html += `
+          <div class="ticket" style="border-left-color: #28a745;">
+            <div class="ticket-details" style="margin-bottom: 5px;">
+              Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)}<br>
+              Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || 'Cash'}</strong><br>
+              Date & Time: ${dateStr}<br>
+              Ticket Status: <span style="color: #ffc107;">${t.status.toUpperCase()}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+        <button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="reportCustomerForBlacklist('${customerName}')">Report ${customerName} for Blacklist</button>
+      `;
+
+      document.getElementById('customerDetailContent').innerHTML = html;
+    };
+
     // --- OWNER ADMIN CONTROLS (Approvals, Services, Blacklist, Reports) ---
     function startAdminListeners() {
-      // Pending approvals
       const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
       onSnapshot(qUsers, (snapshot) => {
         let html = "";
@@ -498,7 +633,6 @@
         document.getElementById('approvalList').innerHTML = html === "" ? "<p style='color:#666;'>No pending approvals.</p>" : html;
       });
 
-      // Pending Blacklist Reports from Barbers/Secretaries
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => {
         let html = "";
         snapshot.forEach((rDoc) => {
@@ -519,7 +653,6 @@
         document.getElementById('reportsList').innerHTML = html === "" ? "<p style='color:#666;'>No pending blacklist reports.</p>" : html;
       });
 
-      // Services
       document.getElementById('addServiceBtn').addEventListener('click', async () => {
         const name = document.getElementById('newServiceName').value;
         const price = document.getElementById('newServicePrice').value;
@@ -543,7 +676,6 @@
         document.getElementById('servicesList').innerHTML = html;
       });
 
-      // Blacklist
       onSnapshot(collection(db, "blacklist"), (snapshot) => {
         let html = "";
         snapshot.forEach((bDoc) => {
@@ -568,46 +700,6 @@
       await deleteDoc(doc(db, "blacklist_reports", reportId));
       alert(customerName + " has been officially blacklisted.");
     };
-
-    // --- CUSTOMER DIRECTORY LISTENER (Completed Services) ---
-    function startCustomerDirectoryListener() {
-      const container = document.getElementById('customerDirectoryList');
-      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
-        let html = "";
-        let completedCustomers = [];
-
-        snapshot.forEach((docSnap) => {
-          const t = docSnap.data();
-          if (t.status === "paid" || t.status === "completed") {
-            completedCustomers.push(t);
-          }
-        });
-
-        // Sort latest first
-        completedCustomers.sort((a, b) => b.timestamp - a.timestamp);
-
-        if (completedCustomers.length === 0) {
-          container.innerHTML = "<p style='color:#666; font-style: italic;'>No past customer records yet.</p>";
-          return;
-        }
-
-        completedCustomers.forEach(c => {
-          const dateStr = new Date(c.timestamp).toLocaleString();
-          html += `
-            <div class="list-item">
-              <div class="ticket-title">${c.customerName}</div>
-              <div class="ticket-details">
-                Service: <strong>${c.serviceName}</strong> - GHS ${c.price.toFixed(2)}<br>
-                Barber: <strong>${c.assignedBarber}</strong> | Paid via: <strong>${c.paymentMethod || 'Cash'}</strong><br>
-                Date: ${dateStr}
-              </div>
-              <button class="btn-action" style="background: #ff4444; border-color: #ff4444; font-size: 12px; padding: 8px;" onclick="reportCustomerForBlacklist('${c.customerName}')">Report for Blacklist</button>
-            </div>
-          `;
-        });
-        container.innerHTML = html;
-      });
-    }
 
     window.reportCustomerForBlacklist = async (customerName) => {
       const feedback = prompt("Enter feedback / reason why " + customerName + " should be blacklisted from the shop:");
@@ -648,7 +740,6 @@
       });
     }
 
-    // --- TICKET CREATION WITH BLACKLIST CHECK ---
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
       sendBtn.addEventListener('click', async () => {
