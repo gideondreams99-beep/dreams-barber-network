@@ -5,116 +5,171 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SJ'S SALOON</title>
   <style>
+    /* PREMIUM DARK METALLIC THEME */
     body { 
-      font-family: sans-serif; 
-      background-color: #1a1a1a; 
-      color: white; 
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      color: #e0e0e0; 
       text-align: center; 
       padding: 15px; 
       margin: 0;
+      min-height: 100vh;
     }
+
+    h1 {
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #d4af37;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      margin-top: 10px;
+    }
+
+    /* POLISHED BUTTONS */
     button { 
-      padding: 12px 24px; 
+      padding: 14px 24px; 
       font-size: 16px; 
-      background-color: #4285F4; 
-      color: white; 
-      border: none; 
+      font-weight: bold;
+      background: linear-gradient(145deg, #333, #111);
+      color: #d4af37; 
+      border: 1px solid #555; 
       border-radius: 8px; 
       cursor: pointer;
+      box-shadow: 3px 3px 8px rgba(0,0,0,0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    img { 
-      border-radius: 50%; 
-      width: 80px; 
-      height: 80px; 
-      border: 3px solid #d4af37;
-      margin-bottom: 5px;
-    }
-    #dashboard { display: none; margin-top: 15px; }
-    #userRole {
-      background-color: #333;
-      display: inline-block;
-      padding: 5px 15px;
-      border-radius: 15px;
-      margin-top: 5px;
-      color: #d4af37;
-      font-weight: bold;
-      font-size: 14px;
+    button:active {
+      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8);
     }
     
-    /* PANEL STYLES */
-    .panel {
-      background-color: #222;
-      border: 1px solid #d4af37;
-      border-radius: 10px;
-      padding: 15px;
-      margin-top: 20px;
-      text-align: left;
+    #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
+    #logoutBtn { background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; margin-top: 30px; width: 100%; }
+
+    /* USER PROFILE */
+    img { 
+      border-radius: 50%; 
+      width: 90px; 
+      height: 90px; 
+      border: 2px solid #d4af37;
+      margin-bottom: 5px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.8);
     }
-    .panel h3 { margin-top: 0; color: #d4af37; text-align: center; border-bottom: 1px solid #555; padding-bottom: 10px; }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      background-color: #111;
-      color: white;
-      border: 1px solid #555;
-      border-radius: 5px;
-      box-sizing: border-box;
+    #dashboard { display: none; margin-top: 15px; }
+    #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
+    
+    #userRole {
+      background: linear-gradient(145deg, #2a2a2a, #111);
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-top: 8px;
+      color: #d4af37;
+      font-weight: bold;
+      font-size: 12px;
+      letter-spacing: 1px;
+      border: 1px solid #444;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    /* SLEEK PANELS */
+    .panel {
+      background: linear-gradient(145deg, #222, #181818);
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 25px;
+      text-align: left;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+    }
+    .panel h3 { 
+      margin-top: 0; 
+      color: #d4af37; 
+      text-align: center; 
+      border-bottom: 1px solid #333; 
+      padding-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
       font-size: 16px;
     }
-    .btn-submit { background-color: #28a745; width: 100%; font-weight: bold; }
+
+    /* INPUTS & DROPDOWNS */
+    label { font-size: 14px; color: #aaa; margin-bottom: 5px; display: block; }
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      background-color: #111;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+    }
+    input:focus, select:focus { outline: none; border-color: #d4af37; }
+    
+    .btn-submit { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%; }
     
     /* LIVE QUEUE TICKETS */
     .ticket {
-      background-color: #333;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      border-left: 5px solid #d4af37;
-    }
-    .ticket-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
-    .ticket-details { font-size: 14px; color: #bbb; margin-bottom: 10px; }
-    .status-badge {
-      font-size: 12px;
-      padding: 4px 8px;
+      background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+      padding: 16px;
       border-radius: 10px;
-      background-color: #ffc107;
-      color: black;
+      margin-bottom: 15px;
+      border-left: 4px solid #d4af37;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    .ticket-title { font-size: 18px; font-weight: bold; margin-bottom: 6px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+    .ticket-details { font-size: 14px; color: #aaa; margin-bottom: 12px; line-height: 1.4; }
+    .ticket-details strong { color: #d4af37; }
+    
+    .status-badge {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #ffc107, #b28704);
+      color: #111;
       font-weight: bold;
       display: inline-block;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
     }
-    .btn-action { width: 100%; padding: 10px; font-size: 15px; font-weight: bold; border-radius: 5px; margin-top: 5px; }
-    .btn-finish { background-color: #007bff; color: white; }
-    .btn-pay { background-color: #28a745; color: white; }
+    
+    .btn-action { width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
+    .btn-finish { background: linear-gradient(145deg, #444, #222); color: #fff; border-color: #666; }
+    .btn-pay { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
+
+    /* OWNER VAULT SPECIAL STYLING */
+    #ownerPanel { border-color: #145523; background: linear-gradient(145deg, #18281a, #0d140e); }
+    #ownerPanel h3 { color: #28a745; border-color: #145523; }
   </style>
 </head>
 <body>
 
   <h1>SJ'S SALOON</h1>
-  <p id="statusText">Please log in to continue.</p>
+  <p id="statusText" style="color: #888;">Please log in to continue.</p>
   
   <button id="loginBtn">Sign in with Google</button>
 
   <div id="dashboard">
     <img id="userPic" src="" alt="Profile Picture">
-    <h3 id="userName" style="margin:0;"></h3>
+    <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
     
     <!-- SECRETARY FRONT DESK PANEL -->
     <div id="secretaryPanel" class="panel" style="display: none;">
       <h3>Front Desk Intake</h3>
-      <label>Customer Name:</label>
-      <input type="text" id="custName" placeholder="Enter name...">
+      <label>Customer Name</label>
+      <input type="text" id="custName" placeholder="Enter full name...">
 
-      <label>Select Service:</label>
+      <label>Service Type</label>
       <select id="serviceType">
-        <option value="Adult Fade|50">Adult Fade - 50.00</option>
-        <option value="Line-Up|20">Line-Up - 20.00</option>
-        <option value="Kids Cut|30">Kids Cut - 30.00</option>
+        <option value="Adult Fade|50">Adult Fade - 50.00 GHS</option>
+        <option value="Line-Up|20">Line-Up - 20.00 GHS</option>
+        <option value="Kids Cut|30">Kids Cut - 30.00 GHS</option>
       </select>
 
-      <label>Assign To:</label>
+      <label>Assign To Barber</label>
       <select id="barberName">
         <option value="Angel">Angel</option>
         <option value="Gideon">Gideon</option>
@@ -129,22 +184,22 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- NEW: OWNER VAULT (HIDDEN FROM STAFF) -->
-    <div id="ownerPanel" class="panel" style="display: none; border-color: #28a745;">
-      <h3 style="color: #28a745;">The Vault (Owner Only)</h3>
-      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px;">
+    <!-- OWNER VAULT -->
+    <div id="ownerPanel" class="panel" style="display: none;">
+      <h3>The Vault (Owner)</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 5px;">
         <div style="text-align: left;">
-          <p style="color: #bbb; margin: 0; font-size: 14px;">Today's Expected Cash</p>
-          <h2 style="margin: 5px 0 0 0; color: #28a745;">GHS <span id="totalRevenue">0.00</span></h2>
+          <p style="color: #888; margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Today's Cash</p>
+          <h2 style="margin: 5px 0 0 0; color: #28a745; font-weight: normal;">GHS <span id="totalRevenue" style="font-weight: bold;">0.00</span></h2>
         </div>
         <div style="text-align: right;">
-          <p style="color: #bbb; margin: 0; font-size: 14px;">Total Cuts</p>
+          <p style="color: #888; margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Total Cuts</p>
           <h2 style="margin: 5px 0 0 0; color: white;"><span id="totalCuts">0</span></h2>
         </div>
       </div>
     </div>
     
-    <button id="logoutBtn" style="background-color: #ff4444; margin-top: 30px;">Log Out</button>
+    <button id="logoutBtn">Log Out</button>
   </div>
 
   <script type="module" defer>
@@ -176,7 +231,7 @@
     
     const secretaryPanel = document.getElementById('secretaryPanel');
     const queuePanel = document.getElementById('queuePanel');
-    const ownerPanel = document.getElementById('ownerPanel'); // New Panel
+    const ownerPanel = document.getElementById('ownerPanel');
 
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -201,9 +256,9 @@
           currentRole = "owner";
           userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
           secretaryPanel.style.display = "block"; 
-          ownerPanel.style.display = "block"; // Show the Vault
+          ownerPanel.style.display = "block"; 
           startLiveQueue(); 
-          startOwnerTracker(); // Start the money math
+          startOwnerTracker(); 
         } else if (user.email === "kuukua@gmail.com") {
           currentRole = "secretary";
           userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
@@ -222,7 +277,6 @@
       }
     });
 
-    // --- FRONT DESK LOGIC ---
     document.getElementById('sendBtn').addEventListener('click', async () => {
       const name = document.getElementById('custName').value;
       const serviceData = document.getElementById('serviceType').value.split('|'); 
@@ -254,7 +308,6 @@
       }
     };
 
-    // --- LIVE QUEUE DISPLAY ---
     function startLiveQueue() {
       const queueList = document.getElementById('queueList');
       
@@ -269,9 +322,9 @@
             let actionButton = "";
             
             if (ticket.status === "in_progress" && (currentRole === "barber" || currentRole === "owner")) {
-               actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">Finish Cut</button>`;
+               actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>`;
             } else if (ticket.status === "completed" && (currentRole === "secretary" || currentRole === "owner")) {
-               actionButton = `<button class="btn-action btn-pay" onclick="updateTicketStatus('${ticketId}', 'paid')">Collect Payment</button>`;
+               actionButton = `<button class="btn-action btn-pay" onclick="updateTicketStatus('${ticketId}', 'paid')">COLLECT PAYMENT</button>`;
             }
 
             html += `
@@ -288,31 +341,26 @@
           }
         });
         
-        queueList.innerHTML = html === "" ? "<p style='color:#bbb;'>No active customers in the shop.</p>" : html;
+        queueList.innerHTML = html === "" ? "<p style='color:#666; font-style: italic;'>No active customers in the shop.</p>" : html;
       });
     }
 
-    // --- NEW: OWNER'S VAULT LOGIC ---
     function startOwnerTracker() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let totalCash = 0;
         let cutsCompleted = 0;
         
-        // Setup a strict midnight boundary so you only see today's money
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0);
 
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
-          
-          // Check if it's marked paid AND if it happened today
           if (ticket.status === "paid" && ticket.timestamp >= startOfToday.getTime()) {
             totalCash += ticket.price;
             cutsCompleted++;
           }
         });
 
-        // Push the math directly to your Vault UI
         document.getElementById('totalRevenue').innerText = totalCash.toFixed(2);
         document.getElementById('totalCuts').innerText = cutsCompleted;
       });
