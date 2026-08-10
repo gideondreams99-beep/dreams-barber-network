@@ -145,20 +145,39 @@
     .clickable-customer:hover { border-left-color: #28a745; background: #222; }
 
     .pay-btn {
-      width: 100%;
-      padding: 15px;
-      margin-bottom: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 8px;
-      border: 1px solid #555;
-      cursor: pointer;
-      text-transform: uppercase;
+      width: 100%; padding: 15px; margin-bottom: 12px; font-size: 16px; font-weight: bold;
+      border-radius: 8px; border: 1px solid #555; cursor: pointer; text-transform: uppercase;
     }
     .pay-cash { background: #28a745; color: white; border-color: #28a745; }
     .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
-    .pay-telecel {background: #e65c00; color: white; border-color: #e65c00; }
+    .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
     .pay-card { background: #4285F4; color: white; border-color: #4285F4; }
+
+    /* EYE-CATCHING CONFIRMATION TOAST */
+    #toastNotification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-120px);
+      background: linear-gradient(145deg, #113518, #07190a);
+      color: #28a745;
+      border: 2px solid #28a745;
+      padding: 14px 28px;
+      border-radius: 35px;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+      z-index: 99999;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    #toastNotification.show {
+      transform: translateX(-50%) translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -335,7 +354,22 @@
 
     let currentUserDoc = null; 
     let allPaidTicketsCache = []; 
-    let activePaymentTicketId = null; // Stores ticket ID currently checking out
+    let activePaymentTicketId = null;
+
+    // --- EYE-CATCHING CONFIRMATION TOAST HELPER ---
+    window.showToast = (message) => {
+      let toast = document.getElementById('toastNotification');
+      if(!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toastNotification';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    };
 
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -355,18 +389,20 @@
 
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      signInWithPopup(auth, provider).catch((error) => alert("Login failed: " + error.message));
+      signInWithPopup(auth, provider).then(() => {
+        showToast("Signed in successfully!");
+      }).catch((error) => alert("Login failed: " + error.message));
     });
 
     const performLogout = () => signOut(auth).then(() => window.location.reload());
     logoutBtn.addEventListener('click', performLogout);
     pendingLogoutBtn.addEventListener('click', performLogout);
 
-    // Page Navigation for Directory
     document.getElementById('openDirectoryBtn').addEventListener('click', () => {
       dashboard.style.display = "none";
       customerDirectoryPage.style.display = "block";
       renderCustomerDirectoryList();
+      showToast("Directory opened");
     });
 
     window.backToDashboard = () => {
@@ -468,7 +504,8 @@
           createdAt: new Date().getTime()
         });
 
-        window.location.reload(); 
+        showToast("Profile submitted successfully!");
+        setTimeout(() => window.location.reload(), 1500);
       } catch (error) {
         alert("Error saving profile: " + error.message);
         saveBtn.innerText = "Submit Profile";
@@ -526,7 +563,6 @@
       });
     }
 
-    // Real-time customer history search for secretary
     const custNameInput = document.getElementById('custName');
     if (custNameInput) {
       custNameInput.addEventListener('input', (e) => {
@@ -561,7 +597,6 @@
       });
     }
 
-    // --- RENDER FULL CUSTOMER DIRECTORY PAGE WITH ROLE FILTERING ---
     function renderCustomerDirectoryList() {
       const listContainer = document.getElementById('directoryCustomerList');
       
@@ -652,9 +687,9 @@
       `;
 
       document.getElementById('customerDetailContent').innerHTML = html;
+      showToast("Customer history loaded");
     };
 
-    // --- OWNER ADMIN CONTROLS (Approvals, Services, Blacklist, Reports) ---
     function startAdminListeners() {
       const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
       onSnapshot(qUsers, (snapshot) => {
@@ -670,7 +705,7 @@
                   <div class="ticket-details" style="margin-bottom: 5px;">Role: <strong>${u.role.toUpperCase()}</strong></div>
                 </div>
               </div>
-              <button class="btn-action btn-submit" onclick="approveUser('${userDoc.id}')">Approve Access</button>
+              <button class="btn-action btn-submit" onclick="approveUser('${userDoc.id}', '${u.name}')">Approve Access</button>
             </div>
           `;
         });
@@ -704,6 +739,7 @@
         await addDoc(collection(db, "services"), { name, price: Number(price) });
         document.getElementById('newServiceName').value = "";
         document.getElementById('newServicePrice').value = "";
+        showToast("Service added successfully!");
       });
 
       onSnapshot(collection(db, "services"), (snapshot) => {
@@ -735,14 +771,25 @@
       });
     }
 
-    window.approveUser = async (uid) => { await updateDoc(doc(db, "users", uid), { isApproved: true }); };
-    window.deleteService = async (sid) => { await deleteDoc(doc(db, "services", sid)); };
-    window.removeBlacklist = async (bid) => { await deleteDoc(doc(db, "blacklist", bid)); };
+    window.approveUser = async (uid, userName) => { 
+      await updateDoc(doc(db, "users", uid), { isApproved: true }); 
+      showToast(`${userName} approved successfully!`);
+    };
+    
+    window.deleteService = async (sid) => { 
+      await deleteDoc(doc(db, "services", sid)); 
+      showToast("Service deleted");
+    };
+    
+    window.removeBlacklist = async (bid) => { 
+      await deleteDoc(doc(db, "blacklist", bid)); 
+      showToast("Customer unblocked");
+    };
     
     window.confirmBlacklistFromReport = async (reportId, customerName) => {
       await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() });
       await deleteDoc(doc(db, "blacklist_reports", reportId));
-      alert(customerName + " has been officially blacklisted.");
+      showToast(`${customerName} added to blacklist!`);
     };
 
     window.reportCustomerForBlacklist = async (customerName) => {
@@ -756,7 +803,7 @@
           feedback: feedback.trim(),
           timestamp: new Date().getTime()
         });
-        alert("Report submitted to the Owner successfully!");
+        showToast("Blacklist report sent to Owner!");
       } catch (err) {
         alert("Error sending report: " + err.message);
       }
@@ -784,7 +831,6 @@
       });
     }
 
-    // --- TICKET CREATION WITH PHONE & BLACKLIST CHECK ---
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
       sendBtn.addEventListener('click', async () => {
@@ -827,24 +873,23 @@
           document.getElementById('custName').value = "";
           document.getElementById('custPhone').value = "";
           document.getElementById('customerHistoryBox').style.display = "none";
-          alert("Ticket issued successfully!");
+          showToast("Ticket issued & sent to chair!");
         } catch (error) {
           alert("Error saving: " + error.message);
         }
       });
     }
 
-    // --- DEDICATED PAYMENT PAGE WORKFLOW ---
     window.openPaymentPage = (ticketId, custName, serviceName, price) => {
       activePaymentTicketId = ticketId;
       document.getElementById('payCustName').innerText = custName;
       document.getElementById('payServiceName').innerText = serviceName;
       document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2);
       
-      // Hide dashboard/queue, show payment view
       dashboard.style.display = "none";
       document.getElementById('ownerRefBox').style.display = "none";
       paymentPage.style.display = "block";
+      showToast("Payment checkout opened");
     };
 
     window.cancelPayment = () => {
@@ -866,7 +911,7 @@
           status: "paid",
           paymentMethod: method
         });
-        alert("Payment successfully recorded as " + method + "!");
+        showToast(`Payment recorded as ${method}!`);
         paymentPage.style.display = "none";
         dashboard.style.display = "block";
         activePaymentTicketId = null;
@@ -878,6 +923,9 @@
     window.updateTicketStatus = async (ticketId, newStatus) => {
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
+        if(newStatus === 'completed') {
+          showToast("Cut marked as completed!");
+        }
       } catch (error) { alert("Action failed: " + error.message); }
     };
 
@@ -896,11 +944,9 @@
             const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
             const ticketBarber = ticket.assignedBarber.toLowerCase();
 
-            // Barber finishes cut -> sets status to 'completed' (payment remains pending)
             if (ticket.status === "in_progress" && (isOwner || (isBarber && ticketBarber === myFirstName))) {
                actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>`;
             } 
-            // Secretary collects payment -> opens dedicated payment page
             else if (ticket.status === "completed" && (isSec || isOwner)) {
                actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
             }
