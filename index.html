@@ -199,7 +199,7 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- ANALYTICS VAULT -->
+    <!-- ANALYTICS & COMMISSION VAULT -->
     <div id="analyticsPanel" class="panel" style="display: none;">
       <h3 id="analyticsTitle">Shop Analytics</h3>
       <div class="stats-grid">
@@ -280,24 +280,24 @@
           userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
           secretaryPanel.style.display = "block"; 
           analyticsPanel.style.display = "block"; 
-          analyticsTitle.innerText = "The Vault (Shop Analytics)";
+          analyticsTitle.innerText = "The Vault (Gross Shop Revenue)";
           startLiveQueue(); 
-          startAnalyticsTracker(); 
+          startAnalyticsTracker(false); // False = Gross Revenue for shop
         } else if (user.email === "kuukua@gmail.com") {
           currentRole = "secretary";
           userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
           secretaryPanel.style.display = "block";
           analyticsPanel.style.display = "block"; 
-          analyticsTitle.innerText = "Shop Analytics";
+          analyticsTitle.innerText = "Shop Revenue Tracker";
           startLiveQueue();
-          startAnalyticsTracker(); 
+          startAnalyticsTracker(false); 
         } else {
           currentRole = "barber";
           userRoleDisplay.innerText = "👤 ROLE: BARBER";
           analyticsPanel.style.display = "block"; 
-          analyticsTitle.innerText = "My Work History";
+          analyticsTitle.innerText = "My Commission Earnings (60%)";
           startLiveQueue();
-          startAnalyticsTracker(user.displayName); 
+          startAnalyticsTracker(true, user.displayName); // True = Calculate 60% Commission for this barber
         }
 
       } else {
@@ -307,7 +307,6 @@
       }
     });
 
-    // --- FRONT DESK LOGIC WITH AUTOMATIC TICKET NUMBERING ---
     document.getElementById('sendBtn').addEventListener('click', async () => {
       const name = document.getElementById('custName').value;
       const serviceData = document.getElementById('serviceType').value.split('|'); 
@@ -316,7 +315,6 @@
       if (name.trim() === "") return alert("Please enter the customer's name!");
 
       try {
-        // Fetch current tickets to generate sequence # (e.g. #001, #002)
         const querySnapshot = await getDocs(collection(db, "daily_tickets"));
         const ticketCount = querySnapshot.size + 1;
         const ticketNumber = "Ticket #" + String(ticketCount).padStart(3, '0');
@@ -336,7 +334,6 @@
       }
     });
 
-    // --- PAYMENT METHOD SELECTION MODAL ---
     window.promptPayment = (ticketId) => {
       let method = prompt("Select Payment Method:\n1. Cash\n2. MTN MoMo\n3. Telecel Cash\n4. Card", "Cash");
       if (!method) return;
@@ -403,11 +400,12 @@
       });
     }
 
-    function startAnalyticsTracker(barberNameFilter = null) {
+    // --- ANALYTICS & 60% COMMISSION CALCULATOR ---
+    function startAnalyticsTracker(isBarber = false, barberNameFilter = null) {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
-        let todayCash = 0, todayCuts = 0;
-        let weekCash = 0, weekCuts = 0;
-        let monthCash = 0, monthCuts = 0;
+        let todayVal = 0, todayCuts = 0;
+        let weekVal = 0, weekCuts = 0;
+        let monthVal = 0, monthCuts = 0;
         
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -417,32 +415,36 @@
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
           if (ticket.status === "paid") {
-            if (barberNameFilter) {
+            if (isBarber && barberNameFilter) {
               const firstName = barberNameFilter.split(' ')[0].toLowerCase();
               if (ticket.assignedBarber.toLowerCase() !== firstName) return;
             }
 
+            // Apply 60% commission rate if it's a barber, otherwise 100% gross for shop
+            const multiplier = isBarber ? 0.60 : 1.0;
+            const amount = ticket.price * multiplier;
+
             const time = ticket.timestamp;
             if (time >= startOfToday) {
-              todayCash += ticket.price;
+              todayVal += amount;
               todayCuts++;
             }
             if (time >= startOfWeek) {
-              weekCash += ticket.price;
+              weekVal += amount;
               weekCuts++;
             }
             if (time >= startOfMonth) {
-              monthCash += ticket.price;
+              monthVal += amount;
               monthCuts++;
             }
           }
         });
 
-        document.getElementById('todayRev').innerText = todayCash.toFixed(2);
+        document.getElementById('todayRev').innerText = todayVal.toFixed(2);
         document.getElementById('todayCuts').innerText = todayCuts;
-        document.getElementById('weekRev').innerText = weekCash.toFixed(2);
+        document.getElementById('weekRev').innerText = weekVal.toFixed(2);
         document.getElementById('weekCuts').innerText = weekCuts;
-        document.getElementById('monthRev').innerText = monthCash.toFixed(2);
+        document.getElementById('monthRev').innerText = monthVal.toFixed(2);
         document.getElementById('monthCuts').innerText = monthCuts;
       });
     }
