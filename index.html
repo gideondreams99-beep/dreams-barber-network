@@ -460,10 +460,17 @@
 
     <!-- QUICK NAV BUTTONS FOR PROFILE, CHAT, ANNOUNCEMENTS, SETTINGS -->
     <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 15px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
-    <div class="flex-row" style="margin-top: 10px; margin-bottom: 0;">
+    
+    <div class="flex-row" style="margin-top: 10px; margin-bottom: 10px;">
       <button onclick="openChatPage()" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; font-size: 13px;">💬 Team Chat</button>
       <button onclick="openAnnouncementsPage()" style="flex: 1; background: linear-gradient(145deg, #ffc107, #b28704); color: #111; border-color: #ffc107; font-size: 13px;">📢 Announcements</button>
-      <button onclick="openSettingsPage()" style="flex: 1; background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #d4af37; font-size: 13px;">⚙️ Settings</button>
+    </div>
+    
+    <button onclick="openSettingsPage()" style="width: 100%; background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #d4af37; font-size: 13px; margin-bottom: 15px;">⚙️ Settings</button>
+
+    <!-- BARBER AVAILABILITY TOGGLE (Hidden by default) -->
+    <div id="barberControls" style="display: none; margin-bottom: 15px;">
+      <button id="toggleAvailabilityBtn" onclick="toggleAvailability()" style="width: 100%; font-size: 14px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;"></button>
     </div>
     
     <!-- OWNER MANAGEMENT HUB -->
@@ -860,7 +867,7 @@
         await setDoc(doc(db, "users", user.uid), {
           name: displayName, email: user.email, photoURL: photoUrlToSave,
           role: role, country: country, idType: idType, idNumber: idNumber,
-          isApproved: isOwner, createdAt: new Date().getTime()
+          isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime()
         });
 
         showToast("Profile submitted successfully!");
@@ -931,13 +938,11 @@
         }
 
         if (currentUserDoc.role === "owner") {
-          // Owner updates instantly without requiring approval
           await updateDoc(doc(db, "users", user.uid), {
             name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave
           });
           showToast("Profile updated successfully!");
         } else {
-          // Staff updates go to approval queue
           await updateDoc(doc(db, "users", user.uid), {
             pendingUpdates: {
               name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime()
@@ -1040,6 +1045,45 @@
       }
     });
 
+    // --- BARBER AVAILABILITY TOGGLE ---
+    window.toggleAvailability = async () => {
+      if (!currentUserDoc) return;
+      const isCurrentlyOff = currentUserDoc.isAvailable === false;
+      const newStatus = isCurrentlyOff ? true : false; 
+      
+      const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets.");
+      if (!confirmAction) return;
+
+      try {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus });
+        currentUserDoc.isAvailable = newStatus;
+        
+        const btn = document.getElementById('toggleAvailabilityBtn');
+        btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)";
+        btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)";
+        btn.style.borderColor = !newStatus ? "#555" : "#28a745";
+        
+        showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴");
+      } catch (err) {
+        await customPopup('alert', "Error updating status: " + err.message);
+      }
+    };
+
+    // --- TICKET STATUS (UPDATED WITH DENY LOGIC) ---
+    window.updateTicketStatus = async (ticketId, newStatus) => {
+      if (newStatus === 'denied') {
+        const confirmDeny = await customPopup('confirm', "Are you sure you want to DENY this customer? The Secretary will be notified to reassign or dismiss the ticket.");
+        if (!confirmDeny) return;
+      }
+
+      try {
+        await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
+        if(newStatus === 'completed') showToast("Cut marked as completed!");
+        if(newStatus === 'denied') showToast("Cut rejected!");
+        if(newStatus === 'cancelled') showToast("Ticket dismissed.");
+      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
+    };
+
     function loadApp(user, docData) {
       dashboard.style.display = "block";
       document.getElementById('queuePanel').style.display = "block";
@@ -1070,6 +1114,15 @@
         document.getElementById('analyticsPanel').style.display = "block";
         document.getElementById('analyticsTitle').innerText = "My Work History";
         startAnalyticsTracker(docData.name);
+        
+        // SHOW BARBER TOGGLE LOGIC
+        const isOff = docData.isAvailable === false;
+        const btn = document.getElementById('toggleAvailabilityBtn');
+        btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)";
+        btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)";
+        btn.style.color = "white";
+        btn.style.borderColor = isOff ? "#555" : "#28a745";
+        document.getElementById('barberControls').style.display = "block";
       }
 
       startLiveQueue();
@@ -1464,6 +1517,9 @@
         let html = '<option value="">Select Barber...</option>';
         snapshot.forEach((bDoc) => {
           const b = bDoc.data();
+          // FILTER OUT OFF-DUTY BARBERS FROM THE INTAKE FORM
+          if (b.isAvailable === false) return; 
+
           const firstName = b.name.split(' ')[0];
           html += `<option value="${firstName}">${firstName}</option>`;
         });
@@ -1540,13 +1596,6 @@
       } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
     };
 
-    window.updateTicketStatus = async (ticketId, newStatus) => {
-      try {
-        await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
-        if(newStatus === 'completed') showToast("Cut marked as completed!");
-      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
-    };
-
     function startLiveQueue() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let html = "";
@@ -1554,26 +1603,39 @@
           const ticket = docSnap.data();
           const ticketId = docSnap.id; 
           
-          if (ticket.status !== "paid") {
+          // HIDE CANCELLED AND PAID TICKETS FROM THE QUEUE
+          if (ticket.status !== "paid" && ticket.status !== "cancelled") {
             let actionButton = "";
+            let statusColor = ticket.status === "denied" ? "#ff4444" : "#ffc107"; 
+
             const isOwner = currentUserDoc.role === "owner";
             const isSec = currentUserDoc.role === "secretary";
             const isBarber = currentUserDoc.role === "barber";
             const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
             const ticketBarber = ticket.assignedBarber.toLowerCase();
 
+            // FINISH & DENY SIDE-BY-SIDE
             if (ticket.status === "in_progress" && (isOwner || (isBarber && ticketBarber === myFirstName))) {
-               actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>`;
+               actionButton = `
+                 <div style="display: flex; gap: 8px;">
+                   <button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH</button>
+                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="updateTicketStatus('${ticketId}', 'denied')">DENY</button>
+                 </div>
+               `;
             } 
             else if (ticket.status === "completed" && (isSec || isOwner)) {
                actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
             }
+            // SECRETARY/OWNER SEES DENIED TICKET AND CAN DISMISS IT
+            else if (ticket.status === "denied" && (isSec || isOwner)) {
+               actionButton = `<button class="btn-action" style="background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">DISMISS TICKET (DENIED)</button>`;
+            }
 
             html += `
-              <div class="ticket">
+              <div class="ticket" style="${ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ''}">
                 <div class="ticket-header">
                   <span class="ticket-number">${ticket.ticketNo || '--'}</span>
-                  <span class="status-badge">${ticket.status.toUpperCase().replace('_', ' ')}</span>
+                  <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.status.toUpperCase().replace('_', ' ')}</span>
                 </div>
                 <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; color: #aaa;">(${ticket.customerPhone || 'No Phone'})</span></div>
                 <div class="ticket-details">
