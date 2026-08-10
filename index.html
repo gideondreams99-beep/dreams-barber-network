@@ -54,7 +54,7 @@
     }
     
     /* VIEWS */
-    #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage { display: none; margin-top: 15px; }
+    #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView { display: none; margin-top: 15px; }
     
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
@@ -207,10 +207,10 @@
     </div>
   </div>
 
-  <!-- SETUP PROFILE VIEW -->
+  <!-- SETUP PROFILE VIEW (GLOBAL ID + COUNTRY SELECT) -->
   <div id="setupView" class="panel">
-    <h3>Complete Your Profile</h3>
-    <p style="color: #aaa; font-size: 14px; text-align: center; margin-bottom: 20px;">Choose your role and upload a picture. The shop owner must approve your account.</p>
+    <h3>Complete Your Profile & ID Verification</h3>
+    <p style="color: #aaa; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your details, select your country, and enter a valid government-issued ID for identity verification.</p>
     
     <label>Select Your Role</label>
     <select id="setupRole">
@@ -218,17 +218,93 @@
       <option value="secretary">Secretary</option>
       <option value="owner">Shop Owner</option>
     </select>
+
+    <label>Full Display Name</label>
+    <input type="text" id="setupDisplayName" placeholder="Enter full name...">
+
+    <label>Select Country</label>
+    <select id="setupCountry">
+      <option value="">Select Country...</option>
+      <option value="Ghana">Ghana</option>
+      <option value="Nigeria">Nigeria</option>
+      <option value="United States">United States</option>
+      <option value="United Kingdom">United Kingdom</option>
+      <option value="Canada">Canada</option>
+      <option value="South Africa">South Africa</option>
+      <option value="Kenya">Kenya</option>
+      <option value="Germany">Germany</option>
+      <option value="France">France</option>
+      <option value="Australia">Australia</option>
+      <option value="India">India</option>
+      <option value="Other">Other Country</option>
+    </select>
+
+    <label>Government ID Type</label>
+    <select id="setupIdType">
+      <option value="">Select ID Type...</option>
+      <option value="National ID / Ghana Card">National ID / Citizen Card</option>
+      <option value="Passport">International Passport</option>
+      <option value="Drivers License">Driver's License</option>
+      <option value="Voters ID">Voter's ID / Electoral Card</option>
+    </select>
+
+    <label>Government ID Number / Details</label>
+    <input type="text" id="setupIdNumber" placeholder="Enter ID number (e.g. GHA-000000000-0)">
+
     <label>Upload Profile Picture (Optional)</label>
     <input type="file" id="setupPhoto" accept="image/*">
-    <button id="saveProfileBtn" class="btn-submit">Submit Profile</button>
+
+    <button id="saveProfileBtn" class="btn-submit">Submit Profile & ID for Approval</button>
   </div>
 
   <!-- PENDING APPROVAL VIEW -->
   <div id="pendingView" class="panel" style="text-align: center;">
-    <h3 style="color: #ffc107;">Profile Pending</h3>
-    <p style="color: #ccc;">Your profile has been submitted.</p>
-    <p style="color: #aaa; font-size: 14px;">Please wait for the Shop Owner to approve your account.</p>
+    <h3 style="color: #ffc107;">Profile Pending Approval</h3>
+    <p style="color: #ccc;">Your profile and government ID credentials have been submitted.</p>
+    <p style="color: #aaa; font-size: 14px;">Please wait for the Shop Owner to verify your ID and approve your account.</p>
     <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
+  </div>
+
+  <!-- EDIT PROFILE VIEW (STAFF UPDATE PENDING OWNER APPROVAL) -->
+  <div id="editProfileView" class="panel" style="border-color: #4285F4;">
+    <button onclick="cancelEditProfile()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
+    <h3 style="color: #4285F4;">Edit My Profile & ID Credentials</h3>
+    <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">Updating your info will submit it to the owner for review and replacement.</p>
+
+    <label>Full Display Name</label>
+    <input type="text" id="editDisplayName">
+
+    <label>Select Country</label>
+    <select id="editCountry">
+      <option value="Ghana">Ghana</option>
+      <option value="Nigeria">Nigeria</option>
+      <option value="United States">United States</option>
+      <option value="United Kingdom">United Kingdom</option>
+      <option value="Canada">Canada</option>
+      <option value="South Africa">South Africa</option>
+      <option value="Kenya">Kenya</option>
+      <option value="Germany">Germany</option>
+      <option value="France">France</option>
+      <option value="Australia">Australia</option>
+      <option value="India">India</option>
+      <option value="Other">Other Country</option>
+    </select>
+
+    <label>Government ID Type</label>
+    <select id="editIdType">
+      <option value="National ID / Ghana Card">National ID / Citizen Card</option>
+      <option value="Passport">International Passport</option>
+      <option value="Drivers License">Driver's License</option>
+      <option value="Voters ID">Voter's ID / Electoral Card</option>
+    </select>
+
+    <label>Government ID Number / Details</label>
+    <input type="text" id="editIdNumber">
+
+    <label>Upload New Profile Picture (Optional)</label>
+    <input type="file" id="editPhoto" accept="image/*">
+
+    <button id="submitEditProfileBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Submit Updates for Owner Approval</button>
   </div>
 
   <!-- DEDICATED PAYMENT PAGE VIEW -->
@@ -291,12 +367,15 @@
     <img id="userPic" src="" alt="Profile Picture">
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
+
+    <!-- EDIT PROFILE BUTTON FOR STAFF -->
+    <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 15px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
     
     <!-- OWNER SETTINGS: STAFF APPROVAL, STAFF MANAGEMENT, SERVICES, BLACKLIST -->
     <div id="adminPanel" class="panel" style="display: none;">
       <h3>Shop Management (Owner)</h3>
       
-      <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals</h4>
+      <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals & Updates</h4>
       <div id="approvalList"></div>
 
       <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Staff Management</h4>
@@ -328,8 +407,8 @@
       <label>Customer Full Name</label>
       <input type="text" id="custName" placeholder="Enter full name..." autocomplete="off">
 
-      <label>Customer Phone Number</label>
-      <input type="tel" id="custPhone" placeholder="Enter phone number..." autocomplete="off">
+      <label>Customer Phone Number (Optional)</label>
+      <input type="tel" id="custPhone" placeholder="Enter phone number (optional)..." autocomplete="off">
       
       <div id="customerHistoryBox" style="display: none;">
         <strong>Customer Visit History:</strong>
@@ -411,7 +490,6 @@
         const cancelBtn = document.getElementById('customModalCancel');
         const confirmBtn = document.getElementById('customModalConfirm');
 
-        // Reset state
         input.value = "";
         input.style.display = "none";
         cancelBtn.style.display = "none";
@@ -461,6 +539,21 @@
       });
     };
 
+    // --- GLOBAL ID VERIFICATION VALIDATOR ---
+    function validateGovernmentID(idType, idNumber) {
+      if (!idNumber || idNumber.trim().length < 5) {
+        return "ID Number is too short or invalid. Please enter a valid identification number.";
+      }
+      const cleanNum = idNumber.trim();
+      if (idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) {
+        return "Invalid Ghana Card format. It must start with 'GHA-' followed by digits.";
+      }
+      if (idType === "Passport" && cleanNum.length < 6) {
+        return "Invalid Passport number length. Must be at least 6 characters.";
+      }
+      return null; // Valid
+    }
+
     // --- EYE-CATCHING CONFIRMATION TOAST HELPER ---
     window.showToast = (message) => {
       let toast = document.getElementById('toastNotification');
@@ -480,6 +573,7 @@
     const customerDirectoryPage = document.getElementById('customerDirectoryPage');
     const paymentPage = document.getElementById('paymentPage');
     const blacklistPage = document.getElementById('blacklistPage');
+    const editProfileView = document.getElementById('editProfileView');
 
     loginBtn.addEventListener('click', async (e) => {
       e.preventDefault();
@@ -491,8 +585,17 @@
       }
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
-    document.getElementById('pendingLogoutBtn').addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
+    // --- SECURE LOGOUT FLOW ---
+    const performLogout = async () => {
+      const confirmLogout = await customPopup('confirm', "Are you sure you want to log out of SJ'S SALOON?");
+      if (confirmLogout) {
+        await signOut(auth);
+        window.location.reload();
+      }
+    };
+    
+    document.getElementById('logoutBtn').addEventListener('click', performLogout);
+    document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout);
 
     // --- ACCOUNT DELETION (LEAVE SHOP) ---
     window.deleteMyAccount = async () => {
@@ -520,6 +623,7 @@
       customerDirectoryPage.style.display = "none";
       paymentPage.style.display = "none";
       blacklistPage.style.display = "none";
+      editProfileView.style.display = "none";
       dashboard.style.display = "block";
       document.getElementById('customerDetailView').style.display = "none";
       document.getElementById('directoryListView').style.display = "block";
@@ -542,6 +646,7 @@
           statusText.style.display = "none";
 
           if (!userSnap.exists()) {
+            document.getElementById('setupDisplayName').value = user.displayName || "";
             document.getElementById('setupView').style.display = "block";
           } else {
             currentUserDoc = userSnap.data();
@@ -573,15 +678,29 @@
         customerDirectoryPage.style.display = "none";
         paymentPage.style.display = "none";
         blacklistPage.style.display = "none";
+        editProfileView.style.display = "none";
       }
     });
 
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser;
       const role = document.getElementById('setupRole').value;
+      const displayName = document.getElementById('setupDisplayName').value.trim();
+      const country = document.getElementById('setupCountry').value;
+      const idType = document.getElementById('setupIdType').value;
+      const idNumber = document.getElementById('setupIdNumber').value.trim();
       const fileInput = document.getElementById('setupPhoto');
       
-      let photoUrlToSave = user.photoURL; 
+      if (!displayName || !country || !idType || !idNumber) {
+        return await customPopup('alert', "Please fill in all profile fields and ID details.");
+      }
+
+      const idError = validateGovernmentID(idType, idNumber);
+      if (idError) {
+        return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
+      }
+
+      let photoUrlToSave = user.photoURL || ""; 
       const saveBtn = document.getElementById('saveProfileBtn');
       saveBtn.innerText = "Uploading & Saving... ⏳";
       saveBtn.disabled = true;
@@ -602,27 +721,100 @@
           const uploadData = await uploadRes.json();
           if (uploadData.secure_url) {
              photoUrlToSave = uploadData.secure_url;
-             await updateProfile(user, { photoURL: photoUrlToSave });
+             await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
           }
         }
 
         await setDoc(doc(db, "users", user.uid), {
-          name: user.displayName, email: user.email, photoURL: photoUrlToSave,
-          role: role, isApproved: false, createdAt: new Date().getTime()
+          name: displayName, email: user.email, photoURL: photoUrlToSave,
+          role: role, country: country, idType: idType, idNumber: idNumber,
+          isApproved: false, createdAt: new Date().getTime()
         });
 
-        showToast("Profile submitted successfully!");
+        showToast("Profile & ID submitted successfully!");
         setTimeout(() => window.location.reload(), 1500);
       } catch (error) {
         await customPopup('alert', "Error saving profile: " + error.message);
-        saveBtn.innerText = "Submit Profile";
+        saveBtn.innerText = "Submit Profile & ID for Approval";
         saveBtn.disabled = false;
+      }
+    });
+
+    // --- EDIT PROFILE NAVIGATION & SUBMISSION ---
+    window.openEditProfile = () => {
+      dashboard.style.display = "none";
+      editProfileView.style.display = "block";
+      
+      document.getElementById('editDisplayName').value = currentUserDoc.name || "";
+      document.getElementById('editCountry').value = currentUserDoc.country || "Ghana";
+      document.getElementById('editIdType').value = currentUserDoc.idType || "National ID / Ghana Card";
+      document.getElementById('editIdNumber').value = currentUserDoc.idNumber || "";
+    };
+
+    window.cancelEditProfile = () => {
+      editProfileView.style.display = "none";
+      dashboard.style.display = "block";
+    };
+
+    document.getElementById('submitEditProfileBtn').addEventListener('click', async () => {
+      const user = auth.currentUser;
+      const displayName = document.getElementById('editDisplayName').value.trim();
+      const country = document.getElementById('editCountry').value;
+      const idType = document.getElementById('editIdType').value;
+      const idNumber = document.getElementById('editIdNumber').value.trim();
+      const fileInput = document.getElementById('editPhoto');
+
+      if (!displayName || !country || !idType || !idNumber) {
+        return await customPopup('alert', "Please complete all fields.");
+      }
+
+      const idError = validateGovernmentID(idType, idNumber);
+      if (idError) {
+        return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
+      }
+
+      let photoUrlToSave = currentUserDoc.photoURL;
+      const btn = document.getElementById('submitEditProfileBtn');
+      btn.innerText = "Updating... ⏳";
+      btn.disabled = true;
+
+      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; 
+      const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+
+      try {
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+            method: "POST", body: formData
+          });
+          const uploadData = await uploadRes.json();
+          if (uploadData.secure_url) photoUrlToSave = uploadData.secure_url;
+        }
+
+        // Save as pending update so owner reviews replacement
+        await updateDoc(doc(db, "users", user.uid), {
+          pendingUpdates: {
+            name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime()
+          }
+        });
+
+        showToast("Profile updates submitted for owner approval!");
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (err) {
+        await customPopup('alert', "Error submitting updates: " + err.message);
+        btn.innerText = "Submit Updates for Owner Approval";
+        btn.disabled = false;
       }
     });
 
     function loadApp(user, docData) {
       dashboard.style.display = "block";
       document.getElementById('queuePanel').style.display = "block";
+      document.getElementById('openEditProfileBtn').style.display = "block";
       
       document.getElementById('userName').innerText = docData.name;
       document.getElementById('userPic').src = docData.photoURL;
@@ -836,48 +1028,62 @@
 
     // --- OWNER ADMIN & DATA WIPING ---
     function startAdminListeners() {
-      const qPending = query(collection(db, "users"), where("isApproved", "==", false));
-      onSnapshot(qPending, (snapshot) => {
-        let html = "";
-        snapshot.forEach((userDoc) => {
-          const u = userDoc.data();
-          html += `
-            <div class="list-item" style="border-left-color: #ffc107;">
-              <div style="display: flex; align-items: center; gap: 15px;">
-                <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;">
-                <div>
-                  <div class="ticket-title">${u.name}</div>
-                  <div class="ticket-details" style="margin-bottom: 5px;">Role: <strong>${u.role.toUpperCase()}</strong></div>
-                </div>
-              </div>
-              <button class="btn-action btn-submit" onclick="approveUser('${userDoc.id}', '${u.name}')">Approve Access</button>
-            </div>
-          `;
-        });
-        document.getElementById('approvalList').innerHTML = html === "" ? "<p style='color:#666;'>No pending approvals.</p>" : html;
-      });
+      // Listen for both brand new approvals and pending profile/ID updates
+      onSnapshot(collection(db, "users"), (snapshot) => {
+        let approvalHtml = "";
+        let activeHtml = "";
 
-      const qActive = query(collection(db, "users"), where("isApproved", "==", true));
-      onSnapshot(qActive, (snapshot) => {
-        let html = "";
         snapshot.forEach((userDoc) => {
           const u = userDoc.data();
-          if (u.role !== "owner") { 
-            html += `
+          const uid = userDoc.id;
+
+          if (!u.isApproved) {
+            approvalHtml += `
+              <div class="list-item" style="border-left-color: #ffc107;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                  <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;">
+                  <div>
+                    <div class="ticket-title">${u.name}</div>
+                    <div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div>
+                    <div class="ticket-details" style="margin-bottom: 0; color: #d4af37;">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
+                  </div>
+                </div>
+                <button class="btn-action btn-submit" onclick="approveUser('${uid}', '${u.name}')">Approve New Account</button>
+              </div>
+            `;
+          } else if (u.pendingUpdates) {
+            const p = u.pendingUpdates;
+            approvalHtml += `
+              <div class="list-item" style="border-left-color: #4285F4;">
+                <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name}</div>
+                <div class="ticket-details">
+                  New Name: <strong>${p.name}</strong><br>
+                  New Country: <strong>${p.country}</strong><br>
+                  New ID: <strong>${p.idType}</strong> (${p.idNumber})
+                </div>
+                <button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}', '${u.name}')">Approve Profile Update</button>
+              </div>
+            `;
+          }
+
+          if (u.isApproved && u.role !== "owner") {
+            activeHtml += `
               <div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;">
                   <div>
                     <strong style="color: #fff;">${u.name}</strong><br>
-                    <span style="font-size: 11px; color: #aaa;">Role: ${u.role.toUpperCase()}</span>
+                    <span style="font-size: 11px; color: #aaa;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span>
                   </div>
                 </div>
-                <button onclick="fireStaff('${userDoc.id}', '${u.name}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button>
+                <button onclick="fireStaff('${uid}', '${u.name}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button>
               </div>
             `;
           }
         });
-        document.getElementById('activeStaffList').innerHTML = html === "" ? "<p style='color:#666;'>No active staff found.</p>" : html;
+
+        document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='color:#666;'>No pending approvals or updates.</p>" : approvalHtml;
+        document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='color:#666;'>No active staff found.</p>" : activeHtml;
       });
 
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => {
@@ -942,6 +1148,18 @@
     window.approveUser = async (uid, userName) => { 
       await updateDoc(doc(db, "users", uid), { isApproved: true }); 
       showToast(`${userName} approved successfully!`);
+    };
+
+    window.approveProfileUpdate = async (uid, userName) => {
+      const userRef = doc(db, "users", uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists() && snap.data().pendingUpdates) {
+        const p = snap.data().pendingUpdates;
+        await updateDoc(userRef, {
+          name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null
+        });
+        showToast(`Profile updates approved for ${userName}!`);
+      }
     };
 
     window.fireStaff = async (uid, userName) => {
@@ -1020,11 +1238,11 @@
     if (sendBtn) {
       sendBtn.addEventListener('click', async () => {
         const name = document.getElementById('custName').value.trim();
-        const phone = document.getElementById('custPhone').value.trim();
+        const phone = document.getElementById('custPhone').value.trim(); // Optional now
         const serviceVal = document.getElementById('serviceType').value; 
         const barber = document.getElementById('barberName').value;
 
-        if (!name || !phone || !serviceVal || !barber) return await customPopup('alert', "Please fill out all fields including phone number.");
+        if (!name || !serviceVal || !barber) return await customPopup('alert', "Please fill out customer name, service type, and barber.");
 
         const blacklistSnap = await getDocs(collection(db, "blacklist"));
         let isBanned = false;
@@ -1041,7 +1259,7 @@
           const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
 
           await addDoc(collection(db, "daily_tickets"), {
-            ticketNo: ticketNumber, customerName: name, customerPhone: phone,
+            ticketNo: ticketNumber, customerName: name, customerPhone: phone || 'Not Provided',
             serviceName: serviceData[0], price: Number(serviceData[1]),
             assignedBarber: barber, status: "in_progress", timestamp: new Date().getTime()
           });
