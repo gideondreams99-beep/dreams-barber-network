@@ -25,8 +25,8 @@
     }
 
     button { 
-      padding: 14px 24px; 
-      font-size: 16px; 
+      padding: 12px 20px; 
+      font-size: 15px; 
       font-weight: bold;
       background: linear-gradient(145deg, #333, #111);
       color: #d4af37; 
@@ -348,7 +348,7 @@
   <!-- DEDICATED CUSTOMER HISTORY DIRECTORY PAGE -->
   <div id="customerDirectoryPage" class="panel">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-    <h3 id="directoryPageTitle" style="color: #d4af37;">Customer History Directory</h3>
+    <h3 id="directoryPageTitle" style="color: #d4af37;">Customer Records</h3>
     
     <div id="directoryListView">
       <p style="color: #888; font-size: 14px; margin-bottom: 15px;">Click on any customer to view their complete service timeline and history.</p>
@@ -371,34 +371,54 @@
     <!-- EDIT PROFILE BUTTON FOR STAFF -->
     <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 15px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
     
-    <!-- OWNER SETTINGS: STAFF APPROVAL, STAFF MANAGEMENT, SERVICES, BLACKLIST -->
+    <!-- OWNER GROUPED TABBED DASHBOARD & SETTINGS PANEL -->
     <div id="adminPanel" class="panel" style="display: none;">
-      <h3>Shop Management (Owner)</h3>
+      <h3>Shop Management & Settings</h3>
       
-      <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals & Updates</h4>
-      <div id="approvalList"></div>
-
-      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Staff Management</h4>
-      <p style="color: #aaa; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
-      <div id="activeStaffList"></div>
-
-      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Manage Services & Prices</h4>
-      <div class="flex-row">
-        <input type="text" id="newServiceName" placeholder="Service (e.g. Dye)">
-        <input type="number" id="newServicePrice" placeholder="Price (GHS)">
+      <!-- Owner Navigation Tabs -->
+      <div style="display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+        <button onclick="switchOwnerTab('staff')" id="tabStaffBtn" style="flex:1; padding: 10px 5px; font-size: 12px; background: #1a4b8c; color: #fff;">Staff</button>
+        <button onclick="switchOwnerTab('services')" id="tabServicesBtn" style="flex:1; padding: 10px 5px; font-size: 12px; background: #222; color: #d4af37;">Services</button>
+        <button onclick="switchOwnerTab('blacklist')" id="tabBlacklistBtn" style="flex:1; padding: 10px 5px; font-size: 12px; background: #222; color: #d4af37;">Blacklist</button>
+        <button onclick="switchOwnerTab('settings')" id="tabSettingsBtn" style="flex:1; padding: 10px 5px; font-size: 12px; background: #222; color: #d4af37;">⚙️ Settings</button>
       </div>
-      <button id="addServiceBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4; margin-bottom: 15px;">Add Service</button>
-      <div id="servicesList"></div>
 
-      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Pending Blacklist Reports</h4>
-      <div id="reportsList"></div>
+      <!-- TAB 1: STAFF -->
+      <div id="ownerTabStaff" class="owner-tab-content">
+        <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals & Updates</h4>
+        <div id="approvalList"></div>
 
-      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Customer Blacklist</h4>
-      <div id="blacklistList"></div>
+        <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Staff Management</h4>
+        <p style="color: #aaa; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
+        <div id="activeStaffList"></div>
+      </div>
 
-      <h4 style="color: #ff4444; margin-top: 40px; border-top: 2px dashed #ff4444; padding-top: 15px;">⚠️ DANGER ZONE</h4>
-      <p style="color: #aaa; font-size: 12px;">This will permanently delete all recorded past customer tickets and history from the database.</p>
-      <button onclick="wipeShopHistory()" class="btn-submit" style="background: #8c1a1a; border-color: #ff4444;">Wipe All Shop Data History</button>
+      <!-- TAB 2: SERVICES -->
+      <div id="ownerTabServices" class="owner-tab-content" style="display: none;">
+        <h4 style="color: #fff; margin-top: 0;">Manage Services & Prices</h4>
+        <div class="flex-row">
+          <input type="text" id="newServiceName" placeholder="Service (e.g. Dye)">
+          <input type="number" id="newServicePrice" placeholder="Price (GHS)">
+        </div>
+        <button id="addServiceBtn" style="background: #4285F4; border-color: #4285F4; width: auto; padding: 10px 20px; font-size: 14px; margin-bottom: 15px;">Add Service</button>
+        <div id="servicesList"></div>
+      </div>
+
+      <!-- TAB 3: BLACKLIST -->
+      <div id="ownerTabBlacklist" class="owner-tab-content" style="display: none;">
+        <h4 style="color: #fff; margin-top: 0;">Pending Blacklist Reports</h4>
+        <div id="reportsList"></div>
+
+        <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Customer Blacklist</h4>
+        <div id="blacklistList"></div>
+      </div>
+
+      <!-- TAB 4: SETTINGS PANEL -->
+      <div id="ownerTabSettings" class="owner-tab-content" style="display: none;">
+        <h4 style="color: #ff4444; margin-top: 0;">⚠️ Danger Zone & Shop Maintenance</h4>
+        <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">This will permanently delete all recorded past customer tickets, history reports, and logs from the database.</p>
+        <button onclick="wipeShopHistory()" style="background: #8c1a1a; border-color: #ff4444; width: auto; padding: 10px 20px; font-size: 14px; color: white;">Wipe All Shop Data History</button>
+      </div>
     </div>
 
     <!-- SECRETARY FRONT DESK PANEL -->
@@ -436,9 +456,9 @@
 
     <!-- BUTTON TO OPEN FULL CUSTOMER HISTORY DIRECTORY PAGE -->
     <div class="panel" style="text-align: center; border-color: #d4af37;">
-      <h3 style="color: #d4af37; margin-bottom: 10px;">Customer Database Records</h3>
+      <h3 style="color: #d4af37; margin-bottom: 10px;">Customer Records</h3>
       <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Access past customer visits, history reports, and blacklist logs.</p>
-      <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; font-weight: bold;">📂 Open Customer History Directory</button>
+      <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; font-weight: bold;">📂 Open Customer Records</button>
     </div>
 
     <!-- ANALYTICS PANEL -->
@@ -536,6 +556,23 @@
 
         confirmBtn.addEventListener('click', handleConfirm);
         cancelBtn.addEventListener('click', handleCancel);
+      });
+    };
+
+    // --- OWNER TABS NAVIGATION ---
+    window.switchOwnerTab = (tabName) => {
+      ['Staff', 'Services', 'Blacklist', 'Settings'].forEach(t => {
+        const content = document.getElementById(`ownerTab${t}`);
+        const btn = document.getElementById(`tab${t}Btn`);
+        if (t.toLowerCase() === tabName.toLowerCase()) {
+          content.style.display = 'block';
+          btn.style.background = '#1a4b8c';
+          btn.style.color = '#fff';
+        } else {
+          content.style.display = 'none';
+          btn.style.background = '#222';
+          btn.style.color = '#d4af37';
+        }
       });
     };
 
