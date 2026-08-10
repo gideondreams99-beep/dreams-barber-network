@@ -134,6 +134,19 @@
 
     .flex-row { display: flex; gap: 10px; margin-bottom: 15px; }
     .flex-row input { margin-bottom: 0; }
+    
+    #customerHistoryBox {
+      background: #111;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: #aaa;
+      max-height: 120px;
+      overflow-y: auto;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
@@ -142,10 +155,10 @@
   <p id="statusText" style="color: #888;">Please log in to continue.</p>
   <button id="loginBtn">Sign in with Google</button>
 
-  <!-- SETUP PROFILE VIEW (First Time Users) -->
+  <!-- SETUP PROFILE VIEW -->
   <div id="setupView" class="panel">
     <h3>Complete Your Profile</h3>
-    <p style="color: #aaa; font-size: 14px; text-align: center; margin-bottom: 20px;">Choose your role and upload a clear picture. The shop owner must approve your account before you can access the system.</p>
+    <p style="color: #aaa; font-size: 14px; text-align: center; margin-bottom: 20px;">Choose your role and upload a picture. The shop owner must approve your account.</p>
     
     <label>Select Your Role</label>
     <select id="setupRole">
@@ -164,7 +177,7 @@
   <div id="pendingView" class="panel" style="text-align: center;">
     <h3 style="color: #ffc107;">Profile Pending</h3>
     <p style="color: #ccc;">Your profile has been submitted.</p>
-    <p style="color: #aaa; font-size: 14px;">Please wait for the Shop Owner to verify your identity and approve your account.</p>
+    <p style="color: #aaa; font-size: 14px;">Please wait for the Shop Owner to approve your account.</p>
     <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
   </div>
 
@@ -174,7 +187,7 @@
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
     
-    <!-- OWNER SETTINGS: STAFF APPROVAL & SERVICE MANAGEMENT -->
+    <!-- OWNER SETTINGS: STAFF APPROVAL, SERVICES & BLACKLIST -->
     <div id="adminPanel" class="panel" style="display: none;">
       <h3>Shop Management (Owner)</h3>
       
@@ -188,15 +201,28 @@
       </div>
       <button id="addServiceBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4; margin-bottom: 15px;">Add Service</button>
       <div id="servicesList"></div>
+
+      <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Customer Blacklist / Bans</h4>
+      <div class="flex-row">
+        <input type="text" id="blacklistName" placeholder="Full name to ban">
+      </div>
+      <button id="addBlacklistBtn" class="btn-submit" style="background: #ff4444; border-color: #ff4444; margin-bottom: 15px;">Block Customer</button>
+      <div id="blacklistList"></div>
     </div>
 
     <!-- SECRETARY FRONT DESK PANEL -->
     <div id="secretaryPanel" class="panel" style="display: none;">
       <h3>Front Desk Intake</h3>
-      <label>Customer Name</label>
-      <input type="text" id="custName" placeholder="Enter full name...">
+      <label>Customer Full Name</label>
+      <input type="text" id="custName" placeholder="Enter full name..." autocomplete="off">
+      
+      <!-- Real-time customer history display box -->
+      <div id="customerHistoryBox" style="display: none;">
+        <strong>Customer Visit History:</strong>
+        <div id="historyContent">No previous history found.</div>
+      </div>
 
-      <label>Service Type (Dynamic)</label>
+      <label>Service Type</label>
       <select id="serviceType">
         <option value="">Loading services...</option>
       </select>
@@ -206,7 +232,7 @@
         <option value="">Loading barbers...</option>
       </select>
 
-      <button id="sendBtn" class="btn-submit">Issue Ticket</button>
+      <button id="sendBtn" class="btn-submit">Issue Ticket & Send to Chair</button>
     </div>
 
     <!-- LIVE SHOP QUEUE -->
@@ -248,8 +274,8 @@
     const provider = new GoogleAuthProvider();
 
     let currentUserDoc = null; 
+    let allPaidTicketsCache = []; // Cache for live customer history search
 
-    // UI Elements
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const pendingLogoutBtn = document.getElementById('pendingLogoutBtn');
@@ -264,7 +290,6 @@
     const queuePanel = document.getElementById('queuePanel');
     const analyticsPanel = document.getElementById('analyticsPanel');
 
-    // AUTHENTICATION LOGIC
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
       signInWithPopup(auth, provider).catch((error) => alert("Login failed: " + error.message));
@@ -306,7 +331,7 @@
         } catch (error) {
           statusText.style.display = "block";
           statusText.innerText = "Error: " + error.message;
-          alert("Firebase Error: " + error.message + "\n\nPlease check your Firestore Database Rules.");
+          alert("Firebase Error: " + error.message);
         }
       } else {
         loginBtn.style.display = "inline-block";
@@ -318,7 +343,6 @@
       }
     });
 
-    // PROFILE CREATION & CLOUDINARY UPLOAD
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser;
       const role = document.getElementById('setupRole').value;
@@ -329,31 +353,24 @@
       saveBtn.innerText = "Uploading & Saving... ⏳";
       saveBtn.disabled = true;
 
-      // --- CLOUDINARY CREDENTIALS INSTALLED ---
       const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; 
       const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
 
       try {
         if (fileInput.files.length > 0) {
           const file = fileInput.files[0];
-          
           const formData = new FormData();
           formData.append("file", file);
           formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-          // Upload directly to Cloudinary
           const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
             method: "POST",
             body: formData
           });
-          
           const uploadData = await uploadRes.json();
-          
           if (uploadData.secure_url) {
              photoUrlToSave = uploadData.secure_url;
              await updateProfile(user, { photoURL: photoUrlToSave });
-          } else {
-             throw new Error(uploadData.error?.message || "Cloudinary upload failed");
           }
         }
 
@@ -374,7 +391,6 @@
       }
     });
 
-    // LOAD DASHBOARDS BASED ON APPROVED ROLE
     function loadApp(user, docData) {
       dashboard.style.display = "block";
       queuePanel.style.display = "block";
@@ -389,8 +405,7 @@
         adminPanel.style.display = "block";
         secretaryPanel.style.display = "block";
         analyticsPanel.style.display = "block";
-        document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
-        
+        document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History";
         startAdminListeners(); 
         startAnalyticsTracker();
       } 
@@ -410,10 +425,57 @@
 
       startLiveQueue();
       populateIntakeForm();
+      cacheAllTickets();
     }
 
-    // --- OWNER ADMIN CONTROLS (Approvals & Services) ---
+    // Cache tickets for instant customer history lookup
+    function cacheAllTickets() {
+      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
+        allPaidTicketsCache = [];
+        snapshot.forEach((doc) => {
+          allPaidTicketsCache.push(doc.data());
+        });
+      });
+    }
+
+    // Real-time customer history search as secretary types name
+    const custNameInput = document.getElementById('custName');
+    if (custNameInput) {
+      custNameInput.addEventListener('input', (e) => {
+        const typedName = e.target.value.trim().toLowerCase();
+        const historyBox = document.getElementById('customerHistoryBox');
+        const historyContent = document.getElementById('historyContent');
+
+        if (typedName.length < 2) {
+          historyBox.style.display = "none";
+          return;
+        }
+
+        const matches = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase().includes(typedName));
+        
+        if (matches.length > 0) {
+          let html = "";
+          matches.forEach(m => {
+            const dateStr = new Date(m.timestamp).toLocaleString();
+            html += `<div style="border-bottom: 1px dashed #444; padding: 4px 0;">
+              <strong>${m.customerName}</strong><br>
+              Service: ${m.serviceName} (GHS ${m.price})<br>
+              Date: ${dateStr}<br>
+              Status: ${m.status.toUpperCase()} (${m.paymentMethod || 'N/A'})
+            </div>`;
+          });
+          historyContent.innerHTML = html;
+          historyBox.style.display = "block";
+        } else {
+          historyContent.innerHTML = "No previous history found for this name (New Customer).";
+          historyBox.style.display = "block";
+        }
+      });
+    }
+
+    // --- OWNER ADMIN CONTROLS (Approvals, Services, Blacklist) ---
     function startAdminListeners() {
+      // Pending approvals
       const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
       onSnapshot(qUsers, (snapshot) => {
         let html = "";
@@ -425,7 +487,7 @@
                 <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;">
                 <div>
                   <div class="ticket-title">${u.name}</div>
-                  <div class="ticket-details" style="margin-bottom: 5px;">Requested Role: <strong>${u.role.toUpperCase()}</strong></div>
+                  <div class="ticket-details" style="margin-bottom: 5px;">Role: <strong>${u.role.toUpperCase()}</strong></div>
                 </div>
               </div>
               <button class="btn-action btn-submit" onclick="approveUser('${userDoc.id}')">Approve Access</button>
@@ -435,11 +497,11 @@
         document.getElementById('approvalList').innerHTML = html === "" ? "<p style='color:#666;'>No pending approvals.</p>" : html;
       });
 
+      // Services
       document.getElementById('addServiceBtn').addEventListener('click', async () => {
         const name = document.getElementById('newServiceName').value;
         const price = document.getElementById('newServicePrice').value;
         if (!name || !price) return alert("Enter both name and price.");
-        
         await addDoc(collection(db, "services"), { name, price: Number(price) });
         document.getElementById('newServiceName').value = "";
         document.getElementById('newServicePrice').value = "";
@@ -458,16 +520,35 @@
         });
         document.getElementById('servicesList').innerHTML = html;
       });
+
+      // Blacklist
+      document.getElementById('addBlacklistBtn').addEventListener('click', async () => {
+        const bName = document.getElementById('blacklistName').value.trim();
+        if (!bName) return alert("Enter customer name to block.");
+        await addDoc(collection(db, "blacklist"), { name: bName.toLowerCase(), createdAt: new Date().getTime() });
+        document.getElementById('blacklistName').value = "";
+        alert("Customer successfully added to the shop blacklist.");
+      });
+
+      onSnapshot(collection(db, "blacklist"), (snapshot) => {
+        let html = "";
+        snapshot.forEach((bDoc) => {
+          const b = bDoc.data();
+          html += `
+            <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-left-color: #ff4444;">
+              <span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()}</span>
+              <button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Unblock</button>
+            </div>
+          `;
+        });
+        document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='color:#666;'>No blacklisted customers.</p>" : html;
+      });
     }
 
-    window.approveUser = async (uid) => {
-      await updateDoc(doc(db, "users", uid), { isApproved: true });
-    };
-    window.deleteService = async (sid) => {
-      await deleteDoc(doc(db, "services", sid));
-    };
+    window.approveUser = async (uid) => { await updateDoc(doc(db, "users", uid), { isApproved: true }); };
+    window.deleteService = async (sid) => { await deleteDoc(doc(db, "services", sid)); };
+    window.removeBlacklist = async (bid) => { await deleteDoc(doc(db, "blacklist", bid)); };
 
-    // --- DYNAMIC FRONT DESK POPULATION ---
     function populateIntakeForm() {
       onSnapshot(collection(db, "services"), (snapshot) => {
         let html = '<option value="">Select Service...</option>';
@@ -490,13 +571,28 @@
       });
     }
 
-    // --- TICKET CREATION & MANAGEMENT ---
+    // --- TICKET CREATION WITH BLACKLIST CHECK ---
     document.getElementById('sendBtn').addEventListener('click', async () => {
-      const name = document.getElementById('custName').value;
+      const name = document.getElementById('custName').value.trim();
       const serviceVal = document.getElementById('serviceType').value; 
       const barber = document.getElementById('barberName').value;
 
       if (!name || !serviceVal || !barber) return alert("Please fill out all fields.");
+
+      // Check Blacklist before issuing ticket
+      const blacklistSnap = await getDocs(collection(db, "blacklist"));
+      let isBanned = false;
+      blacklistSnap.forEach(bDoc => {
+        if (bDoc.data().name === name.toLowerCase()) {
+          isBanned = true;
+        }
+      });
+
+      if (isBanned) {
+        alert("🚫 ACCESS DENIED: This customer is blacklisted and cannot be assigned services at SJ'S SALOON!");
+        return;
+      }
+
       const serviceData = serviceVal.split('|');
 
       try {
@@ -513,20 +609,29 @@
           timestamp: new Date().getTime()
         });
         document.getElementById('custName').value = "";
+        document.getElementById('customerHistoryBox').style.display = "none";
+        alert("Ticket issued successfully!");
       } catch (error) {
         alert("Error saving: " + error.message);
       }
     });
 
+    // --- PAYMENT METHOD & OWNER MOMO / CARD POP-UP ---
     window.promptPayment = (ticketId) => {
       let method = prompt("Select Payment Method:\n1. Cash\n2. MTN MoMo\n3. Telecel Cash\n4. Card", "Cash");
       if (!method) return;
       
       let paymentMethod = "Cash";
       const m = method.toLowerCase();
-      if (m.includes("momo") || m.includes("mtn")) paymentMethod = "MTN MoMo";
-      else if (m.includes("telecel") || m.includes("vodafone")) paymentMethod = "Telecel Cash";
-      else if (m.includes("card")) paymentMethod = "Card";
+      
+      if (m.includes("momo") || m.includes("mtn") || m.includes("telecel") || m.includes("vodafone") || m.includes("card")) {
+        if (m.includes("momo") || m.includes("mtn")) paymentMethod = "MTN MoMo";
+        else if (m.includes("telecel") || m.includes("vodafone")) paymentMethod = "Telecel Cash";
+        else paymentMethod = "Card";
+
+        // Pop up Owner's payment reference number
+        alert("📱 OWNER PAYMENT REFERENCE:\nPlease send funds to Owner's Merchant / Number:\n➡️ MTN MoMo / Card: 0240000000 (SJ'S SALOON)\n\n(The app will now record and tick this payment as completed).");
+      }
 
       updateTicketStatus(ticketId, 'paid', paymentMethod);
     };
