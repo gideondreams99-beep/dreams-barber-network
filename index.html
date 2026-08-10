@@ -10,39 +10,81 @@
       background-color: #1a1a1a; 
       color: white; 
       text-align: center; 
-      padding: 20px; 
+      padding: 15px; 
+      margin: 0;
     }
     button { 
-      padding: 14px 28px; 
-      font-size: 18px; 
+      padding: 12px 24px; 
+      font-size: 16px; 
       background-color: #4285F4; 
       color: white; 
       border: none; 
       border-radius: 8px; 
-      margin-top: 25px;
       cursor: pointer;
-      position: relative;
-      z-index: 999; /* Ensures no invisible element blocks the tap */
-    }
-    #dashboard { 
-      display: none; 
-      margin-top: 30px; 
     }
     img { 
       border-radius: 50%; 
-      width: 100px; 
-      height: 100px; 
+      width: 80px; 
+      height: 80px; 
       border: 3px solid #d4af37;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
-    h2 { margin: 0; }
-    p { margin: 5px 0; }
+    #dashboard { display: none; margin-top: 15px; }
     #userRole {
       background-color: #333;
       display: inline-block;
       padding: 5px 15px;
-      border-radius: 20px;
-      margin-top: 10px;
+      border-radius: 15px;
+      margin-top: 5px;
+      color: #d4af37;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    /* SECRETARY PANEL STYLES */
+    .panel {
+      background-color: #222;
+      border: 1px solid #d4af37;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    .panel h3 { margin-top: 0; color: #d4af37; text-align: center; }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background-color: #111;
+      color: white;
+      border: 1px solid #555;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    .btn-submit {
+      background-color: #28a745;
+      width: 100%;
+      font-weight: bold;
+    }
+    
+    /* LIVE QUEUE TICKETS */
+    .ticket {
+      background-color: #333;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 5px solid #d4af37;
+    }
+    .ticket-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+    .ticket-details { font-size: 14px; color: #bbb; margin-bottom: 10px; }
+    .status-badge {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 10px;
+      background-color: #ffc107; /* Yellow for in_progress */
+      color: black;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -51,35 +93,51 @@
   <h1>SJ'S SALOON</h1>
   <p id="statusText">Please log in to continue.</p>
   
-  <button id="loginBtn" onclick="handleFallbackClick()">Sign in with Google</button>
+  <button id="loginBtn">Sign in with Google</button>
 
   <div id="dashboard">
     <img id="userPic" src="" alt="Profile Picture">
-    <h2 id="userName"></h2>
-    <p id="userEmail"></p>
-    <p id="userRole" style="color: #d4af37; font-weight: bold;">Loading role...</p>
-    <br>
-    <button id="logoutBtn" style="background-color: #ff4444;">Log Out</button>
+    <h3 id="userName" style="margin:0;"></h3>
+    <div id="userRole">Role: LOADING...</div>
+    <br><br>
+
+    <!-- SECRETARY FRONT DESK PANEL -->
+    <div id="secretaryPanel" class="panel" style="display: none;">
+      <h3>Front Desk Intake</h3>
+      
+      <label>Customer Name:</label>
+      <input type="text" id="custName" placeholder="Enter name...">
+
+      <label>Select Service:</label>
+      <select id="serviceType">
+        <option value="Adult Fade|50">Adult Fade - 50.00</option>
+        <option value="Line-Up|20">Line-Up - 20.00</option>
+        <option value="Kids Cut|30">Kids Cut - 30.00</option>
+      </select>
+
+      <label>Assign To:</label>
+      <select id="barberName">
+        <option value="Angel">Angel</option>
+        <option value="Gideon">Gideon</option>
+      </select>
+
+      <button id="sendBtn" class="btn-submit">Send to Barber Chair</button>
+
+      <h3 style="margin-top: 25px; border-top: 1px solid #555; padding-top: 15px;">Live Queue</h3>
+      <div id="queueList">
+        <!-- Tickets will appear here automatically -->
+      </div>
+    </div>
+    
+    <button id="logoutBtn" style="background-color: #ff4444; margin-top: 30px;">Log Out</button>
   </div>
 
-  <script>
-    // Global Error Catcher: Shows any hidden mobile JS error on screen
-    window.onerror = function(msg, url, lineNo, columnNo, error) {
-      alert("Script Error: " + msg + "\nLine: " + lineNo);
-      return false;
-    };
-
-    function handleFallbackClick() {
-      if (!window.firebaseAuthReady) {
-        alert("App is still loading Firebase modules... please wait 3 seconds and try again.");
-      }
-    }
-  </script>
-
-  <script type="module">
+  <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    // IMPORTING NEW DATABASE TOOLS FOR THE QUEUE
+    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
@@ -90,68 +148,120 @@
       appId: "1:346208182886:web:0766d465a0c628bd5c03a7"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
-
-    window.firebaseAuthReady = true;
 
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const dashboard = document.getElementById('dashboard');
     const statusText = document.getElementById('statusText');
     const userRoleDisplay = document.getElementById('userRole');
+    const secretaryPanel = document.getElementById('secretaryPanel');
 
-    // Attach click listener
     loginBtn.addEventListener('click', (e) => {
       e.preventDefault();
       signInWithRedirect(auth, provider);
     });
 
     logoutBtn.addEventListener('click', () => {
-      signOut(auth);
+      signOut(auth).then(() => window.location.reload());
     });
 
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         loginBtn.style.display = "none";
         statusText.style.display = "none";
         dashboard.style.display = "block";
         
         document.getElementById('userName').innerText = user.displayName;
-        document.getElementById('userEmail').innerText = user.email;
         document.getElementById('userPic').src = user.photoURL;
 
-        const userRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userRef);
-
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          
-          if (userData.is_active === false) {
-             alert("Access Denied: Your account has been deactivated by the Owner.");
-             signOut(auth);
-             return;
-          }
-          
-          userRoleDisplay.innerText = "Role: " + userData.role.toUpperCase();
+        // INSTANT ROLE ASSIGNMENT
+        if (user.email === "gismartsghana@gmail.com") {
+          userRoleDisplay.innerText = "👑 ROLE: SHOP OWNER";
+          secretaryPanel.style.display = "block"; // Show panel so you can test it
+          startLiveQueue(); // Turn on the live database listener
+        } else if (user.email === "kuukua@gmail.com") {
+          userRoleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
+          secretaryPanel.style.display = "block";
+          startLiveQueue();
         } else {
-          await setDoc(userRef, {
-            name: user.displayName,
-            email: user.email,
-            role: "pending", 
-            is_active: true
-          });
-          userRoleDisplay.innerText = "Role: PENDING (Waiting for Owner)";
+          userRoleDisplay.innerText = "👤 ROLE: BARBER";
         }
+
       } else {
         loginBtn.style.display = "inline-block";
         statusText.style.display = "block";
         dashboard.style.display = "none";
       }
     });
+
+    // --- SECRETARY DATABASE LOGIC ---
+
+    // 1. Sending a customer to the database
+    document.getElementById('sendBtn').addEventListener('click', async () => {
+      const name = document.getElementById('custName').value;
+      const serviceData = document.getElementById('serviceType').value.split('|'); // Splits "Adult Fade|50"
+      const barber = document.getElementById('barberName').value;
+
+      if (name.trim() === "") {
+        alert("Please enter the customer's name!");
+        return;
+      }
+
+      // Save to Firestore
+      try {
+        await addDoc(collection(db, "daily_tickets"), {
+          customerName: name,
+          serviceName: serviceData[0],
+          price: Number(serviceData[1]),
+          assignedBarber: barber,
+          status: "in_progress",
+          timestamp: new Date().getTime()
+        });
+        
+        // Clear the form after sending
+        document.getElementById('custName').value = "";
+      } catch (error) {
+        alert("Error saving: " + error.message);
+      }
+    });
+
+    // 2. Listening to the database for live updates
+    function startLiveQueue() {
+      const queueList = document.getElementById('queueList');
+      
+      // onSnapshot automatically updates the screen when the database changes
+      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
+        let html = "";
+        
+        snapshot.forEach((doc) => {
+          const ticket = doc.data();
+          
+          // Only show active cuts in the queue (we hide 'paid' ones)
+          if (ticket.status !== "paid") {
+            html += `
+              <div class="ticket">
+                <div class="ticket-title">${ticket.customerName}</div>
+                <div class="ticket-details">
+                  ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
+                  Assigned to: <strong>${ticket.assignedBarber}</strong>
+                </div>
+                <span class="status-badge">${ticket.status.toUpperCase().replace('_', ' ')}</span>
+              </div>
+            `;
+          }
+        });
+
+        if (html === "") {
+          queueList.innerHTML = "<p style='color:#bbb;'>No active customers in the shop.</p>";
+        } else {
+          queueList.innerHTML = html;
+        }
+      });
+    }
   </script>
 </body>
 </html>
