@@ -92,7 +92,7 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage { display: none; margin-top: 15px; width: 100%; max-width: 480px; text-align: left; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage { display: none; margin-top: 15px; width: 100%; max-width: 480px; text-align: left; }
     #dashboard { text-align: center; }
 
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
@@ -239,7 +239,10 @@
       font-size: 13px;
       opacity: 0.9;
       margin-bottom: 4px;
+      border-bottom: 1px dashed rgba(255,255,255,0.1);
+      padding-bottom: 4px;
     }
+    .breakdown-row:last-child { border-bottom: none; padding-bottom: 0; }
 
     .flex-row { display: flex; gap: 10px; margin-bottom: 15px; }
     .flex-row input { margin-bottom: 0; }
@@ -299,7 +302,7 @@
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
 
     /* RADIO OPTION LIST FOR CUSTOM DROPDOWN PICKER */
-    #customDropdownList { display: none; max-height: 240px; overflow-y: auto; text-align: left; margin-bottom: 15px; }
+    #customDropdownList { display: none; max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 15px; }
     .dropdown-option-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 15px; border-bottom: 1px solid var(--panel-border); cursor: pointer; font-size: 15px;
@@ -379,7 +382,6 @@
   <!-- FULLSCREEN NATIVE GALLERY IMAGE VIEWER MODAL -->
   <div id="fullscreenImageViewer">
     <div style="position: absolute; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.8); box-sizing: border-box; z-index: 200001;">
-      <!-- FIXED: Changed onclick handler from closeViewer() to closeFullscreenViewer() to fix the bug -->
       <button onclick="closeFullscreenViewer()" style="background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; padding: 0; box-shadow: none; text-transform: none;">←</button>
       <span id="fullscreenImageTitle" style="color: #fff; font-size: 14px; opacity: 0.85; font-family: monospace; letter-spacing: 1px;">SJ'S SALOON PREVIEW</span>
       <div style="width: 26px;"></div>
@@ -396,7 +398,7 @@
       <p id="customModalMessage">Message</p>
       <input type="text" id="customModalInput" autocomplete="off">
       <div id="customDropdownList"></div>
-      <button id="customPickerBackBtn" onclick="closePickerModal()" style="display: none; width: 100%; margin-top: 10px; background: #444; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 8px; font-size: 14px;">⬅ Back</button>
+      <button id="customPickerBackBtn" onclick="closePickerModal()" style="display: none; width: 100%; margin-top: 10px; background: #444; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 8px; font-size: 14px;">⬅ Cancel & Go Back</button>
       <div id="customModalButtons" style="display: flex; gap: 10px; margin-top: 25px;">
         <button id="customModalCancel" style="flex: 1; background: #333; border: 1px solid #555; color: white;">Cancel</button>
         <button id="customModalConfirm" style="flex: 1;" class="btn-submit">OK</button>
@@ -424,7 +426,7 @@
       <span style="color: var(--accent-gold);">▼</span>
     </div>
 
-    <!-- ID VERIFICATION SECTION (Hidden if Shop Owner is selected) -->
+    <!-- ID VERIFICATION SECTION -->
     <div id="idVerificationContainer">
       <label>Government ID Type</label>
       <div id="setupIdTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('idType')">
@@ -466,7 +468,6 @@
       <span style="color: var(--accent-gold);">▼</span>
     </div>
 
-    <!-- Staff-Only ID Edit Section -->
     <div id="editIdVerificationContainer">
       <label>Government ID Type</label>
       <div id="editIdTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('editIdType')">
@@ -484,7 +485,7 @@
     <button id="submitEditProfileBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Save & Update Profile</button>
   </div>
 
-  <!-- DEDICATED OWNER STAFF MANAGEMENT PAGE -->
+  <!-- DEDICATED OWNER PAGES -->
   <div id="ownerStaffPage" class="panel" style="border-color: #4285F4;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #4285F4;">Staff Management</h3>
@@ -497,11 +498,9 @@
     <div id="activeStaffList"></div>
   </div>
 
-  <!-- DEDICATED OWNER SERVICES MANAGEMENT PAGE -->
   <div id="ownerServicesPage" class="panel" style="border-color: #4285F4;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #4285F4;">Services & Prices</h3>
-
     <h4 style="margin-top: 0;">Add New Service</h4>
     <div class="flex-row">
       <input type="text" id="newServiceName" placeholder="Service (e.g. Dye)">
@@ -513,14 +512,11 @@
     <div id="servicesList"></div>
   </div>
 
-  <!-- DEDICATED OWNER BLACKLIST MANAGEMENT PAGE -->
   <div id="ownerBlacklistPage" class="panel" style="border-color: #ff4444;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #ff4444;">Customer Blacklist Management</h3>
-
     <h4 style="margin-top: 0;">Pending Blacklist Reports</h4>
     <div id="reportsList"></div>
-
     <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Active Customer Blacklist</h4>
     <div id="blacklistList"></div>
   </div>
@@ -562,21 +558,16 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: var(--accent-gold);">Settings & Controls</h3>
 
-    <!-- OWNER PAYMENT SETTINGS SECTION -->
     <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
       <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment Details (MoMo / Telecel)</h4>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name and number so staff can display it during mobile money checkouts.</p>
-      
       <label>MoMo / Merchant Account Name</label>
       <input type="text" id="ownerMomoNameSet" placeholder="e.g. John Doe / SJ'S SALOON">
-
       <label>MoMo / Merchant Phone Number</label>
       <input type="tel" id="ownerMomoNumberSet" placeholder="e.g. 0240000000">
-
       <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Payment Details</button>
     </div>
 
-    <!-- INSTALL APP SECTION FOR IOS & ANDROID -->
     <div id="installAppContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
       <h4 style="color: var(--accent-gold); margin-top: 0;">📱 Install App on Phone</h4>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen for quick, full-screen access.</p>
@@ -625,14 +616,11 @@
   <div id="blacklistPage" class="panel" style="border-color: #ff4444;">
     <button onclick="cancelBlacklistPage()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Go Back</button>
     <h3 style="color: #ff4444;" id="blacklistPageTitle">Blacklist Customer</h3>
-    
     <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left;">
       <p style="margin: 0; opacity: 0.8;">Target Customer: <strong id="blPageCustName" style="color: var(--text-color); font-size: 18px;">--</strong></p>
     </div>
-
     <label>Reason for Blacklist / Report:</label>
     <textarea id="blPageReason" rows="4" placeholder="Enter detailed reason here..."></textarea>
-
     <button id="blPageSubmitBtn" class="btn-submit" style="background: #ff4444; border-color: #ff4444;">Submit Blacklist</button>
   </div>
 
@@ -640,16 +628,36 @@
   <div id="customerDirectoryPage" class="panel">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 id="directoryPageTitle" style="color: var(--accent-gold);">Customer Records</h3>
-    
     <div id="directoryListView">
       <p style="opacity: 0.7; font-size: 14px; margin-bottom: 15px;">Click on any customer to view their complete service timeline and history.</p>
       <div id="directoryCustomerList"></div>
     </div>
-
-    <!-- Individual Customer Detail View -->
     <div id="customerDetailView" style="display: none;">
       <button onclick="backToDirectoryList()" style="margin-bottom: 15px; background: #222; border:1px solid #555; color:var(--accent-gold); padding: 8px 15px; border-radius:6px; font-size: 12px;">⬅ Back to Customer List</button>
       <div id="customerDetailContent"></div>
+    </div>
+  </div>
+
+  <!-- NEW DEDICATED PAST MONTHLY REPORTS PAGE -->
+  <div id="monthlyReportPage" class="panel" style="border-color: var(--accent-gold);">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    
+    <h3 style="color: var(--accent-gold); margin-bottom: 20px; font-size: 18px;" id="reportPageTitle">MONTH YEAR REPORT</h3>
+    
+    <div class="stats-grid" style="margin-bottom: 20px;">
+      <div class="stat-box" style="border-color: var(--accent-gold); background: rgba(212,175,55,0.05);">
+        <p style="color: var(--text-color);">Total Revenue</p>
+        <h2 class="money" style="color: var(--accent-gold); font-size: 18px;">GHS <span id="reportTotalRev">0.00</span></h2>
+      </div>
+      <div class="stat-box" style="border-color: var(--accent-gold); background: rgba(212,175,55,0.05);">
+        <p style="color: var(--text-color);">Total Cuts</p>
+        <h2 class="money" style="color: var(--text-color); font-size: 18px;"><span id="reportTotalCuts">0</span></h2>
+      </div>
+    </div>
+
+    <div class="service-breakdown-box" style="border-color: var(--accent-gold); background: transparent;">
+      <h4 style="color: var(--accent-gold); border-color: var(--accent-gold);">📊 Service Sales Breakdown</h4>
+      <div id="reportServiceBreakdownList"></div>
     </div>
   </div>
 
@@ -662,7 +670,6 @@
     <!-- REAL-TIME DASHBOARD NOTIFICATION BANNER / ACTIVITY FEED -->
     <div id="dashboardNotificationBox" style="display: none; margin-top: 15px;"></div>
 
-    <!-- QUICK NAV BUTTONS FOR PROFILE, CHAT, ANNOUNCEMENTS, SETTINGS -->
     <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 10px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
     
     <div class="flex-row" style="margin-top: 10px; margin-bottom: 10px;">
@@ -672,16 +679,13 @@
     
     <button onclick="openSettingsPage()" style="width: 100%; font-size: 13px; margin-bottom: 15px;">⚙️ Settings</button>
 
-    <!-- BARBER AVAILABILITY TOGGLE (Hidden by default) -->
     <div id="barberControls" style="display: none; margin-bottom: 15px;">
       <button id="toggleAvailabilityBtn" onclick="toggleAvailability()" style="width: 100%; font-size: 14px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;"></button>
     </div>
     
-    <!-- OWNER MANAGEMENT HUB -->
     <div id="adminPanel" class="panel" style="display: none;">
       <h3>Shop Management Hub</h3>
       <p style="opacity: 0.8; font-size: 13px; text-align: center; margin-bottom: 20px;">Manage your shop operations across dedicated management screens.</p>
-      
       <div style="display: flex; flex-direction: column; gap: 12px;">
         <button onclick="openOwnerPage('staff')" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;">👥 Staff Management</button>
         <button onclick="openOwnerPage('services')" style="background: linear-gradient(145deg, #145523, #0a2311); color: white; border-color: #28a745;">✂️ Services & Pricing</button>
@@ -689,12 +693,10 @@
       </div>
     </div>
 
-    <!-- SECRETARY FRONT DESK PANEL -->
     <div id="secretaryPanel" class="panel" style="display: none;">
       <h3>Front Desk Intake</h3>
       <label>Customer Full Name</label>
       <input type="text" id="custName" placeholder="Enter full name..." autocomplete="off">
-
       <label>Customer Phone Number (Optional)</label>
       <input type="tel" id="custPhone" placeholder="Enter phone number (optional)..." autocomplete="off">
       
@@ -714,11 +716,9 @@
         <span id="barberNameText">Select Barber...</span>
         <span style="color: var(--accent-gold);">▼</span>
       </div>
-
       <button id="sendBtn" class="btn-submit">Issue Ticket & Send to Chair</button>
     </div>
 
-    <!-- LIVE SHOP QUEUE -->
     <div id="queuePanel" class="panel" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; margin-bottom: 15px;">
         <h3 style="margin: 0; border: none; padding: 0;">Live Shop Queue</h3>
@@ -727,25 +727,22 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- BUTTON TO OPEN FULL CUSTOMER RECORDS PAGE -->
     <div class="panel" style="text-align: center; border-color: var(--accent-gold);">
       <h3 style="color: var(--accent-gold); margin-bottom: 10px;">Customer Records</h3>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Access past customer visits, history reports, and blacklist logs.</p>
       <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #333, #111); color: var(--accent-gold); border: 1px solid var(--accent-gold); font-weight: bold;">📂 Open Customer Records</button>
     </div>
 
-    <!-- ANALYTICS PANEL & DAILY/MONTHLY SERVICE BREAKDOWN REPORTS -->
+    <!-- ANALYTICS PANEL & REPORTS -->
     <div id="analyticsPanel" class="panel" style="display: none;">
       <h3 id="analyticsTitle">Shop Analytics</h3>
       
-      <!-- THIS IS YOUR ORIGINAL MONTHLY/WEEKLY/DAILY STATS (KEPT INTACT) -->
       <div class="stats-grid">
         <div class="stat-box"><p>Today</p><h2 class="money">GHS <span id="todayRev">0.00</span></h2><p class="cuts"><span id="todayCuts">0</span> cuts</p></div>
         <div class="stat-box"><p>This Week</p><h2 class="money">GHS <span id="weekRev">0.00</span></h2><p class="cuts"><span id="weekCuts">0</span> cuts</p></div>
         <div class="stat-box"><p>This Month</p><h2 class="money">GHS <span id="monthRev">0.00</span></h2><p class="cuts"><span id="monthCuts">0</span> cuts</p></div>
       </div>
 
-      <!-- NEW: SERVICE BREAKDOWN ACCORDING TO OWNER LISTED SERVICES -->
       <div class="service-breakdown-box">
         <h4>📋 Today's Service Breakdown</h4>
         <div id="todayServiceBreakdownList"><p style="opacity: 0.6; font-style: italic; font-size: 12px; margin: 5px 0;">No paid sales today.</p></div>
@@ -756,7 +753,11 @@
         <div id="monthServiceBreakdownList"><p style="opacity: 0.6; font-style: italic; font-size: 12px; margin: 5px 0;">No paid sales this month.</p></div>
       </div>
 
-      <!-- OWNER DAILY DENIAL REPORTS SECTION (KEPT INTACT) -->
+      <!-- NEW BUTTON TO TRIGGER MONTH SELECTOR FOR PAST MONTHS -->
+      <button onclick="openPickerModal('reportMonth')" style="width: 100%; margin-top: 15px; padding: 14px; background: linear-gradient(145deg, #333, #111); color: var(--accent-gold); border: 1px solid var(--accent-gold); font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        📅 View Past Monthly Reports
+      </button>
+
       <div id="ownerDailyDeniedSection" style="display: none; margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px; text-align: left;">
         <h4 style="color: #ff4444; margin-top: 0; text-transform: uppercase; font-size: 14px;">📋 Daily Report: Denied / Rejected Tickets</h4>
         <div id="ownerDailyDeniedList"><p style="opacity: 0.6; font-style: italic; font-size: 13px;">No denied tickets recorded today.</p></div>
@@ -769,50 +770,32 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // --- PUSH / AUDIO NOTIFICATION RING & VIBRATION SOUND ---
     function playRingTone() {
       try {
-        if ('vibrate' in navigator) {
-          navigator.vibrate([200, 100, 200]);
-        }
+        if ('vibrate' in navigator) { navigator.vibrate([200, 100, 200]); }
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        
+        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
         const playTone = (freq, start, duration) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+          osc.type = 'sine'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
           gain.gain.setValueAtTime(0.4, audioCtx.currentTime + start);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + start + duration);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(audioCtx.currentTime + start);
-          osc.stop(audioCtx.currentTime + start + duration);
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + start); osc.stop(audioCtx.currentTime + start + duration);
         };
-
-        playTone(659.25, 0, 0.2); // E5
-        playTone(783.99, 0.25, 0.3); // G5
-        playTone(1046.50, 0.6, 0.4); // C6
-      } catch (e) {
-        console.log("Audio notification played error: ", e);
-      }
+        playTone(659.25, 0, 0.2); 
+        playTone(783.99, 0.25, 0.3); 
+        playTone(1046.50, 0.6, 0.4); 
+      } catch (e) { console.log("Audio notification played error: ", e); }
     }
 
-    // --- SERVICE WORKER REGISTRATION FOR PWA ---
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed: ', err));
-      });
+      window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed: ', err)); });
     }
 
     let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-    });
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
     window.addEventListener('DOMContentLoaded', () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
@@ -823,7 +806,6 @@
         if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none';
       }
 
-      // UNIVERSAL GLOBAL CLICK LISTENER FOR ANY PICTURE IN THE APP
       document.addEventListener('click', (e) => {
         if (e.target.tagName === 'IMG' && !e.target.closest('#fullscreenImageViewer')) {
           const src = e.target.src;
@@ -834,53 +816,35 @@
       });
     });
 
-    // --- FULLSCREEN NATIVE GALLERY VIEWER FUNCTIONS ---
     window.openFullscreenImageViewer = (imgSrc, titleText) => {
       const viewer = document.getElementById('fullscreenImageViewer');
       const imgEl = document.getElementById('fullscreenImageElement');
       const titleEl = document.getElementById('fullscreenImageTitle');
-
-      imgEl.src = imgSrc;
-      titleEl.innerText = titleText;
-      viewer.classList.add('show');
+      imgEl.src = imgSrc; titleEl.innerText = titleText; viewer.classList.add('show');
     };
 
     window.closeFullscreenViewer = () => {
       const viewer = document.getElementById('fullscreenImageViewer');
-      viewer.classList.remove('show');
-      document.getElementById('fullscreenImageElement').src = "";
+      viewer.classList.remove('show'); document.getElementById('fullscreenImageElement').src = "";
     };
 
-    // --- ENHANCED CROSS-PLATFORM BUILT-IN INSTALLATION ASSISTANT ---
     window.triggerInstall = async () => {
       const ua = navigator.userAgent.toLowerCase();
-      const isIOS = /iphone|ipad|ipod/.test(ua);
-      const isAndroid = /android/.test(ua);
+      const isIOS = /iphone|ipad|ipod/.test(ua); const isAndroid = /android/.test(ua);
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-      if (isStandalone) {
-        await customPopup('alert', "✨ <b>SJ'S SALOON</b> is already installed and running in full-screen mode on your device!");
-        return;
-      }
-
-      if (isIOS) {
-        await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share button</b> (square with an up arrow) at the bottom or top of your Safari browser.<br>2. Scroll down the menu options and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>'Add'</b> in the top right corner to instantly install!");
-      } else if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+      if (isStandalone) { return await customPopup('alert', "✨ <b>SJ'S SALOON</b> is already installed and running in full-screen mode on your device!"); }
+      if (isIOS) { await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share button</b> (square with an up arrow) at the bottom or top of your Safari browser.<br>2. Scroll down the menu options and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>'Add'</b> in the top right corner to instantly install!"); } 
+      else if (deferredPrompt) {
+        deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
           showToast("App installed successfully!");
-          const installBox = document.getElementById('installAppContainer');
-          if (installBox) installBox.style.display = 'none';
-          const welcomeInstallBtn = document.getElementById('welcomeInstallBtn');
-          if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none';
+          const installBox = document.getElementById('installAppContainer'); if (installBox) installBox.style.display = 'none';
+          const welcomeInstallBtn = document.getElementById('welcomeInstallBtn'); if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none';
         }
         deferredPrompt = null;
-      } else if (isAndroid) {
-        await customPopup('alert', "🤖 <b>How to Install on Android:</b><br><br>1. Tap the browser menu <b>(three vertical dots ⋮)</b> in the top right corner.<br>2. Select <b>'Install app'</b> or <b>'Add to Home screen'</b>.<br>3. Confirm by tapping <b>'Install'</b>.");
-      } else {
-        await customPopup('alert', "💻 <b>How to Install on Desktop:</b><br><br>1. Look at the right side of your browser address bar.<br>2. Click the <b>Install icon</b> (a monitor with a downward arrow) or open your browser menu (⋮) and click <b>Install</b>.");
-      }
+      } 
+      else if (isAndroid) { await customPopup('alert', "🤖 <b>How to Install on Android:</b><br><br>1. Tap the browser menu <b>(three vertical dots ⋮)</b> in the top right corner.<br>2. Select <b>'Install app'</b> or <b>'Add to Home screen'</b>.<br>3. Confirm by tapping <b>'Install'</b>."); } 
+      else { await customPopup('alert', "💻 <b>How to Install on Desktop:</b><br><br>1. Look at the right side of your browser address bar.<br>2. Click the <b>Install icon</b> (a monitor with a downward arrow) or open your browser menu (⋮) and click <b>Install</b>."); }
     };
 
     const firebaseConfig = {
@@ -905,7 +869,6 @@
     let activeBlacklistActionType = null; 
     let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000" };
 
-    // FORM STATES FOR CUSTOM DROPDOWN PICKERS
     let selectedSetupRole = "barber";
     let selectedSetupCountry = "";
     let selectedSetupIdType = "";
@@ -918,7 +881,6 @@
     let activeBusyBarbers = new Set();
     let ticketsMapCache = new Map();
 
-    // --- REUSABLE CUSTOM POPUP UI & RADIO PICKER FUNCTION ---
     window.customPopup = function(type, message, placeholder = "Enter details...") {
       return new Promise((resolve) => {
         const overlay = document.getElementById('customModalOverlay');
@@ -931,38 +893,24 @@
         const confirmBtn = document.getElementById('customModalConfirm');
         const buttonContainer = document.getElementById('customModalButtons');
 
-        input.value = "";
-        input.style.display = "none";
-        dropdownList.style.display = "none";
-        backBtn.style.display = "none";
-        cancelBtn.style.display = "block";
-        buttonContainer.style.display = "flex";
+        input.value = ""; input.style.display = "none"; dropdownList.style.display = "none";
+        backBtn.style.display = "none"; cancelBtn.style.display = "block"; buttonContainer.style.display = "flex";
         msg.innerHTML = message;
         
         if (type === 'alert') {
-          title.innerText = "System Notice";
-          title.style.color = "var(--accent-gold)";
-          cancelBtn.style.display = "none";
-          confirmBtn.innerText = "OK";
+          title.innerText = "System Notice"; title.style.color = "var(--accent-gold)";
+          cancelBtn.style.display = "none"; confirmBtn.innerText = "OK";
           confirmBtn.style.background = "linear-gradient(145deg, #d4af37, #997d20)";
-          confirmBtn.style.borderColor = "#997d20";
-          confirmBtn.style.color = "#111";
+          confirmBtn.style.borderColor = "#997d20"; confirmBtn.style.color = "#111";
         } else if (type === 'confirm') {
-          title.innerText = "Confirm Action";
-          title.style.color = "#ffc107";
-          confirmBtn.innerText = "Yes, Proceed";
-          confirmBtn.style.background = "linear-gradient(145deg, #ff4444, #cc0000)";
-          confirmBtn.style.borderColor = "#cc0000";
-          confirmBtn.style.color = "#fff";
+          title.innerText = "Confirm Action"; title.style.color = "#ffc107";
+          confirmBtn.innerText = "Yes, Proceed"; confirmBtn.style.background = "linear-gradient(145deg, #ff4444, #cc0000)";
+          confirmBtn.style.borderColor = "#cc0000"; confirmBtn.style.color = "#fff";
         } else if (type === 'prompt') {
-          title.innerText = "Input Required";
-          title.style.color = "#4285F4";
-          input.style.display = "block";
-          input.placeholder = placeholder;
-          confirmBtn.innerText = "Submit";
-          confirmBtn.style.background = "linear-gradient(145deg, #4285F4, #1a4b8c)";
-          confirmBtn.style.borderColor = "#1a4b8c";
-          confirmBtn.style.color = "#fff";
+          title.innerText = "Input Required"; title.style.color = "#4285F4";
+          input.style.display = "block"; input.placeholder = placeholder;
+          confirmBtn.innerText = "Submit"; confirmBtn.style.background = "linear-gradient(145deg, #4285F4, #1a4b8c)";
+          confirmBtn.style.borderColor = "#1a4b8c"; confirmBtn.style.color = "#fff";
           setTimeout(() => input.focus(), 100);
         }
 
@@ -970,21 +918,12 @@
 
         const handleConfirm = () => { cleanup(); resolve(type === 'prompt' ? input.value : true); };
         const handleCancel = () => { cleanup(); resolve(type === 'prompt' ? null : false); };
-
-        const cleanup = () => {
-          overlay.classList.remove('show');
-          confirmBtn.removeEventListener('click', handleConfirm);
-          cancelBtn.removeEventListener('click', handleCancel);
-        };
-
-        confirmBtn.addEventListener('click', handleConfirm);
-        cancelBtn.addEventListener('click', handleCancel);
+        const cleanup = () => { overlay.classList.remove('show'); confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); };
+        confirmBtn.addEventListener('click', handleConfirm); cancelBtn.addEventListener('click', handleCancel);
       });
     };
 
-    window.closePickerModal = () => {
-      document.getElementById('customModalOverlay').classList.remove('show');
-    };
+    window.closePickerModal = () => { document.getElementById('customModalOverlay').classList.remove('show'); };
 
     window.openPickerModal = async (pickerType) => {
       const overlay = document.getElementById('customModalOverlay');
@@ -995,94 +934,52 @@
       const backBtn = document.getElementById('customPickerBackBtn');
       const buttonContainer = document.getElementById('customModalButtons');
 
-      input.style.display = "none";
-      buttonContainer.style.display = "none";
-      msg.innerHTML = "";
-      dropdownList.style.display = "block";
-      backBtn.style.display = "block";
+      input.style.display = "none"; buttonContainer.style.display = "none"; msg.innerHTML = "";
+      dropdownList.style.display = "block"; backBtn.style.display = "block";
 
-      let options = [];
-      let currentValue = "";
+      let options = []; let currentValue = "";
 
       if (pickerType === 'role') {
-        title.innerText = "Select Your Role";
-        currentValue = selectedSetupRole;
-        
+        title.innerText = "Select Your Role"; currentValue = selectedSetupRole;
         let ownerExists = false;
-        try {
-          const userSnapshots = await getDocs(collection(db, "users"));
-          userSnapshots.forEach(docSnap => {
-            if (docSnap.data().role === 'owner') {
-              ownerExists = true;
-            }
-          });
-        } catch(e) {}
-
-        options = [
-          { label: "Barber", value: "barber" },
-          { label: "Secretary", value: "secretary" }
-        ];
-
-        if (!ownerExists) {
-          options.push({ label: "Shop Owner", value: "owner" });
-        }
-      } else if (pickerType === 'country' || pickerType === 'editCountry') {
-        title.innerText = "Select Country";
-        currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry;
-        options = [
-          { label: "Ghana", value: "Ghana" },
-          { label: "Nigeria", value: "Nigeria" },
-          { label: "United States", value: "United States" },
-          { label: "United Kingdom", value: "United Kingdom" },
-          { label: "Canada", value: "Canada" },
-          { label: "South Africa", value: "South Africa" },
-          { label: "Kenya", value: "Kenya" },
-          { label: "Germany", value: "Germany" },
-          { label: "France", value: "France" },
-          { label: "Australia", value: "Australia" },
-          { label: "India", value: "India" },
-          { label: "Other Country", value: "Other" }
-        ];
-      } else if (pickerType === 'idType' || pickerType === 'editIdType') {
-        title.innerText = "Select Government ID Type";
-        currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType;
+        try { const userSnapshots = await getDocs(collection(db, "users")); userSnapshots.forEach(docSnap => { if (docSnap.data().role === 'owner') { ownerExists = true; } }); } catch(e) {}
+        options = [ { label: "Barber", value: "barber" }, { label: "Secretary", value: "secretary" } ];
+        if (!ownerExists) { options.push({ label: "Shop Owner", value: "owner" }); }
+      } 
+      else if (pickerType === 'country' || pickerType === 'editCountry') {
+        title.innerText = "Select Country"; currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry;
+        options = [ { label: "Ghana", value: "Ghana" }, { label: "Nigeria", value: "Nigeria" }, { label: "United States", value: "United States" }, { label: "United Kingdom", value: "United Kingdom" }, { label: "Canada", value: "Canada" }, { label: "South Africa", value: "South Africa" }, { label: "Kenya", value: "Kenya" }, { label: "Germany", value: "Germany" }, { label: "France", value: "France" }, { label: "Australia", value: "Australia" }, { label: "India", value: "India" }, { label: "Other Country", value: "Other" } ];
+      } 
+      else if (pickerType === 'idType' || pickerType === 'editIdType') {
+        title.innerText = "Select Government ID Type"; currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType;
         const activeCountry = pickerType === 'idType' ? selectedSetupCountry : selectedEditCountry;
-        
-        if (activeCountry === "Ghana") {
-          options = [
-            { label: "National ID / Ghana Card", value: "National ID / Ghana Card" },
-            { label: "Passport", value: "Passport" },
-            { label: "Drivers License", value: "Drivers License" },
-            { label: "Voters ID", value: "Voters ID" }
-          ];
-        } else if (activeCountry === "Nigeria") {
-          options = [
-            { label: "National Identity Number (NIN)", value: "NIN" },
-            { label: "International Passport", value: "Passport" },
-            { label: "Drivers License", value: "Drivers License" },
-            { label: "Permanent Voter Card (PVC)", value: "PVC" }
-          ];
-        } else {
-          options = [
-            { label: "National Identity Card", value: "National ID" },
-            { label: "Passport", value: "Passport" },
-            { label: "Drivers License", value: "Drivers License" }
-          ];
-        }
-      } else if (pickerType === 'serviceType') {
-        title.innerText = "Select Service Type";
-        currentValue = selectedIntakeService;
+        if (activeCountry === "Ghana") { options = [ { label: "National ID / Ghana Card", value: "National ID / Ghana Card" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Voters ID", value: "Voters ID" } ]; } 
+        else if (activeCountry === "Nigeria") { options = [ { label: "National Identity Number (NIN)", value: "NIN" }, { label: "International Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Permanent Voter Card (PVC)", value: "PVC" } ]; } 
+        else { options = [ { label: "National Identity Card", value: "National ID" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" } ]; }
+      } 
+      else if (pickerType === 'serviceType') {
+        title.innerText = "Select Service Type"; currentValue = selectedIntakeService;
         options = cachedServicesList.map(s => ({ label: `${s.name} - GHS ${s.price}`, value: `${s.name}|${s.price}` }));
-      } else if (pickerType === 'barberName') {
-        title.innerText = "Assign To Barber";
-        currentValue = selectedIntakeBarber;
+      } 
+      else if (pickerType === 'barberName') {
+        title.innerText = "Assign To Barber"; currentValue = selectedIntakeBarber;
         const availableBarbers = cachedBarbersList.filter(b => !activeBusyBarbers.has(b.toLowerCase()));
         options = availableBarbers.map(b => ({ label: b, value: b }));
-      } else if (pickerType === 'reassignBarber') {
-        title.innerText = "Select Barber to Assign Again";
-        currentValue = "";
+      } 
+      else if (pickerType === 'reassignBarber') {
+        title.innerText = "Select Barber to Assign Again"; currentValue = "";
         const availableBarbers = cachedBarbersList.filter(b => !activeBusyBarbers.has(b.toLowerCase()));
         options = availableBarbers.map(b => ({ label: b, value: b }));
+      }
+      else if (pickerType === 'reportMonth') {
+        title.innerText = "Select Month to View"; currentValue = "";
+        const d = new Date();
+        for (let i = 0; i < 24; i++) {
+          const m = new Date(d.getFullYear(), d.getMonth() - i, 1);
+          const label = m.toLocaleString('default', { month: 'long', year: 'numeric' });
+          const value = `${m.getFullYear()}-${m.getMonth()}`; 
+          options.push({ label, value });
+        }
       }
 
       let html = "";
@@ -1095,7 +992,7 @@
           </div>
         `;
       });
-      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No available barbers right now (All busy or off-duty).</p>" : html;
+      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No available options right now.</p>" : html;
       overlay.classList.add('show');
     };
 
@@ -1103,65 +1000,87 @@
       document.getElementById('customModalOverlay').classList.remove('show');
 
       if (pickerType === 'role') {
-        selectedSetupRole = val;
-        document.getElementById('setupRoleText').innerText = label;
-        const saveBtn = document.getElementById('saveProfileBtn');
-        const idContainer = document.getElementById('idVerificationContainer');
-        
-        if (val === 'owner') {
-          idContainer.style.display = 'none';
-          saveBtn.innerText = 'Log in As Owner';
-        } else {
-          idContainer.style.display = 'block';
-          saveBtn.innerText = 'Submit Profile & ID for Approval';
-        }
-      } else if (pickerType === 'country') {
-        selectedSetupCountry = val;
-        document.getElementById('setupCountryText').innerText = label;
-        selectedSetupIdType = "";
-        document.getElementById('setupIdTypeText').innerText = "Select ID Type...";
-      } else if (pickerType === 'idType') {
-        selectedSetupIdType = val;
-        document.getElementById('setupIdTypeText').innerText = label;
-      } else if (pickerType === 'editCountry') {
-        selectedEditCountry = val;
-        document.getElementById('editCountryText').innerText = label;
-      } else if (pickerType === 'editIdType') {
-        selectedEditIdType = val;
-        document.getElementById('editIdTypeText').innerText = label;
-      } else if (pickerType === 'serviceType') {
-        selectedIntakeService = val;
-        document.getElementById('serviceTypeText').innerText = label;
-      } else if (pickerType === 'barberName') {
-        selectedIntakeBarber = val;
-        document.getElementById('barberNameText').innerText = label;
-      } else if (pickerType === 'reassignBarber') {
+        selectedSetupRole = val; document.getElementById('setupRoleText').innerText = label;
+        const saveBtn = document.getElementById('saveProfileBtn'); const idContainer = document.getElementById('idVerificationContainer');
+        if (val === 'owner') { idContainer.style.display = 'none'; saveBtn.innerText = 'Log in As Owner'; } 
+        else { idContainer.style.display = 'block'; saveBtn.innerText = 'Submit Profile & ID for Approval'; }
+      } 
+      else if (pickerType === 'country') { selectedSetupCountry = val; document.getElementById('setupCountryText').innerText = label; selectedSetupIdType = ""; document.getElementById('setupIdTypeText').innerText = "Select ID Type..."; } 
+      else if (pickerType === 'idType') { selectedSetupIdType = val; document.getElementById('setupIdTypeText').innerText = label; } 
+      else if (pickerType === 'editCountry') { selectedEditCountry = val; document.getElementById('editCountryText').innerText = label; } 
+      else if (pickerType === 'editIdType') { selectedEditIdType = val; document.getElementById('editIdTypeText').innerText = label; } 
+      else if (pickerType === 'serviceType') { selectedIntakeService = val; document.getElementById('serviceTypeText').innerText = label; } 
+      else if (pickerType === 'barberName') { selectedIntakeBarber = val; document.getElementById('barberNameText').innerText = label; } 
+      else if (pickerType === 'reportMonth') {
+        const parts = val.split('-');
+        generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label);
+      }
+      else if (pickerType === 'reassignBarber') {
         if (activeReassignTicketId) {
-          try {
-            await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), {
-              assignedBarber: val,
-              status: "pending_acceptance",
-              denyReason: null
-            });
-            playRingTone();
-            showToast(`Ticket reassigned to ${val} for review!`);
-          } catch (err) {
-            await customPopup('alert', "Error reassigning ticket: " + err.message);
-          }
+          try { await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), { assignedBarber: val, status: "pending_acceptance", denyReason: null }); playRingTone(); showToast(`Ticket reassigned to ${val} for review!`); } 
+          catch (err) { await customPopup('alert', "Error reassigning ticket: " + err.message); }
           activeReassignTicketId = null;
         }
       }
     };
 
+    // --- GENERATE MONTHLY REPORT UI LOGIC ---
+    window.generateMonthlyReport = (year, month, labelText) => {
+      dashboard.style.display = "none";
+      document.getElementById('monthlyReportPage').style.display = "block";
+      document.getElementById('reportPageTitle').innerText = labelText.trim().toUpperCase() + " REPORT";
+
+      let totalVal = 0;
+      let totalCuts = 0;
+      let serviceMap = {};
+
+      allPaidTicketsCache.forEach(t => {
+        if (t.status === "paid") {
+          // If viewing as barber, only process their specific cuts
+          if (currentUserDoc && currentUserDoc.role === "barber") {
+            const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
+            if (t.assignedBarber.toLowerCase() !== myFirstName) return;
+          }
+
+          const tDate = new Date(t.timestamp);
+          if (tDate.getFullYear() === year && tDate.getMonth() === month) {
+            const sName = t.serviceName || "General Service";
+            const sPrice = Number(t.price) || 0;
+            
+            totalVal += sPrice;
+            totalCuts++;
+            
+            if (!serviceMap[sName]) serviceMap[sName] = { count: 0, total: 0 };
+            serviceMap[sName].count++;
+            serviceMap[sName].total += sPrice;
+          }
+        }
+      });
+
+      document.getElementById('reportTotalRev').innerText = totalVal.toFixed(2);
+      document.getElementById('reportTotalCuts').innerText = totalCuts;
+
+      let breakdownHtml = "";
+      const keys = Object.keys(serviceMap);
+      
+      if(keys.length === 0) {
+        breakdownHtml = "<p style='opacity: 0.6; font-style: italic; font-size: 13px; margin: 5px 0;'>No paid sales recorded for this month.</p>";
+      } else {
+        // Sort by revenue descending
+        keys.sort((a,b) => serviceMap[b].total - serviceMap[a].total);
+        keys.forEach(k => {
+          const data = serviceMap[k];
+          breakdownHtml += `<div class="breakdown-row"><span>${k} (${data.count} cut${data.count > 1 ? 's' : ''})</span><strong style="color:var(--text-color);">GHS ${data.total.toFixed(2)}</strong></div>`;
+        });
+      }
+      document.getElementById('reportServiceBreakdownList').innerHTML = breakdownHtml;
+    };
+
+
     window.openOwnerPage = (pageName) => {
       dashboard.style.display = "none";
-      document.getElementById('ownerStaffPage').style.display = "none";
-      document.getElementById('ownerServicesPage').style.display = "none";
-      document.getElementById('ownerBlacklistPage').style.display = "none";
-      document.getElementById('settingsPage').style.display = "none";
-      document.getElementById('chatPage').style.display = "none";
-      document.getElementById('announcementsPage').style.display = "none";
-
+      document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none";
+      document.getElementById('settingsPage').style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none";
       if (pageName === 'staff') document.getElementById('ownerStaffPage').style.display = "block";
       else if (pageName === 'services') document.getElementById('ownerServicesPage').style.display = "block";
       else if (pageName === 'blacklist') document.getElementById('ownerBlacklistPage').style.display = "block";
@@ -1169,79 +1088,39 @@
 
     window.openSettingsPage = () => {
       dashboard.style.display = "none";
-      document.getElementById('ownerStaffPage').style.display = "none";
-      document.getElementById('ownerServicesPage').style.display = "none";
-      document.getElementById('ownerBlacklistPage').style.display = "none";
-      customerDirectoryPage.style.display = "none";
-      paymentPage.style.display = "none";
-      blacklistPage.style.display = "none";
-      editProfileView.style.display = "none";
-      document.getElementById('chatPage').style.display = "none";
-      document.getElementById('announcementsPage').style.display = "none";
+      document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none";
+      customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none";
 
       if (currentUserDoc && currentUserDoc.role === "owner") {
-        document.getElementById('ownerDangerZoneBox').style.display = "block";
-        document.getElementById('ownerPaymentSettingsBox').style.display = "block";
-        document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name;
-        document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number;
+        document.getElementById('ownerDangerZoneBox').style.display = "block"; document.getElementById('ownerPaymentSettingsBox').style.display = "block";
+        document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name; document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number;
       } else {
-        document.getElementById('ownerDangerZoneBox').style.display = "none";
-        document.getElementById('ownerPaymentSettingsBox').style.display = "none";
+        document.getElementById('ownerDangerZoneBox').style.display = "none"; document.getElementById('ownerPaymentSettingsBox').style.display = "none";
       }
-
       document.getElementById('settingsPage').style.display = "block";
     };
 
     window.saveOwnerPaymentSettings = async () => {
-      const name = document.getElementById('ownerMomoNameSet').value.trim();
-      const number = document.getElementById('ownerMomoNumberSet').value.trim();
+      const name = document.getElementById('ownerMomoNameSet').value.trim(); const number = document.getElementById('ownerMomoNumberSet').value.trim();
       if (!name || !number) return await customPopup('alert', "Please provide both payment name and number.");
-
-      try {
-        await setDoc(doc(db, "shop_config", "payment"), { name, number }, { merge: true });
-        shopPaymentConfig = { name, number };
-        playRingTone();
-        showToast("Payment details saved successfully!");
-      } catch (err) {
-        await customPopup('alert', "Error saving payment settings: " + err.message);
-      }
+      try { await setDoc(doc(db, "shop_config", "payment"), { name, number }, { merge: true }); shopPaymentConfig = { name, number }; playRingTone(); showToast("Payment details saved successfully!"); } 
+      catch (err) { await customPopup('alert', "Error saving payment settings: " + err.message); }
     };
 
-    window.openChatPage = () => {
-      dashboard.style.display = "none";
-      document.getElementById('chatPage').style.display = "block";
-      startChatListener();
-    };
-
-    window.openAnnouncementsPage = () => {
-      dashboard.style.display = "none";
-      document.getElementById('announcementsPage').style.display = "block";
-      if (currentUserDoc && currentUserDoc.role === "owner") {
-        document.getElementById('ownerAnnouncementCreator').style.display = "block";
-      }
-      startAnnouncementsListener();
-    };
+    window.openChatPage = () => { dashboard.style.display = "none"; document.getElementById('chatPage').style.display = "block"; startChatListener(); };
+    window.openAnnouncementsPage = () => { dashboard.style.display = "none"; document.getElementById('announcementsPage').style.display = "block"; if (currentUserDoc && currentUserDoc.role === "owner") { document.getElementById('ownerAnnouncementCreator').style.display = "block"; } startAnnouncementsListener(); };
 
     function validateGovernmentID(country, idType, idNumber) {
-      if (!idNumber || idNumber.trim().length < 4) {
-        return "ID Number is too short or invalid.";
-      }
+      if (!idNumber || idNumber.trim().length < 4) { return "ID Number is too short or invalid."; }
       const cleanNum = idNumber.trim();
-      if (country === "Ghana" && idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) {
-        return "Invalid Ghana Card format. Must start with 'GHA-'.";
-      }
+      if (country === "Ghana" && idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) { return "Invalid Ghana Card format. Must start with 'GHA-'."; }
       return null; 
     }
 
     window.showToast = (message) => {
       let toast = document.getElementById('toastNotification');
-      if(!toast) {
-        toast = document.createElement('div');
-        toast.id = 'toastNotification';
-        document.body.appendChild(toast);
-      }
-      toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`;
-      toast.classList.add('show');
+      if(!toast) { toast = document.createElement('div'); toast.id = 'toastNotification'; document.body.appendChild(toast); }
+      toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`; toast.classList.add('show');
       setTimeout(() => { toast.classList.remove('show'); }, 3500);
     };
 
@@ -1257,562 +1136,202 @@
     const blacklistPage = document.getElementById('blacklistPage');
     const editProfileView = document.getElementById('editProfileView');
 
-    loginBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        await signInWithPopup(auth, provider);
-        showToast("Signed in successfully!");
-      } catch (error) {
-        await customPopup('alert', "Login failed: " + error.message);
-      }
-    });
+    loginBtn.addEventListener('click', async (e) => { e.preventDefault(); try { await signInWithPopup(auth, provider); showToast("Signed in successfully!"); } catch (error) { await customPopup('alert', "Login failed: " + error.message); } });
+    emailLoginBtn.addEventListener('click', async (e) => { e.preventDefault(); const email = document.getElementById('authEmailInput').value.trim(); const password = document.getElementById('authPasswordInput').value; if (!email || !password) { return await customPopup('alert', "Please enter your email and password."); } try { await signInWithEmailAndPassword(auth, email, password); showToast("Signed in successfully!"); } catch (error) { await customPopup('alert', "Sign in failed: " + error.message); } });
+    emailRegisterBtn.addEventListener('click', async (e) => { e.preventDefault(); const email = document.getElementById('authEmailInput').value.trim(); const password = document.getElementById('authPasswordInput').value; if (!email || !password) { return await customPopup('alert', "Please enter an email and password."); } if (password.length < 6) { return await customPopup('alert', "Password must be at least 6 characters long."); } try { await createUserWithEmailAndPassword(auth, email, password); showToast("Account created successfully!"); } catch (error) { await customPopup('alert', "Registration failed: " + error.message); } });
 
-    // --- EMAIL & PASSWORD AUTHENTICATION HANDLERS ---
-    emailLoginBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('authEmailInput').value.trim();
-      const password = document.getElementById('authPasswordInput').value;
-
-      if (!email || !password) {
-        return await customPopup('alert', "Please enter your email and password.");
-      }
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        showToast("Signed in successfully!");
-      } catch (error) {
-        await customPopup('alert', "Sign in failed: " + error.message);
-      }
-    });
-
-    emailRegisterBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('authEmailInput').value.trim();
-      const password = document.getElementById('authPasswordInput').value;
-
-      if (!email || !password) {
-        return await customPopup('alert', "Please enter an email and password.");
-      }
-      if (password.length < 6) {
-        return await customPopup('alert', "Password must be at least 6 characters long.");
-      }
-
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        showToast("Account created successfully!");
-      } catch (error) {
-        await customPopup('alert', "Registration failed: " + error.message);
-      }
-    });
-
-    const performLogout = async () => {
-      const confirmLogout = await customPopup('confirm', "Are you sure you want to log out of SJ'S SALOON?");
-      if (confirmLogout) {
-        await signOut(auth);
-        window.location.reload();
-      }
-    };
-    
-    document.getElementById('setupLogoutBtn').addEventListener('click', performLogout);
-    document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout);
-    document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
+    const performLogout = async () => { const confirmLogout = await customPopup('confirm', "Are you sure you want to log out of SJ'S SALOON?"); if (confirmLogout) { await signOut(auth); window.location.reload(); } };
+    document.getElementById('setupLogoutBtn').addEventListener('click', performLogout); document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout); document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
 
     window.deleteMyAccount = async () => {
-      const confirm1 = await customPopup('confirm', "Are you sure you want to delete your account and leave SJ'S SALOON?");
-      if (!confirm1) return;
-      
-      const confirm2 = await customPopup('confirm', "This action is PERMANENT. You will lose access to the shop instantly. Proceed?");
-      if (!confirm2) return;
-
-      try {
-        await deleteDoc(doc(db, "users", auth.currentUser.uid));
-        await signOut(auth);
-        window.location.reload();
-      } catch (err) { await customPopup('alert', "Error deleting account: " + err.message); }
+      const confirm1 = await customPopup('confirm', "Are you sure you want to delete your account and leave SJ'S SALOON?"); if (!confirm1) return;
+      const confirm2 = await customPopup('confirm', "This action is PERMANENT. You will lose access to the shop instantly. Proceed?"); if (!confirm2) return;
+      try { await deleteDoc(doc(db, "users", auth.currentUser.uid)); await signOut(auth); window.location.reload(); } catch (err) { await customPopup('alert', "Error deleting account: " + err.message); }
     };
 
-    document.getElementById('openDirectoryBtn').addEventListener('click', () => {
-      dashboard.style.display = "none";
-      customerDirectoryPage.style.display = "block";
-      renderCustomerDirectoryList();
-    });
+    document.getElementById('openDirectoryBtn').addEventListener('click', () => { dashboard.style.display = "none"; customerDirectoryPage.style.display = "block"; renderCustomerDirectoryList(); });
 
     window.backToDashboard = () => {
-      customerDirectoryPage.style.display = "none";
-      paymentPage.style.display = "none";
-      blacklistPage.style.display = "none";
-      editProfileView.style.display = "none";
-      document.getElementById('ownerStaffPage').style.display = "none";
-      document.getElementById('ownerServicesPage').style.display = "none";
-      document.getElementById('ownerBlacklistPage').style.display = "none";
-      document.getElementById('settingsPage').style.display = "none";
-      document.getElementById('chatPage').style.display = "none";
-      document.getElementById('announcementsPage').style.display = "none";
-      dashboard.style.display = "block";
-      document.getElementById('customerDetailView').style.display = "none";
-      document.getElementById('directoryListView').style.display = "block";
+      customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none";
+      document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none";
+      document.getElementById('settingsPage').style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none";
+      document.getElementById('monthlyReportPage').style.display = "none";
+      dashboard.style.display = "block"; document.getElementById('customerDetailView').style.display = "none"; document.getElementById('directoryListView').style.display = "block";
     };
 
-    window.backToDirectoryList = () => {
-      document.getElementById('customerDetailView').style.display = "none";
-      document.getElementById('directoryListView').style.display = "block";
-    };
+    window.backToDirectoryList = () => { document.getElementById('customerDetailView').style.display = "none"; document.getElementById('directoryListView').style.display = "block"; };
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        loginWelcomeView.style.display = "none";
-        mainAppTitle.style.display = "block";
-        statusText.style.display = "block";
-        statusText.innerText = "Connecting to database... ⏳"; 
-
+        loginWelcomeView.style.display = "none"; mainAppTitle.style.display = "block"; statusText.style.display = "block"; statusText.innerText = "Connecting to database... ⏳"; 
         try {
-          const userRef = doc(db, "users", user.uid);
-          const userSnap = await getDoc(userRef);
-          statusText.style.display = "none";
-
-          const payConfigSnap = await getDoc(doc(db, "shop_config", "payment"));
-          if (payConfigSnap.exists()) {
-            shopPaymentConfig = payConfigSnap.data();
-          }
-
-          if (!userSnap.exists()) {
-            document.getElementById('setupDisplayName').value = user.displayName || user.email.split('@')[0] || "";
-            document.getElementById('setupView').style.display = "block";
-          } else {
+          const userRef = doc(db, "users", user.uid); const userSnap = await getDoc(userRef); statusText.style.display = "none";
+          const payConfigSnap = await getDoc(doc(db, "shop_config", "payment")); if (payConfigSnap.exists()) { shopPaymentConfig = payConfigSnap.data(); }
+          if (!userSnap.exists()) { document.getElementById('setupDisplayName').value = user.displayName || user.email.split('@')[0] || ""; document.getElementById('setupView').style.display = "block"; } 
+          else {
             currentUserDoc = userSnap.data();
-            
-            if (user.email === "gismartsghana@gmail.com" && !currentUserDoc.isApproved) {
-              await updateDoc(userRef, { isApproved: true, role: "owner" });
-              currentUserDoc.isApproved = true;
-              currentUserDoc.role = "owner";
-            }
-
-            if (currentUserDoc.isApproved) {
-              loadApp(user, currentUserDoc);
-            } else {
-              document.getElementById('pendingView').style.display = "block";
-            }
+            if (user.email === "gismartsghana@gmail.com" && !currentUserDoc.isApproved) { await updateDoc(userRef, { isApproved: true, role: "owner" }); currentUserDoc.isApproved = true; currentUserDoc.role = "owner"; }
+            if (currentUserDoc.isApproved) { loadApp(user, currentUserDoc); } else { document.getElementById('pendingView').style.display = "block"; }
           }
-        } catch (error) {
-          statusText.style.display = "block";
-          statusText.innerText = "Error: " + error.message;
-          await customPopup('alert', "Firebase Error: " + error.message);
-        }
+        } catch (error) { statusText.style.display = "block"; statusText.innerText = "Error: " + error.message; await customPopup('alert', "Firebase Error: " + error.message); }
       } else {
-        loginWelcomeView.style.display = "block";
-        mainAppTitle.style.display = "none";
-        statusText.style.display = "none";
-        dashboard.style.display = "none";
-        document.getElementById('setupView').style.display = "none";
-        document.getElementById('pendingView').style.display = "none";
-        customerDirectoryPage.style.display = "none";
-        paymentPage.style.display = "none";
-        blacklistPage.style.display = "none";
-        editProfileView.style.display = "none";
+        loginWelcomeView.style.display = "block"; mainAppTitle.style.display = "none"; statusText.style.display = "none"; dashboard.style.display = "none"; document.getElementById('setupView').style.display = "none"; document.getElementById('pendingView').style.display = "none"; customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none";
       }
     });
 
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
-      const user = auth.currentUser;
-      const role = selectedSetupRole;
-      const displayName = document.getElementById('setupDisplayName').value.trim();
-      const country = selectedSetupCountry;
-      const idType = selectedSetupIdType;
-      const idNumber = document.getElementById('setupIdNumber').value.trim();
-      const fileInput = document.getElementById('setupPhoto');
-      
-      if (!displayName || !country) {
-        return await customPopup('alert', "Please fill in your display name and select a country.");
-      }
-
-      if (role === "owner") {
-        try {
-          const allUsers = await getDocs(collection(db, "users"));
-          let ownerExists = false;
-          allUsers.forEach(d => {
-            if (d.data().role === "owner") ownerExists = true;
-          });
-          if (ownerExists) {
-            return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists.");
-          }
-        } catch(e) {}
-      } else {
-        if (!idType || !idNumber) {
-          return await customPopup('alert', "Please select your ID type and enter your ID number.");
-        }
-        const idError = validateGovernmentID(country, idType, idNumber);
-        if (idError) {
-          return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
-        }
+      const user = auth.currentUser; const role = selectedSetupRole; const displayName = document.getElementById('setupDisplayName').value.trim(); const country = selectedSetupCountry; const idType = selectedSetupIdType; const idNumber = document.getElementById('setupIdNumber').value.trim(); const fileInput = document.getElementById('setupPhoto');
+      if (!displayName || !country) { return await customPopup('alert', "Please fill in your display name and select a country."); }
+      if (role === "owner") { try { const allUsers = await getDocs(collection(db, "users")); let ownerExists = false; allUsers.forEach(d => { if (d.data().role === "owner") ownerExists = true; }); if (ownerExists) { return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists."); } } catch(e) {} } 
+      else {
+        if (!idType || !idNumber) { return await customPopup('alert', "Please select your ID type and enter your ID number."); }
+        const idError = validateGovernmentID(country, idType, idNumber); if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); }
       }
 
       let photoUrlToSave = user.photoURL || "https://via.placeholder.com/150"; 
-      const saveBtn = document.getElementById('saveProfileBtn');
-      saveBtn.innerText = "Uploading & Saving... ⏳";
-      saveBtn.disabled = true;
-
-      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; 
-      const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+      const saveBtn = document.getElementById('saveProfileBtn'); saveBtn.innerText = "Uploading & Saving... ⏳"; saveBtn.disabled = true;
+      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
 
       try {
         if (fileInput.files.length > 0) {
-          const file = fileInput.files[0];
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-            method: "POST", body: formData
-          });
+          const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData });
           const uploadData = await uploadRes.json();
-          if (uploadData.secure_url) {
-             photoUrlToSave = uploadData.secure_url;
-             if (user.email) {
-               await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
-             }
-          }
+          if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } }
         }
-
         const isOwner = (role === "owner");
-        await setDoc(doc(db, "users", user.uid), {
-          name: displayName, email: user.email || "", photoURL: photoUrlToSave,
-          role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber,
-          isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime()
-        });
-
-        playRingTone();
-        showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!");
-        setTimeout(() => window.location.reload(), 1500);
-      } catch (error) {
-        await customPopup('alert', "Error saving profile: " + error.message);
-        saveBtn.innerText = "Submit Profile & ID for Approval";
-        saveBtn.disabled = false;
-      }
+        await setDoc(doc(db, "users", user.uid), { name: displayName, email: user.email || "", photoURL: photoUrlToSave, role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber, isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime() });
+        playRingTone(); showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!"); setTimeout(() => window.location.reload(), 1500);
+      } catch (error) { await customPopup('alert', "Error saving profile: " + error.message); saveBtn.innerText = "Submit Profile & ID for Approval"; saveBtn.disabled = false; }
     });
 
     window.openEditProfile = () => {
-      dashboard.style.display = "none";
-      editProfileView.style.display = "block";
-      
-      document.getElementById('editDisplayName').value = currentUserDoc.name || "";
-      selectedEditCountry = currentUserDoc.country || "Ghana";
-      document.getElementById('editCountryText').innerText = selectedEditCountry;
-
-      const idVerificationContainer = document.getElementById('editIdVerificationContainer');
-      const editTitle = document.getElementById('editProfileTitle');
-      const editSubtitle = document.getElementById('editProfileSubtitle');
-
-      if (currentUserDoc.role === "owner") {
-        idVerificationContainer.style.display = "none";
-        editTitle.innerText = "Edit My Owner Profile";
-        editSubtitle.innerText = "Owners update instantly without ID verification.";
-      } else {
-        idVerificationContainer.style.display = "block";
-        editTitle.innerText = "Edit My Profile & ID Credentials";
-        editSubtitle.innerText = "Staff updates require owner approval.";
-        selectedEditIdType = currentUserDoc.idType || "National ID / Ghana Card";
-        document.getElementById('editIdTypeText').innerText = selectedEditIdType;
-        document.getElementById('editIdNumber').value = currentUserDoc.idNumber || "";
-      }
+      dashboard.style.display = "none"; editProfileView.style.display = "block";
+      document.getElementById('editDisplayName').value = currentUserDoc.name || ""; selectedEditCountry = currentUserDoc.country || "Ghana"; document.getElementById('editCountryText').innerText = selectedEditCountry;
+      const idVerificationContainer = document.getElementById('editIdVerificationContainer'); const editTitle = document.getElementById('editProfileTitle'); const editSubtitle = document.getElementById('editProfileSubtitle');
+      if (currentUserDoc.role === "owner") { idVerificationContainer.style.display = "none"; editTitle.innerText = "Edit My Owner Profile"; editSubtitle.innerText = "Owners update instantly without ID verification."; } 
+      else { idVerificationContainer.style.display = "block"; editTitle.innerText = "Edit My Profile & ID Credentials"; editSubtitle.innerText = "Staff updates require owner approval."; selectedEditIdType = currentUserDoc.idType || "National ID / Ghana Card"; document.getElementById('editIdTypeText').innerText = selectedEditIdType; document.getElementById('editIdNumber').value = currentUserDoc.idNumber || ""; }
     };
-
-    window.cancelEditProfile = () => {
-      editProfileView.style.display = "none";
-      dashboard.style.display = "block";
-    };
+    window.cancelEditProfile = () => { editProfileView.style.display = "none"; dashboard.style.display = "block"; };
 
     document.getElementById('submitEditProfileBtn').addEventListener('click', async () => {
-      const user = auth.currentUser;
-      const displayName = document.getElementById('editDisplayName').value.trim();
-      const country = selectedEditCountry;
-      const fileInput = document.getElementById('editPhoto');
-
-      if (!displayName || !country) {
-        return await customPopup('alert', "Please complete all required fields.");
-      }
-
-      let idType = currentUserDoc.idType;
-      let idNumber = currentUserDoc.idNumber;
-
+      const user = auth.currentUser; const displayName = document.getElementById('editDisplayName').value.trim(); const country = selectedEditCountry; const fileInput = document.getElementById('editPhoto');
+      if (!displayName || !country) { return await customPopup('alert', "Please complete all required fields."); }
+      let idType = currentUserDoc.idType; let idNumber = currentUserDoc.idNumber;
       if (currentUserDoc.role !== "owner") {
-        idType = selectedEditIdType;
-        idNumber = document.getElementById('editIdNumber').value.trim();
-        if (!idType || !idNumber) {
-          return await customPopup('alert', "Please complete ID type and ID number.");
-        }
-        const idError = validateGovernmentID(country, idType, idNumber);
-        if (idError) {
-          return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
-        }
+        idType = selectedEditIdType; idNumber = document.getElementById('editIdNumber').value.trim();
+        if (!idType || !idNumber) { return await customPopup('alert', "Please complete ID type and ID number."); }
+        const idError = validateGovernmentID(country, idType, idNumber); if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); }
       }
-
-      let photoUrlToSave = currentUserDoc.photoURL;
-      const btn = document.getElementById('submitEditProfileBtn');
-      btn.innerText = "Updating... ⏳";
-      btn.disabled = true;
-
-      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; 
-      const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+      let photoUrlToSave = currentUserDoc.photoURL; const btn = document.getElementById('submitEditProfileBtn'); btn.innerText = "Updating... ⏳"; btn.disabled = true;
+      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
 
       try {
         if (fileInput.files.length > 0) {
-          const file = fileInput.files[0];
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-            method: "POST", body: formData
-          });
+          const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData });
           const uploadData = await uploadRes.json();
-          if (uploadData.secure_url) {
-            photoUrlToSave = uploadData.secure_url;
-            if (user.email) {
-              await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
-            }
-          }
+          if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } }
         }
-
         if (currentUserDoc.role === "owner") {
-          await updateDoc(doc(db, "users", user.uid), {
-            name: displayName, country: country, photoURL: photoUrlToSave
-          });
-          currentUserDoc.name = displayName;
-          currentUserDoc.country = country;
-          currentUserDoc.photoURL = photoUrlToSave;
-          document.getElementById('userName').innerText = displayName;
-          document.getElementById('userPic').src = photoUrlToSave;
+          await updateDoc(doc(db, "users", user.uid), { name: displayName, country: country, photoURL: photoUrlToSave });
+          currentUserDoc.name = displayName; currentUserDoc.country = country; currentUserDoc.photoURL = photoUrlToSave;
+          document.getElementById('userName').innerText = displayName; document.getElementById('userPic').src = photoUrlToSave;
           showToast("Profile updated successfully!");
         } else {
-          await updateDoc(doc(db, "users", user.uid), {
-            pendingUpdates: {
-              name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime()
-            }
-          });
+          await updateDoc(doc(db, "users", user.uid), { pendingUpdates: { name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime() } });
           showToast("Profile updates submitted for owner approval!");
         }
-
-        btn.innerText = "Save & Update Profile";
-        btn.disabled = false;
-        fileInput.value = ""; 
-        cancelEditProfile(); 
-      } catch (err) {
-        await customPopup('alert', "Error updating profile: " + err.message);
-        btn.innerText = "Save & Update Profile";
-        btn.disabled = false;
-      }
+        btn.innerText = "Save & Update Profile"; btn.disabled = false; fileInput.value = ""; cancelEditProfile(); 
+      } catch (err) { await customPopup('alert', "Error updating profile: " + err.message); btn.innerText = "Save & Update Profile"; btn.disabled = false; }
     });
 
     let chatInitialized = false;
     function startChatListener() {
       const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
       onSnapshot(q, (snapshot) => {
-        let html = "";
-        let hasNewMessage = false;
-
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added" && chatInitialized) {
-            hasNewMessage = true;
-          }
-        });
-
+        let html = ""; let hasNewMessage = false;
+        snapshot.docChanges().forEach((change) => { if (change.type === "added" && chatInitialized) { hasNewMessage = true; } });
         snapshot.forEach((docSnap) => {
-          const msg = docSnap.data();
-          const msgId = docSnap.id;
-          const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const isMe = msg.senderId === auth.currentUser.uid;
-          const isOwner = currentUserDoc && currentUserDoc.role === "owner";
-          
-          const canDelete = isMe || isOwner;
-
+          const msg = docSnap.data(); const msgId = docSnap.id; const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const isMe = msg.senderId === auth.currentUser.uid; const isOwner = currentUserDoc && currentUserDoc.role === "owner"; const canDelete = isMe || isOwner;
           html += `
             <div style="margin-bottom: 12px; text-align: ${isMe ? 'right' : 'left'};">
               <span style="font-size: 11px; color: var(--accent-gold);">${msg.senderName} (${msg.senderRole.toUpperCase()}) - ${timeStr}</span><br>
               <div style="display: inline-block; background: ${isMe ? '#1a4b8c' : 'var(--input-bg)'}; color: ${isMe ? '#fff' : 'var(--text-color)'}; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border); position: relative;">
-                ${msg.text}
-                ${canDelete ? `<br><span onclick="deleteChatMessage('${msgId}')" style="font-size: 10px; color: #ff4444; cursor: pointer; text-decoration: underline; display: inline-block; margin-top: 4px;">Delete message</span>` : ''}
+                ${msg.text} ${canDelete ? `<br><span onclick="deleteChatMessage('${msgId}')" style="font-size: 10px; color: #ff4444; cursor: pointer; text-decoration: underline; display: inline-block; margin-top: 4px;">Delete message</span>` : ''}
               </div>
             </div>
           `;
         });
-
-        if (hasNewMessage) playRingTone();
-        chatInitialized = true;
-
-        const box = document.getElementById('chatMessagesBox');
-        box.innerHTML = html === "" ? "<p style='opacity:0.6; text-align: center;'>No messages yet.</p>" : html;
-        box.scrollTop = box.scrollHeight;
+        if (hasNewMessage) playRingTone(); chatInitialized = true;
+        const box = document.getElementById('chatMessagesBox'); box.innerHTML = html === "" ? "<p style='opacity:0.6; text-align: center;'>No messages yet.</p>" : html; box.scrollTop = box.scrollHeight;
       });
     }
 
     document.getElementById('sendChatMessageBtn').addEventListener('click', async () => {
-      const input = document.getElementById('chatInputMessage');
-      const text = input.value.trim();
-      if (!text) return;
-
-      try {
-        await addDoc(collection(db, "team_chat"), {
-          senderId: auth.currentUser.uid,
-          senderName: currentUserDoc.name,
-          senderRole: currentUserDoc.role,
-          text: text,
-          timestamp: new Date().getTime()
-        });
-        playRingTone();
-        input.value = "";
-      } catch (err) {
-        await customPopup('alert', "Error sending message: " + err.message);
-      }
+      const input = document.getElementById('chatInputMessage'); const text = input.value.trim(); if (!text) return;
+      try { await addDoc(collection(db, "team_chat"), { senderId: auth.currentUser.uid, senderName: currentUserDoc.name, senderRole: currentUserDoc.role, text: text, timestamp: new Date().getTime() }); playRingTone(); input.value = ""; } 
+      catch (err) { await customPopup('alert', "Error sending message: " + err.message); }
     });
 
-    window.deleteChatMessage = async (msgId) => {
-      if (await customPopup('confirm', "Delete this message?")) {
-        try {
-          await deleteDoc(doc(db, "team_chat", msgId));
-          playRingTone();
-          showToast("Message deleted");
-        } catch (err) {
-          await customPopup('alert', "Error deleting message: " + err.message);
-        }
-      }
-    };
+    window.deleteChatMessage = async (msgId) => { if (await customPopup('confirm', "Delete this message?")) { try { await deleteDoc(doc(db, "team_chat", msgId)); playRingTone(); showToast("Message deleted"); } catch (err) { await customPopup('alert', "Error deleting message: " + err.message); } } };
 
     let announcementsInitialized = false;
     function startAnnouncementsListener() {
       const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
       onSnapshot(q, (snapshot) => {
-        let html = "";
-        let hasNewAnn = false;
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added" && announcementsInitialized) {
-            hasNewAnn = true;
-          }
-        });
-
+        let html = ""; let hasNewAnn = false;
+        snapshot.docChanges().forEach((change) => { if (change.type === "added" && announcementsInitialized) { hasNewAnn = true; } });
         snapshot.forEach((docSnap) => {
-          const ann = docSnap.data();
-          const annId = docSnap.id;
-          const dateStr = new Date(ann.timestamp).toLocaleString();
-          const isOwner = currentUserDoc && currentUserDoc.role === "owner";
-
+          const ann = docSnap.data(); const annId = docSnap.id; const dateStr = new Date(ann.timestamp).toLocaleString(); const isOwner = currentUserDoc && currentUserDoc.role === "owner";
           html += `
             <div class="list-item" style="border-left-color: #ffc107;">
               <div class="ticket-title" style="color: #ffc107;">📢 Announcement</div>
-              <div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">
-                ${ann.text}
-              </div>
-              <div style="font-size: 11px; opacity: 0.7; text-align: right; margin-bottom: ${isOwner ? '10px' : '0'};">
-                Posted by: <strong>${ann.author}</strong> | ${dateStr}
-              </div>
+              <div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">${ann.text}</div>
+              <div style="font-size: 11px; opacity: 0.7; text-align: right; margin-bottom: ${isOwner ? '10px' : '0'};">Posted by: <strong>${ann.author}</strong> | ${dateStr}</div>
               ${isOwner ? `<button onclick="deleteAnnouncement('${annId}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; width: 100%;">Delete Announcement</button>` : ''}
             </div>
           `;
         });
-
-        if (hasNewAnn) playRingTone();
-        announcementsInitialized = true;
-        document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='opacity:0.6;'>No announcements posted yet.</p>" : html;
+        if (hasNewAnn) playRingTone(); announcementsInitialized = true; document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='opacity:0.6;'>No announcements posted yet.</p>" : html;
       });
     }
 
     document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => {
-      const textarea = document.getElementById('announcementText');
-      const text = textarea.value.trim();
-      if (!text) return await customPopup('alert', "Please write an announcement.");
-
-      try {
-        await addDoc(collection(db, "announcements"), {
-          text: text,
-          author: currentUserDoc.name,
-          timestamp: new Date().getTime()
-        });
-        playRingTone();
-        textarea.value = "";
-        showToast("Announcement published successfully!");
-      } catch (err) {
-        await customPopup('alert', "Error publishing announcement: " + err.message);
-      }
+      const textarea = document.getElementById('announcementText'); const text = textarea.value.trim(); if (!text) return await customPopup('alert', "Please write an announcement.");
+      try { await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() }); playRingTone(); textarea.value = ""; showToast("Announcement published successfully!"); } 
+      catch (err) { await customPopup('alert', "Error publishing announcement: " + err.message); }
     });
-
-    window.deleteAnnouncement = async (annId) => {
-      if (await customPopup('confirm', "Delete this announcement?")) {
-        try {
-          await deleteDoc(doc(db, "announcements", annId));
-          playRingTone();
-          showToast("Announcement deleted");
-        } catch (err) {
-          await customPopup('alert', "Error deleting announcement: " + err.message);
-        }
-      }
-    };
+    window.deleteAnnouncement = async (annId) => { if (await customPopup('confirm', "Delete this announcement?")) { try { await deleteDoc(doc(db, "announcements", annId)); playRingTone(); showToast("Announcement deleted"); } catch (err) { await customPopup('alert', "Error deleting announcement: " + err.message); } } };
 
     window.toggleAvailability = async () => {
       if (!currentUserDoc) return;
-      const isCurrentlyOff = currentUserDoc.isAvailable === false;
-      const newStatus = isCurrentlyOff ? true : false; 
-      
+      const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; 
       const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets.");
       if (!confirmAction) return;
-
       try {
-        await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus });
-        currentUserDoc.isAvailable = newStatus;
-        
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus;
         const btn = document.getElementById('toggleAvailabilityBtn');
         btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)";
         btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)";
         btn.style.borderColor = !newStatus ? "#555" : "#28a745";
-        
-        playRingTone();
-        showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴");
-      } catch (err) {
-        await customPopup('alert', "Error updating status: " + err.message);
-      }
+        playRingTone(); showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴");
+      } catch (err) { await customPopup('alert', "Error updating status: " + err.message); }
     };
 
-    window.updateTicketStatus = async (ticketId, newStatus) => {
-      try {
-        await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
-        playRingTone();
-        if(newStatus === 'completed') showToast("Cut marked as completed!");
-        if(newStatus === 'cancelled') showToast("Ticket dismissed.");
-      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
-    };
-
-    window.acceptTicket = async (ticketId) => {
-      try {
-        await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" });
-        playRingTone();
-        showToast("Customer accepted! Cut is now in progress.");
-        closePickerModal();
-      } catch (error) {
-        await customPopup('alert', "Action failed: " + error.message);
-      }
-    };
+    window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); playRingTone(); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); playRingTone(); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
 
     window.promptBarberDenyReason = async (ticketId) => {
       const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason...");
-      if (reason === null) return;
-      if (!reason.trim()) {
-        await customPopup('alert', "A reason is required to deny a customer.");
-        return;
-      }
-      try {
-        await updateDoc(doc(db, "daily_tickets", ticketId), { 
-          status: "denied", 
-          denyReason: reason.trim() 
-        });
-        playRingTone();
-        showToast("Customer denied and reason recorded.");
-        closePickerModal();
-      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
+      if (reason === null) return; if (!reason.trim()) { await customPopup('alert', "A reason is required to deny a customer."); return; }
+      try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied", denyReason: reason.trim() }); playRingTone(); showToast("Customer denied and reason recorded."); closePickerModal(); } 
+      catch (error) { await customPopup('alert', "Action failed: " + error.message); }
     };
 
-    // --- CLICKABLE TICKET REVIEW MODAL FOR BARBERS ---
     window.openTicketReviewModal = (ticketId) => {
-      const t = ticketsMapCache.get(ticketId);
-      if (!t) return;
-
+      const t = ticketsMapCache.get(ticketId); if (!t) return;
       const reviewHtml = `
         <div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6;">
           <p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p>
@@ -1826,171 +1345,91 @@
           <button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #8c1a1a; color: white; border-color: #cc2a2a;">❌ Deny</button>
         </div>
       `;
-
-      const overlay = document.getElementById('customModalOverlay');
-      document.getElementById('customModalTitle').innerText = "Review Customer & Service";
-      document.getElementById('customModalMessage').innerHTML = reviewHtml;
-      document.getElementById('customModalInput').style.display = "none";
-      document.getElementById('customDropdownList').style.display = "none";
-      document.getElementById('customPickerBackBtn').style.display = "none";
-      document.getElementById('customModalButtons').style.display = "none";
-      overlay.classList.add('show');
+      const overlay = document.getElementById('customModalOverlay'); document.getElementById('customModalTitle').innerText = "Review Customer & Service";
+      document.getElementById('customModalMessage').innerHTML = reviewHtml; document.getElementById('customModalInput').style.display = "none";
+      document.getElementById('customDropdownList').style.display = "none"; document.getElementById('customPickerBackBtn').style.display = "none";
+      document.getElementById('customModalButtons').style.display = "none"; overlay.classList.add('show');
     };
 
-    window.approveDenial = async (ticketId) => {
-      try {
-        await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied" });
-        playRingTone();
-        showToast("Denial approved and recorded.");
-      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
-    };
-
-    window.openReassignModal = (ticketId) => {
-      activeReassignTicketId = ticketId;
-      openPickerModal('reassignBarber');
-    };
+    window.approveDenial = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied" }); playRingTone(); showToast("Denial approved and recorded."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.openReassignModal = (ticketId) => { activeReassignTicketId = ticketId; openPickerModal('reassignBarber'); };
 
     function loadApp(user, docData) {
-      dashboard.style.display = "block";
-      document.getElementById('queuePanel').style.display = "block";
-      document.getElementById('openEditProfileBtn').style.display = "block";
-      
-      document.getElementById('userName').innerText = docData.name;
-      document.getElementById('userPic').src = docData.photoURL;
-
+      dashboard.style.display = "block"; document.getElementById('queuePanel').style.display = "block"; document.getElementById('openEditProfileBtn').style.display = "block";
+      document.getElementById('userName').innerText = docData.name; document.getElementById('userPic').src = docData.photoURL;
       const roleDisplay = document.getElementById('userRole');
 
       if (docData.role === "owner") {
-        roleDisplay.innerText = "👑 ROLE: SHOP OWNER";
-        document.getElementById('adminPanel').style.display = "block";
-        document.getElementById('analyticsPanel').style.display = "block";
-        document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History";
+        roleDisplay.innerText = "👑 ROLE: SHOP OWNER"; document.getElementById('adminPanel').style.display = "block";
+        document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History";
         document.getElementById('ownerDailyDeniedSection').style.display = "block";
-        startAdminListeners(); 
-        startAnalyticsTracker();
+        startAdminListeners(); startAnalyticsTracker();
       } 
       else if (docData.role === "secretary") {
-        roleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
-        document.getElementById('secretaryPanel').style.display = "block"; 
-        document.getElementById('analyticsPanel').style.display = "block";
-        document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
+        roleDisplay.innerText = "👩‍💼 ROLE: SECRETARY"; document.getElementById('secretaryPanel').style.display = "block"; 
+        document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
         startAnalyticsTracker();
       } 
       else {
-        roleDisplay.innerText = "👤 ROLE: BARBER";
-        document.getElementById('analyticsPanel').style.display = "block";
-        document.getElementById('analyticsTitle').innerText = "My Work History";
+        roleDisplay.innerText = "👤 ROLE: BARBER"; document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "My Work History";
         startAnalyticsTracker(docData.name);
-        
-        const isOff = docData.isAvailable === false;
-        const btn = document.getElementById('toggleAvailabilityBtn');
-        btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)";
-        btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)";
-        btn.style.color = "white";
-        btn.style.borderColor = isOff ? "#555" : "#28a745";
+        const isOff = docData.isAvailable === false; const btn = document.getElementById('toggleAvailabilityBtn');
+        btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = isOff ? "#555" : "#28a745";
         document.getElementById('barberControls').style.display = "block";
       }
 
-      startLiveQueue();
-      if (docData.role === "secretary") { populateIntakeForm(); }
-      cacheAllTickets();
-      startDashboardNotifications();
+      startLiveQueue(); if (docData.role === "secretary") { populateIntakeForm(); } cacheAllTickets(); startDashboardNotifications();
     }
 
-    // --- REALTIME DASHBOARD NOTIFICATION & ACTIVITY BANNER ---
     function startDashboardNotifications() {
-      const notifBox = document.getElementById('dashboardNotificationBox');
-      notifBox.style.display = "block";
+      const notifBox = document.getElementById('dashboardNotificationBox'); notifBox.style.display = "block";
 
       if (currentUserDoc && currentUserDoc.role === "owner") {
         let notifHtml = "";
-        
         const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
         onSnapshot(qChat, (snap) => {
-          let chatNotice = "";
-          snap.forEach(d => {
-            const m = d.data();
-            if (m.senderId !== auth.currentUser.uid) {
-              chatNotice = `<div class="notice-card"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`;
-            }
-          });
+          let chatNotice = ""; snap.forEach(d => { const m = d.data(); if (m.senderId !== auth.currentUser.uid) { chatNotice = `<div class="notice-card"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; } });
           renderOwnerNotifications(chatNotice, null, null);
         });
 
         const qTickets = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
         onSnapshot(qTickets, (snap) => {
-          let ticketNotice = "";
-          snap.forEach(d => {
+          let ticketNotice = ""; snap.forEach(d => {
             const t = d.data();
-            if (t.status === "completed") {
-              ticketNotice = `<div class="notice-card" style="border-color:#28a745;"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`;
-            } else if (t.status === "pending_acceptance") {
-              ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`;
-            }
+            if (t.status === "completed") { ticketNotice = `<div class="notice-card" style="border-color:#28a745;"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`; } 
+            else if (t.status === "pending_acceptance") { ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`; }
           });
           renderOwnerNotifications(null, ticketNotice, null);
         });
 
         const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
         onSnapshot(qUsers, (snap) => {
-          let approvalNotice = "";
-          if (snap.size > 0) {
-            approvalNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`;
-          }
+          let approvalNotice = ""; if (snap.size > 0) { approvalNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; }
           renderOwnerNotifications(null, null, approvalNotice);
         });
 
         let cachedChatN = "", cachedTicketN = "", cachedApproveN = "";
         function renderOwnerNotifications(c, t, a) {
-          if (c !== null) cachedChatN = c;
-          if (t !== null) cachedTicketN = t;
-          if (a !== null) cachedApproveN = a;
-          
+          if (c !== null) cachedChatN = c; if (t !== null) cachedTicketN = t; if (a !== null) cachedApproveN = a;
           const combined = cachedApproveN + cachedTicketN + cachedChatN;
           notifBox.innerHTML = combined !== "" ? combined : `<div class="notice-card" style="border-color:#555;"><h5>✨ All Clear</h5><p>No new staff activities or pending notifications.</p></div>`;
         }
-
       } else {
         let annNotice = "", chatNotice = "";
-
         const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qAnn, (snap) => {
-          snap.forEach(d => {
-            const a = d.data();
-            annNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>📢 Latest Owner Announcement</h5><p>"${a.text}" <br><span style="font-size:10px; opacity:0.7;">By ${a.author}</span></p></div>`;
-          });
-          notifBox.innerHTML = annNotice + chatNotice;
-        });
-
+        onSnapshot(qAnn, (snap) => { snap.forEach(d => { const a = d.data(); annNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>📢 Latest Owner Announcement</h5><p>"${a.text}" <br><span style="font-size:10px; opacity:0.7;">By ${a.author}</span></p></div>`; }); notifBox.innerHTML = annNotice + chatNotice; });
         const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qChat, (snap) => {
-          snap.forEach(d => {
-            const m = d.data();
-            if (m.senderRole === "owner") {
-              chatNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>👑 Message from Owner</h5><p><b>${m.senderName}</b>: "${m.text}"</p></div>`;
-            }
-          });
-          notifBox.innerHTML = annNotice + chatNotice;
-        });
+        onSnapshot(qChat, (snap) => { snap.forEach(d => { const m = d.data(); if (m.senderRole === "owner") { chatNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>👑 Message from Owner</h5><p><b>${m.senderName}</b>: "${m.text}"</p></div>`; } }); notifBox.innerHTML = annNotice + chatNotice; });
       }
     }
 
     function cacheAllTickets() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
-        allPaidTicketsCache = [];
-        activeBusyBarbers.clear();
-        ticketsMapCache.clear();
-        
+        allPaidTicketsCache = []; activeBusyBarbers.clear(); ticketsMapCache.clear();
         snapshot.forEach((doc) => {
-          const t = doc.data();
-          allPaidTicketsCache.push({ id: doc.id, ...t });
-          ticketsMapCache.set(doc.id, t);
-          
-          if ((t.status === "pending_acceptance" || t.status === "in_progress") && t.assignedBarber) {
-            activeBusyBarbers.add(t.assignedBarber.trim().toLowerCase());
-          }
+          const t = doc.data(); allPaidTicketsCache.push({ id: doc.id, ...t }); ticketsMapCache.set(doc.id, t);
+          if ((t.status === "pending_acceptance" || t.status === "in_progress") && t.assignedBarber) { activeBusyBarbers.add(t.assignedBarber.trim().toLowerCase()); }
         });
-
         if (customerDirectoryPage.style.display === "block") { renderCustomerDirectoryList(); }
       });
     }
@@ -1998,258 +1437,95 @@
     const custNameInput = document.getElementById('custName');
     if (custNameInput) {
       custNameInput.addEventListener('input', (e) => {
-        const typedName = e.target.value.trim().toLowerCase();
-        const historyBox = document.getElementById('customerHistoryBox');
-        const historyContent = document.getElementById('historyContent');
-
+        const typedName = e.target.value.trim().toLowerCase(); const historyBox = document.getElementById('customerHistoryBox'); const historyContent = document.getElementById('historyContent');
         if (typedName.length < 2) { historyBox.style.display = "none"; return; }
-
         const matches = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase().includes(typedName));
-        
         if (matches.length > 0) {
-          let html = "";
-          matches.forEach(m => {
-            const dateStr = new Date(m.timestamp).toLocaleString();
-            html += `<div style="border-bottom: 1px dashed var(--panel-border); padding: 4px 0;">
-              <strong>${m.customerName}</strong> (${m.customerPhone || 'No Phone'})<br>
-              Service: ${m.serviceName} (GHS ${m.price})<br>
-              Date: ${dateStr}<br>
-              Status: ${m.status.toUpperCase()} (${m.paymentMethod || 'N/A'})
-            </div>`;
-          });
-          historyContent.innerHTML = html;
-          historyBox.style.display = "block";
-        } else {
-          historyContent.innerHTML = "No previous history found for this name (New Customer).";
-          historyBox.style.display = "block";
-        }
+          let html = ""; matches.forEach(m => { const dateStr = new Date(m.timestamp).toLocaleString(); html += `<div style="border-bottom: 1px dashed var(--panel-border); padding: 4px 0;"><strong>${m.customerName}</strong> (${m.customerPhone || 'No Phone'})<br>Service: ${m.serviceName} (GHS ${m.price})<br>Date: ${dateStr}<br>Status: ${m.status.toUpperCase()} (${m.paymentMethod || 'N/A'})</div>`; });
+          historyContent.innerHTML = html; historyBox.style.display = "block";
+        } else { historyContent.innerHTML = "No previous history found for this name (New Customer)."; historyBox.style.display = "block"; }
       });
     }
 
     function renderCustomerDirectoryList() {
-      const listContainer = document.getElementById('directoryCustomerList');
-      let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed");
-
-      if (currentUserDoc && currentUserDoc.role === "barber") {
-        const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
-        ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName);
-      }
-
-      let customerMap = {};
-      ticketsToProcess.forEach(t => {
-        const nameKey = t.customerName.trim().toLowerCase();
-        if (!customerMap[nameKey]) {
-          customerMap[nameKey] = { displayName: t.customerName, phone: t.customerPhone || 'Not Provided', visits: [] };
-        }
-        customerMap[nameKey].visits.push(t);
-      });
-
-      let html = "";
-      const customerKeys = Object.keys(customerMap);
-
-      if (customerKeys.length === 0) {
-        listContainer.innerHTML = "<p style='opacity:0.6; font-style: italic;'>No past customer records available.</p>";
-        return;
-      }
-
+      const listContainer = document.getElementById('directoryCustomerList'); let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed");
+      if (currentUserDoc && currentUserDoc.role === "barber") { const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName); }
+      let customerMap = {}; ticketsToProcess.forEach(t => { const nameKey = t.customerName.trim().toLowerCase(); if (!customerMap[nameKey]) { customerMap[nameKey] = { displayName: t.customerName, phone: t.customerPhone || 'Not Provided', visits: [] }; } customerMap[nameKey].visits.push(t); });
+      let html = ""; const customerKeys = Object.keys(customerMap);
+      if (customerKeys.length === 0) { listContainer.innerHTML = "<p style='opacity:0.6; font-style: italic;'>No past customer records available.</p>"; return; }
       customerKeys.forEach(key => {
-        const cust = customerMap[key];
-        cust.visits.sort((a, b) => b.timestamp - a.timestamp);
-        const lastVisit = new Date(cust.visits[0].timestamp).toLocaleDateString();
-        const hasPhone = cust.phone && cust.phone !== 'Not Provided' && cust.phone.trim() !== '';
-
+        const cust = customerMap[key]; cust.visits.sort((a, b) => b.timestamp - a.timestamp);
+        const lastVisit = new Date(cust.visits[0].timestamp).toLocaleDateString(); const hasPhone = cust.phone && cust.phone !== 'Not Provided' && cust.phone.trim() !== '';
         html += `
           <div class="list-item clickable-customer">
             <div onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')">
               <div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; opacity: 0.7;">(${cust.phone})</span></div>
-              <div class="ticket-details" style="margin-bottom: 8px;">
-                Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>
-                Tap to view full service history & report options ➡
-              </div>
+              <div class="ticket-details" style="margin-bottom: 8px;">Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>Tap to view full service history & report options ➡</div>
             </div>
             ${hasPhone ? `<a href="tel:${cust.phone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 14px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold;">📞 Call Customer</a>` : ''}
           </div>
         `;
       });
-
       listContainer.innerHTML = html;
     }
 
     window.openCustomerDetail = (encodedName) => {
-      const customerName = decodeURIComponent(encodedName);
-      document.getElementById('directoryListView').style.display = "none";
-      const detailView = document.getElementById('customerDetailView');
-      detailView.style.display = "block";
-
+      const customerName = decodeURIComponent(encodedName); document.getElementById('directoryListView').style.display = "none";
+      const detailView = document.getElementById('customerDetailView'); detailView.style.display = "block";
       let ticketsToProcess = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase() === customerName.toLowerCase());
-      if (currentUserDoc && currentUserDoc.role === "barber") {
-        const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
-        ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName);
-      }
-
-      ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp);
-      const phoneNum = ticketsToProcess[0]?.customerPhone || 'Not Provided';
-      const hasPhone = phoneNum && phoneNum !== 'Not Provided' && phoneNum.trim() !== '';
-
-      let html = `
-        <h3 style="color: var(--accent-gold); margin-bottom: 5px;">History for: ${customerName}</h3>
-        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>
-        ${hasPhone ? `<a href="tel:${phoneNum}" style="display:inline-block; background:#28a745; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold; margin-bottom:15px;">📞 Call ${customerName}</a>` : ''}
-        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>
-      `;
-
+      if (currentUserDoc && currentUserDoc.role === "barber") { const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName); }
+      ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp); const phoneNum = ticketsToProcess[0]?.customerPhone || 'Not Provided'; const hasPhone = phoneNum && phoneNum !== 'Not Provided' && phoneNum.trim() !== '';
+      let html = `<h3 style="color: var(--accent-gold); margin-bottom: 5px;">History for: ${customerName}</h3><p style="opacity: 0.8; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>${hasPhone ? `<a href="tel:${phoneNum}" style="display:inline-block; background:#28a745; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold; margin-bottom:15px;">📞 Call ${customerName}</a>` : ''}<p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>`;
       ticketsToProcess.forEach(t => {
         const dateStr = new Date(t.timestamp).toLocaleString();
-        html += `
-          <div class="ticket" style="border-left-color: #28a745;">
-            <div class="ticket-details" style="margin-bottom: 5px;">
-              Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)}<br>
-              Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || 'Pending'}</strong><br>
-              Date & Time: ${dateStr}<br>
-              Ticket Status: <span style="color: #ffc107;">${t.status.toUpperCase()}</span>
-            </div>
-          </div>
-        `;
+        html += `<div class="ticket" style="border-left-color: #28a745;"><div class="ticket-details" style="margin-bottom: 5px;">Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)}<br>Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || 'Pending'}</strong><br>Date & Time: ${dateStr}<br>Ticket Status: <span style="color: #ffc107;">${t.status.toUpperCase()}</span></div></div>`;
       });
-
       const encoded = encodeURIComponent(customerName);
-      if (currentUserDoc && currentUserDoc.role === "owner") {
-        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'instant')">Blacklist ${customerName} Instantly</button>`;
-      } else {
-        html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'report')">Report ${customerName} for Blacklist</button>`;
-      }
-
+      if (currentUserDoc && currentUserDoc.role === "owner") { html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'instant')">Blacklist ${customerName} Instantly</button>`; } 
+      else { html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'report')">Report ${customerName} for Blacklist</button>`; }
       document.getElementById('customerDetailContent').innerHTML = html;
     };
 
     window.openBlacklistUI = (encodedName, actionType) => {
-      const customerName = decodeURIComponent(encodedName);
-      activeBlacklistCustomer = customerName;
-      activeBlacklistActionType = actionType;
-
-      document.getElementById('blPageCustName').innerText = customerName;
-      document.getElementById('blPageReason').value = "";
-      
-      if (actionType === 'instant') {
-        document.getElementById('blacklistPageTitle').innerText = "Instantly Blacklist Customer";
-        document.getElementById('blPageSubmitBtn').innerText = "Banish & Add to Blacklist";
-      } else {
-        document.getElementById('blacklistPageTitle').innerText = "Report Customer for Blacklist";
-        document.getElementById('blPageSubmitBtn').innerText = "Send Report to Owner";
-      }
-
-      customerDirectoryPage.style.display = "none";
-      blacklistPage.style.display = "block";
+      const customerName = decodeURIComponent(encodedName); activeBlacklistCustomer = customerName; activeBlacklistActionType = actionType;
+      document.getElementById('blPageCustName').innerText = customerName; document.getElementById('blPageReason').value = "";
+      if (actionType === 'instant') { document.getElementById('blacklistPageTitle').innerText = "Instantly Blacklist Customer"; document.getElementById('blPageSubmitBtn').innerText = "Banish & Add to Blacklist"; } 
+      else { document.getElementById('blacklistPageTitle').innerText = "Report Customer for Blacklist"; document.getElementById('blPageSubmitBtn').innerText = "Send Report to Owner"; }
+      customerDirectoryPage.style.display = "none"; blacklistPage.style.display = "block";
     };
 
-    window.cancelBlacklistPage = () => {
-      blacklistPage.style.display = "none";
-      customerDirectoryPage.style.display = "block";
-      activeBlacklistCustomer = null;
-    };
+    window.cancelBlacklistPage = () => { blacklistPage.style.display = "none"; customerDirectoryPage.style.display = "block"; activeBlacklistCustomer = null; };
 
     document.getElementById('blPageSubmitBtn').addEventListener('click', async () => {
-      const reason = document.getElementById('blPageReason').value.trim();
-      if (!reason) return await customPopup('alert', "Please provide a reason.");
-
+      const reason = document.getElementById('blPageReason').value.trim(); if (!reason) return await customPopup('alert', "Please provide a reason.");
       try {
-        if (activeBlacklistActionType === 'instant') {
-          await addDoc(collection(db, "blacklist"), {
-            name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime()
-          });
-          playRingTone();
-          showToast(`${activeBlacklistCustomer} is instantly blacklisted!`);
-        } else {
-          await addDoc(collection(db, "blacklist_reports"), {
-            customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name,
-            feedback: reason, timestamp: new Date().getTime()
-          });
-          playRingTone();
-          showToast("Blacklist report sent to Owner!");
-        }
-        cancelBlacklistPage();
-        backToDirectoryList();
+        if (activeBlacklistActionType === 'instant') { await addDoc(collection(db, "blacklist"), { name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime() }); playRingTone(); showToast(`${activeBlacklistCustomer} is instantly blacklisted!`); } 
+        else { await addDoc(collection(db, "blacklist_reports"), { customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name, feedback: reason, timestamp: new Date().getTime() }); playRingTone(); showToast("Blacklist report sent to Owner!"); }
+        cancelBlacklistPage(); backToDirectoryList();
       } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
     });
 
-    // --- CLICKABLE STAFF INFORMATION REVIEW POPUP ---
     window.viewStaffSubmissionDetails = async (staffDataJson) => {
       const s = JSON.parse(decodeURIComponent(staffDataJson));
-      const detailsHtml = `
-        <div style="text-align: center;">
-          <img src="${s.photoURL || 'https://via.placeholder.com/100'}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;">
-          <h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase;">${s.name}</h4>
-          <span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span>
-        </div>
-        <div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6;">
-          <p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p>
-          <p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p>
-          <p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p>
-          <p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p>
-        </div>
-      `;
+      const detailsHtml = `<div style="text-align: center;"><img src="${s.photoURL || 'https://via.placeholder.com/100'}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;"><h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase;">${s.name}</h4><span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span></div><div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6;"><p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p><p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p><p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p><p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p></div>`;
       await customPopup('alert', detailsHtml);
     };
 
     function startAdminListeners() {
       onSnapshot(collection(db, "users"), (snapshot) => {
-        let approvalHtml = "";
-        let activeHtml = "";
-
+        let approvalHtml = ""; let activeHtml = "";
         snapshot.forEach((userDoc) => {
-          const u = userDoc.data();
-          const uid = userDoc.id;
-          const encodedStaff = encodeURIComponent(JSON.stringify(u));
-
+          const u = userDoc.data(); const uid = userDoc.id; const encodedStaff = encodeURIComponent(JSON.stringify(u));
           if (!u.isApproved) {
-            approvalHtml += `
-              <div class="list-item" style="border-left-color: #ffc107;">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info">
-                  <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;">
-                  <div>
-                    <div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div>
-                    <div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div>
-                    <div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
-                  </div>
-                </div>
-                <button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve New Account</button>
-              </div>
-            `;
+            approvalHtml += `<div class="list-item" style="border-left-color: #ffc107;"><div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info"><img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;"><div><div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div><div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div><div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div></div></div><button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve New Account</button></div>`;
           } else if (u.pendingUpdates) {
-            const p = u.pendingUpdates;
-            const updateStaffObj = encodeURIComponent(JSON.stringify({ ...u, name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL || u.photoURL }));
-            
-            approvalHtml += `
-              <div class="list-item" style="border-left-color: #4285F4;">
-                <div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info">
-                  <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div>
-                  <div class="ticket-details" style="margin-bottom: 10px;">
-                    New Name: <strong>${p.name}</strong><br>
-                    New Country: <strong>${p.country}</strong><br>
-                    New ID: <strong>${p.idType}</strong> (${p.idNumber})
-                  </div>
-                </div>
-                <button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Profile Update</button>
-              </div>
-            `;
+            const p = u.pendingUpdates; const updateStaffObj = encodeURIComponent(JSON.stringify({ ...u, name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL || u.photoURL }));
+            approvalHtml += `<div class="list-item" style="border-left-color: #4285F4;"><div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info"><div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div><div class="ticket-details" style="margin-bottom: 10px;">New Name: <strong>${p.name}</strong><br>New Country: <strong>${p.country}</strong><br>New ID: <strong>${p.idType}</strong> (${p.idNumber})</div></div><button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Profile Update</button></div>`;
           }
-
           if (u.isApproved && u.role !== "owner") {
-            activeHtml += `
-              <div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info">
-                  <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;">
-                  <div>
-                    <strong style="color: var(--text-color);">${u.name}</strong> 👁️<br>
-                    <span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span>
-                  </div>
-                </div>
-                <button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button>
-              </div>
-            `;
+            activeHtml += `<div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;"><div><strong style="color: var(--text-color);">${u.name}</strong> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span></div></div><button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button></div>`;
           }
         });
-
         document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml;
         document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='opacity:0.6;'>No active staff found.</p>" : activeHtml;
       });
@@ -2257,46 +1533,23 @@
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => {
         let html = "";
         snapshot.forEach((rDoc) => {
-          const r = rDoc.data();
-          const dateStr = new Date(r.timestamp).toLocaleString();
-          html += `
-            <div class="list-item" style="border-left-color: #ff4444;">
-              <div class="ticket-title" style="color: #ff4444;">Customer: ${r.customerName}</div>
-              <div class="ticket-details">
-                Reported By: <strong>${r.reportedBy}</strong><br>
-                Feedback / Reason: <em>"${r.feedback}"</em><br>
-                Date: ${dateStr}
-              </div>
-              <button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="confirmBlacklistFromReport('${rDoc.id}', '${r.customerName}')">Confirm & Add to Blacklist</button>
-            </div>
-          `;
+          const r = rDoc.data(); const dateStr = new Date(r.timestamp).toLocaleString();
+          html += `<div class="list-item" style="border-left-color: #ff4444;"><div class="ticket-title" style="color: #ff4444;">Customer: ${r.customerName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy}</strong><br>Feedback / Reason: <em>"${r.feedback}"</em><br>Date: ${dateStr}</div><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="confirmBlacklistFromReport('${rDoc.id}', '${r.customerName}')">Confirm & Add to Blacklist</button></div>`;
         });
         document.getElementById('reportsList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No pending blacklist reports.</p>" : html;
       });
 
       document.getElementById('addServiceBtn').addEventListener('click', async () => {
-        const name = document.getElementById('newServiceName').value.trim();
-        const price = document.getElementById('newServicePrice').value;
+        const name = document.getElementById('newServiceName').value.trim(); const price = document.getElementById('newServicePrice').value;
         if (!name || !price) return await customPopup('alert', "Enter both name and price.");
-        await addDoc(collection(db, "services"), { name, price: Number(price) });
-        playRingTone();
-        document.getElementById('newServiceName').value = "";
-        document.getElementById('newServicePrice').value = "";
-        showToast("Service added successfully!");
+        await addDoc(collection(db, "services"), { name, price: Number(price) }); playRingTone(); document.getElementById('newServiceName').value = ""; document.getElementById('newServicePrice').value = ""; showToast("Service added successfully!");
       });
 
       onSnapshot(collection(db, "services"), (snapshot) => {
-        let html = "";
-        cachedServicesList = [];
+        let html = ""; cachedServicesList = [];
         snapshot.forEach((sDoc) => {
-          const s = sDoc.data();
-          cachedServicesList.push({ id: sDoc.id, ...s });
-          html += `
-            <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-              <span style="color: var(--text-color);">${s.name} - GHS ${s.price}</span>
-              <button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Delete</button>
-            </div>
-          `;
+          const s = sDoc.data(); cachedServicesList.push({ id: sDoc.id, ...s });
+          html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;"><span style="color: var(--text-color);">${s.name} - GHS ${s.price}</span><button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Delete</button></div>`;
         });
         document.getElementById('servicesList').innerHTML = html;
       });
@@ -2305,277 +1558,97 @@
         let html = "";
         snapshot.forEach((bDoc) => {
           const b = bDoc.data();
-          html += `
-            <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-left-color: #ff4444;">
-              <span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span>
-              <button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Unblock</button>
-            </div>
-          `;
+          html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-left-color: #ff4444;"><span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Unblock</button></div>`;
         });
         document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html;
       });
     }
 
-    window.approveUser = async (uid) => { 
-      const userRef = doc(db, "users", uid);
-      const snap = await getDoc(userRef);
-      const userName = snap.exists() ? (snap.data().name || "User") : "User";
-      await updateDoc(userRef, { isApproved: true }); 
-      playRingTone();
-      showToast(`${userName} approved successfully!`);
-    };
-
-    window.approveProfileUpdate = async (uid) => {
-      const userRef = doc(db, "users", uid);
-      const snap = await getDoc(userRef);
-      if (snap.exists() && snap.data().pendingUpdates) {
-        const p = snap.data().pendingUpdates;
-        const updatedName = p.name || snap.data().name || "User";
-        await updateDoc(userRef, {
-          name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null
-        });
-        playRingTone();
-        showToast(`Profile updates approved for ${updatedName}!`);
-      }
-    };
-
-    window.fireStaff = async (uid) => {
-      const userRef = doc(db, "users", uid);
-      const snap = await getDoc(userRef);
-      const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff";
-      if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) {
-        await deleteDoc(userRef);
-        playRingTone();
-        showToast(`${userName} removed from the shop.`);
-      }
-    };
-    
-    window.deleteService = async (sid) => { 
-      if (await customPopup('confirm', "Delete this service?")) {
-        await deleteDoc(doc(db, "services", sid)); 
-        playRingTone();
-      }
-    };
-    
-    window.removeBlacklist = async (bid) => { 
-      if (await customPopup('confirm', "Unblock this customer?")) {
-        await deleteDoc(doc(db, "blacklist", bid)); 
-        playRingTone();
-        showToast("Customer unblocked");
-      }
-    };
-
-    window.confirmBlacklistFromReport = async (reportId, customerName) => {
-      await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() });
-      await deleteDoc(doc(db, "blacklist_reports", reportId));
-      playRingTone();
-      showToast(`${customerName} added to blacklist!`);
-    };
+    window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); playRingTone(); showToast(`${userName} approved successfully!`); };
+    window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); playRingTone(); showToast(`Profile updates approved for ${updatedName}!`); } };
+    window.fireStaff = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) { await deleteDoc(userRef); playRingTone(); showToast(`${userName} removed from the shop.`); } };
+    window.deleteService = async (sid) => { if (await customPopup('confirm', "Delete this service?")) { await deleteDoc(doc(db, "services", sid)); playRingTone(); } };
+    window.removeBlacklist = async (bid) => { if (await customPopup('confirm', "Unblock this customer?")) { await deleteDoc(doc(db, "blacklist", bid)); playRingTone(); showToast("Customer unblocked"); } };
+    window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); playRingTone(); showToast(`${customerName} added to blacklist!`); };
 
     window.wipeShopHistory = async () => {
-      const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here");
-      if (c1 !== 'DELETE') return;
-
-      const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly.");
-      if (!c2) return;
-
-      try {
-        const ticketSnaps = await getDocs(collection(db, "daily_tickets"));
-        ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id)));
-        
-        const reportSnaps = await getDocs(collection(db, "blacklist_reports"));
-        reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id)));
-
-        playRingTone();
-        showToast("All customer data history wiped successfully.");
-      } catch(e) {
-        await customPopup('alert', "Error wiping data: " + e.message);
-      }
+      const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here"); if (c1 !== 'DELETE') return;
+      const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly."); if (!c2) return;
+      try { const ticketSnaps = await getDocs(collection(db, "daily_tickets")); ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id))); const reportSnaps = await getDocs(collection(db, "blacklist_reports")); reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id))); playRingTone(); showToast("All customer data history wiped successfully."); } 
+      catch(e) { await customPopup('alert', "Error wiping data: " + e.message); }
     };
 
     function populateIntakeForm() {
-      onSnapshot(collection(db, "services"), (snapshot) => {
-        cachedServicesList = [];
-        snapshot.forEach((sDoc) => { cachedServicesList.push(sDoc.data()); });
-      });
-
+      onSnapshot(collection(db, "services"), (snapshot) => { cachedServicesList = []; snapshot.forEach((sDoc) => { cachedServicesList.push(sDoc.data()); }); });
       const qBarbers = query(collection(db, "users"), where("role", "==", "barber"), where("isApproved", "==", true));
-      onSnapshot(qBarbers, (snapshot) => {
-        cachedBarbersList = [];
-        snapshot.forEach((bDoc) => {
-          const b = bDoc.data();
-          if (b.isAvailable === false) return; 
-          cachedBarbersList.push(b.name.split(' ')[0]);
-        });
-      });
+      onSnapshot(qBarbers, (snapshot) => { cachedBarbersList = []; snapshot.forEach((bDoc) => { const b = bDoc.data(); if (b.isAvailable === false) return; cachedBarbersList.push(b.name.split(' ')[0]); }); });
     }
 
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
       sendBtn.addEventListener('click', async () => {
-        const name = document.getElementById('custName').value.trim();
-        const phone = document.getElementById('custPhone').value.trim(); 
-        const serviceVal = selectedIntakeService; 
-        const barber = selectedIntakeBarber;
-
+        const name = document.getElementById('custName').value.trim(); const phone = document.getElementById('custPhone').value.trim(); const serviceVal = selectedIntakeService; const barber = selectedIntakeBarber;
         if (!name || !serviceVal || !barber) return await customPopup('alert', "Please fill out customer name, service type, and barber.");
-
-        if (activeBusyBarbers.has(barber.toLowerCase())) {
-          return await customPopup('alert', `⚠️ Barber ${barber} is currently busy with an active cut or pending review and cannot be assigned.`);
-        }
-
-        const blacklistSnap = await getDocs(collection(db, "blacklist"));
-        let isBanned = false;
-        blacklistSnap.forEach(bDoc => {
-          if (bDoc.data().name === name.toLowerCase()) { isBanned = true; }
-        });
-
+        if (activeBusyBarbers.has(barber.toLowerCase())) { return await customPopup('alert', `⚠️ Barber ${barber} is currently busy with an active cut or pending review and cannot be assigned.`); }
+        const blacklistSnap = await getDocs(collection(db, "blacklist")); let isBanned = false; blacklistSnap.forEach(bDoc => { if (bDoc.data().name === name.toLowerCase()) { isBanned = true; } });
         if (isBanned) return await customPopup('alert', "🚫 ACCESS DENIED: This customer is blacklisted!");
-
         const serviceData = serviceVal.split('|');
-
         try {
-          const querySnapshot = await getDocs(collection(db, "daily_tickets"));
-          const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
-
-          await addDoc(collection(db, "daily_tickets"), {
-            ticketNo: ticketNumber, customerName: name, customerPhone: phone || 'Not Provided',
-            serviceName: serviceData[0], price: Number(serviceData[1]),
-            assignedBarber: barber, status: "pending_acceptance", timestamp: new Date().getTime()
-          });
-          playRingTone();
-          document.getElementById('custName').value = ""; document.getElementById('custPhone').value = "";
-          document.getElementById('customerHistoryBox').style.display = "none";
-          selectedIntakeService = ""; document.getElementById('serviceTypeText').innerText = "Select Service...";
-          selectedIntakeBarber = ""; document.getElementById('barberNameText').innerText = "Select Barber...";
-          showToast("Ticket issued & sent for barber review!");
+          const querySnapshot = await getDocs(collection(db, "daily_tickets")); const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
+          await addDoc(collection(db, "daily_tickets"), { ticketNo: ticketNumber, customerName: name, customerPhone: phone || 'Not Provided', serviceName: serviceData[0], price: Number(serviceData[1]), assignedBarber: barber, status: "pending_acceptance", timestamp: new Date().getTime() });
+          playRingTone(); document.getElementById('custName').value = ""; document.getElementById('custPhone').value = ""; document.getElementById('customerHistoryBox').style.display = "none"; selectedIntakeService = ""; document.getElementById('serviceTypeText').innerText = "Select Service..."; selectedIntakeBarber = ""; document.getElementById('barberNameText').innerText = "Select Barber..."; showToast("Ticket issued & sent for barber review!");
         } catch (error) { await customPopup('alert', "Error saving: " + error.message); }
       });
     }
 
     window.openPaymentPage = (ticketId, custName, serviceName, price) => {
-      activePaymentTicketId = ticketId;
-      document.getElementById('payCustName').innerText = custName;
-      document.getElementById('payServiceName').innerText = serviceName;
-      document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2);
-      
-      document.getElementById('displayOwnerPayName').innerText = shopPaymentConfig.name;
-      document.getElementById('displayOwnerPayNum').innerText = shopPaymentConfig.number;
-
-      dashboard.style.display = "none";
-      document.getElementById('ownerRefBox').style.display = "none";
-      paymentPage.style.display = "block";
+      activePaymentTicketId = ticketId; document.getElementById('payCustName').innerText = custName; document.getElementById('payServiceName').innerText = serviceName; document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2);
+      document.getElementById('displayOwnerPayName').innerText = shopPaymentConfig.name; document.getElementById('displayOwnerPayNum').innerText = shopPaymentConfig.number;
+      dashboard.style.display = "none"; document.getElementById('ownerRefBox').style.display = "none"; paymentPage.style.display = "block";
     };
 
-    window.cancelPayment = () => {
-      paymentPage.style.display = "none";
-      dashboard.style.display = "block";
-      activePaymentTicketId = null;
-    };
+    window.cancelPayment = () => { paymentPage.style.display = "none"; dashboard.style.display = "block"; activePaymentTicketId = null; };
 
     window.processPayment = async (method) => {
       if (!activePaymentTicketId) return;
-
-      if (method === "MTN MoMo" || method === "Telecel Cash") {
-        document.getElementById('ownerRefBox').style.display = "block";
-        await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`);
-      }
-
-      try {
-        await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method });
-        playRingTone();
-        showToast(`Payment recorded as ${method}!`);
-        paymentPage.style.display = "none"; dashboard.style.display = "block";
-        activePaymentTicketId = null;
-      } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
+      if (method === "MTN MoMo" || method === "Telecel Cash") { document.getElementById('ownerRefBox').style.display = "block"; await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`); }
+      try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); playRingTone(); showToast(`Payment recorded as ${method}!`); paymentPage.style.display = "none"; dashboard.style.display = "block"; activePaymentTicketId = null; } 
+      catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
     };
 
     let queueInitialized = false;
     function startLiveQueue() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
-        let html = "";
-        let dailyDeniedHtml = "";
-        let activeQueueCount = 0;
-        let hasNewTicketOrChange = false;
-        
-        const now = new Date();
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added" && queueInitialized) {
-            hasNewTicketOrChange = true;
-          }
-        });
+        let html = ""; let dailyDeniedHtml = ""; let activeQueueCount = 0; let hasNewTicketOrChange = false;
+        const now = new Date(); const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        snapshot.docChanges().forEach((change) => { if (change.type === "added" && queueInitialized) { hasNewTicketOrChange = true; } });
 
         snapshot.forEach((docSnap) => {
-          const ticket = docSnap.data();
-          const ticketId = docSnap.id; 
+          const ticket = docSnap.data(); const ticketId = docSnap.id; 
           
           if (ticket.status === "denied" && ticket.timestamp >= startOfToday) {
             const timeStr = new Date(ticket.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             dailyDeniedHtml += `
               <div class="list-item" style="border-left-color: #ff4444; margin-bottom: 10px; padding: 12px;">
                 <div style="font-size: 14px; font-weight: bold; color: #ff4444;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div>
-                <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">
-                  Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>
-                  Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason'}"</em><br>
-                  <span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span>
-                </div>
+                <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason'}"</em><br><span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span></div>
               </div>
             `;
           }
 
-          if (ticket.status === "pending_acceptance" || ticket.status === "in_progress" || ticket.status === "completed") {
-            activeQueueCount++;
-          }
+          if (ticket.status === "pending_acceptance" || ticket.status === "in_progress" || ticket.status === "completed") { activeQueueCount++; }
 
           if (ticket.status !== "paid" && ticket.status !== "cancelled") {
-            let actionButton = "";
-            let statusColor = "#ffc107"; 
-
-            const isOwner = currentUserDoc && currentUserDoc.role === "owner";
-            const isSec = currentUserDoc && currentUserDoc.role === "secretary";
-            const isBarber = currentUserDoc && currentUserDoc.role === "barber";
-            const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : "";
-            const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
+            let actionButton = ""; let statusColor = "#ffc107"; 
+            const isOwner = currentUserDoc && currentUserDoc.role === "owner"; const isSec = currentUserDoc && currentUserDoc.role === "secretary"; const isBarber = currentUserDoc && currentUserDoc.role === "barber";
+            const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : ""; const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
 
             if (!isOwner) {
-              if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) {
-                 actionButton = `
-                   <div style="display: flex; gap: 8px;">
-                     <button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button>
-                     <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button>
-                   </div>
-                 `;
-              }
-              else if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) {
-                 actionButton = `
-                   <div style="display: flex; gap: 8px;">
-                     <button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>
-                   </div>
-                 `;
-              } 
-              else if (ticket.status === "completed" && isSec) {
-                 actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
-              }
-              else if (ticket.status === "pending_denial" && isSec) {
-                 statusColor = "#ff4444";
-                 actionButton = `
-                   <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
-                     <button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button>
-                     <button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button>
-                   </div>
-                 `;
-              }
-              else if (ticket.status === "denied" && isSec) {
-                 statusColor = "#ff4444";
-                 actionButton = `
-                   <div style="display: flex; gap: 8px;">
-                     <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button>
-                     <button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button>
-                   </div>
-                 `;
-              }
+              if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
+              else if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
+              else if (ticket.status === "completed" && isSec) { actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`; }
+              else if (ticket.status === "pending_denial" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"><button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button></div>`; }
+              else if (ticket.status === "denied" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button><button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button></div>`; }
             }
 
             const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== '';
@@ -2603,23 +1676,19 @@
           }
         });
 
-        if (hasNewTicketOrChange) playRingTone();
-        queueInitialized = true;
+        if (hasNewTicketOrChange) playRingTone(); queueInitialized = true;
         document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers in queue.</p>" : html;
         document.getElementById('queueCountBadge').innerText = `${activeQueueCount} Active`;
         
         const deniedListEl = document.getElementById('ownerDailyDeniedList');
-        if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") {
-          deniedListEl.innerHTML = dailyDeniedHtml === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No denied tickets recorded today.</p>" : dailyDeniedHtml;
-        }
+        if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") { deniedListEl.innerHTML = dailyDeniedHtml === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No denied tickets recorded today.</p>" : dailyDeniedHtml; }
       });
     }
 
     function startAnalyticsTracker(barberNameFilter = null) {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let todayVal = 0, todayCuts = 0, weekVal = 0, weekCuts = 0, monthVal = 0, monthCuts = 0;
-        let todayServiceMap = {};
-        let monthServiceMap = {};
+        let todayServiceMap = {}; let monthServiceMap = {};
         
         const now = new Date();
         const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -2629,64 +1698,36 @@
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
           if (ticket.status === "paid") {
-            if (barberNameFilter) {
-              const firstName = barberNameFilter.split(' ')[0].toLowerCase();
-              if (ticket.assignedBarber.toLowerCase() !== firstName) return;
-            }
+            if (barberNameFilter) { const firstName = barberNameFilter.split(' ')[0].toLowerCase(); if (ticket.assignedBarber.toLowerCase() !== firstName) return; }
 
-            const time = ticket.timestamp;
-            const sName = ticket.serviceName || "General Service";
-            const sPrice = Number(ticket.price) || 0;
+            const time = ticket.timestamp; const sName = ticket.serviceName || "General Service"; const sPrice = Number(ticket.price) || 0;
 
             if (time >= startOfToday) { 
-              todayVal += sPrice; 
-              todayCuts++; 
+              todayVal += sPrice; todayCuts++; 
               if(!todayServiceMap[sName]) todayServiceMap[sName] = { count: 0, total: 0 };
-              todayServiceMap[sName].count++;
-              todayServiceMap[sName].total += sPrice;
+              todayServiceMap[sName].count++; todayServiceMap[sName].total += sPrice;
             }
             if (time >= startOfWeek) { weekVal += sPrice; weekCuts++; }
             if (time >= startOfMonth) { 
-              monthVal += sPrice; 
-              monthCuts++; 
+              monthVal += sPrice; monthCuts++; 
               if(!monthServiceMap[sName]) monthServiceMap[sName] = { count: 0, total: 0 };
-              monthServiceMap[sName].count++;
-              monthServiceMap[sName].total += sPrice;
+              monthServiceMap[sName].count++; monthServiceMap[sName].total += sPrice;
             }
           }
         });
 
-        document.getElementById('todayRev').innerText = todayVal.toFixed(2);
-        document.getElementById('todayCuts').innerText = todayCuts;
-        document.getElementById('weekRev').innerText = weekVal.toFixed(2);
-        document.getElementById('weekCuts').innerText = weekCuts;
-        document.getElementById('monthRev').innerText = monthVal.toFixed(2);
-        document.getElementById('monthCuts').innerText = monthCuts;
+        document.getElementById('todayRev').innerText = todayVal.toFixed(2); document.getElementById('todayCuts').innerText = todayCuts;
+        document.getElementById('weekRev').innerText = weekVal.toFixed(2); document.getElementById('weekCuts').innerText = weekCuts;
+        document.getElementById('monthRev').innerText = monthVal.toFixed(2); document.getElementById('monthCuts').innerText = monthCuts;
 
-        // Render Today Service Breakdown
-        let todayBreakdownHtml = "";
-        const todayKeys = Object.keys(todayServiceMap);
-        if(todayKeys.length === 0) {
-          todayBreakdownHtml = "<p style='opacity: 0.6; font-style: italic; font-size: 12px; margin: 5px 0;'>No paid sales today.</p>";
-        } else {
-          todayKeys.forEach(k => {
-            const data = todayServiceMap[k];
-            todayBreakdownHtml += `<div class="breakdown-row"><span>${k} (${data.count} cut${data.count > 1 ? 's' : ''})</span><strong>GHS ${data.total.toFixed(2)}</strong></div>`;
-          });
-        }
+        let todayBreakdownHtml = ""; const todayKeys = Object.keys(todayServiceMap);
+        if(todayKeys.length === 0) { todayBreakdownHtml = "<p style='opacity: 0.6; font-style: italic; font-size: 12px; margin: 5px 0;'>No paid sales today.</p>"; } 
+        else { todayKeys.sort((a,b) => todayServiceMap[b].total - todayServiceMap[a].total); todayKeys.forEach(k => { const data = todayServiceMap[k]; todayBreakdownHtml += `<div class="breakdown-row"><span>${k} (${data.count} cut${data.count > 1 ? 's' : ''})</span><strong style="color:var(--text-color);">GHS ${data.total.toFixed(2)}</strong></div>`; }); }
         document.getElementById('todayServiceBreakdownList').innerHTML = todayBreakdownHtml;
 
-        // Render Month Service Breakdown
-        let monthBreakdownHtml = "";
-        const monthKeys = Object.keys(monthServiceMap);
-        if(monthKeys.length === 0) {
-          monthBreakdownHtml = "<p style='opacity: 0.6; font-style: italic; font-size: 12px; margin: 5px 0;'>No paid sales this month.</p>";
-        } else {
-          monthKeys.forEach(k => {
-            const data = monthServiceMap[k];
-            monthBreakdownHtml += `<div class="breakdown-row"><span>${k} (${data.count} cut${data.count > 1 ? 's' : ''})</span><strong>GHS ${data.total.toFixed(2)}</strong></div>`;
-          });
-        }
+        let monthBreakdownHtml = ""; const monthKeys = Object.keys(monthServiceMap);
+        if(monthKeys.length === 0) { monthBreakdownHtml = "<p style='opacity: 0.6; font-style: italic; font-size: 12px; margin: 5px 0;'>No paid sales this month.</p>"; } 
+        else { monthKeys.sort((a,b) => monthServiceMap[b].total - monthServiceMap[a].total); monthKeys.forEach(k => { const data = monthServiceMap[k]; monthBreakdownHtml += `<div class="breakdown-row"><span>${k} (${data.count} cut${data.count > 1 ? 's' : ''})</span><strong style="color:var(--text-color);">GHS ${data.total.toFixed(2)}</strong></div>`; }); }
         document.getElementById('monthServiceBreakdownList').innerHTML = monthBreakdownHtml;
       });
     }
