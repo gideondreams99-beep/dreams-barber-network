@@ -84,7 +84,10 @@
       margin-bottom: 5px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.2s ease;
     }
+    img:hover { transform: scale(1.05); }
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
@@ -298,6 +301,7 @@
   <div id="customModalOverlay">
     <div id="customModalBox">
       <h3 id="customModalTitle">Notice</h3>
+      <img id="modalImagePreview" src="" style="width: 100%; max-height: 280px; object-fit: contain; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--accent-gold); display: none;">
       <p id="customModalMessage">Message</p>
       <input type="text" id="customModalInput" autocomplete="off">
       <div id="customDropdownList"></div>
@@ -560,7 +564,7 @@
 
   <!-- MAIN DASHBOARD -->
   <div id="dashboard">
-    <img id="userPic" src="" alt="Profile Picture">
+    <img id="userPic" src="" alt="Profile Picture" title="Tap to view profile picture">
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
 
@@ -711,6 +715,17 @@
         const welcomeInstallBtn = document.getElementById('welcomeInstallBtn');
         if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none';
       }
+
+      // PROFILE PICTURE CLICK TO PREVIEW
+      const userPicImg = document.getElementById('userPic');
+      if (userPicImg) {
+        userPicImg.addEventListener('click', () => {
+          const src = userPicImg.src;
+          if (src) {
+            openImagePreviewModal(src);
+          }
+        });
+      }
     });
 
     // --- ENHANCED CROSS-PLATFORM BUILT-IN INSTALLATION ASSISTANT ---
@@ -783,6 +798,7 @@
       return new Promise((resolve) => {
         const overlay = document.getElementById('customModalOverlay');
         const title = document.getElementById('customModalTitle');
+        const imgPreview = document.getElementById('modalImagePreview');
         const msg = document.getElementById('customModalMessage');
         const input = document.getElementById('customModalInput');
         const dropdownList = document.getElementById('customDropdownList');
@@ -793,10 +809,12 @@
 
         input.value = "";
         input.style.display = "none";
+        imgPreview.style.display = "none";
         dropdownList.style.display = "none";
         backBtn.style.display = "none";
         cancelBtn.style.display = "block";
         buttonContainer.style.display = "flex";
+        msg.style.display = "block";
         msg.innerHTML = message;
         
         if (type === 'alert') {
@@ -842,6 +860,44 @@
       });
     };
 
+    window.openImagePreviewModal = (imgSrc) => {
+      const overlay = document.getElementById('customModalOverlay');
+      const title = document.getElementById('customModalTitle');
+      const imgPreview = document.getElementById('modalImagePreview');
+      const msg = document.getElementById('customModalMessage');
+      const input = document.getElementById('customModalInput');
+      const dropdownList = document.getElementById('customDropdownList');
+      const backBtn = document.getElementById('customPickerBackBtn');
+      const cancelBtn = document.getElementById('customModalCancel');
+      const confirmBtn = document.getElementById('customModalConfirm');
+      const buttonContainer = document.getElementById('customModalButtons');
+
+      title.innerText = "Profile Picture Preview";
+      title.style.color = "var(--accent-gold)";
+      imgPreview.src = imgSrc;
+      imgPreview.style.display = "block";
+      msg.style.display = "none";
+      input.style.display = "none";
+      dropdownList.style.display = "none";
+      backBtn.style.display = "none";
+      cancelBtn.style.display = "none";
+      buttonContainer.style.display = "flex";
+      confirmBtn.innerText = "Close";
+      confirmBtn.style.background = "linear-gradient(145deg, #333, #111)";
+      confirmBtn.style.borderColor = "var(--accent-gold)";
+      confirmBtn.style.color = "var(--accent-gold)";
+
+      overlay.classList.add('show');
+
+      const handleClose = () => {
+        overlay.classList.remove('show');
+        imgPreview.style.display = "none";
+        msg.style.display = "block";
+        confirmBtn.removeEventListener('click', handleClose);
+      };
+      confirmBtn.addEventListener('click', handleClose, { once: true });
+    };
+
     window.closePickerModal = () => {
       document.getElementById('customModalOverlay').classList.remove('show');
     };
@@ -849,6 +905,7 @@
     window.openPickerModal = async (pickerType) => {
       const overlay = document.getElementById('customModalOverlay');
       const title = document.getElementById('customModalTitle');
+      const imgPreview = document.getElementById('modalImagePreview');
       const msg = document.getElementById('customModalMessage');
       const input = document.getElementById('customModalInput');
       const dropdownList = document.getElementById('customDropdownList');
@@ -856,7 +913,9 @@
       const buttonContainer = document.getElementById('customModalButtons');
 
       input.style.display = "none";
+      imgPreview.style.display = "none";
       buttonContainer.style.display = "none";
+      msg.style.display = "block";
       msg.innerHTML = "";
       dropdownList.style.display = "block";
       backBtn.style.display = "block";
