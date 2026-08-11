@@ -5,57 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SJ'S SALOON</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#121212">
+  <meta name="theme-color" content="#d4af37">
   <style>
-    /* SYSTEM DEFAULT THEME (AUTOMATIC LIGHT & DARK MODE SUPPORT) */
-    :root {
-      color-scheme: light dark;
-      --bg-color: #121212;
-      --text-color: #e0e0e0;
-      --panel-bg: linear-gradient(145deg, #222, #181818);
-      --panel-border: #333;
-      --card-bg: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-      --input-bg: #111;
-      --input-text: #ffffff;
-      --input-border: #444;
-      --accent-gold: #d4af37;
-    }
-
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg-color: #f4f4f6;
-        --text-color: #1c1c1e;
-        --panel-bg: linear-gradient(145deg, #ffffff, #eaeaea);
-        --panel-border: #d1d1d6;
-        --card-bg: linear-gradient(145deg, #ffffff, #f9f9f9);
-        --input-bg: #ffffff;
-        --input-text: #000000;
-        --input-border: #c7c7cc;
-        --accent-gold: #b89728;
-      }
-    }
-
+    /* PREMIUM DARK METALLIC THEME */
     body { 
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-      background: var(--bg-color); 
-      color: var(--text-color); 
+      background: #121212; 
+      color: #e0e0e0; 
       text-align: center; 
       padding: 15px; 
       margin: 0;
       min-height: 100vh;
       overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s ease, color 0.3s ease;
     }
 
     h1 {
       letter-spacing: 3px;
       text-transform: uppercase;
-      color: var(--accent-gold);
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+      color: #d4af37;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
       margin-top: 10px;
     }
 
@@ -64,15 +32,15 @@
       font-size: 15px; 
       font-weight: bold;
       background: linear-gradient(145deg, #333, #111);
-      color: var(--accent-gold); 
+      color: #d4af37; 
       border: 1px solid #555; 
       border-radius: 8px; 
       cursor: pointer;
-      box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+      box-shadow: 3px 3px 8px rgba(0,0,0,0.6);
       text-transform: uppercase;
       letter-spacing: 1px;
     }
-    button:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5); }
+    button:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8); }
     
     #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
 
@@ -80,82 +48,68 @@
       border-radius: 50%; 
       width: 90px; 
       height: 90px; 
-      border: 2px solid var(--accent-gold);
+      border: 2px solid #d4af37;
       margin-bottom: 5px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.8);
       object-fit: cover;
     }
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage { display: none; margin-top: 15px; width: 100%; max-width: 480px; text-align: left; }
-    #dashboard { text-align: center; }
-
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage { display: none; margin-top: 15px; }
+    
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
-      background: var(--panel-bg);
+      background: linear-gradient(145deg, #2a2a2a, #111);
       display: inline-block;
       padding: 6px 18px;
       border-radius: 20px;
       margin-top: 8px;
-      color: var(--accent-gold);
+      color: #d4af37;
       font-weight: bold;
       font-size: 12px;
       letter-spacing: 1px;
-      border: 1px solid var(--panel-border);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+      border: 1px solid #444;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
     }
     
     /* PANELS */
     .panel {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
+      background: linear-gradient(145deg, #222, #181818);
+      border: 1px solid #333;
       border-radius: 12px;
       padding: 20px;
       margin-top: 25px;
       text-align: left;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-      width: 100%;
-      box-sizing: border-box;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
     }
     .panel h3 { 
-      margin-top: 0; color: var(--accent-gold); text-align: center; 
-      border-bottom: 1px solid var(--panel-border); padding-bottom: 12px;
+      margin-top: 0; color: #d4af37; text-align: center; 
+      border-bottom: 1px solid #333; padding-bottom: 12px;
       text-transform: uppercase; letter-spacing: 2px; font-size: 16px;
     }
 
-    label { font-size: 14px; opacity: 0.8; margin-bottom: 5px; display: block; }
-    input, textarea {
+    label { font-size: 14px; color: #aaa; margin-bottom: 5px; display: block; }
+    input, select, textarea {
       width: 100%; padding: 14px; margin-bottom: 20px;
-      background-color: var(--input-bg); color: var(--input-text);
-      border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; font-size: 16px;
+      background-color: #111; color: white;
+      border: 1px solid #444; border-radius: 8px; box-sizing: border-box; font-size: 16px;
       font-family: inherit;
     }
-    input:focus, textarea:focus { outline: none; border-color: var(--accent-gold); }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #d4af37; }
     
-    /* CUSTOM SELECTOR DROPDOWN BUTTONS */
-    .custom-select-box {
-      width: 100%; padding: 14px; margin-bottom: 20px;
-      background-color: var(--input-bg); color: var(--input-text);
-      border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; font-size: 16px;
-      font-family: inherit; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-    }
-    .custom-select-box:hover { border-color: var(--accent-gold); }
-
     .btn-submit { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%; }
     
     /* TICKETS & LISTS */
     .ticket, .list-item {
-      background: var(--panel-bg);
+      background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
       padding: 16px; border-radius: 10px; margin-bottom: 15px;
-      border-left: 4px solid var(--accent-gold); box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      border: 1px solid var(--panel-border);
-      border-left-width: 4px;
+      border-left: 4px solid #d4af37; box-shadow: 0 4px 8px rgba(0,0,0,0.4);
     }
     .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .ticket-number { font-size: 16px; font-weight: bold; color: var(--accent-gold); background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--panel-border); }
-    .ticket-title { font-size: 16px; font-weight: bold; color: var(--text-color); text-transform: uppercase; letter-spacing: 1px; }
-    .ticket-details { font-size: 14px; opacity: 0.8; margin-bottom: 12px; line-height: 1.4; }
+    .ticket-number { font-size: 16px; font-weight: bold; color: #d4af37; background: #111; padding: 4px 10px; border-radius: 6px; border: 1px solid #444; }
+    .ticket-title { font-size: 16px; font-weight: bold; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+    .ticket-details { font-size: 14px; color: #aaa; margin-bottom: 12px; line-height: 1.4; }
     
     .status-badge {
       font-size: 11px; padding: 5px 10px; border-radius: 12px;
@@ -164,7 +118,7 @@
     }
     
     .btn-action { width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
-    .btn-finish { background: linear-gradient(145deg, #555, #333); color: #fff; border-color: #666; }
+    .btn-finish { background: linear-gradient(145deg, #444, #222); color: #fff; border-color: #666; }
     .btn-pay { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
 
     /* OWNER ADMIN & ANALYTICS */
@@ -175,24 +129,24 @@
     
     .stats-grid { display: flex; justify-content: space-between; gap: 8px; }
     .stat-box { 
-      flex: 1; background: rgba(0,0,0,0.1); padding: 12px 5px; 
+      flex: 1; background: rgba(0,0,0,0.4); padding: 12px 5px; 
       border-radius: 8px; text-align: center; border: 1px solid #145523; 
     }
-    .stat-box p { opacity: 0.7; font-size: 11px; text-transform: uppercase; margin: 0 0 5px 0; }
+    .stat-box p { color: #888; font-size: 11px; text-transform: uppercase; margin: 0 0 5px 0; }
     .stat-box .money { margin: 0; color: #28a745; font-size: 15px; font-weight: bold; }
-    .stat-box .cuts { margin: 5px 0 0 0; opacity: 0.8; font-size: 12px; }
+    .stat-box .cuts { margin: 5px 0 0 0; color: #bbb; font-size: 12px; }
 
     .flex-row { display: flex; gap: 10px; margin-bottom: 15px; }
     .flex-row input { margin-bottom: 0; }
     
     #customerHistoryBox {
-      background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px;
-      padding: 10px; margin-bottom: 15px; font-size: 13px; opacity: 0.9;
+      background: #111; border: 1px solid #444; border-radius: 8px;
+      padding: 10px; margin-bottom: 15px; font-size: 13px; color: #aaa;
       max-height: 120px; overflow-y: auto; text-align: left;
     }
     
     .clickable-customer { cursor: pointer; transition: 0.2s; }
-    .clickable-customer:hover { border-left-color: #28a745; opacity: 1; }
+    .clickable-customer:hover { border-left-color: #28a745; background: #222; }
 
     .pay-btn {
       width: 100%; padding: 15px; margin-bottom: 12px; font-size: 16px; font-weight: bold;
@@ -201,6 +155,7 @@
     .pay-cash { background: #28a745; color: white; border-color: #28a745; }
     .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
     .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
+    .pay-card { background: #4285F4; color: white; border-color: #4285F4; }
 
     /* EYE-CATCHING CONFIRMATION TOAST */
     #toastNotification {
@@ -208,94 +163,46 @@
       transform: translateX(-50%) translateY(-120px);
       background: linear-gradient(145deg, #113518, #07190a); color: #28a745;
       border: 2px solid #28a745; padding: 14px 28px; border-radius: 35px;
-      font-weight: bold; font-size: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      font-weight: bold; font-size: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.9);
       z-index: 99999; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       display: flex; align-items: center; gap: 12px; letter-spacing: 1px; text-transform: uppercase;
     }
     #toastNotification.show { transform: translateX(-50%) translateY(0); }
 
-    /* CUSTOM POPUP MODAL & DROPDOWN PICKER */
+    /* CUSTOM POPUP MODAL */
     #customModalOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.75); backdrop-filter: blur(5px);
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
       z-index: 100000; display: none; align-items: center; justify-content: center;
       opacity: 0; transition: opacity 0.3s ease;
     }
     #customModalOverlay.show { display: flex; opacity: 1; }
     #customModalBox {
-      background: var(--panel-bg);
-      border: 1px solid var(--accent-gold); border-radius: 16px;
+      background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+      border: 1px solid #d4af37; border-radius: 16px;
       padding: 25px; width: 85%; max-width: 380px;
-      text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.9);
       transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     #customModalOverlay.show #customModalBox { transform: scale(1); }
-    #customModalTitle { margin-top: 0; color: var(--accent-gold); letter-spacing: 1px; font-size: 18px; text-transform: uppercase; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 15px; }
-    #customModalMessage { opacity: 0.9; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; }
+    #customModalTitle { margin-top: 0; color: #d4af37; letter-spacing: 1px; font-size: 18px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 15px; }
+    #customModalMessage { color: #ccc; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; }
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
-
-    /* RADIO OPTION LIST FOR CUSTOM DROPDOWN PICKER */
-    #customDropdownList { display: none; max-height: 240px; overflow-y: auto; text-align: left; margin-bottom: 15px; }
-    .dropdown-option-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 15px; border-bottom: 1px solid var(--panel-border); cursor: pointer; font-size: 15px;
-    }
-    .dropdown-option-item:hover { background: rgba(212, 175, 55, 0.1); color: var(--accent-gold); }
-    .radio-circle {
-      width: 18px; height: 18px; border: 2px solid #888; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .dropdown-option-item.selected .radio-circle { border-color: var(--accent-gold); background: var(--accent-gold); }
-    .dropdown-option-item.selected .radio-circle::after {
-      content: ''; width: 8px; height: 8px; background: #111; border-radius: 50%;
-    }
-
-    /* JUMPING ANIMATED LOGIN SCREEN CENTERED */
-    @keyframes jumpBounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-    .jumping-logo-container {
-      display: inline-block;
-      animation: jumpBounce 2s infinite ease-in-out;
-      margin-bottom: 15px;
-    }
-    .login-welcome-box {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border); border-radius: 16px;
-      padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      width: 100%;
-      max-width: 400px;
-      box-sizing: border-box;
-    }
   </style>
 </head>
 <body>
 
-  <!-- JUMPING ANIMATED LOGIN SCREEN CENTERED -->
-  <div id="loginWelcomeView" class="login-welcome-box">
-    <div class="jumping-logo-container">
-      <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px;">SJ'S SALOON</h1>
-    </div>
-    <p style="opacity: 0.8; font-size: 15px; margin-bottom: 25px; line-height: 1.5;">Welcome to the premier digital workstation for professional barbering and front-desk management.</p>
-    <button id="loginBtn" style="width: 100%; padding: 16px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 12px;">
-      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.25 3.36-7.27 7.72-7.27c2.14 0 4.05.74 5.55 2.14l2.05-2.05C18.75 3.1 15.89 2 12.72 2C6.8 2 2 6.8 2 12.72s4.8 10.72 10.72 10.72c6.2 0 10.3-4.36 10.3-10.48c0-.72-.08-1.42-.19-2.06z"/></svg>
-      Sign in with Google
-    </button>
-  </div>
+  <h1>SJ'S SALOON</h1>
+  <p id="statusText" style="color: #888;">Please log in to continue.</p>
+  <button id="loginBtn">Sign in with Google</button>
 
-  <h1 id="mainAppTitle" style="display: none;">SJ'S SALOON</h1>
-  <p id="statusText" style="opacity: 0.7; display: none;">Please log in to continue.</p>
-
-  <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML -->
+  <!-- CUSTOM MODAL POPUP HTML -->
   <div id="customModalOverlay">
     <div id="customModalBox">
       <h3 id="customModalTitle">Notice</h3>
       <p id="customModalMessage">Message</p>
       <input type="text" id="customModalInput" autocomplete="off">
-      <div id="customDropdownList"></div>
-      <button id="customPickerBackBtn" onclick="closePickerModal()" style="display: none; width: 100%; margin-top: 10px; background: #444; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 8px; font-size: 14px;">⬅ Back</button>
-      <div id="customModalButtons" style="display: flex; gap: 10px; margin-top: 25px;">
+      <div style="display: flex; gap: 10px; margin-top: 25px;">
         <button id="customModalCancel" style="flex: 1; background: #333; border: 1px solid #555; color: white;">Cancel</button>
         <button id="customModalConfirm" style="flex: 1;" class="btn-submit">OK</button>
       </div>
@@ -305,76 +212,96 @@
   <!-- SETUP PROFILE VIEW -->
   <div id="setupView" class="panel">
     <h3>Complete Your Profile & ID Verification</h3>
-    <p style="opacity: 0.8; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your details, select your role and country, and enter a valid government-issued ID for identity verification.</p>
+    <p style="color: #aaa; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your details, select your country, and enter a valid government-issued ID for identity verification.</p>
     
     <label>Select Your Role</label>
-    <div id="setupRoleSelectBtn" class="custom-select-box" onclick="openPickerModal('role')">
-      <span id="setupRoleText">Barber</span>
-      <span style="color: var(--accent-gold);">▼</span>
-    </div>
+    <select id="setupRole">
+      <option value="barber">Barber</option>
+      <option value="secretary">Secretary</option>
+      <option value="owner">Shop Owner</option>
+    </select>
 
     <label>Full Display Name</label>
     <input type="text" id="setupDisplayName" placeholder="Enter full name...">
 
     <label>Select Country</label>
-    <div id="setupCountrySelectBtn" class="custom-select-box" onclick="openPickerModal('country')">
-      <span id="setupCountryText">Select Country...</span>
-      <span style="color: var(--accent-gold);">▼</span>
-    </div>
+    <select id="setupCountry">
+      <option value="">Select Country...</option>
+      <option value="Ghana">Ghana</option>
+      <option value="Nigeria">Nigeria</option>
+      <option value="United States">United States</option>
+      <option value="United Kingdom">United Kingdom</option>
+      <option value="Canada">Canada</option>
+      <option value="South Africa">South Africa</option>
+      <option value="Kenya">Kenya</option>
+      <option value="Germany">Germany</option>
+      <option value="France">France</option>
+      <option value="Australia">Australia</option>
+      <option value="India">India</option>
+      <option value="Other">Other Country</option>
+    </select>
 
-    <!-- ID VERIFICATION SECTION (Hidden if Shop Owner is selected) -->
-    <div id="idVerificationContainer">
-      <label>Government ID Type</label>
-      <div id="setupIdTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('idType')">
-        <span id="setupIdTypeText">Select ID Type...</span>
-        <span style="color: var(--accent-gold);">▼</span>
-      </div>
+    <label>Government ID Type</label>
+    <select id="setupIdType">
+      <option value="">Select ID Type...</option>
+      <option value="National ID / Ghana Card">National ID / Citizen Card</option>
+      <option value="Passport">International Passport</option>
+      <option value="Drivers License">Driver's License</option>
+      <option value="Voters ID">Voter's ID / Electoral Card</option>
+    </select>
 
-      <label>Government ID Number / Details</label>
-      <input type="text" id="setupIdNumber" placeholder="Enter ID number...">
-    </div>
+    <label>Government ID Number / Details</label>
+    <input type="text" id="setupIdNumber" placeholder="Enter ID number (e.g. GHA-000000000-0)">
 
     <label>Upload Profile Picture (Optional)</label>
     <input type="file" id="setupPhoto" accept="image/*">
 
     <button id="saveProfileBtn" class="btn-submit">Submit Profile & ID for Approval</button>
-    <button id="setupLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 15px;">Log Out</button>
   </div>
 
   <!-- PENDING APPROVAL VIEW -->
   <div id="pendingView" class="panel" style="text-align: center;">
     <h3 style="color: #ffc107;">Profile Pending Approval</h3>
-    <p style="opacity: 0.9;">Your profile and government ID credentials have been submitted.</p>
-    <p style="opacity: 0.8; font-size: 14px;">Please wait for the Shop Owner to verify your ID and approve your account.</p>
+    <p style="color: #ccc;">Your profile and government ID credentials have been submitted.</p>
+    <p style="color: #aaa; font-size: 14px;">Please wait for the Shop Owner to verify your ID and approve your account.</p>
     <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
   </div>
 
   <!-- EDIT PROFILE VIEW -->
   <div id="editProfileView" class="panel" style="border-color: #4285F4;">
     <button onclick="cancelEditProfile()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
-    <h3 style="color: #4285F4;" id="editProfileTitle">Edit My Profile & ID Credentials</h3>
-    <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;" id="editProfileSubtitle">Owners update instantly. Staff updates require owner approval.</p>
+    <h3 style="color: #4285F4;">Edit My Profile & ID Credentials</h3>
+    <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">Owners update instantly. Staff updates require owner approval.</p>
 
     <label>Full Display Name</label>
     <input type="text" id="editDisplayName">
 
     <label>Select Country</label>
-    <div id="editCountrySelectBtn" class="custom-select-box" onclick="openPickerModal('editCountry')">
-      <span id="editCountryText">Ghana</span>
-      <span style="color: var(--accent-gold);">▼</span>
-    </div>
+    <select id="editCountry">
+      <option value="Ghana">Ghana</option>
+      <option value="Nigeria">Nigeria</option>
+      <option value="United States">United States</option>
+      <option value="United Kingdom">United Kingdom</option>
+      <option value="Canada">Canada</option>
+      <option value="South Africa">South Africa</option>
+      <option value="Kenya">Kenya</option>
+      <option value="Germany">Germany</option>
+      <option value="France">France</option>
+      <option value="Australia">Australia</option>
+      <option value="India">India</option>
+      <option value="Other">Other Country</option>
+    </select>
 
-    <!-- Staff-Only ID Edit Section -->
-    <div id="editIdVerificationContainer">
-      <label>Government ID Type</label>
-      <div id="editIdTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('editIdType')">
-        <span id="editIdTypeText">National ID / Ghana Card</span>
-        <span style="color: var(--accent-gold);">▼</span>
-      </div>
+    <label>Government ID Type</label>
+    <select id="editIdType">
+      <option value="National ID / Ghana Card">National ID / Citizen Card</option>
+      <option value="Passport">International Passport</option>
+      <option value="Drivers License">Driver's License</option>
+      <option value="Voters ID">Voter's ID / Electoral Card</option>
+    </select>
 
-      <label>Government ID Number / Details</label>
-      <input type="text" id="editIdNumber">
-    </div>
+    <label>Government ID Number / Details</label>
+    <input type="text" id="editIdNumber">
 
     <label>Upload New Profile Picture (Optional)</label>
     <input type="file" id="editPhoto" accept="image/*">
@@ -387,11 +314,11 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #4285F4;">Staff Management</h3>
     
-    <h4 style="margin-top: 0;">Pending Staff Approvals & Updates</h4>
+    <h4 style="color: #fff; margin-top: 0;">Pending Staff Approvals & Updates</h4>
     <div id="approvalList"></div>
 
-    <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Active Staff Management</h4>
-    <p style="opacity: 0.8; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
+    <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Staff Management</h4>
+    <p style="color: #aaa; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
     <div id="activeStaffList"></div>
   </div>
 
@@ -400,14 +327,14 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #4285F4;">Services & Prices</h3>
 
-    <h4 style="margin-top: 0;">Add New Service</h4>
+    <h4 style="color: #fff; margin-top: 0;">Add New Service</h4>
     <div class="flex-row">
       <input type="text" id="newServiceName" placeholder="Service (e.g. Dye)">
       <input type="number" id="newServicePrice" placeholder="Price (GHS)">
     </div>
     <button id="addServiceBtn" style="background: #4285F4; border-color: #4285F4; width: 100%; margin-bottom: 20px;">Add Service</button>
     
-    <h4 style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Existing Services</h4>
+    <h4 style="color: #fff; margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">Existing Services</h4>
     <div id="servicesList"></div>
   </div>
 
@@ -416,21 +343,21 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #ff4444;">Customer Blacklist Management</h3>
 
-    <h4 style="margin-top: 0;">Pending Blacklist Reports</h4>
+    <h4 style="color: #fff; margin-top: 0;">Pending Blacklist Reports</h4>
     <div id="reportsList"></div>
 
-    <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Active Customer Blacklist</h4>
+    <h4 style="color: #fff; margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">Active Customer Blacklist</h4>
     <div id="blacklistList"></div>
   </div>
 
   <!-- DEDICATED TEAM CHAT PAGE -->
-  <div id="chatPage" class="panel" style="border-color: var(--accent-gold);">
+  <div id="chatPage" class="panel" style="border-color: #d4af37;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-    <h3 style="color: var(--accent-gold);">💬 Shop Team Chat Room</h3>
-    <p style="opacity: 0.8; font-size: 13px; text-align: center; margin-bottom: 15px;">Real-time messaging between Owners, Barbers, and Secretaries.</p>
+    <h3 style="color: #d4af37;">💬 Shop Team Chat Room</h3>
+    <p style="color: #aaa; font-size: 13px; text-align: center; margin-bottom: 15px;">Real-time messaging between Owners, Barbers, and Secretaries.</p>
 
-    <div id="chatMessagesBox" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 15px; height: 300px; overflow-y: auto; margin-bottom: 15px; text-align: left;">
-      <p style="opacity: 0.6; text-align: center; font-style: italic;">Loading chat messages...</p>
+    <div id="chatMessagesBox" style="background: #111; border: 1px solid #444; border-radius: 8px; padding: 15px; height: 300px; overflow-y: auto; margin-bottom: 15px; text-align: left;">
+      <p style="color: #666; text-align: center; font-style: italic;">Loading chat messages...</p>
     </div>
 
     <div class="flex-row">
@@ -444,51 +371,37 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #ffc107;">📢 Announcements & Instructions</h3>
     
-    <div id="ownerAnnouncementCreator" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ffc107; margin-bottom: 20px;">
+    <div id="ownerAnnouncementCreator" style="display: none; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #ffc107; margin-bottom: 20px;">
       <h4 style="color: #ffc107; margin-top: 0;">Publish Announcement (Owner Only)</h4>
       <textarea id="announcementText" rows="3" placeholder="Enter instructions or announcements for staff..."></textarea>
       <button id="publishAnnouncementBtn" class="btn-submit" style="background: #ffc107; color: #111; border-color: #ffc107; font-weight: bold;">Post Announcement</button>
     </div>
 
     <div id="announcementsListContainer">
-      <p style="opacity: 0.6; font-style: italic;">Loading announcements...</p>
+      <p style="color: #666; font-style: italic;">Loading announcements...</p>
     </div>
   </div>
 
   <!-- UNIVERSAL SETTINGS PAGE -->
-  <div id="settingsPage" class="panel" style="border-color: var(--accent-gold);">
+  <div id="settingsPage" class="panel" style="border-color: #d4af37;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-    <h3 style="color: var(--accent-gold);">Settings & Controls</h3>
+    <h3 style="color: #d4af37;">Settings & Controls</h3>
 
-    <!-- OWNER PAYMENT SETTINGS SECTION -->
-    <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
-      <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment Details (MoMo / Telecel)</h4>
-      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name and number so staff can display it during mobile money checkouts.</p>
-      
-      <label>MoMo / Merchant Account Name</label>
-      <input type="text" id="ownerMomoNameSet" placeholder="e.g. John Doe / SJ'S SALOON">
-
-      <label>MoMo / Merchant Phone Number</label>
-      <input type="tel" id="ownerMomoNumberSet" placeholder="e.g. 0240000000">
-
-      <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Payment Details</button>
-    </div>
-
-    <!-- INSTALL APP SECTION FOR IOS, ANDROID & DESKTOP -->
-    <div id="installAppContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
-      <h4 style="color: var(--accent-gold); margin-top: 0;">📱 Install App on Phone / PC</h4>
-      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen or desktop for quick, full-screen access.</p>
+    <!-- INSTALL APP SECTION FOR IOS & ANDROID -->
+    <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #d4af37; margin-bottom: 20px;">
+      <h4 style="color: #d4af37; margin-top: 0;">📱 Install App on Phone</h4>
+      <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen for quick, full-screen access.</p>
       <button onclick="triggerInstall()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Install App Now</button>
     </div>
 
-    <div id="ownerDangerZoneBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px;">
+    <div id="ownerDangerZoneBox" style="display: none; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px;">
       <h4 style="color: #ff4444; margin-top: 0;">⚠️ Owner Danger Zone</h4>
-      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Permanently delete all recorded past customer tickets, history reports, and logs from the database.</p>
+      <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Permanently delete all recorded past customer tickets, history reports, and logs from the database.</p>
       <button onclick="wipeShopHistory()" style="background: #8c1a1a; border-color: #ff4444; width: 100%; color: white;">Wipe All Shop Data History</button>
     </div>
 
-    <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--panel-border);">
-      <h4 style="color: var(--accent-gold); margin-top: 0;">🔒 Account Controls</h4>
+    <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #444;">
+      <h4 style="color: #d4af37; margin-top: 0;">🔒 Account Controls</h4>
       <button id="settingsLogoutBtn" style="background: linear-gradient(145deg, #444, #222); color: white; border-color: #555; width: 100%; margin-bottom: 15px;">Log Out</button>
       <button id="settingsDeleteAccountBtn" onclick="deleteMyAccount()" style="background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; width: 100%;">Delete My Account & Leave Shop</button>
     </div>
@@ -499,24 +412,22 @@
     <button onclick="cancelPayment()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
     <h3 style="color: #28a745;">Checkout & Payment</h3>
     
-    <div id="paymentInfoBox" style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left;">
-      <p style="margin: 0 0 5px 0; opacity: 0.8;">Customer: <strong id="payCustName" style="color: var(--text-color);">--</strong></p>
-      <p style="margin: 0 0 5px 0; opacity: 0.8;">Service: <strong id="payServiceName" style="color: var(--text-color);">--</strong></p>
-      <p style="margin: 0; opacity: 0.8;">Amount Due: <strong id="payAmount" style="color: #28a745; font-size: 18px;">GHS 0.00</strong></p>
+    <div id="paymentInfoBox" style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; text-align: left;">
+      <p style="margin: 0 0 5px 0; color: #aaa;">Customer: <strong id="payCustName" style="color: #fff;">--</strong></p>
+      <p style="margin: 0 0 5px 0; color: #aaa;">Service: <strong id="payServiceName" style="color: #fff;">--</strong></p>
+      <p style="margin: 0; color: #aaa;">Amount Due: <strong id="payAmount" style="color: #28a745; font-size: 18px;">GHS 0.00</strong></p>
     </div>
 
-    <div id="ownerRefBox" style="display: none; background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+    <div id="ownerRefBox" style="display: none; background: #1e1e00; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
       <strong style="color: #ffc107;">📱 OWNER PAYMENT REFERENCE:</strong>
-      <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Please send funds to:<br>
-        Name: <strong id="displayOwnerPayName" style="color: var(--accent-gold); font-size: 16px;">--</strong><br>
-        Number: <strong id="displayOwnerPayNum" style="color: var(--accent-gold); font-size: 16px;">--</strong>
-      </p>
+      <p style="margin: 5px 0 0 0; color: #fff; font-size: 14px;">Please have funds sent to Owner's Merchant / Number:<br><strong style="color: #d4af37; font-size: 16px;">0240000000 (SJ'S SALOON)</strong></p>
     </div>
 
-    <label style="margin-bottom: 15px; font-weight: bold;">Select Payment Method:</label>
+    <label style="margin-bottom: 15px; font-weight: bold; color: #fff;">Select Payment Method:</label>
     <button class="pay-btn pay-cash" onclick="processPayment('Cash')">💵 Cash Payment</button>
     <button class="pay-btn pay-momo" onclick="processPayment('MTN MoMo')">📱 MTN MoMo</button>
     <button class="pay-btn pay-telecel" onclick="processPayment('Telecel Cash')">🟠 Telecel Cash</button>
+    <button class="pay-btn pay-card" onclick="processPayment('Card')">💳 Card Payment</button>
   </div>
 
   <!-- DEDICATED BLACKLIST PAGE VIEW -->
@@ -524,11 +435,11 @@
     <button onclick="cancelBlacklistPage()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Go Back</button>
     <h3 style="color: #ff4444;" id="blacklistPageTitle">Blacklist Customer</h3>
     
-    <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left;">
-      <p style="margin: 0; opacity: 0.8;">Target Customer: <strong id="blPageCustName" style="color: var(--text-color); font-size: 18px;">--</strong></p>
+    <div style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; text-align: left;">
+      <p style="margin: 0; color: #aaa;">Target Customer: <strong id="blPageCustName" style="color: #fff; font-size: 18px;">--</strong></p>
     </div>
 
-    <label>Reason for Blacklist / Report:</label>
+    <label style="color: #fff;">Reason for Blacklist / Report:</label>
     <textarea id="blPageReason" rows="4" placeholder="Enter detailed reason here..."></textarea>
 
     <button id="blPageSubmitBtn" class="btn-submit" style="background: #ff4444; border-color: #ff4444;">Submit Blacklist</button>
@@ -537,16 +448,16 @@
   <!-- DEDICATED CUSTOMER HISTORY DIRECTORY PAGE -->
   <div id="customerDirectoryPage" class="panel">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-    <h3 id="directoryPageTitle" style="color: var(--accent-gold);">Customer Records</h3>
+    <h3 id="directoryPageTitle" style="color: #d4af37;">Customer Records</h3>
     
     <div id="directoryListView">
-      <p style="opacity: 0.7; font-size: 14px; margin-bottom: 15px;">Click on any customer to view their complete service timeline and history.</p>
+      <p style="color: #888; font-size: 14px; margin-bottom: 15px;">Click on any customer to view their complete service timeline and history.</p>
       <div id="directoryCustomerList"></div>
     </div>
 
     <!-- Individual Customer Detail View -->
     <div id="customerDetailView" style="display: none;">
-      <button onclick="backToDirectoryList()" style="margin-bottom: 15px; background: #222; border:1px solid #555; color:var(--accent-gold); padding: 8px 15px; border-radius:6px; font-size: 12px;">⬅ Back to Customer List</button>
+      <button onclick="backToDirectoryList()" style="margin-bottom: 15px; background: #222; border:1px solid #555; color:#d4af37; padding: 8px 15px; border-radius:6px; font-size: 12px;">⬅ Back to Customer List</button>
       <div id="customerDetailContent"></div>
     </div>
   </div>
@@ -562,10 +473,10 @@
     
     <div class="flex-row" style="margin-top: 10px; margin-bottom: 10px;">
       <button onclick="openChatPage()" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; font-size: 13px;">💬 Team Chat</button>
-      <button onclick="openAnnouncementsPage()" style="flex: 1; font-size: 13px;">📢 Announcements</button>
+      <button onclick="openAnnouncementsPage()" style="flex: 1; background: linear-gradient(145deg, #ffc107, #b28704); color: #111; border-color: #ffc107; font-size: 13px;">📢 Announcements</button>
     </div>
     
-    <button onclick="openSettingsPage()" style="width: 100%; font-size: 13px; margin-bottom: 15px;">⚙️ Settings</button>
+    <button onclick="openSettingsPage()" style="width: 100%; background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #d4af37; font-size: 13px; margin-bottom: 15px;">⚙️ Settings</button>
 
     <!-- BARBER AVAILABILITY TOGGLE (Hidden by default) -->
     <div id="barberControls" style="display: none; margin-bottom: 15px;">
@@ -575,7 +486,7 @@
     <!-- OWNER MANAGEMENT HUB -->
     <div id="adminPanel" class="panel" style="display: none;">
       <h3>Shop Management Hub</h3>
-      <p style="opacity: 0.8; font-size: 13px; text-align: center; margin-bottom: 20px;">Manage your shop operations across dedicated management screens.</p>
+      <p style="color: #aaa; font-size: 13px; text-align: center; margin-bottom: 20px;">Manage your shop operations across dedicated management screens.</p>
       
       <div style="display: flex; flex-direction: column; gap: 12px;">
         <button onclick="openOwnerPage('staff')" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;">👥 Staff Management</button>
@@ -599,49 +510,38 @@
       </div>
 
       <label>Service Type</label>
-      <div id="serviceTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('serviceType')">
-        <span id="serviceTypeText">Select Service...</span>
-        <span style="color: var(--accent-gold);">▼</span>
-      </div>
+      <select id="serviceType">
+        <option value="">Loading services...</option>
+      </select>
 
       <label>Assign To Barber</label>
-      <div id="barberNameSelectBtn" class="custom-select-box" onclick="openPickerModal('barberName')">
-        <span id="barberNameText">Select Barber...</span>
-        <span style="color: var(--accent-gold);">▼</span>
-      </div>
+      <select id="barberName">
+        <option value="">Loading barbers...</option>
+      </select>
 
       <button id="sendBtn" class="btn-submit">Issue Ticket & Send to Chair</button>
     </div>
 
     <!-- LIVE SHOP QUEUE -->
     <div id="queuePanel" class="panel" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; margin-bottom: 15px;">
-        <h3 style="margin: 0; border: none; padding: 0;">Live Shop Queue</h3>
-        <span id="queueCountBadge" class="status-badge" style="margin: 0; background: var(--accent-gold); color: #111;">0 Active</span>
-      </div>
+      <h3>Live Shop Queue</h3>
       <div id="queueList"></div>
     </div>
 
     <!-- BUTTON TO OPEN FULL CUSTOMER RECORDS PAGE -->
-    <div class="panel" style="text-align: center; border-color: var(--accent-gold);">
-      <h3 style="color: var(--accent-gold); margin-bottom: 10px;">Customer Records</h3>
-      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Access past customer visits, history reports, and blacklist logs.</p>
-      <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #333, #111); color: var(--accent-gold); border: 1px solid var(--accent-gold); font-weight: bold;">📂 Open Customer Records</button>
+    <div class="panel" style="text-align: center; border-color: #d4af37;">
+      <h3 style="color: #d4af37; margin-bottom: 10px;">Customer Records</h3>
+      <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Access past customer visits, history reports, and blacklist logs.</p>
+      <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; font-weight: bold;">📂 Open Customer Records</button>
     </div>
 
-    <!-- ANALYTICS PANEL & DAILY REPORT LOGS -->
+    <!-- ANALYTICS PANEL -->
     <div id="analyticsPanel" class="panel" style="display: none;">
       <h3 id="analyticsTitle">Shop Analytics</h3>
       <div class="stats-grid">
         <div class="stat-box"><p>Today</p><h2 class="money">GHS <span id="todayRev">0.00</span></h2><p class="cuts"><span id="todayCuts">0</span> cuts</p></div>
         <div class="stat-box"><p>This Week</p><h2 class="money">GHS <span id="weekRev">0.00</span></h2><p class="cuts"><span id="weekCuts">0</span> cuts</p></div>
         <div class="stat-box"><p>This Month</p><h2 class="money">GHS <span id="monthRev">0.00</span></h2><p class="cuts"><span id="monthCuts">0</span> cuts</p></div>
-      </div>
-
-      <!-- OWNER DAILY DENIAL REPORTS SECTION -->
-      <div id="ownerDailyDeniedSection" style="display: none; margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px; text-align: left;">
-        <h4 style="color: #ff4444; margin-top: 0; text-transform: uppercase; font-size: 14px;">📋 Daily Report: Denied / Rejected Tickets</h4>
-        <div id="ownerDailyDeniedList"><p style="opacity: 0.6; font-style: italic; font-size: 13px;">No denied tickets recorded today.</p></div>
       </div>
     </div>
   </div>
@@ -650,38 +550,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-    // --- PUSH / AUDIO NOTIFICATION RING & VIBRATION SOUND ---
-    function playRingTone() {
-      try {
-        if ('vibrate' in navigator) {
-          navigator.vibrate([200, 100, 200]);
-        }
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        
-        const playTone = (freq, start, duration) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
-          gain.gain.setValueAtTime(0.4, audioCtx.currentTime + start);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + start + duration);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(audioCtx.currentTime + start);
-          osc.stop(audioCtx.currentTime + start + duration);
-        };
-
-        playTone(659.25, 0, 0.2); // E5
-        playTone(783.99, 0.25, 0.3); // G5
-        playTone(1046.50, 0.6, 0.4); // C6
-      } catch (e) {
-        console.log("Audio notification played error: ", e);
-      }
-    }
 
     // --- SERVICE WORKER REGISTRATION FOR PWA ---
     if ('serviceWorker' in navigator) {
@@ -696,76 +564,28 @@
       deferredPrompt = e;
     });
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      const isInstalledFlag = localStorage.getItem('sjs_app_installed');
-      if (isStandalone || isInstalledFlag === 'true') {
-        const installBox = document.getElementById('installAppContainer');
-        if (installBox) installBox.style.display = 'none';
-      }
-    });
-
-    // --- ROBUST CROSS-PLATFORM & CROSS-DEVICE INSTALL WIZARD ---
+    // --- CROSS-PLATFORM INSTALL HANDLER (iOS & Android) ---
     window.triggerInstall = async () => {
-      const ua = navigator.userAgent.toLowerCase();
-      const isIOS = /iphone|ipad|ipod/.test(ua);
-      const isAndroid = /android/.test(ua);
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase());
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-      if (isStandalone || localStorage.getItem('sjs_app_installed') === 'true') {
-        await customPopup('alert', "✨ <b>App Already Installed!</b><br><br>SJ'S SALOON is already installed and running on your device home screen or standalone mode.");
-        const installBox = document.getElementById('installAppContainer');
-        if (installBox) installBox.style.display = 'none';
+      if (isStandalone) {
+        await customPopup('alert', "The app is already installed on your device!");
         return;
       }
 
-      // If browser supports direct native prompt (Chrome / Edge / Samsung Internet on Android or Desktop)
-      if (deferredPrompt) {
+      if (isIOS) {
+        await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share</b> button in Safari (the square with an arrow pointing upward).<br>2. Scroll down the menu and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>Add</b> in the top right corner!");
+      } else if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
           showToast("App installed successfully!");
-          localStorage.setItem('sjs_app_installed', 'true');
-          const installBox = document.getElementById('installAppContainer');
-          if (installBox) installBox.style.display = 'none';
         }
         deferredPrompt = null;
-        return;
-      }
-
-      // Detailed Guided Instructions per Device / Browser
-      if (isIOS) {
-        await customPopup('alert', `
-          <div style="text-align: left; line-height: 1.6;">
-            <strong style="color: var(--accent-gold); font-size: 16px;">🍏 iPhone / iPad Installation Guide:</strong><br><br>
-            1. Look at the bottom toolbar in <b>Safari</b> and tap the <b>Share</b> button <span style="font-size:18px;">(the square with an arrow pointing upward $\uparrow$)</span>.<br><br>
-            2. Scroll down through the share sheet options and tap <b>'Add to Home Screen'</b>.<br><br>
-            3. Tap <b>'Add'</b> in the top right corner to instantly place SJ'S SALOON on your home screen!
-          </div>
-        `);
-      } else if (isAndroid) {
-        await customPopup('alert', `
-          <div style="text-align: left; line-height: 1.6;">
-            <strong style="color: var(--accent-gold); font-size: 16px;">🤖 Android Installation Guide:</strong><br><br>
-            1. Tap the browser menu button <span style="font-size:18px;">(usually 3 vertical dots <b>⋮</b> in the top right corner)</span>.<br><br>
-            2. Look for and tap <b>'Install app'</b> or <b>'Add to Home screen'</b>.<br><br>
-            3. Confirm by tapping <b>'Install'</b> or <b>'Add'</b> when prompted!
-          </div>
-        `);
       } else {
-        await customPopup('alert', `
-          <div style="text-align: left; line-height: 1.6;">
-            <strong style="color: var(--accent-gold); font-size: 16px;">💻 Desktop / PC Installation Guide:</strong><br><br>
-            1. In <b>Chrome, Edge, or Brave</b>, look at the right side of your browser address bar for the <b>Install icon</b> <span style="font-size:16px;">(computer screen with down arrow $\downarrow$ or circle icon)</span>.<br><br>
-            2. Alternatively, click the browser menu <span style="font-size:18px;">(<b>⋮</b>)</span> and select <b>'Install SJ'S SALOON...'</b>.<br><br>
-            3. Click <b>Install</b> to launch it as a dedicated desktop app!
-          </div>
-        `);
+        await customPopup('alert', "To install this app, open your browser menu (the three dots in the corner) and select <b>'Install app'</b> or <b>'Add to Home screen'</b>.");
       }
-      
-      localStorage.setItem('sjs_app_installed', 'true');
-      const installBox = document.getElementById('installAppContainer');
-      if (installBox) installBox.style.display = 'none';
     };
 
     const firebaseConfig = {
@@ -785,47 +605,27 @@
     let currentUserDoc = null; 
     let allPaidTicketsCache = []; 
     let activePaymentTicketId = null;
-    let activeReassignTicketId = null;
     let activeBlacklistCustomer = null;
     let activeBlacklistActionType = null; 
-    let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000" };
 
-    // FORM STATES FOR CUSTOM DROPDOWN PICKERS
-    let selectedSetupRole = "barber";
-    let selectedSetupCountry = "";
-    let selectedSetupIdType = "";
-    let selectedEditCountry = "Ghana";
-    let selectedEditIdType = "National ID / Ghana Card";
-    let selectedIntakeService = "";
-    let selectedIntakeBarber = "";
-    let cachedServicesList = [];
-    let cachedBarbersList = [];
-
-    // --- REUSABLE CUSTOM POPUP UI & RADIO PICKER FUNCTION ---
+    // --- REUSABLE CUSTOM POPUP UI FUNCTION ---
     window.customPopup = function(type, message, placeholder = "Enter details...") {
       return new Promise((resolve) => {
         const overlay = document.getElementById('customModalOverlay');
         const title = document.getElementById('customModalTitle');
         const msg = document.getElementById('customModalMessage');
         const input = document.getElementById('customModalInput');
-        const dropdownList = document.getElementById('customDropdownList');
-        const backBtn = document.getElementById('customPickerBackBtn');
         const cancelBtn = document.getElementById('customModalCancel');
         const confirmBtn = document.getElementById('customModalConfirm');
-        const buttonContainer = document.getElementById('customModalButtons');
 
         input.value = "";
         input.style.display = "none";
-        dropdownList.style.display = "none";
-        backBtn.style.display = "none";
-        cancelBtn.style.display = "block";
-        buttonContainer.style.display = "flex";
+        cancelBtn.style.display = "none";
         msg.innerHTML = message;
         
         if (type === 'alert') {
           title.innerText = "System Notice";
-          title.style.color = "var(--accent-gold)";
-          cancelBtn.style.display = "none";
+          title.style.color = "#d4af37";
           confirmBtn.innerText = "OK";
           confirmBtn.style.background = "linear-gradient(145deg, #d4af37, #997d20)";
           confirmBtn.style.borderColor = "#997d20";
@@ -833,6 +633,7 @@
         } else if (type === 'confirm') {
           title.innerText = "Confirm Action";
           title.style.color = "#ffc107";
+          cancelBtn.style.display = "block";
           confirmBtn.innerText = "Yes, Proceed";
           confirmBtn.style.background = "linear-gradient(145deg, #ff4444, #cc0000)";
           confirmBtn.style.borderColor = "#cc0000";
@@ -842,6 +643,7 @@
           title.style.color = "#4285F4";
           input.style.display = "block";
           input.placeholder = placeholder;
+          cancelBtn.style.display = "block";
           confirmBtn.innerText = "Submit";
           confirmBtn.style.background = "linear-gradient(145deg, #4285F4, #1a4b8c)";
           confirmBtn.style.borderColor = "#1a4b8c";
@@ -863,194 +665,6 @@
         confirmBtn.addEventListener('click', handleConfirm);
         cancelBtn.addEventListener('click', handleCancel);
       });
-    };
-
-    // --- CLOSE PICKER MODAL FUNCTION (BACK BUTTON HANDLER) ---
-    window.closePickerModal = () => {
-      document.getElementById('customModalOverlay').classList.remove('show');
-    };
-
-    // --- CUSTOM PICKER MODAL FOR ROLES, COUNTRIES, ID TYPES, SERVICES, BARBERS ---
-    window.openPickerModal = async (pickerType) => {
-      const overlay = document.getElementById('customModalOverlay');
-      const title = document.getElementById('customModalTitle');
-      const msg = document.getElementById('customModalMessage');
-      const input = document.getElementById('customModalInput');
-      const dropdownList = document.getElementById('customDropdownList');
-      const backBtn = document.getElementById('customPickerBackBtn');
-      const buttonContainer = document.getElementById('customModalButtons');
-
-      input.style.display = "none";
-      buttonContainer.style.display = "none";
-      msg.innerHTML = "";
-      dropdownList.style.display = "block";
-      backBtn.style.display = "block"; // Show Back button on selector modals
-
-      let options = [];
-      let currentValue = "";
-
-      if (pickerType === 'role') {
-        title.innerText = "Select Your Role";
-        currentValue = selectedSetupRole;
-        
-        let ownerExists = false;
-        try {
-          const userSnapshots = await getDocs(collection(db, "users"));
-          userSnapshots.forEach(docSnap => {
-            if (docSnap.data().role === 'owner') {
-              ownerExists = true;
-            }
-          });
-        } catch(e) {}
-
-        options = [
-          { label: "Barber", value: "barber" },
-          { label: "Secretary", value: "secretary" }
-        ];
-
-        if (!ownerExists) {
-          options.push({ label: "Shop Owner", value: "owner" });
-        }
-      } else if (pickerType === 'country' || pickerType === 'editCountry') {
-        title.innerText = "Select Country";
-        currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry;
-        options = [
-          { label: "Ghana", value: "Ghana" },
-          { label: "Nigeria", value: "Nigeria" },
-          { label: "United States", value: "United States" },
-          { label: "United Kingdom", value: "United Kingdom" },
-          { label: "Canada", value: "Canada" },
-          { label: "South Africa", value: "South Africa" },
-          { label: "Kenya", value: "Kenya" },
-          { label: "Germany", value: "Germany" },
-          { label: "France", value: "France" },
-          { label: "Australia", value: "Australia" },
-          { label: "India", value: "India" },
-          { label: "Other Country", value: "Other" }
-        ];
-      } else if (pickerType === 'idType' || pickerType === 'editIdType') {
-        title.innerText = "Select Government ID Type";
-        currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType;
-        const activeCountry = pickerType === 'idType' ? selectedSetupCountry : selectedEditCountry;
-        
-        if (activeCountry === "Ghana") {
-          options = [
-            { label: "National ID / Ghana Card", value: "National ID / Ghana Card" },
-            { label: "Passport", value: "Passport" },
-            { label: "Drivers License", value: "Drivers License" },
-            { label: "Voters ID", value: "Voters ID" }
-          ];
-        } else if (activeCountry === "Nigeria") {
-          options = [
-            { label: "National Identity Number (NIN)", value: "NIN" },
-            { label: "International Passport", value: "Passport" },
-            { label: "Drivers License", value: "Drivers License" },
-            { label: "Permanent Voter Card (PVC)", value: "PVC" }
-          ];
-        } else if (activeCountry === "United States") {
-          options = [
-            { label: "Social Security Number (SSN)", value: "SSN" },
-            { label: "State ID / Driver's License", value: "Drivers License" },
-            { label: "Passport", value: "Passport" }
-          ];
-        } else if (activeCountry === "United Kingdom") {
-          options = [
-            { label: "National Insurance Number", value: "National Insurance" },
-            { label: "UK Driver's License", value: "Drivers License" },
-            { label: "Passport", value: "Passport" }
-          ];
-        } else {
-          options = [
-            { label: "National Identity Card", value: "National ID" },
-            { label: "Passport", value: "Passport" },
-            { label: "Drivers License", value: "Drivers License" }
-          ];
-        }
-      } else if (pickerType === 'serviceType') {
-        title.innerText = "Select Service Type";
-        currentValue = selectedIntakeService;
-        options = cachedServicesList.map(s => ({ label: `${s.name} - GHS ${s.price}`, value: `${s.name}|${s.price}` }));
-      } else if (pickerType === 'barberName') {
-        title.innerText = "Assign To Barber";
-        currentValue = selectedIntakeBarber;
-        options = cachedBarbersList.map(b => ({ label: b, value: b }));
-      } else if (pickerType === 'reassignBarber') {
-        title.innerText = "Select Barber to Assign Again";
-        currentValue = "";
-        options = cachedBarbersList.map(b => ({ label: b, value: b }));
-      }
-
-      let html = "";
-      options.forEach(opt => {
-        const isSelected = opt.value === currentValue;
-        html += `
-          <div class="dropdown-option-item ${isSelected ? 'selected' : ''}" onclick="selectPickerOption('${pickerType}', '${opt.value}', '${opt.label.replace(/'/g, "\\'")}')">
-            <span>${opt.label}</span>
-            <div class="radio-circle"></div>
-          </div>
-        `;
-      });
-      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No options available.</p>" : html;
-      overlay.classList.add('show');
-    };
-
-    window.selectPickerOption = async (pickerType, val, label) => {
-      document.getElementById('customModalOverlay').classList.remove('show');
-
-      if (pickerType === 'role') {
-        selectedSetupRole = val;
-        document.getElementById('setupRoleText').innerText = label;
-        const saveBtn = document.getElementById('saveProfileBtn');
-        const idContainer = document.getElementById('idVerificationContainer');
-        
-        if (val === 'owner') {
-          idContainer.style.display = 'none';
-          saveBtn.innerText = 'Log in As Owner';
-        } else {
-          idContainer.style.display = 'block';
-          saveBtn.innerText = 'Submit Profile & ID for Approval';
-        }
-      } else if (pickerType === 'country') {
-        selectedSetupCountry = val;
-        document.getElementById('setupCountryText').innerText = label;
-        selectedSetupIdType = "";
-        document.getElementById('setupIdTypeText').innerText = "Select ID Type...";
-      } else if (pickerType === 'idType') {
-        selectedSetupIdType = val;
-        document.getElementById('setupIdTypeText').innerText = label;
-        const idNumInput = document.getElementById('setupIdNumber');
-        if (val === "National ID / Ghana Card") idNumInput.placeholder = "e.g. GHA-000000000-0";
-        else if (val === "NIN") idNumInput.placeholder = "e.g. 11-digit NIN number";
-        else if (val === "SSN") idNumInput.placeholder = "e.g. XXX-XX-XXXX";
-        else idNumInput.placeholder = "Enter ID number...";
-      } else if (pickerType === 'editCountry') {
-        selectedEditCountry = val;
-        document.getElementById('editCountryText').innerText = label;
-      } else if (pickerType === 'editIdType') {
-        selectedEditIdType = val;
-        document.getElementById('editIdTypeText').innerText = label;
-      } else if (pickerType === 'serviceType') {
-        selectedIntakeService = val;
-        document.getElementById('serviceTypeText').innerText = label;
-      } else if (pickerType === 'barberName') {
-        selectedIntakeBarber = val;
-        document.getElementById('barberNameText').innerText = label;
-      } else if (pickerType === 'reassignBarber') {
-        if (activeReassignTicketId) {
-          try {
-            await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), {
-              assignedBarber: val,
-              status: "in_progress",
-              denyReason: null
-            });
-            playRingTone();
-            showToast(`Ticket reassigned to ${val}!`);
-          } catch (err) {
-            await customPopup('alert', "Error reassigning ticket: " + err.message);
-          }
-          activeReassignTicketId = null;
-        }
-      }
     };
 
     // --- NAVIGATION FOR OWNER PAGES, CHAT, & ANNOUNCEMENTS ---
@@ -1082,30 +696,11 @@
 
       if (currentUserDoc && currentUserDoc.role === "owner") {
         document.getElementById('ownerDangerZoneBox').style.display = "block";
-        document.getElementById('ownerPaymentSettingsBox').style.display = "block";
-        document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name;
-        document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number;
       } else {
         document.getElementById('ownerDangerZoneBox').style.display = "none";
-        document.getElementById('ownerPaymentSettingsBox').style.display = "none";
       }
 
       document.getElementById('settingsPage').style.display = "block";
-    };
-
-    window.saveOwnerPaymentSettings = async () => {
-      const name = document.getElementById('ownerMomoNameSet').value.trim();
-      const number = document.getElementById('ownerMomoNumberSet').value.trim();
-      if (!name || !number) return await customPopup('alert', "Please provide both payment name and number.");
-
-      try {
-        await setDoc(doc(db, "shop_config", "payment"), { name, number }, { merge: true });
-        shopPaymentConfig = { name, number };
-        playRingTone();
-        showToast("Payment details saved successfully!");
-      } catch (err) {
-        await customPopup('alert', "Error saving payment settings: " + err.message);
-      }
     };
 
     window.openChatPage = () => {
@@ -1123,25 +718,17 @@
       startAnnouncementsListener();
     };
 
-    // --- DYNAMIC ID VALIDATION ACCORDING TO COUNTRY & ID TYPE ---
-    function validateGovernmentID(country, idType, idNumber) {
-      if (!idNumber || idNumber.trim().length < 4) {
-        return "ID Number is too short or invalid.";
+    // --- GLOBAL ID VERIFICATION VALIDATOR ---
+    function validateGovernmentID(idType, idNumber) {
+      if (!idNumber || idNumber.trim().length < 5) {
+        return "ID Number is too short or invalid. Please enter a valid identification number.";
       }
       const cleanNum = idNumber.trim();
-      
-      if (country === "Ghana") {
-        if (idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) {
-          return "Invalid Ghana Card format. Must start with 'GHA-' followed by digits.";
-        }
-      } else if (country === "Nigeria") {
-        if (idType === "NIN" && !/^\d{11}$/.test(cleanNum)) {
-          return "Invalid NIN format. Must be exactly 11 digits.";
-        }
-      } else if (country === "United States") {
-        if (idType === "SSN" && !/^\d{3}-?\d{2}-?\d{4}$/.test(cleanNum)) {
-          return "Invalid SSN format (e.g., XXX-XX-XXXX).";
-        }
+      if (idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) {
+        return "Invalid Ghana Card format. It must start with 'GHA-' followed by digits.";
+      }
+      if (idType === "Passport" && cleanNum.length < 6) {
+        return "Invalid Passport number length. Must be at least 6 characters.";
       }
       return null; 
     }
@@ -1160,8 +747,6 @@
     };
 
     const loginBtn = document.getElementById('loginBtn');
-    const loginWelcomeView = document.getElementById('loginWelcomeView');
-    const mainAppTitle = document.getElementById('mainAppTitle');
     const statusText = document.getElementById('statusText');
     const dashboard = document.getElementById('dashboard');
     const customerDirectoryPage = document.getElementById('customerDirectoryPage');
@@ -1187,7 +772,6 @@
       }
     };
     
-    document.getElementById('setupLogoutBtn').addEventListener('click', performLogout);
     document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout);
     document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
 
@@ -1234,8 +818,7 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        loginWelcomeView.style.display = "none";
-        mainAppTitle.style.display = "block";
+        loginBtn.style.display = "none";
         statusText.style.display = "block";
         statusText.innerText = "Connecting to database... ⏳"; 
 
@@ -1243,12 +826,6 @@
           const userRef = doc(db, "users", user.uid);
           const userSnap = await getDoc(userRef);
           statusText.style.display = "none";
-
-          // Fetch payment config
-          const payConfigSnap = await getDoc(doc(db, "shop_config", "payment"));
-          if (payConfigSnap.exists()) {
-            shopPaymentConfig = payConfigSnap.data();
-          }
 
           if (!userSnap.exists()) {
             document.getElementById('setupDisplayName').value = user.displayName || "";
@@ -1274,9 +851,9 @@
           await customPopup('alert', "Firebase Error: " + error.message);
         }
       } else {
-        loginWelcomeView.style.display = "block";
-        mainAppTitle.style.display = "none";
-        statusText.style.display = "none";
+        loginBtn.style.display = "inline-block";
+        statusText.style.display = "block";
+        statusText.innerText = "Please log in to continue.";
         dashboard.style.display = "none";
         document.getElementById('setupView').style.display = "none";
         document.getElementById('pendingView').style.display = "none";
@@ -1289,36 +866,20 @@
 
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser;
-      const role = selectedSetupRole;
+      const role = document.getElementById('setupRole').value;
       const displayName = document.getElementById('setupDisplayName').value.trim();
-      const country = selectedSetupCountry;
-      const idType = selectedSetupIdType;
+      const country = document.getElementById('setupCountry').value;
+      const idType = document.getElementById('setupIdType').value;
       const idNumber = document.getElementById('setupIdNumber').value.trim();
       const fileInput = document.getElementById('setupPhoto');
       
-      if (!displayName || !country) {
-        return await customPopup('alert', "Please fill in your display name and select a country.");
+      if (!displayName || !country || !idType || !idNumber) {
+        return await customPopup('alert', "Please fill in all profile fields and ID details.");
       }
 
-      if (role === "owner") {
-        try {
-          const allUsers = await getDocs(collection(db, "users"));
-          let ownerExists = false;
-          allUsers.forEach(d => {
-            if (d.data().role === "owner") ownerExists = true;
-          });
-          if (ownerExists) {
-            return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists. Only one person can be registered as owner until their account is permanently deleted.");
-          }
-        } catch(e) {}
-      } else {
-        if (!idType || !idNumber) {
-          return await customPopup('alert', "Please select your ID type and enter your ID number.");
-        }
-        const idError = validateGovernmentID(country, idType, idNumber);
-        if (idError) {
-          return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
-        }
+      const idError = validateGovernmentID(idType, idNumber);
+      if (idError) {
+        return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
       }
 
       let photoUrlToSave = user.photoURL || ""; 
@@ -1349,12 +910,11 @@
         const isOwner = (role === "owner");
         await setDoc(doc(db, "users", user.uid), {
           name: displayName, email: user.email, photoURL: photoUrlToSave,
-          role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber,
+          role: role, country: country, idType: idType, idNumber: idNumber,
           isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime()
         });
 
-        playRingTone();
-        showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!");
+        showToast("Profile submitted successfully!");
         setTimeout(() => window.location.reload(), 1500);
       } catch (error) {
         await customPopup('alert', "Error saving profile: " + error.message);
@@ -1368,25 +928,9 @@
       editProfileView.style.display = "block";
       
       document.getElementById('editDisplayName').value = currentUserDoc.name || "";
-      selectedEditCountry = currentUserDoc.country || "Ghana";
-      document.getElementById('editCountryText').innerText = selectedEditCountry;
-
-      const idVerificationContainer = document.getElementById('editIdVerificationContainer');
-      const editTitle = document.getElementById('editProfileTitle');
-      const editSubtitle = document.getElementById('editProfileSubtitle');
-
-      if (currentUserDoc.role === "owner") {
-        idVerificationContainer.style.display = "none";
-        editTitle.innerText = "Edit My Owner Profile";
-        editSubtitle.innerText = "Owners update instantly without ID verification.";
-      } else {
-        idVerificationContainer.style.display = "block";
-        editTitle.innerText = "Edit My Profile & ID Credentials";
-        editSubtitle.innerText = "Staff updates require owner approval.";
-        selectedEditIdType = currentUserDoc.idType || "National ID / Ghana Card";
-        document.getElementById('editIdTypeText').innerText = selectedEditIdType;
-        document.getElementById('editIdNumber').value = currentUserDoc.idNumber || "";
-      }
+      document.getElementById('editCountry').value = currentUserDoc.country || "Ghana";
+      document.getElementById('editIdType').value = currentUserDoc.idType || "National ID / Ghana Card";
+      document.getElementById('editIdNumber').value = currentUserDoc.idNumber || "";
     };
 
     window.cancelEditProfile = () => {
@@ -1397,26 +941,18 @@
     document.getElementById('submitEditProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser;
       const displayName = document.getElementById('editDisplayName').value.trim();
-      const country = selectedEditCountry;
+      const country = document.getElementById('editCountry').value;
+      const idType = document.getElementById('editIdType').value;
+      const idNumber = document.getElementById('editIdNumber').value.trim();
       const fileInput = document.getElementById('editPhoto');
 
-      if (!displayName || !country) {
-        return await customPopup('alert', "Please complete all required fields.");
+      if (!displayName || !country || !idType || !idNumber) {
+        return await customPopup('alert', "Please complete all fields.");
       }
 
-      let idType = currentUserDoc.idType;
-      let idNumber = currentUserDoc.idNumber;
-
-      if (currentUserDoc.role !== "owner") {
-        idType = selectedEditIdType;
-        idNumber = document.getElementById('editIdNumber').value.trim();
-        if (!idType || !idNumber) {
-          return await customPopup('alert', "Please complete ID type and ID number.");
-        }
-        const idError = validateGovernmentID(country, idType, idNumber);
-        if (idError) {
-          return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
-        }
+      const idError = validateGovernmentID(idType, idNumber);
+      if (idError) {
+        return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
       }
 
       let photoUrlToSave = currentUserDoc.photoURL;
@@ -1446,11 +982,13 @@
 
         if (currentUserDoc.role === "owner") {
           await updateDoc(doc(db, "users", user.uid), {
-            name: displayName, country: country, photoURL: photoUrlToSave
+            name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave
           });
           
           currentUserDoc.name = displayName;
           currentUserDoc.country = country;
+          currentUserDoc.idType = idType;
+          currentUserDoc.idNumber = idNumber;
           currentUserDoc.photoURL = photoUrlToSave;
           
           document.getElementById('userName').innerText = displayName;
@@ -1478,19 +1016,10 @@
       }
     });
 
-    let chatInitialized = false;
     function startChatListener() {
       const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
       onSnapshot(q, (snapshot) => {
         let html = "";
-        let hasNewMessage = false;
-
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added" && chatInitialized) {
-            hasNewMessage = true;
-          }
-        });
-
         snapshot.forEach((docSnap) => {
           const msg = docSnap.data();
           const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1498,21 +1027,15 @@
           
           html += `
             <div style="margin-bottom: 12px; text-align: ${isMe ? 'right' : 'left'};">
-              <span style="font-size: 11px; color: var(--accent-gold);">${msg.senderName} (${msg.senderRole.toUpperCase()}) - ${timeStr}</span><br>
-              <div style="display: inline-block; background: ${isMe ? '#1a4b8c' : 'var(--input-bg)'}; color: ${isMe ? '#fff' : 'var(--text-color)'}; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">
+              <span style="font-size: 11px; color: #d4af37;">${msg.senderName} (${msg.senderRole.toUpperCase()}) - ${timeStr}</span><br>
+              <div style="display: inline-block; background: ${isMe ? '#1a4b8c' : '#2a2a2a'}; color: #fff; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px;">
                 ${msg.text}
               </div>
             </div>
           `;
         });
-
-        if (hasNewMessage) {
-          playRingTone();
-        }
-        chatInitialized = true;
-
         const box = document.getElementById('chatMessagesBox');
-        box.innerHTML = html === "" ? "<p style='opacity:0.6; text-align: center;'>No messages yet. Start the conversation!</p>" : html;
+        box.innerHTML = html === "" ? "<p style='color:#666; text-align: center;'>No messages yet. Start the conversation!</p>" : html;
         box.scrollTop = box.scrollHeight;
       });
     }
@@ -1530,44 +1053,32 @@
           text: text,
           timestamp: new Date().getTime()
         });
-        playRingTone();
         input.value = "";
       } catch (err) {
         await customPopup('alert', "Error sending message: " + err.message);
       }
     });
 
-    let announcementsInitialized = false;
     function startAnnouncementsListener() {
       const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
       onSnapshot(q, (snapshot) => {
         let html = "";
-        let hasNewAnn = false;
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added" && announcementsInitialized) {
-            hasNewAnn = true;
-          }
-        });
-
         snapshot.forEach((docSnap) => {
           const ann = docSnap.data();
           const dateStr = new Date(ann.timestamp).toLocaleString();
           html += `
             <div class="list-item" style="border-left-color: #ffc107;">
               <div class="ticket-title" style="color: #ffc107;">📢 Announcement</div>
-              <div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">
+              <div class="ticket-details" style="color: #fff; font-size: 15px; margin-top: 5px; margin-bottom: 10px;">
                 ${ann.text}
               </div>
-              <div style="font-size: 11px; opacity: 0.7; text-align: right;">
+              <div style="font-size: 11px; color: #888; text-align: right;">
                 Posted by: <strong>${ann.author}</strong> | ${dateStr}
               </div>
             </div>
           `;
         });
-
-        if (hasNewAnn) playRingTone();
-        announcementsInitialized = true;
-        document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='opacity:0.6;'>No announcements posted yet.</p>" : html;
+        document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='color:#666;'>No announcements posted yet.</p>" : html;
       });
     }
 
@@ -1582,7 +1093,6 @@
           author: currentUserDoc.name,
           timestamp: new Date().getTime()
         });
-        playRingTone();
         textarea.value = "";
         showToast("Announcement published successfully!");
       } catch (err) {
@@ -1607,7 +1117,6 @@
         btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)";
         btn.style.borderColor = !newStatus ? "#555" : "#28a745";
         
-        playRingTone();
         showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴");
       } catch (err) {
         await customPopup('alert', "Error updating status: " + err.message);
@@ -1615,44 +1124,17 @@
     };
 
     window.updateTicketStatus = async (ticketId, newStatus) => {
+      if (newStatus === 'denied') {
+        const confirmDeny = await customPopup('confirm', "Are you sure you want to DENY this customer? The Secretary will be notified to reassign or dismiss the ticket.");
+        if (!confirmDeny) return;
+      }
+
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
-        playRingTone();
         if(newStatus === 'completed') showToast("Cut marked as completed!");
+        if(newStatus === 'denied') showToast("Cut rejected!");
         if(newStatus === 'cancelled') showToast("Ticket dismissed.");
       } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
-    };
-
-    window.promptDenyReason = async (ticketId) => {
-      const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter reason...");
-      if (reason === null) return;
-      if (!reason.trim()) {
-        await customPopup('alert', "A reason is required to deny a customer.");
-        return;
-      }
-      try {
-        await updateDoc(doc(db, "daily_tickets", ticketId), { 
-          status: "pending_denial", 
-          denyReason: reason.trim() 
-        });
-        playRingTone();
-        showToast("Denial submitted for secretary review.");
-      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
-    };
-
-    window.approveDenial = async (ticketId) => {
-      try {
-        await updateDoc(doc(db, "daily_tickets", ticketId), { 
-          status: "denied" 
-        });
-        playRingTone();
-        showToast("Denial approved and recorded.");
-      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
-    };
-
-    window.openReassignModal = (ticketId) => {
-      activeReassignTicketId = ticketId;
-      openPickerModal('reassignBarber');
     };
 
     function loadApp(user, docData) {
@@ -1670,7 +1152,6 @@
         document.getElementById('adminPanel').style.display = "block";
         document.getElementById('analyticsPanel').style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History";
-        document.getElementById('ownerDailyDeniedSection').style.display = "block";
         startAdminListeners(); 
         startAnalyticsTracker();
       } 
@@ -1726,7 +1207,7 @@
           let html = "";
           matches.forEach(m => {
             const dateStr = new Date(m.timestamp).toLocaleString();
-            html += `<div style="border-bottom: 1px dashed var(--panel-border); padding: 4px 0;">
+            html += `<div style="border-bottom: 1px dashed #444; padding: 4px 0;">
               <strong>${m.customerName}</strong> (${m.customerPhone || 'No Phone'})<br>
               Service: ${m.serviceName} (GHS ${m.price})<br>
               Date: ${dateStr}<br>
@@ -1764,7 +1245,7 @@
       const customerKeys = Object.keys(customerMap);
 
       if (customerKeys.length === 0) {
-        listContainer.innerHTML = "<p style='opacity:0.6; font-style: italic;'>No past customer records available.</p>";
+        listContainer.innerHTML = "<p style='color:#666; font-style: italic;'>No past customer records available.</p>";
         return;
       }
 
@@ -1772,18 +1253,14 @@
         const cust = customerMap[key];
         cust.visits.sort((a, b) => b.timestamp - a.timestamp);
         const lastVisit = new Date(cust.visits[0].timestamp).toLocaleDateString();
-        const hasPhone = cust.phone && cust.phone !== 'Not Provided' && cust.phone.trim() !== '';
 
         html += `
-          <div class="list-item clickable-customer">
-            <div onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')">
-              <div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; opacity: 0.7;">(${cust.phone})</span></div>
-              <div class="ticket-details" style="margin-bottom: 8px;">
-                Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>
-                Tap to view full service history & report options ➡
-              </div>
+          <div class="list-item clickable-customer" onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')">
+            <div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; color: #aaa;">(${cust.phone})</span></div>
+            <div class="ticket-details">
+              Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>
+              Tap to view full service history & report options ➡
             </div>
-            ${hasPhone ? `<a href="tel:${cust.phone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 14px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold;">📞 Call Customer</a>` : ''}
           </div>
         `;
       });
@@ -1805,13 +1282,11 @@
 
       ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp);
       const phoneNum = ticketsToProcess[0]?.customerPhone || 'Not Provided';
-      const hasPhone = phoneNum && phoneNum !== 'Not Provided' && phoneNum.trim() !== '';
 
       let html = `
-        <h3 style="color: var(--accent-gold); margin-bottom: 5px;">History for: ${customerName}</h3>
-        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>
-        ${hasPhone ? `<a href="tel:${phoneNum}" style="display:inline-block; background:#28a745; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold; margin-bottom:15px;">📞 Call ${customerName}</a>` : ''}
-        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>
+        <h3 style="color: #d4af37; margin-bottom: 5px;">History for: ${customerName}</h3>
+        <p style="color: #aaa; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>
+        <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>
       `;
 
       ticketsToProcess.forEach(t => {
@@ -1873,14 +1348,12 @@
           await addDoc(collection(db, "blacklist"), {
             name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime()
           });
-          playRingTone();
           showToast(`${activeBlacklistCustomer} is instantly blacklisted!`);
         } else {
           await addDoc(collection(db, "blacklist_reports"), {
             customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name,
             feedback: reason, timestamp: new Date().getTime()
           });
-          playRingTone();
           showToast("Blacklist report sent to Owner!");
         }
         cancelBlacklistPage();
@@ -1905,7 +1378,7 @@
                   <div>
                     <div class="ticket-title">${u.name}</div>
                     <div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div>
-                    <div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
+                    <div class="ticket-details" style="margin-bottom: 0; color: #d4af37;">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
                   </div>
                 </div>
                 <button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve New Account</button>
@@ -1932,8 +1405,8 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;">
                   <div>
-                    <strong style="color: var(--text-color);">${u.name}</strong><br>
-                    <span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span>
+                    <strong style="color: #fff;">${u.name}</strong><br>
+                    <span style="font-size: 11px; color: #aaa;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span>
                   </div>
                 </div>
                 <button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button>
@@ -1942,8 +1415,8 @@
           }
         });
 
-        document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml;
-        document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='opacity:0.6;'>No active staff found.</p>" : activeHtml;
+        document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='color:#666;'>No pending approvals or updates.</p>" : approvalHtml;
+        document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='color:#666;'>No active staff found.</p>" : activeHtml;
       });
 
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => {
@@ -1963,7 +1436,7 @@
             </div>
           `;
         });
-        document.getElementById('reportsList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No pending blacklist reports.</p>" : html;
+        document.getElementById('reportsList').innerHTML = html === "" ? "<p style='color:#666;'>No pending blacklist reports.</p>" : html;
       });
 
       document.getElementById('addServiceBtn').addEventListener('click', async () => {
@@ -1971,7 +1444,6 @@
         const price = document.getElementById('newServicePrice').value;
         if (!name || !price) return await customPopup('alert', "Enter both name and price.");
         await addDoc(collection(db, "services"), { name, price: Number(price) });
-        playRingTone();
         document.getElementById('newServiceName').value = "";
         document.getElementById('newServicePrice').value = "";
         showToast("Service added successfully!");
@@ -1979,13 +1451,11 @@
 
       onSnapshot(collection(db, "services"), (snapshot) => {
         let html = "";
-        cachedServicesList = [];
         snapshot.forEach((sDoc) => {
           const s = sDoc.data();
-          cachedServicesList.push({ id: sDoc.id, ...s });
           html += `
             <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-              <span style="color: var(--text-color);">${s.name} - GHS ${s.price}</span>
+              <span style="color: #fff;">${s.name} - GHS ${s.price}</span>
               <button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Delete</button>
             </div>
           `;
@@ -1999,12 +1469,12 @@
           const b = bDoc.data();
           html += `
             <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-left-color: #ff4444;">
-              <span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span>
+              <span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; color:#aaa; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span>
               <button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Unblock</button>
             </div>
           `;
         });
-        document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html;
+        document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='color:#666;'>No blacklisted customers.</p>" : html;
       });
     }
 
@@ -2013,7 +1483,6 @@
       const snap = await getDoc(userRef);
       const userName = snap.exists() ? (snap.data().name || "User") : "User";
       await updateDoc(userRef, { isApproved: true }); 
-      playRingTone();
       showToast(`${userName} approved successfully!`);
     };
 
@@ -2026,7 +1495,6 @@
         await updateDoc(userRef, {
           name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null
         });
-        playRingTone();
         showToast(`Profile updates approved for ${updatedName}!`);
       }
     };
@@ -2037,7 +1505,6 @@
       const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff";
       if(await customPopup('confirm', `Are you sure you want to fire ${userName} and revoke their access to the shop?`)) {
         await deleteDoc(userRef);
-        playRingTone();
         showToast(`${userName} removed from the shop.`);
       }
     };
@@ -2045,14 +1512,12 @@
     window.deleteService = async (sid) => { 
       if (await customPopup('confirm', "Are you sure you want to delete this service?")) {
         await deleteDoc(doc(db, "services", sid)); 
-        playRingTone();
       }
     };
     
     window.removeBlacklist = async (bid) => { 
       if (await customPopup('confirm', "Are you sure you want to remove this customer from the blacklist?")) {
         await deleteDoc(doc(db, "blacklist", bid)); 
-        playRingTone();
         showToast("Customer unblocked");
       }
     };
@@ -2060,7 +1525,6 @@
     window.confirmBlacklistFromReport = async (reportId, customerName) => {
       await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() });
       await deleteDoc(doc(db, "blacklist_reports", reportId));
-      playRingTone();
       showToast(`${customerName} added to blacklist!`);
     };
 
@@ -2081,7 +1545,6 @@
         const reportSnaps = await getDocs(collection(db, "blacklist_reports"));
         reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id)));
 
-        playRingTone();
         showToast("All customer data history wiped successfully.");
       } catch(e) {
         await customPopup('alert', "Error wiping data: " + e.message);
@@ -2090,22 +1553,25 @@
 
     function populateIntakeForm() {
       onSnapshot(collection(db, "services"), (snapshot) => {
-        cachedServicesList = [];
+        let html = '<option value="">Select Service...</option>';
         snapshot.forEach((sDoc) => {
           const s = sDoc.data();
-          cachedServicesList.push(s);
+          html += `<option value="${s.name}|${s.price}">${s.name} - GHS ${s.price}</option>`;
         });
+        document.getElementById('serviceType').innerHTML = html;
       });
 
       const qBarbers = query(collection(db, "users"), where("role", "==", "barber"), where("isApproved", "==", true));
       onSnapshot(qBarbers, (snapshot) => {
-        cachedBarbersList = [];
+        let html = '<option value="">Select Barber...</option>';
         snapshot.forEach((bDoc) => {
           const b = bDoc.data();
           if (b.isAvailable === false) return; 
+
           const firstName = b.name.split(' ')[0];
-          cachedBarbersList.push(firstName);
+          html += `<option value="${firstName}">${firstName}</option>`;
         });
+        document.getElementById('barberName').innerHTML = html;
       });
     }
 
@@ -2114,8 +1580,8 @@
       sendBtn.addEventListener('click', async () => {
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim(); 
-        const serviceVal = selectedIntakeService; 
-        const barber = selectedIntakeBarber;
+        const serviceVal = document.getElementById('serviceType').value; 
+        const barber = document.getElementById('barberName').value;
 
         if (!name || !serviceVal || !barber) return await customPopup('alert', "Please fill out customer name, service type, and barber.");
 
@@ -2138,11 +1604,8 @@
             serviceName: serviceData[0], price: Number(serviceData[1]),
             assignedBarber: barber, status: "in_progress", timestamp: new Date().getTime()
           });
-          playRingTone();
           document.getElementById('custName').value = ""; document.getElementById('custPhone').value = "";
           document.getElementById('customerHistoryBox').style.display = "none";
-          selectedIntakeService = ""; document.getElementById('serviceTypeText').innerText = "Select Service...";
-          selectedIntakeBarber = ""; document.getElementById('barberNameText').innerText = "Select Barber...";
           showToast("Ticket issued & sent to chair!");
         } catch (error) { await customPopup('alert', "Error saving: " + error.message); }
       });
@@ -2154,9 +1617,6 @@
       document.getElementById('payServiceName').innerText = serviceName;
       document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2);
       
-      document.getElementById('displayOwnerPayName').innerText = shopPaymentConfig.name;
-      document.getElementById('displayOwnerPayNum').innerText = shopPaymentConfig.number;
-
       dashboard.style.display = "none";
       document.getElementById('ownerRefBox').style.display = "none";
       paymentPage.style.display = "block";
@@ -2171,64 +1631,29 @@
     window.processPayment = async (method) => {
       if (!activePaymentTicketId) return;
 
-      if (method === "MTN MoMo" || method === "Telecel Cash") {
+      if (method === "MTN MoMo" || method === "Telecel Cash" || method === "Card") {
         document.getElementById('ownerRefBox').style.display = "block";
-        await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`);
+        await customPopup('alert', "📱 Please collect the transfer or card swipe using Owner Number: 0240000000. Click OK once confirmed.");
       }
 
       try {
         await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method });
-        playRingTone();
         showToast(`Payment recorded as ${method}!`);
         paymentPage.style.display = "none"; dashboard.style.display = "block";
         activePaymentTicketId = null;
       } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
     };
 
-    let queueInitialized = false;
     function startLiveQueue() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let html = "";
-        let dailyDeniedHtml = "";
-        let activeQueueCount = 0;
-        let hasNewTicketOrChange = false;
-        
-        const now = new Date();
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added" && queueInitialized) {
-            hasNewTicketOrChange = true;
-          }
-        });
-
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
           const ticketId = docSnap.id; 
           
-          // Populate Owner Daily Denied Report
-          if (ticket.status === "denied" && ticket.timestamp >= startOfToday) {
-            const timeStr = new Date(ticket.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            dailyDeniedHtml += `
-              <div class="list-item" style="border-left-color: #ff4444; margin-bottom: 10px; padding: 12px;">
-                <div style="font-size: 14px; font-weight: bold; color: #ff4444;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div>
-                <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">
-                  Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>
-                  Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason provided'}"</em><br>
-                  <span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span>
-                </div>
-              </div>
-            `;
-          }
-
-          // Count active waiting / in_progress and completed customers
-          if (ticket.status === "in_progress" || ticket.status === "completed") {
-            activeQueueCount++;
-          }
-
           if (ticket.status !== "paid" && ticket.status !== "cancelled") {
             let actionButton = "";
-            let statusColor = "#ffc107"; 
+            let statusColor = ticket.status === "denied" ? "#ff4444" : "#ffc107"; 
 
             const isOwner = currentUserDoc.role === "owner";
             const isSec = currentUserDoc.role === "secretary";
@@ -2240,64 +1665,34 @@
                actionButton = `
                  <div style="display: flex; gap: 8px;">
                    <button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH</button>
-                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptDenyReason('${ticketId}')">DENY</button>
+                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="updateTicketStatus('${ticketId}', 'denied')">DENY</button>
                  </div>
                `;
             } 
             else if (ticket.status === "completed" && (isSec || isOwner)) {
                actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
             }
-            else if (ticket.status === "pending_denial" && (isSec || isOwner)) {
-               statusColor = "#ff4444";
-               actionButton = `
-                 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
-                   <button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button>
-                   <button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button>
-                 </div>
-               `;
-            }
             else if (ticket.status === "denied" && (isSec || isOwner)) {
-               statusColor = "#ff4444";
-               actionButton = `
-                 <div style="display: flex; gap: 8px;">
-                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button>
-                   <button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button>
-                 </div>
-               `;
+               actionButton = `<button class="btn-action" style="background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">DISMISS TICKET (DENIED)</button>`;
             }
-
-            const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== '';
 
             html += `
-              <div class="ticket" style="${ticket.status === 'pending_denial' || ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ''}">
+              <div class="ticket" style="${ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ''}">
                 <div class="ticket-header">
                   <span class="ticket-number">${ticket.ticketNo || '--'}</span>
-                  <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.status.toUpperCase().replace('_', ' ')}</span>
+                  <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.status.toUpperCase().replace('_', ' ')}</span>
                 </div>
-                <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div>
-                <div class="ticket-details" style="margin-bottom: 10px;">
+                <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; color: #aaa;">(${ticket.customerPhone || 'No Phone'})</span></div>
+                <div class="ticket-details">
                   ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
                   Assigned to: <strong>${ticket.assignedBarber}</strong>
-                  ${ticket.denyReason ? `<br><span style="color: #ff4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
                 </div>
-                ${hasPhone ? `<a href="tel:${ticket.customerPhone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold; margin-bottom:8px;">📞 Call Customer</a>` : ''}
                 ${actionButton}
               </div>
             `;
           }
         });
-
-        if (hasNewTicketOrChange) {
-          playRingTone();
-        }
-        queueInitialized = true;
-        document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers in queue.</p>" : html;
-        document.getElementById('queueCountBadge').innerText = `${activeQueueCount} Active`;
-        
-        const deniedListEl = document.getElementById('ownerDailyDeniedList');
-        if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") {
-          deniedListEl.innerHTML = dailyDeniedHtml === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No denied tickets recorded today.</p>" : dailyDeniedHtml;
-        }
+        document.getElementById('queueList').innerHTML = html === "" ? "<p style='color:#666; font-style: italic;'>No active customers.</p>" : html;
       });
     }
 
