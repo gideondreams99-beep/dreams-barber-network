@@ -860,6 +860,7 @@
     let selectedIntakeBarber = "";
     let cachedServicesList = [];
     let cachedBarbersList = [];
+    let activeBusyBarbers = new Set();
 
     // --- REUSABLE CUSTOM POPUP UI & RADIO PICKER FUNCTION ---
     window.customPopup = function(type, message, placeholder = "Enter details...") {
@@ -1019,24 +1020,27 @@
       } else if (pickerType === 'barberName') {
         title.innerText = "Assign To Barber";
         currentValue = selectedIntakeBarber;
-        options = cachedBarbersList.map(b => ({ label: b, value: b }));
+        // Filter out barbers who are currently busy with a pending or in_progress ticket
+        const availableBarbers = cachedBarbersList.filter(b => !activeBusyBarbers.has(b.toLowerCase()));
+        options = availableBarbers.map(b => ({ label: b, value: b }));
       } else if (pickerType === 'reassignBarber') {
         title.innerText = "Select Barber to Assign Again";
         currentValue = "";
-        options = cachedBarbersList.map(b => ({ label: b, value: b }));
+        const availableBarbers = cachedBarbersList.filter(b => !activeBusyBarbers.has(b.toLowerCase()));
+        options = availableBarbers.map(b => ({ label: b, value: b }));
       }
 
       let html = "";
       options.forEach(opt => {
         const isSelected = opt.value === currentValue;
         html += `
-          <div class="dropdown-option-item ${isSelected ? 'selected' : ''}" onclick="selectPickerOption('${pickerType}', '${opt.value}', '${opt.label.replace(/'/g, "\\'")}')">
+          <div class="dropdown-option-item ${isSelected ? 'selected' : ''}" onclick="selectPickerOption('${pickerType}', '${opt.value}', '${opt.label.replace(/'/g, "\\'")} ')">
             <span>${opt.label}</span>
             <div class="radio-circle"></div>
           </div>
         `;
       });
-      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No options available.</p>" : html;
+      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No available barbers right now (All busy or off-duty).</p>" : html;
       overlay.classList.add('show');
     };
 
@@ -1081,11 +1085,11 @@
           try {
             await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), {
               assignedBarber: val,
-              status: "in_progress",
+              status: "pending_acceptance",
               denyReason: null
             });
             playRingTone();
-            showToast(`Ticket reassigned to ${val}!`);
+            showToast(`Ticket reassigned to ${val} for review!`);
           } catch (err) {
             await customPopup('alert', "Error reassigning ticket: " + err.message);
           }
@@ -1676,8 +1680,18 @@
       } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
     };
 
-    window.promptDenyReason = async (ticketId) => {
-      const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter reason...");
+    window.acceptTicket = async (ticketId) => {
+      try {
+        await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" });
+        playRingTone();
+        showToast("Customer accepted! Cut is now in progress.");
+      } catch (error) {
+        await customPopup('alert', "Action failed: " + error.message);
+      }
+    };
+
+    window.promptBarberDenyReason = async (ticketId) => {
+      const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason...");
       if (reason === null) return;
       if (!reason.trim()) {
         await customPopup('alert', "A reason is required to deny a customer.");
@@ -1685,11 +1699,11 @@
       }
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), { 
-          status: "pending_denial", 
+          status: "denied", 
           denyReason: reason.trim() 
         });
         playRingTone();
-        showToast("Denial submitted for secretary review.");
+        showToast("Customer denied and reason recorded.");
       } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
     };
 
@@ -1783,8 +1797,8 @@
             const t = d.data();
             if (t.status === "completed") {
               ticketNotice = `<div class="notice-card" style="border-color:#28a745;"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`;
-            } else if (t.status === "in_progress") {
-              ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Issued</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> assigned to <b>${t.assignedBarber}</b></p></div>`;
+            } else if (t.status === "pending_acceptance") {
+              ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`;
             }
           });
           renderOwnerNotifications(null, ticketNotice, null);
@@ -1839,9 +1853,18 @@
     function cacheAllTickets() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         allPaidTicketsCache = [];
+        activeBusyBarbers.clear();
+        
         snapshot.forEach((doc) => {
-          allPaidTicketsCache.push({ id: doc.id, ...doc.data() });
+          const t = doc.data();
+          allPaidTicketsCache.push({ id: doc.id, ...t });
+          
+          // Track busy barbers currently assigned to a pending acceptance or in_progress cut
+          if ((t.status === "pending_acceptance" || t.status === "in_progress") && t.assignedBarber) {
+            activeBusyBarbers.add(t.assignedBarber.trim().toLowerCase());
+          }
         });
+
         if (customerDirectoryPage.style.display === "block") { renderCustomerDirectoryList(); }
       });
     }
@@ -2271,6 +2294,11 @@
 
         if (!name || !serviceVal || !barber) return await customPopup('alert', "Please fill out customer name, service type, and barber.");
 
+        // Double check if barber is currently busy before issuing ticket
+        if (activeBusyBarbers.has(barber.toLowerCase())) {
+          return await customPopup('alert', `⚠️ Barber ${barber} is currently busy with an active cut or pending review and cannot be assigned.`);
+        }
+
         const blacklistSnap = await getDocs(collection(db, "blacklist"));
         let isBanned = false;
         blacklistSnap.forEach(bDoc => {
@@ -2288,14 +2316,14 @@
           await addDoc(collection(db, "daily_tickets"), {
             ticketNo: ticketNumber, customerName: name, customerPhone: phone || 'Not Provided',
             serviceName: serviceData[0], price: Number(serviceData[1]),
-            assignedBarber: barber, status: "in_progress", timestamp: new Date().getTime()
+            assignedBarber: barber, status: "pending_acceptance", timestamp: new Date().getTime()
           });
           playRingTone();
           document.getElementById('custName').value = ""; document.getElementById('custPhone').value = "";
           document.getElementById('customerHistoryBox').style.display = "none";
           selectedIntakeService = ""; document.getElementById('serviceTypeText').innerText = "Select Service...";
           selectedIntakeBarber = ""; document.getElementById('barberNameText').innerText = "Select Barber...";
-          showToast("Ticket issued & sent to chair!");
+          showToast("Ticket issued & sent for barber review!");
         } catch (error) { await customPopup('alert', "Error saving: " + error.message); }
       });
     }
@@ -2372,7 +2400,7 @@
             `;
           }
 
-          if (ticket.status === "in_progress" || ticket.status === "completed") {
+          if (ticket.status === "pending_acceptance" || ticket.status === "in_progress" || ticket.status === "completed") {
             activeQueueCount++;
           }
 
@@ -2388,11 +2416,18 @@
 
             // OWNER HAS READ-ONLY ACCESS TO THE QUEUE (NO ACTION BUTTONS)
             if (!isOwner) {
-              if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) {
+              if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) {
                  actionButton = `
                    <div style="display: flex; gap: 8px;">
-                     <button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH</button>
-                     <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptDenyReason('${ticketId}')">DENY</button>
+                     <button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button>
+                     <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button>
+                   </div>
+                 `;
+              }
+              else if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) {
+                 actionButton = `
+                   <div style="display: flex; gap: 8px;">
+                     <button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button>
                    </div>
                  `;
               } 
