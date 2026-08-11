@@ -121,7 +121,7 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage { display: none; width: 100%; max-width: 480px; text-align: left; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #offlineView { display: none; width: 100%; max-width: 480px; text-align: left; }
     #dashboard { text-align: center; }
 
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
@@ -316,6 +316,14 @@
     <button id="sidebarSettingsBtn" class="sidebar-btn" onclick="openSettingsPage(); closeSidebar();">⚙️ Settings & Payment</button>
   </div>
 
+  <!-- OFFLINE NOTICE VIEW -->
+  <div id="offlineView" class="panel" style="border-color: #ffc107; text-align: center;">
+    <div style="font-size: 40px; margin-bottom: 10px;">📡</div>
+    <h3 style="color: #ffc107;">You Are Offline</h3>
+    <p style="opacity: 0.9; font-size: 15px; line-height: 1.5; margin-bottom: 25px;">SJ'S SALOON requires an active internet connection to load shop records and sync live queues. Please check your network connection and try again.</p>
+    <button onclick="window.location.reload()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Retry Connection</button>
+  </div>
+
   <!-- JUMPING ANIMATED LOGIN SCREEN CENTERED -->
   <div id="loginWelcomeView" class="login-welcome-box">
     <div class="jumping-logo-container">
@@ -343,7 +351,7 @@
     </button>
   </div>
 
-  <p id="statusText" style="opacity: 0.7; display: none;">Please log in to continue.</p>
+  <p id="statusText" style="opacity: 0.8; font-weight: bold; margin-top: 40px; display: none; font-size: 16px; color: var(--accent-gold); letter-spacing: 1px;">Loading... ⏳</p>
 
   <!-- FULLSCREEN NATIVE GALLERY IMAGE VIEWER MODAL -->
   <div id="fullscreenImageViewer">
@@ -689,7 +697,29 @@
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
+    // OFFLINE & ONLINE CONNECTION HANDLERS
+    function checkConnectionStatus() {
+      const offlineView = document.getElementById('offlineView');
+      const loginView = document.getElementById('loginWelcomeView');
+      if (!navigator.onLine) {
+        loginView.style.display = "none";
+        document.getElementById('setupView').style.display = "none";
+        document.getElementById('pendingView').style.display = "none";
+        dashboard.style.display = "none";
+        document.getElementById('statusText').style.display = "none";
+        offlineView.style.display = "block";
+        return false;
+      } else {
+        offlineView.style.display = "none";
+        return true;
+      }
+    }
+
+    window.addEventListener('online', () => { window.location.reload(); });
+    window.addEventListener('offline', () => { checkConnectionStatus(); });
+
     window.addEventListener('DOMContentLoaded', () => {
+      if (!checkConnectionStatus()) return;
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       if (isStandalone) { const installBox = document.getElementById('installAppContainer'); if (installBox) installBox.style.display = 'none'; const welcomeInstallBtn = document.getElementById('welcomeInstallBtn'); if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none'; }
       document.addEventListener('click', (e) => { if (e.target.tagName === 'IMG' && !e.target.closest('#fullscreenImageViewer')) { const src = e.target.src; if (src && !src.endsWith('undefined') && !src.includes('data:image/svg+xml')) { openFullscreenImageViewer(src, e.target.alt || e.target.title || "SJ'S SALOON PREVIEW"); } } });
@@ -839,8 +869,11 @@
     window.backToDirectoryList = () => { document.getElementById('customerDetailView').style.display = "none"; document.getElementById('directoryListView').style.display = "block"; };
 
     onAuthStateChanged(auth, async (user) => {
+      if (!checkConnectionStatus()) return;
       if (user) {
-        loginWelcomeView.style.display = "none"; statusText.style.display = "block"; statusText.innerText = "Connecting to database... ⏳"; 
+        loginWelcomeView.style.display = "none"; 
+        statusText.style.display = "block"; 
+        statusText.innerText = "Loading... ⏳"; 
         try {
           const userRef = doc(db, "users", user.uid); const userSnap = await getDoc(userRef); statusText.style.display = "none";
           const payConfigSnap = await getDoc(doc(db, "shop_config", "payment")); if (payConfigSnap.exists()) { shopPaymentConfig = payConfigSnap.data(); }
@@ -861,13 +894,24 @@
       if (!displayName || !country) { return await customPopup('alert', "Please fill in your display name and select a country."); }
       if (role === "owner") { try { const allUsers = await getDocs(collection(db, "users")); let ownerExists = false; allUsers.forEach(d => { if (d.data().role === "owner") ownerExists = true; }); if (ownerExists) { return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists."); } } catch(e) {} } 
       else { if (!idType || !idNumber) { return await customPopup('alert', "Please select your ID type and enter your ID number."); } const idError = validateGovernmentID(country, idType, idNumber); if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); } }
-      let photoUrlToSave = user.photoURL || "https://via.placeholder.com/150"; const saveBtn = document.getElementById('saveProfileBtn'); saveBtn.innerText = "Uploading & Saving... ⏳"; saveBtn.disabled = true;
+      let photoUrlToSave = user.photoURL || "https://via.placeholder.com/150"; const saveBtn = document.getElementById('saveProfileBtn'); 
+      saveBtn.innerText = "Loading... ⏳"; saveBtn.disabled = true;
+      document.getElementById('setupView').style.display = "none";
+      statusText.style.display = "block";
+      statusText.innerText = "Loading... ⏳";
+
       const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
       try {
         if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
         const isOwner = (role === "owner"); await setDoc(doc(db, "users", user.uid), { name: displayName, email: user.email || "", photoURL: photoUrlToSave, role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber, isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime() });
         playRingTone(); showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!"); setTimeout(() => window.location.reload(), 1500);
-      } catch (error) { await customPopup('alert', "Error saving profile: " + error.message); saveBtn.innerText = "Submit Profile & ID for Approval"; saveBtn.disabled = false; }
+      } catch (error) { 
+        statusText.style.display = "none";
+        document.getElementById('setupView').style.display = "block";
+        await customPopup('alert', "Error saving profile: " + error.message); 
+        saveBtn.innerText = "Submit Profile & ID for Approval"; 
+        saveBtn.disabled = false; 
+      }
     });
 
     window.openEditProfile = () => {
