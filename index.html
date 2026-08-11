@@ -449,15 +449,17 @@
     <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Active Staff Management</h4>
     <p style="opacity: 0.8; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
     <div id="activeStaffList"></div>
+    <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">🚨 Staff Reports & Complaints</h4>
+    <div id="staffReportsList"><p style="opacity: 0.6; font-style: italic; font-size: 13px;">No staff reports submitted.</p></div>
   </div>
 
   <div id="ownerServicesPage" class="panel" style="border-color: #4285F4;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #4285F4;">Services & Prices</h3>
-    <h4 style="margin-top: 0;">Add New Service</h4>
+    <h4 style="margin-top: 0;">Add New Service (Set Price to 0 for Free Service)</h4>
     <div class="flex-row">
-      <input type="text" id="newServiceName" placeholder="Service (e.g. Dye)">
-      <input type="number" id="newServicePrice" placeholder="Price (GHS)">
+      <input type="text" id="newServiceName" placeholder="Service (e.g. Dye / Promo)">
+      <input type="number" id="newServicePrice" placeholder="Price (0 for Free)">
     </div>
     <button id="addServiceBtn" style="background: #4285F4; border-color: #4285F4; width: 100%; margin-bottom: 20px;">Add Service</button>
     <h4 style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Existing Services</h4>
@@ -514,6 +516,14 @@
       <input type="tel" id="ownerMomoNumberSet" placeholder="e.g. 0240000000">
       <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Payment Details</button>
     </div>
+
+    <!-- REPORT STAFF SECTION -->
+    <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px;">
+      <h4 style="color: #ff4444; margin-top: 0;">🚨 Report Staff Member</h4>
+      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Report a barber or secretary to the owner with a detailed reason.</p>
+      <button onclick="openReportStaffModal()" style="background: #ff4444; border-color: #ff4444; width: 100%; color: white;">Report Barber / Secretary</button>
+    </div>
+
     <div id="installAppContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
       <h4 style="color: var(--accent-gold); margin-top: 0;">📱 Install App on Phone</h4>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen for quick, full-screen access.</p>
@@ -798,7 +808,7 @@
       dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "block"; document.getElementById('reportPageTitle').innerText = labelText.trim().toUpperCase() + " REPORT";
       let totalVal = 0; let totalCuts = 0; let serviceMap = {};
       allPaidTicketsCache.forEach(t => {
-        if (t.status === "paid") {
+        if (t.status === "paid" || (t.isFree && t.ownerFreeApproval === 'approved')) {
           if (currentUserDoc && currentUserDoc.role === "barber") { const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); if (t.assignedBarber.toLowerCase() !== myFirstName) return; }
           const tDate = new Date(t.timestamp);
           if (tDate.getFullYear() === year && tDate.getMonth() === month) { const sName = t.serviceName || "General Service"; const sPrice = Number(t.price) || 0; totalVal += sPrice; totalCuts++; if (!serviceMap[sName]) serviceMap[sName] = { count: 0, total: 0 }; serviceMap[sName].count++; serviceMap[sName].total += sPrice; }
@@ -842,6 +852,68 @@
 
     window.openChatPage = () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('chatPage').style.display = "block"; startChatListener(); };
     window.openAnnouncementsPage = () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('announcementsPage').style.display = "block"; if (currentUserDoc && currentUserDoc.role === "owner") { document.getElementById('ownerAnnouncementCreator').style.display = "block"; } startAnnouncementsListener(); };
+
+    // STAFF REPORTING MODAL
+    window.openReportStaffModal = async () => {
+      let barbersSecs = [];
+      try {
+        const snap = await getDocs(collection(db, "users"));
+        snap.forEach(d => {
+          const u = d.data();
+          if (u.isApproved && u.role !== "owner" && u.role !== "customer") {
+            barbersSecs.push({ label: `${u.name} (${u.role.toUpperCase()})`, value: u.name });
+          }
+        });
+      } catch(e) {}
+
+      if (barbersSecs.length === 0) {
+        return await customPopup('alert', "No active staff members found to report.");
+      }
+
+      const overlay = document.getElementById('customModalOverlay');
+      const title = document.getElementById('customModalTitle');
+      const msg = document.getElementById('customModalMessage');
+      const input = document.getElementById('customModalInput');
+      const dropdownList = document.getElementById('customDropdownList');
+      const backBtn = document.getElementById('customPickerBackBtn');
+      const cancelBtn = document.getElementById('customModalCancel');
+      const confirmBtn = document.getElementById('customModalConfirm');
+      const buttonContainer = document.getElementById('customModalButtons');
+
+      input.style.display = "none"; buttonContainer.style.display = "none"; backBtn.style.display = "block"; dropdownList.style.display = "block";
+      title.innerText = "Select Staff Member to Report";
+      title.style.color = "#ff4444";
+      msg.innerHTML = "";
+
+      let html = "";
+      barbersSecs.forEach(staff => {
+        html += `<div class="dropdown-option-item" onclick="promptStaffReportReason('${staff.value.replace(/'/g, "\\'")}')"><span>${staff.label}</span><div class="radio-circle"></div></div>`;
+      });
+      dropdownList.innerHTML = html;
+      overlay.classList.add('show');
+    };
+
+    window.promptStaffReportReason = async (staffName) => {
+      document.getElementById('customModalOverlay').classList.remove('show');
+      const reason = await customPopup('prompt', `Please enter your reason for reporting <strong>${staffName}</strong>:`, "Enter reason...");
+      if (reason === null) return;
+      if (!reason.trim()) {
+        return await customPopup('alert', "A reason is required to submit a report.");
+      }
+      try {
+        await addDoc(collection(db, "staff_reports"), {
+          staffName: staffName,
+          reportedBy: currentUserDoc.name,
+          reporterRole: currentUserDoc.role,
+          reason: reason.trim(),
+          timestamp: new Date().getTime()
+        });
+        playRingTone();
+        showToast(`Report submitted against ${staffName}!`);
+      } catch(err) {
+        await customPopup('alert', "Error submitting report: " + err.message);
+      }
+    };
 
     function validateGovernmentID(country, idType, idNumber) { if (!idNumber || idNumber.trim().length < 4) { return "ID Number is too short or invalid."; } const cleanNum = idNumber.trim(); if (country === "Ghana" && idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) { return "Invalid Ghana Card format. Must start with 'GHA-'."; } return null; }
 
@@ -974,9 +1046,51 @@
     window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); playRingTone(); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.promptBarberDenyReason = async (ticketId) => { const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason..."); if (reason === null) return; if (!reason.trim()) { await customPopup('alert', "A reason is required to deny a customer."); return; } try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied", denyReason: reason.trim() }); playRingTone(); showToast("Customer denied and reason recorded."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
 
+    // FREE SERVICE OWNER REVIEW ACTIONS
+    window.approveFreeService = async (ticketId) => {
+      try {
+        await updateDoc(doc(db, "daily_tickets", ticketId), { ownerFreeApproval: 'approved' });
+        playRingTone();
+        showToast("Free service approved by owner!");
+      } catch(err) {
+        await customPopup('alert', "Error approving free service: " + err.message);
+      }
+    };
+
+    window.forcePaymentService = async (ticketId, isSecretaryMustPay = false) => {
+      const newPriceStr = await customPopup('prompt', "Enter price for this service:", "Enter amount (e.g. 50)...");
+      if (newPriceStr === null) return;
+      const newPrice = Number(newPriceStr);
+      if (isNaN(newPrice) || newPrice <= 0) {
+        return await customPopup('alert', "Please enter a valid positive price.");
+      }
+      try {
+        await updateDoc(doc(db, "daily_tickets", ticketId), {
+          isFree: false,
+          ownerFreeApproval: 'paid_forced',
+          price: newPrice
+        });
+        playRingTone();
+        showToast("Service converted to paid successfully!");
+        if (isSecretaryMustPay) {
+          // Open payment page immediately for secretary
+          const t = ticketsMapCache.get(ticketId);
+          if (t) {
+            openPaymentPage(ticketId, t.customerName, t.serviceName, newPrice);
+          }
+        }
+      } catch(err) {
+        await customPopup('alert', "Error forcing payment: " + err.message);
+      }
+    };
+
     window.openTicketReviewModal = (ticketId) => {
       const t = ticketsMapCache.get(ticketId); if (!t) return;
-      const reviewHtml = `<div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6;"><p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p><p style="margin: 0 0 8px 0;">👤 <b>Customer Name:</b> ${t.customerName}</p><p style="margin: 0 0 8px 0;">📞 <b>Phone:</b> ${t.customerPhone || 'Not Provided'}</p><p style="margin: 0 0 8px 0;">✂️ <b>Service Requested:</b> ${t.serviceName}</p><p style="margin: 0 0 15px 0; color: #28a745; font-weight: bold;">💰 Price: GHS ${t.price.toFixed(2)}</p></div><div style="display: flex; gap: 10px; margin-top: 20px;"><button onclick="acceptTicket('${ticketId}')" class="btn-submit" style="flex: 1; background: #28a745; border-color: #28a745;">✅ Accept Cut</button><button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #8c1a1a; color: white; border-color: #cc2a2a;">❌ Deny</button></div>`;
+      let freeInfoHtml = "";
+      if (t.isFree) {
+        freeInfoHtml = `<p style="margin: 0 0 8px 0; color: #ffc107;">🎁 <b>Free Service Reason:</b> ${t.freeReason || 'None'}</p><p style="margin: 0 0 8px 0; font-size:13px; color: ${t.ownerFreeApproval === 'approved' ? '#28a745' : '#ffc107'};"><b>Owner Approval Status:</b> ${(t.ownerFreeApproval || 'pending').toUpperCase()}</p>`;
+      }
+      const reviewHtml = `<div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6;"><p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p><p style="margin: 0 0 8px 0;">👤 <b>Customer Name:</b> ${t.customerName}</p><p style="margin: 0 0 8px 0;">📞 <b>Phone:</b> ${t.customerPhone || 'Not Provided'}</p><p style="margin: 0 0 8px 0;">✂️ <b>Service Requested:</b> ${t.serviceName}</p><p style="margin: 0 0 8px 0; color: #28a745; font-weight: bold;">💰 Price: GHS ${t.price.toFixed(2)}</p>${freeInfoHtml}</div><div style="display: flex; gap: 10px; margin-top: 20px;"><button onclick="acceptTicket('${ticketId}')" class="btn-submit" style="flex: 1; background: #28a745; border-color: #28a745;">✅ Accept Cut</button><button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #8c1a1a; color: white; border-color: #cc2a2a;">❌ Deny</button></div>`;
       const overlay = document.getElementById('customModalOverlay'); document.getElementById('customModalTitle').innerText = "Review Customer & Service"; document.getElementById('customModalMessage').innerHTML = reviewHtml; document.getElementById('customModalInput').style.display = "none"; document.getElementById('customDropdownList').style.display = "none"; document.getElementById('customPickerBackBtn').style.display = "none"; document.getElementById('customModalButtons').style.display = "none"; overlay.classList.add('show');
     };
 
@@ -1023,13 +1137,16 @@
       if (currentUserDoc && currentUserDoc.role === "owner") {
         let notifHtml = "";
         const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qChat, (snap) => { let chatNotice = ""; snap.forEach(d => { const m = d.data(); if (m.senderId !== auth.currentUser.uid) { chatNotice = `<div class="notice-card"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; } }); renderOwnerNotifications(chatNotice, null, null); });
+        onSnapshot(qChat, (snap) => { let chatNotice = ""; snap.forEach(d => { const m = d.data(); if (m.senderId !== auth.currentUser.uid) { chatNotice = `<div class="notice-card"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; } }); renderOwnerNotifications(chatNotice, null, null, null); });
         const qTickets = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qTickets, (snap) => { let ticketNotice = ""; snap.forEach(d => { const t = d.data(); if (t.status === "completed") { ticketNotice = `<div class="notice-card" style="border-color:#28a745;"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`; } else if (t.status === "pending_acceptance") { ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`; } }); renderOwnerNotifications(null, ticketNotice, null); });
+        onSnapshot(qTickets, (snap) => { let ticketNotice = ""; snap.forEach(d => { const t = d.data(); if (t.status === "completed") { ticketNotice = `<div class="notice-card" style="border-color:#28a745;"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`; } else if (t.status === "pending_acceptance") { ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`; } }); renderOwnerNotifications(null, ticketNotice, null, null); });
         const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
-        onSnapshot(qUsers, (snap) => { let approvalNotice = ""; if (snap.size > 0) { approvalNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; } renderOwnerNotifications(null, null, approvalNotice); });
-        let cachedChatN = "", cachedTicketN = "", cachedApproveN = "";
-        function renderOwnerNotifications(c, t, a) { if (c !== null) cachedChatN = c; if (t !== null) cachedTicketN = t; if (a !== null) cachedApproveN = a; const combined = cachedApproveN + cachedTicketN + cachedChatN; notifBox.innerHTML = combined !== "" ? combined : `<div class="notice-card" style="border-color:#555;"><h5>✨ All Clear</h5><p>No new staff activities or pending notifications.</p></div>`; }
+        onSnapshot(qUsers, (snap) => { let approvalNotice = ""; if (snap.size > 0) { approvalNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; } renderOwnerNotifications(null, null, approvalNotice, null); });
+        const qFree = query(collection(db, "daily_tickets"), where("isFree", "==", true), where("ownerFreeApproval", "==", "pending"));
+        onSnapshot(qFree, (snap) => { let freeNotice = ""; if (snap.size > 0) { freeNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>🎁 Pending Free Service Review</h5><p>You have <b>${snap.size} free service request(s)</b> waiting for review.</p></div>`; } renderOwnerNotifications(null, null, null, freeNotice); });
+
+        let cachedChatN = "", cachedTicketN = "", cachedApproveN = "", cachedFreeN = "";
+        function renderOwnerNotifications(c, t, a, f) { if (c !== null) cachedChatN = c; if (t !== null) cachedTicketN = t; if (a !== null) cachedApproveN = a; if (f !== null) cachedFreeN = f; const combined = cachedApproveN + cachedTicketN + cachedFreeN + cachedChatN; notifBox.innerHTML = combined !== "" ? combined : `<div class="notice-card" style="border-color:#555;"><h5>✨ All Clear</h5><p>No new staff activities or pending notifications.</p></div>`; }
       } else {
         let annNotice = "", chatNotice = "";
         const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
@@ -1108,7 +1225,7 @@
     };
 
     function renderCustomerDirectoryList() {
-      const listContainer = document.getElementById('directoryCustomerList'); let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed");
+      const listContainer = document.getElementById('directoryCustomerList'); let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed" || (t.isFree && t.ownerFreeApproval === 'approved'));
       if (currentUserDoc && currentUserDoc.role === "barber") { const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName); }
       let customerMap = {}; ticketsToProcess.forEach(t => { const nameKey = t.customerName.trim().toLowerCase(); if (!customerMap[nameKey]) { customerMap[nameKey] = { displayName: t.customerName, phone: t.customerPhone || 'Not Provided', visits: [] }; } customerMap[nameKey].visits.push(t); });
       let html = ""; const customerKeys = Object.keys(customerMap);
@@ -1127,7 +1244,7 @@
       if (currentUserDoc && currentUserDoc.role === "barber") { const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName); }
       ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp); const phoneNum = ticketsToProcess[0]?.customerPhone || 'Not Provided'; const hasPhone = phoneNum && phoneNum !== 'Not Provided' && phoneNum.trim() !== '';
       let html = `<h3 style="color: var(--accent-gold); margin-bottom: 5px;">History for: ${customerName}</h3><p style="opacity: 0.8; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>${hasPhone ? `<a href="tel:${phoneNum}" style="display:inline-block; background:#28a745; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold; margin-bottom:15px;">📞 Call ${customerName}</a>` : ''}<p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>`;
-      ticketsToProcess.forEach(t => { const dateStr = new Date(t.timestamp).toLocaleString(); html += `<div class="ticket" style="border-left-color: #28a745;"><div class="ticket-details" style="margin-bottom: 5px;">Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)}<br>Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || 'Pending'}</strong><br>Date & Time: ${dateStr}<br>Ticket Status: <span style="color: #ffc107;">${t.status.toUpperCase()}</span></div></div>`; });
+      ticketsToProcess.forEach(t => { const dateStr = new Date(t.timestamp).toLocaleString(); html += `<div class="ticket" style="border-left-color: #28a745;"><div class="ticket-details" style="margin-bottom: 5px;">Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)} ${t.isFree ? '(FREE)' : ''}<br>Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || (t.isFree ? 'Free Service' : 'Pending')}</strong><br>Date & Time: ${dateStr}<br>Ticket Status: <span style="color: #ffc107;">${t.status.toUpperCase()}</span></div></div>`; });
       const encoded = encodeURIComponent(customerName);
       if (currentUserDoc && currentUserDoc.role === "owner") { html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'instant')">Blacklist ${customerName} Instantly</button>`; } else { html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'report')">Report ${customerName} for Blacklist</button>`; }
       document.getElementById('customerDetailContent').innerHTML = html;
@@ -1161,12 +1278,24 @@
         document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml; document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='opacity:0.6;'>No active staff found.</p>" : activeHtml;
       });
 
+      // Staff Reports Listener
+      onSnapshot(collection(db, "staff_reports"), (snapshot) => {
+        let html = "";
+        snapshot.forEach((docSnap) => {
+          const r = docSnap.data();
+          const dateStr = new Date(r.timestamp).toLocaleString();
+          html += `<div class="list-item" style="border-left-color: #ff4444;"><div class="ticket-title" style="color: #ff4444;">Reported Staff: ${r.staffName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy} (${r.reporterRole})</strong><br>Reason: <em>"${r.reason}"</em><br>Date: ${dateStr}</div><button class="btn-action" style="background: #333; color: #fff; border: 1px solid #555;" onclick="deleteStaffReport('${docSnap.id}')">Dismiss Report</button></div>`;
+        });
+        document.getElementById('staffReportsList').innerHTML = html === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No staff reports submitted.</p>" : html;
+      });
+
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => { let html = ""; snapshot.forEach((rDoc) => { const r = rDoc.data(); const dateStr = new Date(r.timestamp).toLocaleString(); html += `<div class="list-item" style="border-left-color: #ff4444;"><div class="ticket-title" style="color: #ff4444;">Customer: ${r.customerName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy}</strong><br>Feedback / Reason: <em>"${r.feedback}"</em><br>Date: ${dateStr}</div><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="confirmBlacklistFromReport('${rDoc.id}', '${r.customerName}')">Confirm & Add to Blacklist</button></div>`; }); document.getElementById('reportsList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No pending blacklist reports.</p>" : html; });
-      document.getElementById('addServiceBtn').addEventListener('click', async () => { const name = document.getElementById('newServiceName').value.trim(); const price = document.getElementById('newServicePrice').value; if (!name || !price) return await customPopup('alert', "Enter both name and price."); await addDoc(collection(db, "services"), { name, price: Number(price) }); playRingTone(); document.getElementById('newServiceName').value = ""; document.getElementById('newServicePrice').value = ""; showToast("Service added successfully!"); });
-      onSnapshot(collection(db, "services"), (snapshot) => { let html = ""; cachedServicesList = []; snapshot.forEach((sDoc) => { const s = sDoc.data(); cachedServicesList.push({ id: sDoc.id, ...s }); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;"><span style="color: var(--text-color);">${s.name} - GHS ${s.price}</span><button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Delete</button></div>`; }); document.getElementById('servicesList').innerHTML = html; });
+      document.getElementById('addServiceBtn').addEventListener('click', async () => { const name = document.getElementById('newServiceName').value.trim(); const price = document.getElementById('newServicePrice').value; if (!name || price === "") return await customPopup('alert', "Enter both name and price (use 0 for free service)."); await addDoc(collection(db, "services"), { name, price: Number(price) }); playRingTone(); document.getElementById('newServiceName').value = ""; document.getElementById('newServicePrice').value = ""; showToast("Service added successfully!"); });
+      onSnapshot(collection(db, "services"), (snapshot) => { let html = ""; cachedServicesList = []; snapshot.forEach((sDoc) => { const s = sDoc.data(); cachedServicesList.push({ id: sDoc.id, ...s }); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;"><span style="color: var(--text-color);">${s.name} - GHS ${s.price} ${s.price === 0 ? '(FREE)' : ''}</span><button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Delete</button></div>`; }); document.getElementById('servicesList').innerHTML = html; });
       onSnapshot(collection(db, "blacklist"), (snapshot) => { let html = ""; snapshot.forEach((bDoc) => { const b = bDoc.data(); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-left-color: #ff4444;"><span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Unblock</button></div>`; }); document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html; });
     }
 
+    window.deleteStaffReport = async (reportId) => { try { await deleteDoc(doc(db, "staff_reports", reportId)); playRingTone(); showToast("Report dismissed"); } catch(e) {} };
     window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); playRingTone(); showToast(`${userName} approved successfully!`); };
     window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); playRingTone(); showToast(`Profile updates approved for ${updatedName}!`); } };
     window.fireStaff = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) { await deleteDoc(userRef); playRingTone(); showToast(`${userName} removed from the shop.`); } };
@@ -1189,11 +1318,36 @@
         if (activeBusyBarbers.has(barber.toLowerCase())) { return await customPopup('alert', `⚠️ Barber ${barber} is currently busy with an active cut or pending review and cannot be assigned.`); }
         const blacklistSnap = await getDocs(collection(db, "blacklist")); let isBanned = false; blacklistSnap.forEach(bDoc => { if (bDoc.data().name === name.toLowerCase()) { isBanned = true; } });
         if (isBanned) return await customPopup('alert', "🚫 ACCESS DENIED: This customer is blacklisted!");
+        
         const serviceData = serviceVal.split('|');
+        const sName = serviceData[0];
+        const sPrice = Number(serviceData[1]);
+        
+        let freeReason = "";
+        if (sPrice === 0) {
+          freeReason = await customPopup('prompt', "This is a FREE service. Please enter the reason:", "Enter reason for free service...");
+          if (freeReason === null) return;
+          if (!freeReason.trim()) {
+            return await customPopup('alert', "A reason is required for free services.");
+          }
+        }
+
         try {
           const querySnapshot = await getDocs(collection(db, "daily_tickets")); const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
-          await addDoc(collection(db, "daily_tickets"), { ticketNo: ticketNumber, customerName: name, customerPhone: phone || 'Not Provided', serviceName: serviceData[0], price: Number(serviceData[1]), assignedBarber: barber, status: "pending_acceptance", timestamp: new Date().getTime() });
-          playRingTone(); document.getElementById('custName').value = ""; document.getElementById('custPhone').value = ""; document.getElementById('customerHistoryBox').style.display = "none"; document.getElementById('intakeCustomerStats').style.display = "none"; selectedIntakeService = ""; document.getElementById('serviceTypeText').innerText = "Select Service..."; selectedIntakeBarber = ""; document.getElementById('barberNameText').innerText = "Select Barber..."; showToast("Ticket issued & sent for barber review!");
+          await addDoc(collection(db, "daily_tickets"), { 
+            ticketNo: ticketNumber, 
+            customerName: name, 
+            customerPhone: phone || 'Not Provided', 
+            serviceName: sName, 
+            price: sPrice, 
+            isFree: sPrice === 0,
+            freeReason: freeReason || null,
+            ownerFreeApproval: sPrice === 0 ? 'pending' : null,
+            assignedBarber: barber, 
+            status: "pending_acceptance", 
+            timestamp: new Date().getTime() 
+          });
+          playRingTone(); document.getElementById('custName').value = ""; document.getElementById('custPhone').value = ""; document.getElementById('customerHistoryBox').style.display = "none"; document.getElementById('intakeCustomerStats').style.display = "none"; selectedIntakeService = ""; document.getElementById('serviceTypeText').innerText = "Select Service..."; selectedIntakeBarber = ""; document.getElementById('barberNameText').innerText = "Select Barber..."; showToast(sPrice === 0 ? "Free service ticket issued & sent to owner/barber!" : "Ticket issued & sent for barber review!");
         } catch (error) { await customPopup('alert', "Error saving: " + error.message); }
       });
     }
@@ -1224,7 +1378,6 @@
           const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : ""; 
           const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
 
-          // STRICT BARBER ISOLATION: Barbers should only process/see their own assigned tickets in queue
           if (isBarber && ticketBarber !== myFirstName) {
             return;
           }
@@ -1241,24 +1394,40 @@
             if (!isOwner) {
               if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
               else if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
-              else if (ticket.status === "completed" && isSec) { actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`; }
+              else if (ticket.status === "completed" && isSec) {
+                if (ticket.isFree && ticket.ownerFreeApproval !== 'approved') {
+                  statusColor = "#ffc107";
+                  actionButton = `<div style="background: rgba(255,193,7,0.1); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 8px 0; font-size:12px; color:#ffc107;">🎁 Waiting for Owner Free Service Review</p><button class="btn-action" style="background: #28a745; border-color:#28a745; margin-bottom:5px;" onclick="forcePaymentService('${ticketId}', true)">Secretary Must Pay / Collect</button></div>`;
+                } else if (ticket.isFree && ticket.ownerFreeApproval === 'approved') {
+                  statusColor = "#28a745";
+                  actionButton = `<div style="background: rgba(40,167,69,0.1); padding: 10px; border-radius: 6px; border: 1px solid #28a745; margin-top:5px;"><p style="margin:0; font-size:12px; color:#28a745; font-weight:bold;">✅ Free Service Approved by Owner</p><button class="btn-action" style="background: #28a745; border-color:#28a745; margin-top:5px;" onclick="updateTicketStatus('${ticketId}', 'paid')">Complete Free Record</button></div>`;
+                } else {
+                  actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
+                }
+              }
               else if (ticket.status === "pending_denial" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"><button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button></div>`; }
               else if (ticket.status === "denied" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button><button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button></div>`; }
+            } else {
+              // Owner queue controls for free service
+              if (ticket.isFree && ticket.ownerFreeApproval === 'pending') {
+                actionButton = `<div style="background: rgba(255,193,7,0.15); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 5px 0; font-size:12px; color:#ffc107;">🎁 Free Reason: "${ticket.freeReason || 'None'}"</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#28a745; border-color:#28a745; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ff4444; border-color:#ff4444; font-size:12px;" onclick="forcePaymentService('${ticketId}', false)">Still Pay</button></div></div>`;
+              }
             }
 
             const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== ''; const isClickableForBarber = (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName);
 
             html += `
-              <div class="ticket" style="${ticket.status === 'pending_denial' || ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ''}">
+              <div class="ticket" style="${ticket.status === 'pending_denial' || ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ticket.isFree ? 'border-left-color: #ffc107;' : ''}">
                 <div ${isClickableForBarber ? `onclick="openTicketReviewModal('${ticketId}')"` : ''} style="${isClickableForBarber ? 'cursor: pointer;' : ''}">
                   <div class="ticket-header">
                     <span class="ticket-number">${ticket.ticketNo || '--'}</span>
-                    <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.status.toUpperCase().replace('_', ' ')}</span>
+                    <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.isFree ? '🎁 FREE SERVICE' : ticket.status.toUpperCase().replace('_', ' ')}</span>
                   </div>
                   <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div>
                   <div class="ticket-details" style="margin-bottom: 10px;">
-                    ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
+                    ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} ${ticket.isFree ? '(FREE)' : ''} <br>
                     Assigned to: <strong>${ticket.assignedBarber}</strong>
+                    ${ticket.isFree ? `<br><span style="color:#ffc107;">Reason: "${ticket.freeReason}"</span>` : ''}
                     ${ticket.status === 'pending_acceptance' && isBarber && ticketBarber === myFirstName ? '<br><span style="color: var(--accent-gold); font-weight: bold;">🔍 Tap here to review details & accept/deny</span>' : ''}
                     ${ticket.denyReason ? `<br><span style="color: #ff4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
                   </div>
@@ -1281,7 +1450,7 @@
 
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
-          if (ticket.status === "paid") {
+          if (ticket.status === "paid" || (ticket.isFree && ticket.ownerFreeApproval === 'approved')) {
             if (barberNameFilter) { const firstName = barberNameFilter.split(' ')[0].toLowerCase(); if (ticket.assignedBarber.toLowerCase() !== firstName) return; }
             const time = ticket.timestamp; const sName = ticket.serviceName || "General Service"; const sPrice = Number(ticket.price) || 0;
             if (time >= startOfToday) { todayVal += sPrice; todayCuts++; if(!todayServiceMap[sName]) todayServiceMap[sName] = { count: 0, total: 0 }; todayServiceMap[sName].count++; todayServiceMap[sName].total += sPrice; }
