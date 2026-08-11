@@ -2145,7 +2145,7 @@
       const s = JSON.parse(decodeURIComponent(staffDataJson));
       const detailsHtml = `
         <div style="text-align: center;">
-          <img src="${s.photoURL || 'https://via.placeholder.com/100'}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;">
+          <img src="${s.photoURL || 'https://via.placeholder.com/100'}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;" onclick="openFullscreenImageViewer('${s.photoURL || ''}', '${s.name || 'Staff'}' )" title="View Profile Picture">
           <h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase;">${s.name}</h4>
           <span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span>
         </div>
@@ -2526,6 +2526,17 @@
             `;
           }
 
+          const isOwner = currentUserDoc && currentUserDoc.role === "owner";
+          const isSec = currentUserDoc && currentUserDoc.role === "secretary";
+          const isBarber = currentUserDoc && currentUserDoc.role === "barber";
+          const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : "";
+          const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
+
+          // Barbers can only see their assigned customers in their live queue
+          if (isBarber && ticketBarber !== myFirstName) {
+            return;
+          }
+
           if (ticket.status === "pending_acceptance" || ticket.status === "in_progress" || ticket.status === "completed") {
             activeQueueCount++;
           }
@@ -2533,12 +2544,6 @@
           if (ticket.status !== "paid" && ticket.status !== "cancelled") {
             let actionButton = "";
             let statusColor = "#ffc107"; 
-
-            const isOwner = currentUserDoc && currentUserDoc.role === "owner";
-            const isSec = currentUserDoc && currentUserDoc.role === "secretary";
-            const isBarber = currentUserDoc && currentUserDoc.role === "barber";
-            const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : "";
-            const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
 
             if (!isOwner) {
               if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) {
@@ -2607,7 +2612,7 @@
         if (hasNewTicketOrChange) playRingTone();
         queueInitialized = true;
         document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers in queue.</p>" : html;
-        document.getElementById('queueCountBadge',).innerText = `${activeQueueCount} Active`;
+        document.getElementById('queueCountBadge').innerText = `${activeQueueCount} Active`;
         
         const deniedListEl = document.getElementById('ownerDailyDeniedList');
         if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") {
