@@ -170,6 +170,34 @@
     .btn-finish { background: linear-gradient(145deg, #555, #333); color: #fff; border-color: #666; }
     .btn-pay { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
 
+    /* DASHBOARD NOTIFICATION CARDS */
+    .notice-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--accent-gold);
+      border-left: 5px solid var(--accent-gold);
+      border-radius: 10px;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      text-align: left;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .notice-card h5 {
+      margin: 0 0 5px 0;
+      color: var(--accent-gold);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .notice-card p {
+      margin: 0;
+      font-size: 13px;
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+
     /* OWNER ADMIN & ANALYTICS */
     #adminPanel { border-color: #1a4b8c; }
     #adminPanel h3 { color: #4285F4; border-color: #1a4b8c; }
@@ -235,6 +263,7 @@
       padding: 25px; width: 85%; max-width: 380px;
       text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
       transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-height: 90vh; overflow-y: auto;
     }
     #customModalOverlay.show #customModalBox { transform: scale(1); }
     #customModalTitle { margin-top: 0; color: var(--accent-gold); letter-spacing: 1px; font-size: 18px; text-transform: uppercase; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 15px; }
@@ -588,8 +617,11 @@
     <h3 id="userName"></h3>
     <div id="userRole">Role: LOADING...</div>
 
+    <!-- REAL-TIME DASHBOARD NOTIFICATION BANNER / ACTIVITY FEED -->
+    <div id="dashboardNotificationBox" style="display: none; margin-top: 15px;"></div>
+
     <!-- QUICK NAV BUTTONS FOR PROFILE, CHAT, ANNOUNCEMENTS, SETTINGS -->
-    <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 15px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
+    <button id="openEditProfileBtn" onclick="openEditProfile()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; margin-top: 10px; width: 100%; display: none;">✏️ Edit My Profile & ID Info</button>
     
     <div class="flex-row" style="margin-top: 10px; margin-bottom: 10px;">
       <button onclick="openChatPage()" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; font-size: 13px;">💬 Team Chat</button>
@@ -680,7 +712,7 @@
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     // --- PUSH / AUDIO NOTIFICATION RING & VIBRATION SOUND ---
     function playRingTone() {
@@ -1718,6 +1750,90 @@
       startLiveQueue();
       if (docData.role === "secretary") { populateIntakeForm(); }
       cacheAllTickets();
+      startDashboardNotifications();
+    }
+
+    // --- REALTIME DASHBOARD NOTIFICATION & ACTIVITY BANNER ---
+    function startDashboardNotifications() {
+      const notifBox = document.getElementById('dashboardNotificationBox');
+      notifBox.style.display = "block";
+
+      if (currentUserDoc.role === "owner") {
+        // OWNER DASHBOARD: Listen for Recent Messages, Cut Completions, Intake Tickets & Approvals
+        let notifHtml = "";
+        
+        // Listen to latest team chat
+        const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
+        onSnapshot(qChat, (snap) => {
+          let chatNotice = "";
+          snap.forEach(d => {
+            const m = d.data();
+            if (m.senderId !== auth.currentUser.uid) {
+              chatNotice = `<div class="notice-card"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`;
+            }
+          });
+          renderOwnerNotifications(chatNotice, null, null);
+        });
+
+        // Listen to daily tickets updates (Finished cuts / New intakes)
+        const qTickets = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
+        onSnapshot(qTickets, (snap) => {
+          let ticketNotice = "";
+          snap.forEach(d => {
+            const t = d.data();
+            if (t.status === "completed") {
+              ticketNotice = `<div class="notice-card" style="border-color:#28a745;"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`;
+            } else if (t.status === "in_progress") {
+              ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Issued</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> assigned to <b>${t.assignedBarber}</b></p></div>`;
+            }
+          });
+          renderOwnerNotifications(null, ticketNotice, null);
+        });
+
+        // Listen for pending staff approvals
+        const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
+        onSnapshot(qUsers, (snap) => {
+          let approvalNotice = "";
+          if (snap.size > 0) {
+            approvalNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`;
+          }
+          renderOwnerNotifications(null, null, approvalNotice);
+        });
+
+        let cachedChatN = "", cachedTicketN = "", cachedApproveN = "";
+        function renderOwnerNotifications(c, t, a) {
+          if (c !== null) cachedChatN = c;
+          if (t !== null) cachedTicketN = t;
+          if (a !== null) cachedApproveN = a;
+          
+          const combined = cachedApproveN + cachedTicketN + cachedChatN;
+          notifBox.innerHTML = combined !== "" ? combined : `<div class="notice-card" style="border-color:#555;"><h5>✨ All Clear</h5><p>No new staff activities or pending notifications.</p></div>`;
+        }
+
+      } else {
+        // STAFF DASHBOARD: Listen for Owner Announcements & Owner Chat Messages
+        let annNotice = "", chatNotice = "";
+
+        const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
+        onSnapshot(qAnn, (snap) => {
+          snap.forEach(d => {
+            const a = d.data();
+            annNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>📢 Latest Owner Announcement</h5><p>"${a.text}" <br><span style="font-size:10px; opacity:0.7;">By ${a.author}</span></p></div>`;
+          });
+          notifBox.innerHTML = annNotice + chatNotice;
+        });
+
+        const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
+        onSnapshot(qChat, (snap) => {
+          snap.forEach(d => {
+            const m = d.data();
+            if (m.senderRole === "owner") {
+              chatNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>👑 Message from Owner</h5><p><b>${m.senderName}</b>: "${m.text}"</p></div>`;
+            }
+          });
+          notifBox.innerHTML = annNotice + chatNotice;
+        });
+      }
     }
 
     function cacheAllTickets() {
@@ -1907,6 +2023,25 @@
       } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
     });
 
+    // --- CLICKABLE STAFF INFORMATION REVIEW POPUP ---
+    window.viewStaffSubmissionDetails = async (staffDataJson) => {
+      const s = JSON.parse(decodeURIComponent(staffDataJson));
+      const detailsHtml = `
+        <div style="text-align: center;">
+          <img src="${s.photoURL || 'https://via.placeholder.com/100'}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;">
+          <h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase;">${s.name}</h4>
+          <span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span>
+        </div>
+        <div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6;">
+          <p style="margin: 0 0 8px 0;">📧 <b>Email:</b> ${s.email || 'N/A'}</p>
+          <p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p>
+          <p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p>
+          <p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p>
+        </div>
+      `;
+      await customPopup('alert', detailsHtml);
+    };
+
     function startAdminListeners() {
       onSnapshot(collection(db, "users"), (snapshot) => {
         let approvalHtml = "";
@@ -1915,14 +2050,15 @@
         snapshot.forEach((userDoc) => {
           const u = userDoc.data();
           const uid = userDoc.id;
+          const encodedStaff = encodeURIComponent(JSON.stringify(u));
 
           if (!u.isApproved) {
             approvalHtml += `
               <div class="list-item" style="border-left-color: #ffc107;">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info">
                   <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;">
                   <div>
-                    <div class="ticket-title">${u.name}</div>
+                    <div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div>
                     <div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div>
                     <div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
                   </div>
@@ -1932,13 +2068,17 @@
             `;
           } else if (u.pendingUpdates) {
             const p = u.pendingUpdates;
+            const updateStaffObj = encodeURIComponent(JSON.stringify({ ...u, name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL || u.photoURL }));
+            
             approvalHtml += `
               <div class="list-item" style="border-left-color: #4285F4;">
-                <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name}</div>
-                <div class="ticket-details">
-                  New Name: <strong>${p.name}</strong><br>
-                  New Country: <strong>${p.country}</strong><br>
-                  New ID: <strong>${p.idType}</strong> (${p.idNumber})
+                <div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info">
+                  <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div>
+                  <div class="ticket-details" style="margin-bottom: 10px;">
+                    New Name: <strong>${p.name}</strong><br>
+                    New Country: <strong>${p.country}</strong><br>
+                    New ID: <strong>${p.idType}</strong> (${p.idNumber})
+                  </div>
                 </div>
                 <button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Profile Update</button>
               </div>
@@ -1948,10 +2088,10 @@
           if (u.isApproved && u.role !== "owner") {
             activeHtml += `
               <div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info">
                   <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;">
                   <div>
-                    <strong style="color: var(--text-color);">${u.name}</strong><br>
+                    <strong style="color: var(--text-color);">${u.name}</strong> 👁️<br>
                     <span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span>
                   </div>
                 </div>
