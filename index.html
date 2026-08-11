@@ -723,7 +723,7 @@
       }
 
       if (isIOS) {
-        await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share button</b> $\uparrow$ at the bottom or top of your Safari browser.<br>2. Scroll down the menu options and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>'Add'</b> in the top right corner to instantly install!");
+        await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share button</b> (square with an up arrow) at the bottom or top of your Safari browser.<br>2. Scroll down the menu options and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>'Add'</b> in the top right corner to instantly install!");
         localStorage.setItem('sjs_app_installed', 'true');
       } else if (deferredPrompt) {
         deferredPrompt.prompt();
@@ -741,7 +741,7 @@
         await customPopup('alert', "🤖 <b>How to Install on Android:</b><br><br>1. Tap the browser menu <b>(three vertical dots ⋮)</b> in the top right corner.<br>2. Select <b>'Install app'</b> or <b>'Add to Home screen'</b>.<br>3. Confirm by tapping <b>'Install'</b>.");
         localStorage.setItem('sjs_app_installed', 'true');
       } else {
-        await customPopup('alert', "💻 <b>How to Install on Desktop (Chrome / Edge):</b><br><br>1. Look at the right side of your browser address bar.<br>2. Click the <b>Install icon</b> (a monitor with an arrow) or open your browser menu $\\vdots$ and click <b>'Install SJ'S SALOON'</b>.");
+        await customPopup('alert', "💻 <b>How to Install on Desktop:</b><br><br>1. Look at the right side of your browser address bar.<br>2. Click the <b>Install icon</b> (a monitor with a downward arrow) or open your browser menu (⋮) and click <b>Install</b>.");
         localStorage.setItem('sjs_app_installed', 'true');
       }
     };
