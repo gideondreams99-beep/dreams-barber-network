@@ -551,11 +551,61 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // --- SERVICE WORKER REGISTRATION FOR PWA ---
+    // --- PWA SERVICE WORKER REGISTRATION & AUTO-UPDATE SYSTEM ---
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed: ', err));
+      window.addEventListener('load', async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('/sw.js');
+          
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  showPwaUpdateBanner(reg);
+                }
+              });
+            }
+          });
+
+          if (reg.waiting) {
+            showPwaUpdateBanner(reg);
+          }
+        } catch (err) {
+          console.log('SW registration failed: ', err);
+        }
       });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+
+    function showPwaUpdateBanner(reg) {
+      if (document.getElementById('pwaUpdateToast')) return;
+      
+      const banner = document.createElement('div');
+      banner.id = 'pwaUpdateToast';
+      banner.style.cssText = `
+        position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+        background: linear-gradient(145deg, #d4af37, #997d20); color: #111;
+        padding: 14px 24px; border-radius: 30px; font-weight: bold; font-size: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.9); z-index: 999999; cursor: pointer;
+        text-align: center; border: 1px solid #fff; letter-spacing: 0.5px;
+        display: flex; align-items: center; gap: 10px;
+      `;
+      banner.innerHTML = `<span>⚡ New SJ'S SALOON Update Available! Tap to install.</span>`;
+      banner.onclick = () => {
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+        window.location.reload();
+      };
+      document.body.appendChild(banner);
     }
 
     let deferredPrompt = null;
@@ -733,6 +783,20 @@
       return null; 
     }
 
+    // --- DUPLICATE ID CHECKER IN FIRESTORE ---
+    async function checkDuplicateID(idNumber, currentUid = null) {
+      const q = query(collection(db, "users"), where("idNumber", "==", idNumber.trim()));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        for (let userDoc of snap.docs) {
+          if (userDoc.id !== currentUid) {
+            return true; 
+          }
+        }
+      }
+      return false;
+    }
+
     // --- TOAST HELPER ---
     window.showToast = (message) => {
       let toast = document.getElementById('toastNotification');
@@ -832,12 +896,6 @@
             document.getElementById('setupView').style.display = "block";
           } else {
             currentUserDoc = userSnap.data();
-            
-            if (user.email === "gismartsghana@gmail.com" && !currentUserDoc.isApproved) {
-              await updateDoc(userRef, { isApproved: true, role: "owner" });
-              currentUserDoc.isApproved = true;
-              currentUserDoc.role = "owner";
-            }
 
             if (currentUserDoc.isApproved) {
               loadApp(user, currentUserDoc);
@@ -864,6 +922,7 @@
       }
     });
 
+    // --- SETUP PROFILE SUBMISSION (With Generic Single Owner & Duplicate ID Checks) ---
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser;
       const role = document.getElementById('setupRole').value;
@@ -880,6 +939,28 @@
       const idError = validateGovernmentID(idType, idNumber);
       if (idError) {
         return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
+      }
+
+      // 1. GENERIC SINGLE OWNER RESTRICTION CHECK (First-come, first-served)
+      if (role === "owner") {
+        const ownerQuery = query(collection(db, "users"), where("role", "==", "owner"));
+        const ownerSnap = await getDocs(ownerQuery);
+
+        if (!ownerSnap.empty) {
+          // Verify if the current user isn't already the existing owner (edge case for re-saving)
+          let ownerIsMe = false;
+          ownerSnap.forEach(d => { if (d.id === user.uid) ownerIsMe = true; });
+          
+          if (!ownerIsMe) {
+            return await customPopup('alert', "🚫 ACCESS DENIED: A Shop Owner has already been established for SJ'S SALOON. Only one owner account is allowed. Please select Barber or Secretary.");
+          }
+        }
+      }
+
+      // 2. DUPLICATE ID CHECK
+      const isDuplicateID = await checkDuplicateID(idNumber, user.uid);
+      if (isDuplicateID) {
+        return await customPopup('alert', "🚫 ACCESS DENIED: This Government ID number is already registered to an existing account in SJ'S SALOON!");
       }
 
       let photoUrlToSave = user.photoURL || ""; 
@@ -938,6 +1019,7 @@
       dashboard.style.display = "block";
     };
 
+    // --- PROFILE EDIT SUBMISSION (With Duplicate ID Check) ---
     document.getElementById('submitEditProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser;
       const displayName = document.getElementById('editDisplayName').value.trim();
@@ -953,6 +1035,12 @@
       const idError = validateGovernmentID(idType, idNumber);
       if (idError) {
         return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
+      }
+
+      // DUPLICATE ID CHECK FOR PROFILE EDITS
+      const isDuplicateID = await checkDuplicateID(idNumber, user.uid);
+      if (isDuplicateID) {
+        return await customPopup('alert', "🚫 ACCESS DENIED: This Government ID number is already registered to another user account!");
       }
 
       let photoUrlToSave = currentUserDoc.photoURL;
