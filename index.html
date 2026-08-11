@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SJ'S SALOON</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#121212">
@@ -84,7 +84,6 @@
       margin-bottom: 5px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       object-fit: cover;
-      cursor: pointer;
     }
     
     /* VIEWS */
@@ -239,22 +238,6 @@
     #customModalMessage { opacity: 0.9; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; }
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
 
-    /* FULL SCREEN IMAGE VIEWER MODAL */
-    #imageViewerOverlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px);
-      z-index: 200000; display: none; align-items: center; justify-content: center; flex-direction: column;
-      opacity: 0; transition: opacity 0.3s ease;
-    }
-    #imageViewerOverlay.show { display: flex; opacity: 1; }
-    #fullSizeImageView {
-      max-width: 90%; max-height: 80vh; border-radius: 12px;
-      border: 2px solid var(--accent-gold); object-fit: contain;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-      transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    #imageViewerOverlay.show #fullSizeImageView { transform: scale(1); }
-
     /* RADIO OPTION LIST FOR CUSTOM DROPDOWN PICKER */
     #customDropdownList { display: none; max-height: 240px; overflow-y: auto; text-align: left; margin-bottom: 15px; }
     .dropdown-option-item {
@@ -310,12 +293,6 @@
 
   <h1 id="mainAppTitle" style="display: none;">SJ'S SALOON</h1>
   <p id="statusText" style="opacity: 0.7; display: none;">Please log in to continue.</p>
-
-  <!-- FULL SCREEN IMAGE VIEWER MODAL -->
-  <div id="imageViewerOverlay" onclick="closeImageViewer()">
-    <img id="fullSizeImageView" src="" alt="Full Size Profile Picture">
-    <p style="color: #fff; margin-top: 15px; font-size: 14px; opacity: 0.8; letter-spacing: 1px;">Tap anywhere to close</p>
-  </div>
 
   <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML -->
   <div id="customModalOverlay">
@@ -800,19 +777,6 @@
     let selectedIntakeBarber = "";
     let cachedServicesList = [];
     let cachedBarbersList = [];
-
-    // --- FULL-SCREEN IMAGE VIEWER FUNCTIONS ---
-    window.viewProfilePicture = (url) => {
-      if (!url) return;
-      const overlay = document.getElementById('imageViewerOverlay');
-      const img = document.getElementById('fullSizeImageView');
-      img.src = url;
-      overlay.classList.add('show');
-    };
-
-    window.closeImageViewer = () => {
-      document.getElementById('imageViewerOverlay').classList.remove('show');
-    };
 
     // --- REUSABLE CUSTOM POPUP UI & RADIO PICKER FUNCTION ---
     window.customPopup = function(type, message, placeholder = "Enter details...") {
@@ -1665,10 +1629,7 @@
       document.getElementById('openEditProfileBtn').style.display = "block";
       
       document.getElementById('userName').innerText = docData.name;
-      
-      const userPicImg = document.getElementById('userPic');
-      userPicImg.src = docData.photoURL;
-      userPicImg.onclick = () => viewProfilePicture(docData.photoURL);
+      document.getElementById('userPic').src = docData.photoURL;
 
       const roleDisplay = document.getElementById('userRole');
 
@@ -1908,7 +1869,7 @@
             approvalHtml += `
               <div class="list-item" style="border-left-color: #ffc107;">
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                  <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0; cursor: pointer;" onclick="viewProfilePicture('${u.photoURL}')">
+                  <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;">
                   <div>
                     <div class="ticket-title">${u.name}</div>
                     <div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div>
@@ -1922,12 +1883,11 @@
             const p = u.pendingUpdates;
             approvalHtml += `
               <div class="list-item" style="border-left-color: #4285F4;">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                  <img src="${p.photoURL || u.photoURL}" style="width: 50px; height: 50px; margin: 0; cursor: pointer;" onclick="viewProfilePicture('${p.photoURL || u.photoURL}')">
-                  <div>
-                    <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update: ${u.name}</div>
-                    <div class="ticket-details" style="margin-bottom: 0;">New Name: <strong>${p.name}</strong> | Country: <strong>${p.country}</strong></div>
-                  </div>
+                <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name}</div>
+                <div class="ticket-details">
+                  New Name: <strong>${p.name}</strong><br>
+                  New Country: <strong>${p.country}</strong><br>
+                  New ID: <strong>${p.idType}</strong> (${p.idNumber})
                 </div>
                 <button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Profile Update</button>
               </div>
@@ -1938,7 +1898,7 @@
             activeHtml += `
               <div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0; cursor: pointer;" onclick="viewProfilePicture('${u.photoURL}')">
+                  <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;">
                   <div>
                     <strong style="color: var(--text-color);">${u.name}</strong><br>
                     <span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span>
