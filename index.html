@@ -211,7 +211,7 @@
       font-weight: bold; font-size: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       z-index: 99999; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       display: flex; align-items: center; gap: 12px; letter-spacing: 1px; text-transform: uppercase;
-      opacity: 0; pointer-events: none; /* Make completely invisible by default */
+      opacity: 0; pointer-events: none;
     }
     #toastNotification.show { 
       transform: translateX(-50%) translateY(0); 
@@ -704,7 +704,6 @@
     });
 
     window.addEventListener('DOMContentLoaded', () => {
-      // ONLY hide the install buttons automatically if the user is 100% verified to be in standalone app mode
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       if (isStandalone) {
         const installBox = document.getElementById('installAppContainer');
@@ -1433,14 +1432,20 @@
 
         snapshot.forEach((docSnap) => {
           const msg = docSnap.data();
+          const msgId = docSnap.id;
           const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const isMe = msg.senderId === auth.currentUser.uid;
+          const isOwner = currentUserDoc.role === "owner";
           
+          // Allow deletion if it's your message OR if you are the owner deleting someone else's message
+          const canDelete = isMe || isOwner;
+
           html += `
             <div style="margin-bottom: 12px; text-align: ${isMe ? 'right' : 'left'};">
               <span style="font-size: 11px; color: var(--accent-gold);">${msg.senderName} (${msg.senderRole.toUpperCase()}) - ${timeStr}</span><br>
-              <div style="display: inline-block; background: ${isMe ? '#1a4b8c' : 'var(--input-bg)'}; color: ${isMe ? '#fff' : 'var(--text-color)'}; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">
+              <div style="display: inline-block; background: ${isMe ? '#1a4b8c' : 'var(--input-bg)'}; color: ${isMe ? '#fff' : 'var(--text-color)'}; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border); position: relative;">
                 ${msg.text}
+                ${canDelete ? `<br><span onclick="deleteChatMessage('${msgId}')" style="font-size: 10px; color: #ff4444; cursor: pointer; text-decoration: underline; display: inline-block; margin-top: 4px;">Delete message</span>` : ''}
               </div>
             </div>
           `;
@@ -1475,6 +1480,18 @@
       }
     });
 
+    window.deleteChatMessage = async (msgId) => {
+      if (await customPopup('confirm', "Delete this message?")) {
+        try {
+          await deleteDoc(doc(db, "team_chat", msgId));
+          playRingTone();
+          showToast("Message deleted");
+        } catch (err) {
+          await customPopup('alert', "Error deleting message: " + err.message);
+        }
+      }
+    };
+
     let announcementsInitialized = false;
     function startAnnouncementsListener() {
       const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
@@ -1489,16 +1506,20 @@
 
         snapshot.forEach((docSnap) => {
           const ann = docSnap.data();
+          const annId = docSnap.id;
           const dateStr = new Date(ann.timestamp).toLocaleString();
+          const isOwner = currentUserDoc.role === "owner";
+
           html += `
             <div class="list-item" style="border-left-color: #ffc107;">
               <div class="ticket-title" style="color: #ffc107;">📢 Announcement</div>
               <div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">
                 ${ann.text}
               </div>
-              <div style="font-size: 11px; opacity: 0.7; text-align: right;">
+              <div style="font-size: 11px; opacity: 0.7; text-align: right; margin-bottom: ${isOwner ? '10px' : '0'};">
                 Posted by: <strong>${ann.author}</strong> | ${dateStr}
               </div>
+              ${isOwner ? `<button onclick="deleteAnnouncement('${annId}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; width: 100%;">Delete Announcement</button>` : ''}
             </div>
           `;
         });
@@ -1527,6 +1548,18 @@
         await customPopup('alert', "Error publishing announcement: " + err.message);
       }
     });
+
+    window.deleteAnnouncement = async (annId) => {
+      if (await customPopup('confirm', "Delete this announcement?")) {
+        try {
+          await deleteDoc(doc(db, "announcements", annId));
+          playRingTone();
+          showToast("Announcement deleted");
+        } catch (err) {
+          await customPopup('alert', "Error deleting announcement: " + err.message);
+        }
+      }
+    };
 
     window.toggleAvailability = async () => {
       if (!currentUserDoc) return;
