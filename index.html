@@ -2386,34 +2386,37 @@
             const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
             const ticketBarber = ticket.assignedBarber.toLowerCase();
 
-            if (ticket.status === "in_progress" && (isOwner || (isBarber && ticketBarber === myFirstName))) {
-               actionButton = `
-                 <div style="display: flex; gap: 8px;">
-                   <button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH</button>
-                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptDenyReason('${ticketId}')">DENY</button>
-                 </div>
-               `;
-            } 
-            else if (ticket.status === "completed" && (isSec || isOwner)) {
-               actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
-            }
-            else if (ticket.status === "pending_denial" && (isSec || isOwner)) {
-               statusColor = "#ff4444";
-               actionButton = `
-                 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
-                   <button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button>
-                   <button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button>
-                 </div>
-               `;
-            }
-            else if (ticket.status === "denied" && (isSec || isOwner)) {
-               statusColor = "#ff4444";
-               actionButton = `
-                 <div style="display: flex; gap: 8px;">
-                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button>
-                   <button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button>
-                 </div>
-               `;
+            // OWNER HAS READ-ONLY ACCESS TO THE QUEUE (NO ACTION BUTTONS)
+            if (!isOwner) {
+              if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) {
+                 actionButton = `
+                   <div style="display: flex; gap: 8px;">
+                     <button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH</button>
+                     <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptDenyReason('${ticketId}')">DENY</button>
+                   </div>
+                 `;
+              } 
+              else if (ticket.status === "completed" && isSec) {
+                 actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
+              }
+              else if (ticket.status === "pending_denial" && isSec) {
+                 statusColor = "#ff4444";
+                 actionButton = `
+                   <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                     <button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button>
+                     <button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button>
+                   </div>
+                 `;
+              }
+              else if (ticket.status === "denied" && isSec) {
+                 statusColor = "#ff4444";
+                 actionButton = `
+                   <div style="display: flex; gap: 8px;">
+                     <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button>
+                     <button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button>
+                   </div>
+                 `;
+              }
             }
 
             const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== '';
@@ -2430,7 +2433,7 @@
                   Assigned to: <strong>${ticket.assignedBarber}</strong>
                   ${ticket.denyReason ? `<br><span style="color: #ff4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
                 </div>
-                ${hasPhone ? `<a href="tel:${ticket.customerPhone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold; margin-bottom:8px;">📞 Call Customer</a>` : ''}
+                ${hasPhone && !isOwner ? `<a href="tel:${ticket.customerPhone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold; margin-bottom:8px;">📞 Call Customer</a>` : ''}
                 ${actionButton}
               </div>
             `;
