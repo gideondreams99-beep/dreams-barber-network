@@ -97,7 +97,8 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage { display: none; margin-top: 15px; width: 100%; max-width: 480px; text-align: left; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage,
+    #monthlySalesPage, #ownerSalesPayoutPage { display: none; margin-top: 15px; width: 100%; max-width: 480px; text-align: left; }
     #dashboard { text-align: center; }
 
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
@@ -133,13 +134,13 @@
     }
 
     label { font-size: 14px; opacity: 0.8; margin-bottom: 5px; display: block; }
-    input, textarea {
+    input, textarea, select {
       width: 100%; padding: 14px; margin-bottom: 20px;
       background-color: var(--input-bg); color: var(--input-text);
       border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; font-size: 16px;
       font-family: inherit;
     }
-    input:focus, textarea:focus { outline: none; border-color: var(--accent-gold); }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-gold); }
     
     /* CUSTOM SELECTOR DROPDOWN BUTTONS */
     .custom-select-box {
@@ -463,6 +464,59 @@
     <button id="submitEditProfileBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Save & Update Profile</button>
   </div>
 
+  <!-- DEDICATED MONTHLY SALES & DETAILED REPORTS PAGE -->
+  <div id="monthlySalesPage" class="panel" style="border-color: var(--accent-gold);">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: var(--accent-gold);">📊 Monthly Sales & Reports</h3>
+    <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Select a month to review complete sales breakdowns, payment methods, customer counts, dates, and times.</p>
+
+    <label>Select Month to View</label>
+    <select id="monthlySalesSelect" onchange="renderMonthlySalesData()" style="margin-bottom: 20px;"></select>
+
+    <div id="monthlySalesSummaryCard" class="notice-card" style="border-color: var(--accent-gold); margin-bottom: 20px;">
+      <h5>Summary for Selected Month</h5>
+      <p id="monthlySummaryText">Select a month above.</p>
+    </div>
+
+    <div id="monthlyTransactionsList"></div>
+  </div>
+
+  <!-- DEDICATED OWNER SALES PAYOUT / REMITTANCE PAGE -->
+  <div id="ownerSalesPayoutPage" class="panel" style="border-color: #1a4b8c;">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: #4285F4;">💸 Pay Sales to Owner & Remittance</h3>
+    <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Request collection of day or month sales from the secretary and specify the delivery method.</p>
+
+    <label>Remittance Target Type</label>
+    <select id="payoutTargetType" onchange="togglePayoutTargetInputs()" style="margin-bottom: 15px;">
+      <option value="day">Specific Day Sales</option>
+      <option value="month">Entire Month Sales</option>
+    </select>
+
+    <div id="payoutDayContainer">
+      <label>Select Date</label>
+      <input type="date" id="payoutTargetDate" style="margin-bottom: 15px;">
+    </div>
+
+    <div id="payoutMonthContainer" style="display: none;">
+      <label>Select Month</label>
+      <input type="month" id="payoutTargetMonth" style="margin-bottom: 15px;">
+    </div>
+
+    <label>Preferred Remittance / Payment Method</label>
+    <select id="payoutMethod" style="margin-bottom: 20px;">
+      <option value="MTN MoMo">MTN MoMo</option>
+      <option value="Telecel Cash">Telecel Cash</option>
+      <option value="Cash">Cash Delivery</option>
+      <option value="Bank Transfer">Bank Transfer</option>
+    </select>
+
+    <button onclick="submitSalesRemittanceRequest()" class="btn-submit" style="background: #1a4b8c; border-color: #2a6bcc; margin-bottom: 25px;">Send Remittance Request to Secretary</button>
+
+    <h4 style="border-top: 1px solid var(--panel-border); padding-top: 15px; margin-top: 10px; color: #4285F4;">Active & Past Remittance Requests</h4>
+    <div id="remittanceRequestsList"></div>
+  </div>
+
   <!-- DEDICATED OWNER STAFF MANAGEMENT PAGE -->
   <div id="ownerStaffPage" class="panel" style="border-color: #4285F4;">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
@@ -665,6 +719,7 @@
         <button onclick="openOwnerPage('staff')" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;">👥 Staff Management</button>
         <button onclick="openOwnerPage('services')" style="background: linear-gradient(145deg, #145523, #0a2311); color: white; border-color: #28a745;">✂️ Services & Pricing</button>
         <button onclick="openOwnerPage('blacklist')" style="background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;">🚫 Customer Blacklist</button>
+        <button onclick="openOwnerSalesPayoutPage()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;">💸 Pay Sales to Owner</button>
       </div>
     </div>
 
@@ -713,7 +768,7 @@
       <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #333, #111); color: var(--accent-gold); border: 1px solid var(--accent-gold); font-weight: bold;">📂 Open Customer Records</button>
     </div>
 
-    <!-- ANALYTICS PANEL & DAILY REPORT LOGS -->
+    <!-- ANALYTICS PANEL & MONTHLY SALES REPORT -->
     <div id="analyticsPanel" class="panel" style="display: none;">
       <h3 id="analyticsTitle">Shop Analytics</h3>
       <div class="stats-grid">
@@ -721,6 +776,8 @@
         <div class="stat-box"><p>This Week</p><h2 class="money">GHS <span id="weekRev">0.00</span></h2><p class="cuts"><span id="weekCuts">0</span> cuts</p></div>
         <div class="stat-box"><p>This Month</p><h2 class="money">GHS <span id="monthRev">0.00</span></h2><p class="cuts"><span id="monthCuts">0</span> cuts</p></div>
       </div>
+
+      <button onclick="openMonthlySalesPage()" class="btn-submit" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: #997d20; font-weight: bold; margin-top: 15px;">📈 View Monthly Sales & Detailed Reports</button>
 
       <!-- OWNER DAILY DENIAL REPORTS SECTION -->
       <div id="ownerDailyDeniedSection" style="display: none; margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px; text-align: left;">
@@ -1128,10 +1185,217 @@
       document.getElementById('settingsPage').style.display = "none";
       document.getElementById('chatPage').style.display = "none";
       document.getElementById('announcementsPage').style.display = "none";
+      document.getElementById('monthlySalesPage').style.display = "none";
+      document.getElementById('ownerSalesPayoutPage').style.display = "none";
 
       if (pageName === 'staff') document.getElementById('ownerStaffPage').style.display = "block";
       else if (pageName === 'services') document.getElementById('ownerServicesPage').style.display = "block";
       else if (pageName === 'blacklist') document.getElementById('ownerBlacklistPage').style.display = "block";
+    };
+
+    window.openMonthlySalesPage = () => {
+      dashboard.style.display = "none";
+      document.getElementById('ownerStaffPage').style.display = "none";
+      document.getElementById('ownerServicesPage').style.display = "none";
+      document.getElementById('ownerBlacklistPage').style.display = "none";
+      document.getElementById('settingsPage').style.display = "none";
+      document.getElementById('chatPage').style.display = "none";
+      document.getElementById('announcementsPage').style.display = "none";
+      document.getElementById('ownerSalesPayoutPage').style.display = "none";
+      document.getElementById('monthlySalesPage').style.display = "block";
+      populateMonthlySalesDropdown();
+    };
+
+    window.openOwnerSalesPayoutPage = () => {
+      dashboard.style.display = "none";
+      document.getElementById('ownerStaffPage').style.display = "none";
+      document.getElementById('ownerServicesPage').style.display = "none";
+      document.getElementById('ownerBlacklistPage').style.display = "none";
+      document.getElementById('settingsPage').style.display = "none";
+      document.getElementById('chatPage').style.display = "none";
+      document.getElementById('announcementsPage').style.display = "none";
+      document.getElementById('monthlySalesPage').style.display = "none";
+      document.getElementById('ownerSalesPayoutPage').style.display = "block";
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      const monthStr = new Date().toISOString().slice(0, 7);
+      document.getElementById('payoutTargetDate').value = todayStr;
+      document.getElementById('payoutTargetMonth').value = monthStr;
+      loadRemittanceRequests();
+    };
+
+    window.togglePayoutTargetInputs = () => {
+      const type = document.getElementById('payoutTargetType').value;
+      if (type === 'day') {
+        document.getElementById('payoutDayContainer').style.display = 'block';
+        document.getElementById('payoutMonthContainer').style.display = 'none';
+      } else {
+        document.getElementById('payoutDayContainer').style.display = 'none';
+        document.getElementById('payoutMonthContainer').style.display = 'block';
+      }
+    };
+
+    window.submitSalesRemittanceRequest = async () => {
+      const type = document.getElementById('payoutTargetType').value;
+      const targetVal = type === 'day' ? document.getElementById('payoutTargetDate').value : document.getElementById('payoutTargetMonth').value;
+      const method = document.getElementById('payoutMethod').value;
+
+      if (!targetVal) return await customPopup('alert', "Please select a valid date or month.");
+
+      try {
+        await addDoc(collection(db, "sales_remittances"), {
+          type: type,
+          target: targetVal,
+          method: method,
+          status: 'pending',
+          requestedBy: currentUserDoc.name,
+          timestamp: new Date().getTime()
+        });
+        playRingTone();
+        showToast("Remittance request sent to Secretary!");
+        loadRemittanceRequests();
+      } catch (err) {
+        await customPopup('alert', "Error sending remittance request: " + err.message);
+      }
+    };
+
+    function loadRemittanceRequests() {
+      onSnapshot(query(collection(db, "sales_remittances"), orderBy("timestamp", "desc")), (snapshot) => {
+        let html = "";
+        let hasPendingSecretaryNotice = false;
+
+        snapshot.forEach((docSnap) => {
+          const r = docSnap.data();
+          const rId = docSnap.id;
+          const dateStr = new Date(r.timestamp).toLocaleString();
+          const isPending = r.status === 'pending';
+          const isSecretary = currentUserDoc && currentUserDoc.role === "secretary";
+
+          if (isPending && isSecretary) {
+            hasPendingSecretaryNotice = true;
+          }
+
+          html += `
+            <div class="list-item" style="border-left-color: ${isPending ? '#ffc107' : '#28a745'};">
+              <div class="ticket-title" style="color: ${isPending ? '#ffc107' : '#28a745'};">Remittance Request (${r.type.toUpperCase()}: ${r.target})</div>
+              <div class="ticket-details" style="margin-top: 5px; margin-bottom: 10px;">
+                Method: <strong>${r.method}</strong><br>
+                Status: <strong style="color: ${isPending ? '#ffc107' : '#28a745'};">${r.status.toUpperCase()}</strong><br>
+                Requested By: ${r.requestedBy} | ${dateStr}
+              </div>
+              ${isPending && isSecretary ? `<button onclick="secretaryMarkRemittancePaid('${rId}', '${r.type}', '${r.target}', '${r.method}')" class="btn-submit" style="background: #28a745; border-color: #28a745;">✅ Confirm & Record Payment Collected</button>` : ''}
+            </div>
+          `;
+        });
+
+        const listEl = document.getElementById('remittanceRequestsList');
+        if (listEl) listEl.innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No remittance requests found.</p>" : html;
+      });
+    }
+
+    window.secretaryMarkRemittancePaid = async (rId, type, target, method) => {
+      const confirmAction = await customPopup('confirm', `Confirm that sales for ${type} (${target}) have been collected and paid via ${method}?`);
+      if (!confirmAction) return;
+
+      try {
+        await updateDoc(doc(db, "sales_remittances", rId), {
+          status: 'paid',
+          paidAt: new Date().getTime(),
+          paidBy: currentUserDoc.name
+        });
+        playRingTone();
+        showToast("Remittance payment recorded successfully!");
+      } catch (err) {
+        await customPopup('alert', "Error recording remittance payment: " + err.message);
+      }
+    };
+
+    function populateMonthlySalesDropdown() {
+      const select = document.getElementById('monthlySalesSelect');
+      let monthsMap = new Set();
+
+      allPaidTicketsCache.forEach(t => {
+        if (t.status === 'paid' && t.timestamp) {
+          const d = new Date(t.timestamp);
+          const mKey = d.toISOString().slice(0, 7); // YYYY-MM
+          monthsMap.add(mKey);
+        }
+      });
+
+      const sortedMonths = Array.from(monthsMap).sort().reverse();
+      let html = "";
+      if (sortedMonths.length === 0) {
+        select.innerHTML = '<option value="">No sales months recorded</option>';
+        document.getElementById('monthlySummaryText').innerText = "No sales records available.";
+        document.getElementById('monthlyTransactionsList').innerHTML = "";
+        return;
+      }
+
+      sortedMonths.forEach(m => {
+        const [year, month] = m.split('-');
+        const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+        html += `<option value="${m}">${monthName}</option>`;
+      });
+
+      select.innerHTML = html;
+      renderMonthlySalesData();
+    }
+
+    window.renderMonthlySalesData = () => {
+      const select = document.getElementById('monthlySalesSelect');
+      const selectedMonth = select.value;
+      if (!selectedMonth) return;
+
+      const [targetYear, targetMonth] = selectedMonth.split('-').map(Number);
+
+      let totalRev = 0;
+      let totalPeople = 0;
+      let momoCount = 0;
+      let cashCount = 0;
+      let telecelCount = 0;
+      let otherCount = 0;
+      let txHtml = "";
+
+      allPaidTicketsCache.forEach(t => {
+        if (t.status === 'paid' && t.timestamp) {
+          const d = new Date(t.timestamp);
+          if (d.getFullYear() === targetYear && (d.getMonth() + 1) === targetMonth) {
+            totalRev += t.price;
+            totalPeople++;
+            const method = (t.paymentMethod || 'Cash').toLowerCase();
+            if (method.includes('momo')) momoCount++;
+            else if (method.includes('telecel')) telecelCount++;
+            else if (method.includes('cash')) cashCount++;
+            else otherCount++;
+
+            const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const dateStr = d.toLocaleDateString();
+
+            txHtml += `
+              <div class="list-item" style="border-left-color: #d4af37;">
+                <div class="ticket-title">${t.customerName}</div>
+                <div class="ticket-details" style="margin-top: 4px; margin-bottom: 0;">
+                  Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)}<br>
+                  Payment Method: <strong style="color: var(--accent-gold);">${t.paymentMethod || 'Cash'}</strong><br>
+                  Barber: ${t.assignedBarber} | Date: ${dateStr} at ${timeStr}
+                </div>
+              </div>
+            `;
+          }
+        }
+      });
+
+      const summaryText = `
+        💰 <b>Total Revenue:</b> GHS ${totalRev.toFixed(2)}<br>
+        👥 <b>Total Customers / People:</b> ${totalPeople}<br>
+        📱 <b>Mobile Money (MoMo) Payments:</b> ${momoCount}<br>
+        💵 <b>Cash Payments:</b> ${cashCount}<br>
+        🟠 <b>Telecel Cash Payments:</b> ${telecelCount}<br>
+        💳 <b>Other Methods:</b> ${otherCount}
+      `;
+
+      document.getElementById('monthlySummaryText').innerHTML = summaryText;
+      document.getElementById('monthlyTransactionsList').innerHTML = txHtml === "" ? "<p style='opacity:0.6; font-style: italic;'>No transactions recorded for this month.</p>" : txHtml;
     };
 
     window.openSettingsPage = () => {
@@ -1145,6 +1409,8 @@
       editProfileView.style.display = "none";
       document.getElementById('chatPage').style.display = "none";
       document.getElementById('announcementsPage').style.display = "none";
+      document.getElementById('monthlySalesPage').style.display = "none";
+      document.getElementById('ownerSalesPayoutPage').style.display = "none";
 
       if (currentUserDoc && currentUserDoc.role === "owner") {
         document.getElementById('ownerDangerZoneBox').style.display = "block";
@@ -1316,6 +1582,8 @@
       document.getElementById('settingsPage').style.display = "none";
       document.getElementById('chatPage').style.display = "none";
       document.getElementById('announcementsPage').style.display = "none";
+      document.getElementById('monthlySalesPage').style.display = "none";
+      document.getElementById('ownerSalesPayoutPage').style.display = "none";
       dashboard.style.display = "block";
       document.getElementById('customerDetailView').style.display = "none";
       document.getElementById('directoryListView').style.display = "block";
@@ -1863,6 +2131,7 @@
       if (docData.role === "secretary") { populateIntakeForm(); }
       cacheAllTickets();
       startDashboardNotifications();
+      loadRemittanceRequests();
     }
 
     // --- REALTIME DASHBOARD NOTIFICATION & ACTIVITY BANNER ---
@@ -1882,7 +2151,7 @@
               chatNotice = `<div class="notice-card"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`;
             }
           });
-          renderOwnerNotifications(chatNotice, null, null);
+          renderOwnerNotifications(chatNotice, null, null, null);
         });
 
         const qTickets = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
@@ -1896,7 +2165,7 @@
               ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`;
             }
           });
-          renderOwnerNotifications(null, ticketNotice, null);
+          renderOwnerNotifications(null, ticketNotice, null, null);
         });
 
         const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
@@ -1905,18 +2174,51 @@
           if (snap.size > 0) {
             approvalNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`;
           }
-          renderOwnerNotifications(null, null, approvalNotice);
+          renderOwnerNotifications(null, null, approvalNotice, null);
         });
 
-        let cachedChatN = "", cachedTicketN = "", cachedApproveN = "";
-        function renderOwnerNotifications(c, t, a) {
+        const qRemit = query(collection(db, "sales_remittances"), where("status", "==", "paid"), orderBy("timestamp", "desc"), limit(1));
+        onSnapshot(qRemit, (snap) => {
+          let remitNotice = "";
+          snap.forEach(d => {
+            const r = d.data();
+            remitNotice = `<div class="notice-card" style="border-color:#28a745;"><h5>✅ Remittance Paid</h5><p>Secretary recorded payment for <b>${r.type} (${r.target})</b> via <b>${r.method}</b>.</p></div>`;
+          });
+          renderOwnerNotifications(null, null, null, remitNotice);
+        });
+
+        let cachedChatN = "", cachedTicketN = "", cachedApproveN = "", cachedRemitN = "";
+        function renderOwnerNotifications(c, t, a, r) {
           if (c !== null) cachedChatN = c;
           if (t !== null) cachedTicketN = t;
           if (a !== null) cachedApproveN = a;
+          if (r !== null) cachedRemitN = r;
           
-          const combined = cachedApproveN + cachedTicketN + cachedChatN;
+          const combined = cachedApproveN + cachedTicketN + cachedRemitN + cachedChatN;
           notifBox.innerHTML = combined !== "" ? combined : `<div class="notice-card" style="border-color:#555;"><h5>✨ All Clear</h5><p>No new staff activities or pending notifications.</p></div>`;
         }
+
+      } else if (currentUserDoc && currentUserDoc.role === "secretary") {
+        let annNotice = "", remitRequestNotice = "";
+
+        const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
+        onSnapshot(qAnn, (snap) => {
+          snap.forEach(d => {
+            const a = d.data();
+            annNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>📢 Latest Announcement</h5><p>"${a.text}"</p></div>`;
+          });
+          notifBox.innerHTML = annNotice + remitRequestNotice;
+        });
+
+        const qRemitReq = query(collection(db, "sales_remittances"), where("status", "==", "pending"));
+        onSnapshot(qRemitReq, (snap) => {
+          if (snap.size > 0) {
+            remitRequestNotice = `<div class="notice-card" style="border-color:#1a4b8c;"><h5>💸 Remittance Requested</h5><p>Owner has requested <b>${snap.size} sales remittance(s)</b>. Tap 'Pay Sales to Owner' to review and confirm!</p></div>`;
+          } else {
+            remitRequestNotice = "";
+          }
+          notifBox.innerHTML = annNotice + remitRequestNotice;
+        });
 
       } else {
         let annNotice = "", chatNotice = "";
@@ -1960,6 +2262,7 @@
         });
 
         if (customerDirectoryPage.style.display === "block") { renderCustomerDirectoryList(); }
+        if (document.getElementById('monthlySalesPage').style.display === "block") { populateMonthlySalesDropdown(); }
       });
     }
 
