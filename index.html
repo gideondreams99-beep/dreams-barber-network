@@ -611,13 +611,19 @@
       <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #333, #111); color: var(--accent-gold); border: 1px solid var(--accent-gold); font-weight: bold;">📂 Open Customer Records</button>
     </div>
 
-    <!-- ANALYTICS PANEL -->
+    <!-- ANALYTICS PANEL & DAILY REPORT LOGS -->
     <div id="analyticsPanel" class="panel" style="display: none;">
       <h3 id="analyticsTitle">Shop Analytics</h3>
       <div class="stats-grid">
         <div class="stat-box"><p>Today</p><h2 class="money">GHS <span id="todayRev">0.00</span></h2><p class="cuts"><span id="todayCuts">0</span> cuts</p></div>
         <div class="stat-box"><p>This Week</p><h2 class="money">GHS <span id="weekRev">0.00</span></h2><p class="cuts"><span id="weekCuts">0</span> cuts</p></div>
         <div class="stat-box"><p>This Month</p><h2 class="money">GHS <span id="monthRev">0.00</span></h2><p class="cuts"><span id="monthCuts">0</span> cuts</p></div>
+      </div>
+
+      <!-- OWNER DAILY DENIAL REPORTS SECTION -->
+      <div id="ownerDailyDeniedSection" style="display: none; margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px; text-align: left;">
+        <h4 style="color: #ff4444; margin-top: 0; text-transform: uppercase; font-size: 14px;">📋 Daily Report: Denied / Rejected Tickets</h4>
+        <div id="ownerDailyDeniedList"><p style="opacity: 0.6; font-style: italic; font-size: 13px;">No denied tickets recorded today.</p></div>
       </div>
     </div>
   </div>
@@ -730,6 +736,7 @@
     let currentUserDoc = null; 
     let allPaidTicketsCache = []; 
     let activePaymentTicketId = null;
+    let activeReassignTicketId = null;
     let activeBlacklistCustomer = null;
     let activeBlacklistActionType = null; 
 
@@ -917,6 +924,10 @@
         title.innerText = "Assign To Barber";
         currentValue = selectedIntakeBarber;
         options = cachedBarbersList.map(b => ({ label: b, value: b }));
+      } else if (pickerType === 'reassignBarber') {
+        title.innerText = "Select New Barber to Assign";
+        currentValue = "";
+        options = cachedBarbersList.map(b => ({ label: b, value: b }));
       }
 
       let html = "";
@@ -933,7 +944,7 @@
       overlay.classList.add('show');
     };
 
-    window.selectPickerOption = (pickerType, val, label) => {
+    window.selectPickerOption = async (pickerType, val, label) => {
       document.getElementById('customModalOverlay').classList.remove('show');
 
       if (pickerType === 'role') {
@@ -974,6 +985,21 @@
       } else if (pickerType === 'barberName') {
         selectedIntakeBarber = val;
         document.getElementById('barberNameText').innerText = label;
+      } else if (pickerType === 'reassignBarber') {
+        if (activeReassignTicketId) {
+          try {
+            await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), {
+              assignedBarber: val,
+              status: "in_progress",
+              denyReason: null
+            });
+            playRingTone();
+            showToast(`Ticket reassigned to ${val}!`);
+          } catch (err) {
+            await customPopup('alert', "Error reassigning ticket: " + err.message);
+          }
+          activeReassignTicketId = null;
+        }
       }
     };
 
@@ -1514,18 +1540,34 @@
     };
 
     window.updateTicketStatus = async (ticketId, newStatus) => {
-      if (newStatus === 'denied') {
-        const confirmDeny = await customPopup('confirm', "Are you sure you want to DENY this customer? The Secretary will be notified to reassign or dismiss the ticket.");
-        if (!confirmDeny) return;
-      }
-
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
         playRingTone();
         if(newStatus === 'completed') showToast("Cut marked as completed!");
-        if(newStatus === 'denied') showToast("Cut rejected!");
         if(newStatus === 'cancelled') showToast("Ticket dismissed.");
       } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
+    };
+
+    window.promptDenyReason = async (ticketId) => {
+      const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter reason...");
+      if (reason === null) return;
+      if (!reason.trim()) {
+        await customPopup('alert', "A reason is required to deny a customer.");
+        return;
+      }
+      try {
+        await updateDoc(doc(db, "daily_tickets", ticketId), { 
+          status: "denied", 
+          denyReason: reason.trim() 
+        });
+        playRingTone();
+        showToast("Customer denied and reason recorded.");
+      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
+    };
+
+    window.openReassignModal = (ticketId) => {
+      activeReassignTicketId = ticketId;
+      openPickerModal('reassignBarber');
     };
 
     function loadApp(user, docData) {
@@ -1543,6 +1585,7 @@
         document.getElementById('adminPanel').style.display = "block";
         document.getElementById('analyticsPanel').style.display = "block";
         document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History";
+        document.getElementById('ownerDailyDeniedSection').style.display = "block";
         startAdminListeners(); 
         startAnalyticsTracker();
       } 
@@ -2052,7 +2095,12 @@
     function startLiveQueue() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let html = "";
+        let dailyDeniedHtml = "";
         let hasNewTicketOrChange = false;
+        
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added" && queueInitialized) {
             hasNewTicketOrChange = true;
@@ -2063,6 +2111,21 @@
           const ticket = docSnap.data();
           const ticketId = docSnap.id; 
           
+          // Populate Owner Daily Denied Report
+          if (ticket.status === "denied" && ticket.timestamp >= startOfToday) {
+            const timeStr = new Date(ticket.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            dailyDeniedHtml += `
+              <div class="list-item" style="border-left-color: #ff4444; margin-bottom: 10px; padding: 12px;">
+                <div style="font-size: 14px; font-weight: bold; color: #ff4444;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div>
+                <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">
+                  Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>
+                  Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason provided'}"</em><br>
+                  <span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span>
+                </div>
+              </div>
+            `;
+          }
+
           if (ticket.status !== "paid" && ticket.status !== "cancelled") {
             let actionButton = "";
             let statusColor = ticket.status === "denied" ? "#ff4444" : "#ffc107"; 
@@ -2077,7 +2140,7 @@
                actionButton = `
                  <div style="display: flex; gap: 8px;">
                    <button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH</button>
-                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="updateTicketStatus('${ticketId}', 'denied')">DENY</button>
+                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptDenyReason('${ticketId}')">DENY</button>
                  </div>
                `;
             } 
@@ -2085,7 +2148,12 @@
                actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
             }
             else if (ticket.status === "denied" && (isSec || isOwner)) {
-               actionButton = `<button class="btn-action" style="background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">DISMISS TICKET (DENIED)</button>`;
+               actionButton = `
+                 <div style="display: flex; gap: 8px;">
+                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button>
+                   <button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button>
+                 </div>
+               `;
             }
 
             html += `
@@ -2098,6 +2166,7 @@
                 <div class="ticket-details">
                   ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
                   Assigned to: <strong>${ticket.assignedBarber}</strong>
+                  ${ticket.denyReason ? `<br><span style="color: #ff4444;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
                 </div>
                 ${actionButton}
               </div>
@@ -2110,6 +2179,11 @@
         }
         queueInitialized = true;
         document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers.</p>" : html;
+        
+        const deniedListEl = document.getElementById('ownerDailyDeniedList');
+        if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") {
+          deniedListEl.innerHTML = dailyDeniedHtml === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No denied tickets recorded today.</p>" : dailyDeniedHtml;
+        }
       });
     }
 
