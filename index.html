@@ -75,7 +75,6 @@
     button:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5); }
     
     #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
-    #phoneLoginBtn { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
 
     img { 
       border-radius: 50%; 
@@ -325,22 +324,26 @@
     </div>
     <p style="opacity: 0.8; font-size: 15px; margin-bottom: 25px; line-height: 1.5;">Welcome to the premier digital workstation for professional barbering and front-desk management.</p>
     
-    <button id="loginBtn" style="width: 100%; padding: 16px; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+    <button id="loginBtn" style="width: 100%; padding: 16px; font-size: 16px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 12px;">
       <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.25 3.36-7.27 7.72-7.27c2.14 0 4.05.74 5.55 2.14l2.05-2.05C18.75 3.1 15.89 2 12.72 2C6.8 2 2 6.8 2 12.72s4.8 10.72 10.72 10.72c6.2 0 10.3-4.36 10.3-10.48c0-.72-.08-1.42-.19-2.06z"/></svg>
       Sign in with Google
     </button>
 
-    <button id="phoneLoginBtn" style="width: 100%; padding: 16px; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
-      📱 Sign in with Phone Number
-    </button>
+    <div style="border-top: 1px solid var(--panel-border); padding-top: 15px; margin-top: 10px; text-align: left;">
+      <label style="font-weight: bold; margin-bottom: 10px; text-align: center; color: var(--accent-gold);">🔑 Sign in with Email & Password / iCloud</label>
+      <input type="email" id="emailInput" placeholder="Enter email address..." autocomplete="email" style="margin-bottom: 12px;">
+      <input type="password" id="passwordInput" placeholder="Enter password..." autocomplete="current-password" style="margin-bottom: 15px;">
+      
+      <div style="display: flex; gap: 10px;">
+        <button id="emailSignInBtn" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; padding: 14px; font-size: 14px;">Sign In</button>
+        <button id="emailSignUpBtn" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; padding: 14px; font-size: 14px;">Create Account</button>
+      </div>
+    </div>
 
-    <button id="welcomeInstallBtn" onclick="triggerInstall()" style="width: 100%; padding: 14px; font-size: 14px; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <button id="welcomeInstallBtn" onclick="triggerInstall()" style="width: 100%; padding: 14px; font-size: 14px; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px;">
       📲 Install App on Device
     </button>
   </div>
-
-  <!-- HIDDEN RECAPTCHA CONTAINER REQUIRED FOR PHONE AUTH -->
-  <div id="recaptcha-container"></div>
 
   <h1 id="mainAppTitle" style="display: none;">SJ'S SALOON</h1>
   <p id="statusText" style="opacity: 0.7; display: none;">Please log in to continue.</p>
@@ -721,7 +724,7 @@
 
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     // --- PUSH / AUDIO NOTIFICATION RING & VIBRATION SOUND ---
@@ -1201,7 +1204,8 @@
     };
 
     const loginBtn = document.getElementById('loginBtn');
-    const phoneLoginBtn = document.getElementById('phoneLoginBtn');
+    const emailSignInBtn = document.getElementById('emailSignInBtn');
+    const emailSignUpBtn = document.getElementById('emailSignUpBtn');
     const loginWelcomeView = document.getElementById('loginWelcomeView');
     const mainAppTitle = document.getElementById('mainAppTitle');
     const statusText = document.getElementById('statusText');
@@ -1215,34 +1219,48 @@
       e.preventDefault();
       try {
         await signInWithPopup(auth, provider);
-        showToast("Signed in successfully!");
+        showToast("Signed in successfully with Google!");
       } catch (error) {
-        await customPopup('alert', "Login failed: " + error.message);
+        await customPopup('alert', "Google Login failed: " + error.message);
       }
     });
 
-    // --- PHONE NUMBER AUTHENTICATION SETUP ---
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'invisible'
-    });
-
-    phoneLoginBtn.addEventListener('click', async (e) => {
+    // --- EMAIL & PASSWORD / ICLOUD AUTHENTICATION ---
+    emailSignInBtn.addEventListener('click', async (e) => {
       e.preventDefault();
-      const phoneNumber = await customPopup('prompt', "Enter your phone number with country code (e.g. +233240000000):", "+233...");
-      if (!phoneNumber) return;
+      const email = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+
+      if (!email || !password) {
+        return await customPopup('alert', "Please enter both email and password.");
+      }
 
       try {
-        const appVerifier = window.recaptchaVerifier;
-        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-        window.confirmationResult = confirmationResult;
-
-        const verificationCode = await customPopup('prompt', "Enter the 6-digit SMS verification code sent to your phone:", "123456");
-        if (!verificationCode) return;
-
-        const result = await window.confirmationResult.confirm(verificationCode);
-        showToast("Phone sign-in successful!");
+        await signInWithEmailAndPassword(auth, email, password);
+        showToast("Signed in successfully!");
       } catch (error) {
-        await customPopup('alert', "Phone authentication failed: " + error.message);
+        await customPopup('alert', "Sign in failed: " + error.message);
+      }
+    });
+
+    emailSignUpBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+
+      if (!email || !password) {
+        return await customPopup('alert', "Please enter email and password to create an account.");
+      }
+
+      if (password.length < 6) {
+        return await customPopup('alert', "Password must be at least 6 characters long.");
+      }
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        showToast("Account created successfully!");
+      } catch (error) {
+        await customPopup('alert', "Registration failed: " + error.message);
       }
     });
 
@@ -1317,7 +1335,7 @@
           }
 
           if (!userSnap.exists()) {
-            document.getElementById('setupDisplayName').value = user.displayName || user.phoneNumber || "";
+            document.getElementById('setupDisplayName').value = user.displayName || user.email || "";
             document.getElementById('setupView').style.display = "block";
           } else {
             currentUserDoc = userSnap.data();
@@ -1416,7 +1434,7 @@
 
         const isOwner = (role === "owner");
         await setDoc(doc(db, "users", user.uid), {
-          name: displayName, email: user.email || user.phoneNumber || "", photoURL: photoUrlToSave,
+          name: displayName, email: user.email || "", photoURL: photoUrlToSave,
           role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber,
           isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime()
         });
@@ -2582,7 +2600,6 @@
 
         document.getElementById('todayRev').innerText = todayVal.toFixed(2);
         document.getElementById('todayCuts').innerText = todayCuts;
-        document.getElementById('weekRev').innerText.toFixed(2);
         document.getElementById('weekRev').innerText = weekVal.toFixed(2);
         document.getElementById('weekCuts').innerText = weekCuts;
         document.getElementById('monthRev').innerText = monthVal.toFixed(2);
