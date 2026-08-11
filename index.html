@@ -947,7 +947,7 @@
         currentValue = selectedIntakeBarber;
         options = cachedBarbersList.map(b => ({ label: b, value: b }));
       } else if (pickerType === 'reassignBarber') {
-        title.innerText = "Select New Barber to Assign";
+        title.innerText = "Select Barber to Assign Again";
         currentValue = "";
         options = cachedBarbersList.map(b => ({ label: b, value: b }));
       }
@@ -1604,11 +1604,21 @@
       }
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), { 
-          status: "denied", 
+          status: "pending_denial", 
           denyReason: reason.trim() 
         });
         playRingTone();
-        showToast("Customer denied and reason recorded.");
+        showToast("Denial submitted for secretary review.");
+      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
+    };
+
+    window.approveDenial = async (ticketId) => {
+      try {
+        await updateDoc(doc(db, "daily_tickets", ticketId), { 
+          status: "denied" 
+        });
+        playRingTone();
+        showToast("Denial approved and recorded.");
       } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
     };
 
@@ -2183,12 +2193,12 @@
             `;
           }
 
-          // Count active waiting / in_progress customers (exclude paid, cancelled, and finalized/reason-provided denied tickets from main active queue view)
+          // Count active waiting / in_progress and completed customers
           if (ticket.status === "in_progress" || ticket.status === "completed") {
             activeQueueCount++;
           }
 
-          if (ticket.status !== "paid" && ticket.status !== "cancelled" && ticket.status !== "denied") {
+          if (ticket.status !== "paid" && ticket.status !== "cancelled") {
             let actionButton = "";
             let statusColor = "#ffc107"; 
 
@@ -2209,19 +2219,38 @@
             else if (ticket.status === "completed" && (isSec || isOwner)) {
                actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
             }
+            else if (ticket.status === "pending_denial" && (isSec || isOwner)) {
+               statusColor = "#ff4444";
+               actionButton = `
+                 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+                   <button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button>
+                   <button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button>
+                 </div>
+               `;
+            }
+            else if (ticket.status === "denied" && (isSec || isOwner)) {
+               statusColor = "#ff4444";
+               actionButton = `
+                 <div style="display: flex; gap: 8px;">
+                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button>
+                   <button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button>
+                 </div>
+               `;
+            }
 
             const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== '';
 
             html += `
-              <div class="ticket">
+              <div class="ticket" style="${ticket.status === 'pending_denial' || ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ''}">
                 <div class="ticket-header">
                   <span class="ticket-number">${ticket.ticketNo || '--'}</span>
-                  <span class="status-badge" style="background: ${statusColor}; color: #111;">${ticket.status.toUpperCase().replace('_', ' ')}</span>
+                  <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.status.toUpperCase().replace('_', ' ')}</span>
                 </div>
                 <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div>
                 <div class="ticket-details" style="margin-bottom: 10px;">
                   ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
                   Assigned to: <strong>${ticket.assignedBarber}</strong>
+                  ${ticket.denyReason ? `<br><span style="color: #ff4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
                 </div>
                 ${hasPhone ? `<a href="tel:${ticket.customerPhone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold; margin-bottom:8px;">📞 Call Customer</a>` : ''}
                 ${actionButton}
