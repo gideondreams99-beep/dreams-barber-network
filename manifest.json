@@ -8,16 +8,16 @@
   "theme_color": "#d4af37",
   "icons": [
     {
-      "src": "https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/sample.png",
+      "src": "https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/clipper.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/sample.png",
+      "src": "https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/clipper.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
