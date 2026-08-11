@@ -861,6 +861,7 @@
     let cachedServicesList = [];
     let cachedBarbersList = [];
     let activeBusyBarbers = new Set();
+    let ticketsMapCache = new Map();
 
     // --- REUSABLE CUSTOM POPUP UI & RADIO PICKER FUNCTION ---
     window.customPopup = function(type, message, placeholder = "Enter details...") {
@@ -1020,7 +1021,6 @@
       } else if (pickerType === 'barberName') {
         title.innerText = "Assign To Barber";
         currentValue = selectedIntakeBarber;
-        // Filter out barbers who are currently busy with a pending or in_progress ticket
         const availableBarbers = cachedBarbersList.filter(b => !activeBusyBarbers.has(b.toLowerCase()));
         options = availableBarbers.map(b => ({ label: b, value: b }));
       } else if (pickerType === 'reassignBarber') {
@@ -1522,7 +1522,7 @@
           const msgId = docSnap.id;
           const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const isMe = msg.senderId === auth.currentUser.uid;
-          const isOwner = currentUserDoc.role === "owner";
+          const isOwner = currentUserDoc && currentUserDoc.role === "owner";
           
           const canDelete = isMe || isOwner;
 
@@ -1594,7 +1594,7 @@
           const ann = docSnap.data();
           const annId = docSnap.id;
           const dateStr = new Date(ann.timestamp).toLocaleString();
-          const isOwner = currentUserDoc.role === "owner";
+          const isOwner = currentUserDoc && currentUserDoc.role === "owner";
 
           html += `
             <div class="list-item" style="border-left-color: #ffc107;">
@@ -1685,6 +1685,7 @@
         await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" });
         playRingTone();
         showToast("Customer accepted! Cut is now in progress.");
+        closePickerModal();
       } catch (error) {
         await customPopup('alert', "Action failed: " + error.message);
       }
@@ -1704,7 +1705,37 @@
         });
         playRingTone();
         showToast("Customer denied and reason recorded.");
+        closePickerModal();
       } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
+    };
+
+    // --- CLICKABLE TICKET REVIEW MODAL FOR BARBERS ---
+    window.openTicketReviewModal = (ticketId) => {
+      const t = ticketsMapCache.get(ticketId);
+      if (!t) return;
+
+      const reviewHtml = `
+        <div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6;">
+          <p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p>
+          <p style="margin: 0 0 8px 0;">👤 <b>Customer Name:</b> ${t.customerName}</p>
+          <p style="margin: 0 0 8px 0;">📞 <b>Phone:</b> ${t.customerPhone || 'Not Provided'}</p>
+          <p style="margin: 0 0 8px 0;">✂️ <b>Service Requested:</b> ${t.serviceName}</p>
+          <p style="margin: 0 0 15px 0; color: #28a745; font-weight: bold;">💰 Price: GHS ${t.price.toFixed(2)}</p>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button onclick="acceptTicket('${ticketId}')" class="btn-submit" style="flex: 1; background: #28a745; border-color: #28a745;">✅ Accept Cut</button>
+          <button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #8c1a1a; color: white; border-color: #cc2a2a;">❌ Deny</button>
+        </div>
+      `;
+
+      const overlay = document.getElementById('customModalOverlay');
+      document.getElementById('customModalTitle').innerText = "Review Customer & Service";
+      document.getElementById('customModalMessage').innerHTML = reviewHtml;
+      document.getElementById('customModalInput').style.display = "none";
+      document.getElementById('customDropdownList').style.display = "none";
+      document.getElementById('customPickerBackBtn').style.display = "none";
+      document.getElementById('customModalButtons').style.display = "none";
+      overlay.classList.add('show');
     };
 
     window.approveDenial = async (ticketId) => {
@@ -1772,11 +1803,9 @@
       const notifBox = document.getElementById('dashboardNotificationBox');
       notifBox.style.display = "block";
 
-      if (currentUserDoc.role === "owner") {
-        // OWNER DASHBOARD: Listen for Recent Messages, Cut Completions, Intake Tickets & Approvals
+      if (currentUserDoc && currentUserDoc.role === "owner") {
         let notifHtml = "";
         
-        // Listen to latest team chat
         const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
         onSnapshot(qChat, (snap) => {
           let chatNotice = "";
@@ -1789,7 +1818,6 @@
           renderOwnerNotifications(chatNotice, null, null);
         });
 
-        // Listen to daily tickets updates (Finished cuts / New intakes)
         const qTickets = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
         onSnapshot(qTickets, (snap) => {
           let ticketNotice = "";
@@ -1804,7 +1832,6 @@
           renderOwnerNotifications(null, ticketNotice, null);
         });
 
-        // Listen for pending staff approvals
         const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
         onSnapshot(qUsers, (snap) => {
           let approvalNotice = "";
@@ -1825,7 +1852,6 @@
         }
 
       } else {
-        // STAFF DASHBOARD: Listen for Owner Announcements & Owner Chat Messages
         let annNotice = "", chatNotice = "";
 
         const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
@@ -1854,12 +1880,13 @@
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         allPaidTicketsCache = [];
         activeBusyBarbers.clear();
+        ticketsMapCache.clear();
         
         snapshot.forEach((doc) => {
           const t = doc.data();
           allPaidTicketsCache.push({ id: doc.id, ...t });
+          ticketsMapCache.set(doc.id, t);
           
-          // Track busy barbers currently assigned to a pending acceptance or in_progress cut
           if ((t.status === "pending_acceptance" || t.status === "in_progress") && t.assignedBarber) {
             activeBusyBarbers.add(t.assignedBarber.trim().toLowerCase());
           }
@@ -1904,7 +1931,7 @@
       const listContainer = document.getElementById('directoryCustomerList');
       let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed");
 
-      if (currentUserDoc.role === "barber") {
+      if (currentUserDoc && currentUserDoc.role === "barber") {
         const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
         ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName);
       }
@@ -1956,7 +1983,7 @@
       detailView.style.display = "block";
 
       let ticketsToProcess = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase() === customerName.toLowerCase());
-      if (currentUserDoc.role === "barber") {
+      if (currentUserDoc && currentUserDoc.role === "barber") {
         const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
         ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName);
       }
@@ -1987,7 +2014,7 @@
       });
 
       const encoded = encodeURIComponent(customerName);
-      if (currentUserDoc.role === "owner") {
+      if (currentUserDoc && currentUserDoc.role === "owner") {
         html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'instant')">Blacklist ${customerName} Instantly</button>`;
       } else {
         html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'report')">Report ${customerName} for Blacklist</button>`;
@@ -2294,7 +2321,6 @@
 
         if (!name || !serviceVal || !barber) return await customPopup('alert', "Please fill out customer name, service type, and barber.");
 
-        // Double check if barber is currently busy before issuing ticket
         if (activeBusyBarbers.has(barber.toLowerCase())) {
           return await customPopup('alert', `⚠️ Barber ${barber} is currently busy with an active cut or pending review and cannot be assigned.`);
         }
@@ -2408,13 +2434,12 @@
             let actionButton = "";
             let statusColor = "#ffc107"; 
 
-            const isOwner = currentUserDoc.role === "owner";
-            const isSec = currentUserDoc.role === "secretary";
-            const isBarber = currentUserDoc.role === "barber";
-            const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
-            const ticketBarber = ticket.assignedBarber.toLowerCase();
+            const isOwner = currentUserDoc && currentUserDoc.role === "owner";
+            const isSec = currentUserDoc && currentUserDoc.role === "secretary";
+            const isBarber = currentUserDoc && currentUserDoc.role === "barber";
+            const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : "";
+            const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
 
-            // OWNER HAS READ-ONLY ACCESS TO THE QUEUE (NO ACTION BUTTONS)
             if (!isOwner) {
               if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) {
                  actionButton = `
@@ -2455,18 +2480,22 @@
             }
 
             const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== '';
+            const isClickableForBarber = (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName);
 
             html += `
               <div class="ticket" style="${ticket.status === 'pending_denial' || ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ''}">
-                <div class="ticket-header">
-                  <span class="ticket-number">${ticket.ticketNo || '--'}</span>
-                  <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.status.toUpperCase().replace('_', ' ')}</span>
-                </div>
-                <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div>
-                <div class="ticket-details" style="margin-bottom: 10px;">
-                  ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
-                  Assigned to: <strong>${ticket.assignedBarber}</strong>
-                  ${ticket.denyReason ? `<br><span style="color: #ff4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
+                <div ${isClickableForBarber ? `onclick="openTicketReviewModal('${ticketId}')"` : ''} style="${isClickableForBarber ? 'cursor: pointer;' : ''}">
+                  <div class="ticket-header">
+                    <span class="ticket-number">${ticket.ticketNo || '--'}</span>
+                    <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.status.toUpperCase().replace('_', ' ')}</span>
+                  </div>
+                  <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div>
+                  <div class="ticket-details" style="margin-bottom: 10px;">
+                    ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
+                    Assigned to: <strong>${ticket.assignedBarber}</strong>
+                    ${ticket.status === 'pending_acceptance' && isBarber && ticketBarber === myFirstName ? '<br><span style="color: var(--accent-gold); font-weight: bold;">🔍 Tap here to review details & accept/deny</span>' : ''}
+                    ${ticket.denyReason ? `<br><span style="color: #ff4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
+                  </div>
                 </div>
                 ${hasPhone && !isOwner ? `<a href="tel:${ticket.customerPhone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold; margin-bottom:8px;">📞 Call Customer</a>` : ''}
                 ${actionButton}
