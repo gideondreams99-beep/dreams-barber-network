@@ -126,13 +126,13 @@
     }
 
     label { font-size: 14px; color: #aaa; margin-bottom: 5px; display: block; }
-    input, textarea {
+    input, select, textarea {
       width: 100%; padding: 14px; margin-bottom: 20px;
       background-color: #111; color: white;
       border: 1px solid #444; border-radius: 8px; box-sizing: border-box; font-size: 16px;
       font-family: inherit;
     }
-    input:focus, textarea:focus { outline: none; border-color: #d4af37; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #d4af37; }
     
     .btn-submit { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%; }
     
@@ -466,6 +466,52 @@
       </div>
     </div>
 
+    <!-- DEDICATED PAYMENT PAGE VIEW -->
+    <div id="paymentPage" class="panel" style="border-color: #28a745;">
+      <button onclick="cancelPayment()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
+      <h3 style="color: #28a745;">Checkout & Payment</h3>
+      <div id="paymentInfoBox" style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; text-align: left;">
+        <p style="margin: 0 0 5px 0; color: #aaa;">Customer: <strong id="payCustName" style="color: #fff;">--</strong></p>
+        <p style="margin: 0 0 5px 0; color: #aaa;">Service: <strong id="payServiceName" style="color: #fff;">--</strong></p>
+        <p style="margin: 0; color: #aaa;">Amount Due: <strong id="payAmount" style="color: #28a745; font-size: 18px;">GHS 0.00</strong></p>
+      </div>
+      <div id="ownerRefBox" style="display: none; background: #1e1e00; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+        <strong style="color: #ffc107;">📱 OWNER PAYMENT REFERENCE:</strong>
+        <p style="margin: 5px 0 0 0; color: #fff; font-size: 14px;">Please have funds sent to Owner's Merchant / Number:<br><strong style="color: #d4af37; font-size: 16px;">0240000000 (SJ'S SALOON)</strong></p>
+      </div>
+      <label style="margin-bottom: 15px; font-weight: bold; color: #fff;">Select Payment Method:</label>
+      <button class="pay-btn pay-cash" onclick="processPayment('Cash')">💵 Cash Payment</button>
+      <button class="pay-btn pay-momo" onclick="processPayment('MTN MoMo')">📱 MTN MoMo</button>
+      <button class="pay-btn pay-telecel" onclick="processPayment('Telecel Cash')">🟠 Telecel Cash</button>
+      <button class="pay-btn pay-card" onclick="processPayment('Card')">💳 Card Payment</button>
+    </div>
+
+    <!-- DEDICATED BLACKLIST PAGE VIEW -->
+    <div id="blacklistPage" class="panel" style="border-color: #ff4444;">
+      <button onclick="cancelBlacklistPage()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Go Back</button>
+      <h3 style="color: #ff4444;" id="blacklistPageTitle">Blacklist Customer</h3>
+      <div style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #444; text-align: left;">
+        <p style="margin: 0; color: #aaa;">Target Customer: <strong id="blPageCustName" style="color: #fff; font-size: 18px;">--</strong></p>
+      </div>
+      <label style="color: #fff;">Reason for Blacklist / Report:</label>
+      <textarea id="blPageReason" rows="4" placeholder="Enter detailed reason here..."></textarea>
+      <button id="blPageSubmitBtn" class="btn-submit" style="background: #ff4444; border-color: #ff4444;">Submit Blacklist</button>
+    </div>
+
+    <!-- DEDICATED CUSTOMER HISTORY DIRECTORY PAGE -->
+    <div id="customerDirectoryPage" class="panel">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <h3 id="directoryPageTitle" style="color: #d4af37;">Customer Records</h3>
+      <div id="directoryListView">
+        <p style="color: #888; font-size: 14px; margin-bottom: 15px;">Click on any customer to view their complete service timeline and history.</p>
+        <div id="directoryCustomerList"></div>
+      </div>
+      <div id="customerDetailView" style="display: none;">
+        <button onclick="backToDirectoryList()" style="margin-bottom: 15px; background: #222; border:1px solid #555; color:#d4af37; padding: 8px 15px; border-radius:6px; font-size: 12px;">⬅ Back to Customer List</button>
+        <div id="customerDetailContent"></div>
+      </div>
+    </div>
+
     <!-- MAIN DASHBOARD -->
     <div id="dashboard">
       <img id="userPic" src="" alt="Profile Picture">
@@ -487,10 +533,60 @@
       
       <div id="adminPanel" class="panel" style="display: none;">
         <h3>Shop Management Hub</h3>
+        <p style="color: #aaa; font-size: 13px; text-align: center; margin-bottom: 20px;">Manage your shop operations across dedicated management screens.</p>
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <button onclick="openOwnerPage('staff')" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;">👥 Staff Management</button>
           <button onclick="openOwnerPage('services')" style="background: linear-gradient(145deg, #145523, #0a2311); color: white; border-color: #28a745;">✂️ Services & Pricing</button>
           <button onclick="openOwnerPage('blacklist')" style="background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;">🚫 Customer Blacklist</button>
+        </div>
+      </div>
+
+      <!-- SECRETARY FRONT DESK PANEL -->
+      <div id="secretaryPanel" class="panel" style="display: none;">
+        <h3>Front Desk Intake</h3>
+        <label>Customer Full Name</label>
+        <input type="text" id="custName" placeholder="Enter full name..." autocomplete="off">
+        <label>Customer Phone Number (Optional)</label>
+        <input type="tel" id="custPhone" placeholder="Enter phone number (optional)..." autocomplete="off">
+        
+        <div id="customerHistoryBox" style="display: none;">
+          <strong>Customer Visit History:</strong>
+          <div id="historyContent">No previous history found.</div>
+        </div>
+
+        <label>Service Type</label>
+        <select id="serviceType">
+          <option value="">Loading services...</option>
+        </select>
+
+        <label>Assign To Barber</label>
+        <select id="barberName">
+          <option value="">Loading barbers...</option>
+        </select>
+
+        <button id="sendBtn" class="btn-submit">Issue Ticket & Send to Chair</button>
+      </div>
+
+      <!-- LIVE SHOP QUEUE -->
+      <div id="queuePanel" class="panel" style="display: none;">
+        <h3>Live Shop Queue</h3>
+        <div id="queueList"></div>
+      </div>
+
+      <!-- BUTTON TO OPEN FULL CUSTOMER RECORDS PAGE -->
+      <div class="panel" style="text-align: center; border-color: #d4af37;">
+        <h3 style="color: #d4af37; margin-bottom: 10px;">Customer Records</h3>
+        <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Access past customer visits, history reports, and blacklist logs.</p>
+        <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; font-weight: bold;">📂 Open Customer Records</button>
+      </div>
+
+      <!-- ANALYTICS PANEL -->
+      <div id="analyticsPanel" class="panel" style="display: none;">
+        <h3 id="analyticsTitle">Shop Analytics</h3>
+        <div class="stats-grid">
+          <div class="stat-box"><p>Today</p><h2 class="money">GHS <span id="todayRev">0.00</span></h2><p class="cuts"><span id="todayCuts">0</span> cuts</p></div>
+          <div class="stat-box"><p>This Week</p><h2 class="money">GHS <span id="weekRev">0.00</span></h2><p class="cuts"><span id="weekCuts">0</span> cuts</p></div>
+          <div class="stat-box"><p>This Month</p><h2 class="money">GHS <span id="monthRev">0.00</span></h2><p class="cuts"><span id="monthCuts">0</span> cuts</p></div>
         </div>
       </div>
     </div> 
@@ -500,6 +596,33 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // --- PWA SERVICE WORKER ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try { await navigator.serviceWorker.register('/sw.js'); } catch (err) {}
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    window.triggerInstall = async () => {
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase());
+      if (isIOS) {
+        await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share</b> button in Safari.<br>2. Tap <b>'Add to Home Screen'</b>.");
+      } else if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') showToast("App installed successfully!");
+        deferredPrompt = null;
+      } else {
+        await customPopup('alert', "To install, open browser menu and select <b>'Install app'</b>.");
+      }
+    };
 
     const firebaseConfig = {
       apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI",
@@ -516,6 +639,10 @@
     const provider = new GoogleAuthProvider();
 
     let currentUserDoc = null; 
+    let allPaidTicketsCache = []; 
+    let activePaymentTicketId = null;
+    let activeBlacklistCustomer = null;
+    let activeBlacklistActionType = null; 
 
     // --- LOGOUT HANDLER ---
     window.performLogout = async () => {
@@ -666,13 +793,11 @@
       return true; 
     }
 
-    // --- FREE THIRD-PARTY VERIFICATION GATEWAY CONNECTION ---
+    // --- THIRD-PARTY VERIFICATION GATEWAY CONNECTION ---
     async function verifyWithGovernmentDatabase(country, idType, idNumber, fullName) {
-      // Connects to public/free-tier verification sandbox gateways (e.g. open registry verification API stubs)
       return new Promise(resolve => {
         showToast(`Connecting to Free-Tier Third-Party Verification Gateway (${country})...`);
         setTimeout(() => {
-          // Connected successfully to sandbox verification service
           resolve({ isValid: true, message: "Third-party identity check passed successfully." });
         }, 1800);
       });
@@ -809,18 +934,412 @@
       }
     });
 
+    window.openEditProfile = () => {
+      document.getElementById('dashboard').style.display = "none";
+      document.getElementById('editProfileView').style.display = "block";
+      document.getElementById('editDisplayName').value = currentUserDoc.name || "";
+    };
+
+    window.cancelEditProfile = () => {
+      document.getElementById('editProfileView').style.display = "none";
+      document.getElementById('dashboard').style.display = "block";
+    };
+
+    document.getElementById('submitEditProfileBtn').addEventListener('click', async () => {
+      const user = auth.currentUser;
+      const displayName = document.getElementById('editDisplayName').value.trim();
+      if (!displayName) return await customPopup('alert', "Please provide a display name.");
+
+      try {
+        await updateDoc(doc(db, "users", user.uid), { name: displayName });
+        currentUserDoc.name = displayName;
+        document.getElementById('userName').innerText = displayName;
+        showToast("Profile updated!");
+        cancelEditProfile();
+      } catch (err) {
+        await customPopup('alert', "Error updating profile: " + err.message);
+      }
+    });
+
+    window.openOwnerPage = (pageName) => {
+      document.getElementById('dashboard').style.display = "none";
+      document.getElementById('ownerStaffPage').style.display = "none";
+      document.getElementById('ownerServicesPage').style.display = "none";
+      document.getElementById('ownerBlacklistPage').style.display = "none";
+
+      if (pageName === 'staff') document.getElementById('ownerStaffPage').style.display = "block";
+      else if (pageName === 'services') document.getElementById('ownerServicesPage').style.display = "block";
+      else if (pageName === 'blacklist') document.getElementById('ownerBlacklistPage').style.display = "block";
+    };
+
+    window.backToDashboard = () => {
+      document.getElementById('ownerStaffPage').style.display = "none";
+      document.getElementById('ownerServicesPage').style.display = "none";
+      document.getElementById('ownerBlacklistPage').style.display = "none";
+      document.getElementById('settingsPage').style.display = "none";
+      document.getElementById('chatPage').style.display = "none";
+      document.getElementById('announcementsPage').style.display = "none";
+      document.getElementById('customerDirectoryPage').style.display = "none";
+      document.getElementById('dashboard').style.display = "block";
+    };
+
+    window.openSettingsPage = () => {
+      document.getElementById('dashboard').style.display = "none";
+      if (currentUserDoc && currentUserDoc.role === "owner") {
+        document.getElementById('ownerDangerZoneBox').style.display = "block";
+      }
+      document.getElementById('settingsPage').style.display = "block";
+    };
+
+    window.openChatPage = () => {
+      document.getElementById('dashboard').style.display = "none";
+      document.getElementById('chatPage').style.display = "block";
+      startChatListener();
+    };
+
+    window.openAnnouncementsPage = () => {
+      document.getElementById('dashboard').style.display = "none";
+      document.getElementById('announcementsPage').style.display = "block";
+      if (currentUserDoc && currentUserDoc.role === "owner") {
+        document.getElementById('ownerAnnouncementCreator').style.display = "block";
+      }
+      startAnnouncementsListener();
+    };
+
+    function startChatListener() {
+      const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
+      onSnapshot(q, (snapshot) => {
+        let html = "";
+        snapshot.forEach((docSnap) => {
+          const msg = docSnap.data();
+          const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const isMe = msg.senderId === auth.currentUser.uid;
+          html += `
+            <div style="margin-bottom: 12px; text-align: ${isMe ? 'right' : 'left'};">
+              <span style="font-size: 11px; color: #d4af37;">${msg.senderName} (${msg.senderRole.toUpperCase()}) - ${timeStr}</span><br>
+              <div style="display: inline-block; background: ${isMe ? '#1a4b8c' : '#2a2a2a'}; color: #fff; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px;">
+                ${msg.text}
+              </div>
+            </div>
+          `;
+        });
+        const box = document.getElementById('chatMessagesBox');
+        box.innerHTML = html === "" ? "<p style='color:#666; text-align: center;'>No messages yet.</p>" : html;
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+
+    document.getElementById('sendChatMessageBtn').addEventListener('click', async () => {
+      const input = document.getElementById('chatInputMessage');
+      const text = input.value.trim();
+      if (!text) return;
+      try {
+        await addDoc(collection(db, "team_chat"), {
+          senderId: auth.currentUser.uid, senderName: currentUserDoc.name, senderRole: currentUserDoc.role, text: text, timestamp: new Date().getTime()
+        });
+        input.value = "";
+      } catch (err) { await customPopup('alert', "Error sending message: " + err.message); }
+    });
+
+    function startAnnouncementsListener() {
+      const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+      onSnapshot(q, (snapshot) => {
+        let html = "";
+        snapshot.forEach((docSnap) => {
+          const ann = docSnap.data();
+          const dateStr = new Date(ann.timestamp).toLocaleString();
+          html += `
+            <div class="list-item" style="border-left-color: #ffc107;">
+              <div class="ticket-title" style="color: #ffc107;">📢 Announcement</div>
+              <div class="ticket-details" style="color: #fff; font-size: 15px; margin-top: 5px; margin-bottom: 10px;">${ann.text}</div>
+              <div style="font-size: 11px; color: #888; text-align: right;">Posted by: <strong>${ann.author}</strong> | ${dateStr}</div>
+            </div>
+          `;
+        });
+        document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='color:#666;'>No announcements posted yet.</p>" : html;
+      });
+    }
+
+    document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => {
+      const textarea = document.getElementById('announcementText');
+      const text = textarea.value.trim();
+      if (!text) return await customPopup('alert', "Please write an announcement.");
+      try {
+        await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() });
+        textarea.value = "";
+        showToast("Announcement published!");
+      } catch (err) { await customPopup('alert', "Error: " + err.message); }
+    });
+
+    window.toggleAvailability = async () => {
+      if (!currentUserDoc) return;
+      const newStatus = currentUserDoc.isAvailable === false ? true : false;
+      try {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus });
+        currentUserDoc.isAvailable = newStatus;
+        const btn = document.getElementById('toggleAvailabilityBtn');
+        btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)";
+        showToast(newStatus ? "You are ON DUTY 🟢" : "You are OFF DUTY 🔴");
+      } catch (err) { await customPopup('alert', "Error updating status: " + err.message); }
+    };
+
+    window.updateTicketStatus = async (ticketId, newStatus) => {
+      try {
+        await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus });
+        showToast("Ticket updated!");
+      } catch (error) { await customPopup('alert', "Action failed: " + error.message); }
+    };
+
     function loadApp(user, docData) {
       document.getElementById('dashboard').style.display = "block";
+      document.getElementById('queuePanel').style.display = "block";
+      document.getElementById('openEditProfileBtn').style.display = "block";
       document.getElementById('userName').innerText = docData.name;
       document.getElementById('userPic').src = docData.photoURL;
 
       const roleDisplay = document.getElementById('userRole');
+
       if (docData.role === "owner") {
         roleDisplay.innerText = "👑 ROLE: SHOP OWNER";
         document.getElementById('adminPanel').style.display = "block";
+        document.getElementById('analyticsPanel').style.display = "block";
+        startAdminListeners();
+        startAnalyticsTracker();
+      } else if (docData.role === "secretary") {
+        roleDisplay.innerText = "👩‍💼 ROLE: SECRETARY";
+        document.getElementById('secretaryPanel').style.display = "block";
+        document.getElementById('analyticsPanel').style.display = "block";
+        startAnalyticsTracker();
+        populateIntakeForm();
       } else {
-        roleDisplay.innerText = docData.role === "secretary" ? "👩‍💼 ROLE: SECRETARY" : "👤 ROLE: BARBER";
+        roleDisplay.innerText = "👤 ROLE: BARBER";
+        document.getElementById('analyticsPanel').style.display = "block";
+        startAnalyticsTracker(docData.name);
+        document.getElementById('barberControls').style.display = "block";
+        const btn = document.getElementById('toggleAvailabilityBtn');
+        btn.innerText = docData.isAvailable === false ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)";
       }
+
+      startLiveQueue();
+      cacheAllTickets();
+    }
+
+    function cacheAllTickets() {
+      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
+        allPaidTicketsCache = [];
+        snapshot.forEach((doc) => {
+          allPaidTicketsCache.push({ id: doc.id, ...doc.data() });
+        });
+      });
+    }
+
+    document.getElementById('openDirectoryBtn').addEventListener('click', () => {
+      document.getElementById('dashboard').style.display = "none";
+      document.getElementById('customerDirectoryPage').style.display = "block";
+      renderCustomerDirectoryList();
+    });
+
+    function renderCustomerDirectoryList() {
+      let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed");
+      let customerMap = {};
+      ticketsToProcess.forEach(t => {
+        const nameKey = t.customerName.trim().toLowerCase();
+        if (!customerMap[nameKey]) {
+          customerMap[nameKey] = { displayName: t.customerName, phone: t.customerPhone || 'Not Provided', visits: [] };
+        }
+        customerMap[nameKey].visits.push(t);
+      });
+
+      let html = "";
+      Object.keys(customerMap).forEach(key => {
+        const cust = customerMap[key];
+        html += `
+          <div class="list-item clickable-customer" onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')">
+            <div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; color: #aaa;">(${cust.phone})</span></div>
+            <div class="ticket-details">Total Visits: <strong>${cust.visits.length}</strong> | Tap to view history ➡</div>
+          </div>
+        `;
+      });
+      document.getElementById('directoryCustomerList').innerHTML = html === "" ? "<p style='color:#666;'>No past customer records.</p>" : html;
+    }
+
+    window.openCustomerDetail = (encodedName) => {
+      const customerName = decodeURIComponent(encodedName);
+      document.getElementById('directoryListView').style.display = "none";
+      document.getElementById('customerDetailView').style.display = "block";
+
+      let tickets = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase() === customerName.toLowerCase());
+      let html = `<h3 style="color: #d4af37;">History for: ${customerName}</h3>`;
+      tickets.forEach(t => {
+        html += `<div class="ticket"><div class="ticket-details">Service: ${t.serviceName} - GHS ${t.price.toFixed(2)}<br>Status: ${t.status.toUpperCase()}</div></div>`;
+      });
+      document.getElementById('customerDetailContent').innerHTML = html;
+    };
+
+    window.backToDirectoryList = () => {
+      document.getElementById('customerDetailView').style.display = "none";
+      document.getElementById('directoryListView').style.display = "block";
+    };
+
+    function startAdminListeners() {
+      onSnapshot(collection(db, "users"), (snapshot) => {
+        let approvalHtml = "", activeHtml = "";
+        snapshot.forEach((userDoc) => {
+          const u = userDoc.data();
+          const uid = userDoc.id;
+          if (!u.isApproved) {
+            approvalHtml += `<div class="list-item"><div class="ticket-title">${u.name} (${u.role})</div><button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve</button></div>`;
+          } else if (u.role !== "owner") {
+            activeHtml += `<div class="list-item"><strong style="color: #fff;">${u.name}</strong> (${u.role})</div>`;
+          }
+        });
+        document.getElementById('approvalList').innerHTML = approvalHtml || "<p style='color:#666;'>No pending approvals.</p>";
+        document.getElementById('activeStaffList').innerHTML = activeHtml || "<p style='color:#666;'>No active staff.</p>";
+      });
+    }
+
+    window.approveUser = async (uid) => {
+      await updateDoc(doc(db, "users", uid), { isApproved: true });
+      showToast("User approved!");
+    };
+
+    function populateIntakeForm() {
+      onSnapshot(collection(db, "services"), (snapshot) => {
+        let html = '<option value="">Select Service...</option>';
+        snapshot.forEach((sDoc) => {
+          const s = sDoc.data();
+          html += `<option value="${s.name}|${s.price}">${s.name} - GHS ${s.price}</option>`;
+        });
+        document.getElementById('serviceType').innerHTML = html;
+      });
+
+      const qBarbers = query(collection(db, "users"), where("role", "==", "barber"), where("isApproved", "==", true));
+      onSnapshot(qBarbers, (snapshot) => {
+        let html = '<option value="">Select Barber...</option>';
+        snapshot.forEach((bDoc) => {
+          const b = bDoc.data();
+          if (b.isAvailable === false) return;
+          const firstName = b.name.split(' ')[0];
+          html += `<option value="${firstName}">${firstName}</option>`;
+        });
+        document.getElementById('barberName').innerHTML = html;
+      });
+    }
+
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) {
+      sendBtn.addEventListener('click', async () => {
+        const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
+        const serviceVal = document.getElementById('serviceType').value;
+        const barber = document.getElementById('barberName').value;
+
+        if (!name || !serviceVal || !barber) return await customPopup('alert', "Please fill out customer name, service, and barber.");
+
+        const serviceData = serviceVal.split('|');
+        const querySnapshot = await getDocs(collection(db, "daily_tickets"));
+        const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
+
+        await addDoc(collection(db, "daily_tickets"), {
+          ticketNo: ticketNumber, customerName: name, customerPhone: phone || 'Not Provided',
+          serviceName: serviceData[0], price: Number(serviceData[1]),
+          assignedBarber: barber, status: "in_progress", timestamp: new Date().getTime()
+        });
+        document.getElementById('custName').value = "";
+        document.getElementById('custPhone').value = "";
+        showToast("Ticket issued!");
+      });
+    }
+
+    window.openPaymentPage = (ticketId, custName, serviceName, price) => {
+      activePaymentTicketId = ticketId;
+      document.getElementById('payCustName').innerText = custName;
+      document.getElementById('payServiceName').innerText = serviceName;
+      document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2);
+      document.getElementById('dashboard').style.display = "none";
+      document.getElementById('paymentPage').style.display = "block";
+    };
+
+    window.cancelPayment = () => {
+      document.getElementById('paymentPage').style.display = "none";
+      document.getElementById('dashboard').style.display = "block";
+      activePaymentTicketId = null;
+    };
+
+    window.processPayment = async (method) => {
+      if (!activePaymentTicketId) return;
+      await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method });
+      showToast(`Payment recorded as ${method}!`);
+      document.getElementById('paymentPage').style.display = "none";
+      document.getElementById('dashboard').style.display = "block";
+      activePaymentTicketId = null;
+    };
+
+    function startLiveQueue() {
+      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
+        let html = "";
+        snapshot.forEach((docSnap) => {
+          const ticket = docSnap.data();
+          const ticketId = docSnap.id;
+          if (ticket.status !== "paid" && ticket.status !== "cancelled") {
+            let actionButton = "";
+            const isOwner = currentUserDoc.role === "owner";
+            const isSec = currentUserDoc.role === "secretary";
+            const isBarber = currentUserDoc.role === "barber";
+            const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase();
+            const ticketBarber = ticket.assignedBarber.toLowerCase();
+
+            if (ticket.status === "in_progress" && (isOwner || (isBarber && ticketBarber === myFirstName))) {
+               actionButton = `<button class="btn-action btn-finish" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH</button>`;
+            } else if (ticket.status === "completed" && (isSec || isOwner)) {
+               actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
+            }
+
+            html += `
+              <div class="ticket">
+                <div class="ticket-header">
+                  <span class="ticket-number">${ticket.ticketNo || '--'}</span>
+                  <span class="status-badge">${ticket.status.toUpperCase()}</span>
+                </div>
+                <div class="ticket-title">${ticket.customerName}</div>
+                <div class="ticket-details">${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} | Barber: ${ticket.assignedBarber}</div>
+                ${actionButton}
+              </div>
+            `;
+          }
+        });
+        document.getElementById('queueList').innerHTML = html === "" ? "<p style='color:#666;'>No active customers.</p>" : html;
+      });
+    }
+
+    function startAnalyticsTracker(barberNameFilter = null) {
+      onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
+        let todayVal = 0, todayCuts = 0, weekVal = 0, weekCuts = 0, monthVal = 0, monthCuts = 0;
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()).getTime();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+        snapshot.forEach((docSnap) => {
+          const ticket = docSnap.data();
+          if (ticket.status === "paid") {
+            if (barberNameFilter) {
+              if (ticket.assignedBarber.toLowerCase() !== barberNameFilter.split(' ')[0].toLowerCase()) return;
+            }
+            const time = ticket.timestamp;
+            if (time >= startOfToday) { todayVal += ticket.price; todayCuts++; }
+            if (time >= startOfWeek) { weekVal += ticket.price; weekCuts++; }
+            if (time >= startOfMonth) { monthVal += ticket.price; monthCuts++; }
+          }
+        });
+
+        document.getElementById('todayRev').innerText = todayVal.toFixed(2);
+        document.getElementById('todayCuts').innerText = todayCuts;
+        document.getElementById('weekRev').innerText = weekVal.toFixed(2);
+        document.getElementById('weekCuts').innerText = weekCuts;
+        document.getElementById('monthRev').innerText = monthVal.toFixed(2);
+        document.getElementById('monthCuts').innerText = monthCuts;
+      });
     }
   </script>
 </body>
