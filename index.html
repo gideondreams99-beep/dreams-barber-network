@@ -18,7 +18,7 @@
       overflow-x: hidden;
     }
 
-    /* --- NEW LOGIN SCREEN & JUMPING ANIMATION --- */
+    /* --- CENTERED LOGIN SCREEN & JUMPING ANIMATION --- */
     #loginScreen {
       display: flex;
       flex-direction: column;
@@ -225,12 +225,12 @@
     #customModalMessage { color: #ccc; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; }
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
 
-    /* --- NEW CUSTOM DROPDOWN SELECT UI (From 43012.png) --- */
+    /* --- CUSTOM DROPDOWN SELECT UI (From 43012.png) --- */
     .custom-select-btn {
       width: 100%; padding: 14px; margin-bottom: 20px; background-color: #111;
       color: white; border: 1px solid #555; border-radius: 8px; font-size: 16px;
       display: flex; justify-content: space-between; align-items: center;
-      cursor: pointer; position: relative;
+      cursor: pointer; position: relative; box-sizing: border-box; text-align: left;
     }
     .custom-select-btn.active { border-color: #d4af37; }
     .custom-select-btn::after {
@@ -314,7 +314,7 @@
       <p style="color: #aaa; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your display details and shop role to get started.</p>
       
       <label>Select Your Role</label>
-      <div class="custom-select-btn" id="btnSetupRole" onclick="openCustomMenu('setupRole', roleConfig)">Select Role...</div>
+      <div class="custom-select-btn" id="btnSetupRole">Select Role...</div>
       <input type="hidden" id="setupRole" value="">
 
       <label>Profile Display Name</label>
@@ -332,11 +332,11 @@
         <input type="text" id="setupLegalName" placeholder="Enter full name exactly as shown on ID...">
 
         <label>Select Country</label>
-        <div class="custom-select-btn" id="btnSetupCountry" onclick="openCustomMenu('setupCountry', countryConfig)">Select Country...</div>
+        <div class="custom-select-btn" id="btnSetupCountry">Select Country...</div>
         <input type="hidden" id="setupCountry" value="">
 
         <label>Government ID Type</label>
-        <div class="custom-select-btn" id="btnSetupIdType" onclick="openCustomMenu('setupIdType', idTypeConfig)">Select ID Type...</div>
+        <div class="custom-select-btn" id="btnSetupIdType">Select ID Type...</div>
         <input type="hidden" id="setupIdType" value="">
 
         <label>Government ID Number</label>
@@ -373,11 +373,11 @@
         <input type="text" id="editLegalName" placeholder="Enter full name exactly as shown on ID...">
 
         <label>Select Country</label>
-        <div class="custom-select-btn" id="btnEditCountry" onclick="openCustomMenu('editCountry', countryConfig)">Select Country...</div>
+        <div class="custom-select-btn" id="btnEditCountry">Select Country...</div>
         <input type="hidden" id="editCountry" value="">
 
         <label>Government ID Type</label>
-        <div class="custom-select-btn" id="btnEditIdType" onclick="openCustomMenu('editIdType', idTypeConfig)">Select ID Type...</div>
+        <div class="custom-select-btn" id="btnEditIdType">Select ID Type...</div>
         <input type="hidden" id="editIdType" value="">
 
         <label>Government ID Number</label>
@@ -566,10 +566,11 @@
       document.getElementById(activeDropdownTargetId).value = val;
       
       const btnId = 'btn' + activeDropdownTargetId.charAt(0).toUpperCase() + activeDropdownTargetId.slice(1);
-      document.getElementById(btnId).innerText = labelText;
+      const targetBtn = document.getElementById(btnId);
+      if(targetBtn) targetBtn.innerText = labelText;
+      
       document.getElementById('dropdownMenuOverlay').classList.remove('show');
 
-      // Trigger Logic updates based on selection
       if (activeDropdownTargetId === 'setupRole') {
         const idSection = document.getElementById('idVerificationSection');
         const submitBtn = document.getElementById('saveProfileBtn');
@@ -587,14 +588,27 @@
       }
     };
 
-    // Close dropdown on outside click
+    // Attach click listeners to custom dropdown buttons explicitly
+    document.addEventListener('DOMContentLoaded', () => {
+      const setupRoleBtn = document.getElementById('btnSetupRole');
+      const setupCountryBtn = document.getElementById('btnSetupCountry');
+      const setupIdTypeBtn = document.getElementById('btnSetupIdType');
+      const editCountryBtn = document.getElementById('btnEditCountry');
+      const editIdTypeBtn = document.getElementById('btnEditIdType');
+
+      if(setupRoleBtn) setupRoleBtn.addEventListener('click', () => openCustomMenu('setupRole', roleConfig));
+      if(setupCountryBtn) setupCountryBtn.addEventListener('click', () => openCustomMenu('setupCountry', countryConfig));
+      if(setupIdTypeBtn) setupIdTypeBtn.addEventListener('click', () => openCustomMenu('setupIdType', idTypeConfig));
+      if(editCountryBtn) editCountryBtn.addEventListener('click', () => openCustomMenu('editCountry', countryConfig));
+      if(editIdTypeBtn) editIdTypeBtn.addEventListener('click', () => openCustomMenu('editIdType', idTypeConfig));
+    });
+
     document.getElementById('dropdownMenuOverlay').addEventListener('click', (e) => {
       if(e.target.id === 'dropdownMenuOverlay') {
         e.target.classList.remove('show');
       }
     });
 
-    // --- DYNAMIC ID FORMAT VALIDATOR ---
     function updateIdFormatPlaceholders(prefix) {
       const country = document.getElementById(`${prefix}Country`).value;
       const type = document.getElementById(`${prefix}IdType`).value;
@@ -640,25 +654,15 @@
       return true; 
     }
 
-    // --- REAL-TIME COUNTRY DATABASE VERIFICATION SIMULATION ---
     async function verifyWithGovernmentDatabase(country, idType, idNumber, fullName) {
-      /* 
-         NOTE ON INTEGRATION: 
-         Validating a physical ID directly against a sovereign national database (like the Ghana NIA) 
-         requires a registered backend server and an active contract with a KYC identity provider 
-         API (like SmileID or Paystack Identity). It cannot securely happen purely on the frontend.
-         This function simulates the delay and response of that API call.
-      */
       return new Promise(resolve => {
         showToast(`Connecting to ${country} ${idType} database...`);
         setTimeout(() => {
-          // Simulation: Automatically passing valid Regex formulas as "True" for prototype functionality.
           resolve({ isValid: true, message: "ID Verified in National System." });
         }, 2000);
       });
     }
 
-    // --- REUSABLE CUSTOM POPUP UI FUNCTION ---
     window.customPopup = function(type, message, placeholder = "Enter details...") {
       return new Promise((resolve) => {
         const overlay = document.getElementById('customModalOverlay');
@@ -696,7 +700,6 @@
       setTimeout(() => { toast.classList.remove('show'); }, 3500);
     };
 
-    // --- AUTHENTICATION & LOGIN ---
     const loginBtn = document.getElementById('loginBtn');
     loginBtn.addEventListener('click', async (e) => {
       e.preventDefault();
@@ -729,7 +732,6 @@
       }
     });
 
-    // --- SETUP PROFILE SUBMISSION (With Single Owner & Strict ID Check) ---
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser;
       const role = document.getElementById('setupRole').value;
