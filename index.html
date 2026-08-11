@@ -474,10 +474,10 @@
       <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Payment Details</button>
     </div>
 
-    <!-- INSTALL APP SECTION FOR IOS & ANDROID (Will hide after installation) -->
+    <!-- INSTALL APP SECTION FOR IOS, ANDROID & DESKTOP -->
     <div id="installAppContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
-      <h4 style="color: var(--accent-gold); margin-top: 0;">📱 Install App on Phone</h4>
-      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen for quick, full-screen access.</p>
+      <h4 style="color: var(--accent-gold); margin-top: 0;">📱 Install App on Phone / PC</h4>
+      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen or desktop for quick, full-screen access.</p>
       <button onclick="triggerInstall()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Install App Now</button>
     </div>
 
@@ -705,24 +705,22 @@
       }
     });
 
-    // --- CROSS-PLATFORM INSTALL HANDLER (iOS & Android) ---
+    // --- ROBUST CROSS-PLATFORM & CROSS-DEVICE INSTALL WIZARD ---
     window.triggerInstall = async () => {
-      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase());
+      const ua = navigator.userAgent.toLowerCase();
+      const isIOS = /iphone|ipad|ipod/.test(ua);
+      const isAndroid = /android/.test(ua);
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
       if (isStandalone || localStorage.getItem('sjs_app_installed') === 'true') {
-        await customPopup('alert', "The app is already installed on your device!");
+        await customPopup('alert', "✨ <b>App Already Installed!</b><br><br>SJ'S SALOON is already installed and running on your device home screen or standalone mode.");
         const installBox = document.getElementById('installAppContainer');
         if (installBox) installBox.style.display = 'none';
         return;
       }
 
-      if (isIOS) {
-        await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share</b> button in Safari (the square with an arrow pointing upward).<br>2. Scroll down the menu and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>Add</b> in the top right corner!");
-        localStorage.setItem('sjs_app_installed', 'true');
-        const installBox = document.getElementById('installAppContainer');
-        if (installBox) installBox.style.display = 'none';
-      } else if (deferredPrompt) {
+      // If browser supports direct native prompt (Chrome / Edge / Samsung Internet on Android or Desktop)
+      if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
@@ -732,12 +730,42 @@
           if (installBox) installBox.style.display = 'none';
         }
         deferredPrompt = null;
-      } else {
-        await customPopup('alert', "To install this app, open your browser menu (the three dots in the corner) and select <b>'Install app'</b> or <b>'Add to Home screen'</b>.");
-        localStorage.setItem('sjs_app_installed', 'true');
-        const installBox = document.getElementById('installAppContainer');
-        if (installBox) installBox.style.display = 'none';
+        return;
       }
+
+      // Detailed Guided Instructions per Device / Browser
+      if (isIOS) {
+        await customPopup('alert', `
+          <div style="text-align: left; line-height: 1.6;">
+            <strong style="color: var(--accent-gold); font-size: 16px;">🍏 iPhone / iPad Installation Guide:</strong><br><br>
+            1. Look at the bottom toolbar in <b>Safari</b> and tap the <b>Share</b> button <span style="font-size:18px;">(the square with an arrow pointing upward $\uparrow$)</span>.<br><br>
+            2. Scroll down through the share sheet options and tap <b>'Add to Home Screen'</b>.<br><br>
+            3. Tap <b>'Add'</b> in the top right corner to instantly place SJ'S SALOON on your home screen!
+          </div>
+        `);
+      } else if (isAndroid) {
+        await customPopup('alert', `
+          <div style="text-align: left; line-height: 1.6;">
+            <strong style="color: var(--accent-gold); font-size: 16px;">🤖 Android Installation Guide:</strong><br><br>
+            1. Tap the browser menu button <span style="font-size:18px;">(usually 3 vertical dots <b>⋮</b> in the top right corner)</span>.<br><br>
+            2. Look for and tap <b>'Install app'</b> or <b>'Add to Home screen'</b>.<br><br>
+            3. Confirm by tapping <b>'Install'</b> or <b>'Add'</b> when prompted!
+          </div>
+        `);
+      } else {
+        await customPopup('alert', `
+          <div style="text-align: left; line-height: 1.6;">
+            <strong style="color: var(--accent-gold); font-size: 16px;">💻 Desktop / PC Installation Guide:</strong><br><br>
+            1. In <b>Chrome, Edge, or Brave</b>, look at the right side of your browser address bar for the <b>Install icon</b> <span style="font-size:16px;">(computer screen with down arrow $\downarrow$ or circle icon)</span>.<br><br>
+            2. Alternatively, click the browser menu <span style="font-size:18px;">(<b>⋮</b>)</span> and select <b>'Install SJ'S SALOON...'</b>.<br><br>
+            3. Click <b>Install</b> to launch it as a dedicated desktop app!
+          </div>
+        `);
+      }
+      
+      localStorage.setItem('sjs_app_installed', 'true');
+      const installBox = document.getElementById('installAppContainer');
+      if (installBox) installBox.style.display = 'none';
     };
 
     const firebaseConfig = {
@@ -2308,4 +2336,3 @@
   </script>
 </body>
 </html>
- 
