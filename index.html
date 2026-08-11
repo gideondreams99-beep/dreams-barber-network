@@ -47,9 +47,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start; /* Changed to flex-start for cleaner top alignment */
+      justify-content: flex-start;
       transition: background 0.3s ease, color 0.3s ease;
-      padding-top: 60px; /* Space for the top header */
+      padding-top: 60px;
     }
 
     /* TOP HEADER & HAMBURGER MENU */
@@ -313,8 +313,7 @@
     </div>
     
     <div class="sidebar-category">System</div>
-    <button class="sidebar-btn" onclick="openSettingsPage(); closeSidebar();">⚙️ Settings & Payment</button>
-    <button class="sidebar-btn" style="color: #ff4444;" onclick="performLogout()">🚪 Log Out</button>
+    <button id="sidebarSettingsBtn" class="sidebar-btn" onclick="openSettingsPage(); closeSidebar();">⚙️ Settings & Payment</button>
   </div>
 
   <!-- JUMPING ANIMATED LOGIN SCREEN CENTERED -->
@@ -497,7 +496,7 @@
   <!-- UNIVERSAL SETTINGS PAGE -->
   <div id="settingsPage" class="panel" style="border-color: var(--accent-gold);">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-    <h3 style="color: var(--accent-gold);">Settings & Controls</h3>
+    <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
     <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
       <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment Details</h4>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name and number so staff can display it during mobile money checkouts.</p>
@@ -589,7 +588,7 @@
     </div>
   </div>
 
-  <!-- MAIN DASHBOARD (NOW SUPER CLEAN!) -->
+  <!-- MAIN DASHBOARD -->
   <div id="dashboard">
     <!-- REAL-TIME DASHBOARD NOTIFICATION BANNER / ACTIVITY FEED -->
     <div id="dashboardNotificationBox" style="display: none; margin-bottom: 15px;"></div>
@@ -601,7 +600,6 @@
       <label>Customer Full Name</label>
       <input type="text" id="custName" placeholder="Start typing name..." autocomplete="off" style="margin-bottom: 10px;">
       
-      <!-- NEW: INTUITIVE CUSTOMER HISTORY AUTO-FILL DROP-DOWN & STATS -->
       <div id="customerHistoryBox" style="display: none;">
         <div id="historyContent">No history found.</div>
       </div>
@@ -636,7 +634,6 @@
       <div id="queueList"></div>
     </div>
 
-    <!-- BUTTON TO OPEN FULL CUSTOMER RECORDS PAGE (HIDDEN ON DASHBOARD, MOVED TO SIDEBAR) -->
     <button id="openDirectoryBtn" style="display: none;">Hidden Customer Directory Trigger</button>
 
     <!-- ANALYTICS PANEL & REPORTS -->
@@ -793,7 +790,17 @@
 
     window.openSettingsPage = () => {
       dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none"; customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none";
-      if (currentUserDoc && currentUserDoc.role === "owner") { document.getElementById('ownerDangerZoneBox').style.display = "block"; document.getElementById('ownerPaymentSettingsBox').style.display = "block"; document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name; document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number; } else { document.getElementById('ownerDangerZoneBox').style.display = "none"; document.getElementById('ownerPaymentSettingsBox').style.display = "none"; }
+      if (currentUserDoc && currentUserDoc.role === "owner") { 
+        document.getElementById('ownerDangerZoneBox').style.display = "block"; 
+        document.getElementById('ownerPaymentSettingsBox').style.display = "block"; 
+        document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name; 
+        document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number; 
+        document.getElementById('settingsPageHeading').innerText = "Settings & Payment";
+      } else { 
+        document.getElementById('ownerDangerZoneBox').style.display = "none"; 
+        document.getElementById('ownerPaymentSettingsBox').style.display = "none"; 
+        document.getElementById('settingsPageHeading').innerText = "Settings";
+      }
       document.getElementById('settingsPage').style.display = "block";
     };
 
@@ -939,19 +946,26 @@
       // Update Sidebar Info
       document.getElementById('sidebarUserName').innerText = docData.name; document.getElementById('sidebarUserPic').src = docData.photoURL;
       const sidebarRole = document.getElementById('sidebarUserRole');
+      const sidebarSettingsBtn = document.getElementById('sidebarSettingsBtn');
 
       if (docData.role === "owner") {
-        sidebarRole.innerText = "👑 Shop Owner"; document.getElementById('sidebarAdminSection').style.display = "block";
+        sidebarRole.innerText = "👑 Shop Owner"; 
+        document.getElementById('sidebarAdminSection').style.display = "block";
+        sidebarSettingsBtn.innerText = "⚙️ Settings & Payment";
         document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "Shop Revenue & Customer History"; document.getElementById('ownerDailyDeniedSection').style.display = "block";
         startAdminListeners(); startAnalyticsTracker();
       } 
       else if (docData.role === "secretary") {
-        sidebarRole.innerText = "👩‍💼 Secretary"; document.getElementById('secretaryPanel').style.display = "block"; 
+        sidebarRole.innerText = "👩‍💼 Secretary"; 
+        sidebarSettingsBtn.innerText = "⚙️ Settings";
+        document.getElementById('secretaryPanel').style.display = "block"; 
         document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
         startAnalyticsTracker();
       } 
       else {
-        sidebarRole.innerText = "👤 Barber"; document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "My Work History";
+        sidebarRole.innerText = "👤 Barber"; 
+        sidebarSettingsBtn.innerText = "⚙️ Settings";
+        document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "My Work History";
         startAnalyticsTracker(docData.name);
         const isOff = docData.isAvailable === false; const btn = document.getElementById('toggleAvailabilityBtn');
         btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = isOff ? "#555" : "#28a745";
@@ -992,7 +1006,6 @@
       });
     }
 
-    // --- NEW: AUTO-FILL & CUSTOMER HISTORY SEARCH ---
     const custNameInput = document.getElementById('custName');
     if (custNameInput) {
       custNameInput.addEventListener('input', (e) => {
@@ -1000,11 +1013,10 @@
         const historyBox = document.getElementById('customerHistoryBox'); 
         const historyContent = document.getElementById('historyContent');
         
-        document.getElementById('intakeCustomerStats').style.display = "none"; // Hide stats while typing
+        document.getElementById('intakeCustomerStats').style.display = "none";
 
         if (typedName.length < 2) { historyBox.style.display = "none"; return; }
         
-        // Group customers to find unique matches and aggregate visits/latest phone
         let customerMap = {};
         allPaidTicketsCache.forEach(t => {
           if (t.customerName && t.customerName.toLowerCase().includes(typedName)) {
@@ -1041,7 +1053,6 @@
       });
     }
 
-    // Triggers when Secretary clicks a customer from the dropdown
     window.selectIntakeCustomer = (name, phone, visits) => {
       document.getElementById('custName').value = name;
       document.getElementById('custPhone').value = (phone && phone !== 'Not Provided' && phone !== 'undefined') ? phone : '';
