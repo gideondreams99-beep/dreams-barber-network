@@ -236,7 +236,7 @@
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
 
     /* RADIO OPTION LIST FOR CUSTOM DROPDOWN PICKER */
-    #customDropdownList { display: none; max-height: 240px; overflow-y: auto; text-align: left; margin-bottom: 20px; }
+    #customDropdownList { display: none; max-height: 240px; overflow-y: auto; text-align: left; margin-bottom: 15px; }
     .dropdown-option-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 15px; border-bottom: 1px solid var(--panel-border); cursor: pointer; font-size: 15px;
@@ -295,6 +295,7 @@
       <p id="customModalMessage">Message</p>
       <input type="text" id="customModalInput" autocomplete="off">
       <div id="customDropdownList"></div>
+      <button id="customPickerBackBtn" onclick="closePickerModal()" style="display: none; width: 100%; margin-top: 10px; background: #444; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 8px; font-size: 14px;">⬅ Back</button>
       <div id="customModalButtons" style="display: flex; gap: 10px; margin-top: 25px;">
         <button id="customModalCancel" style="flex: 1; background: #333; border: 1px solid #555; color: white;">Cancel</button>
         <button id="customModalConfirm" style="flex: 1;" class="btn-submit">OK</button>
@@ -751,6 +752,7 @@
         const msg = document.getElementById('customModalMessage');
         const input = document.getElementById('customModalInput');
         const dropdownList = document.getElementById('customDropdownList');
+        const backBtn = document.getElementById('customPickerBackBtn');
         const cancelBtn = document.getElementById('customModalCancel');
         const confirmBtn = document.getElementById('customModalConfirm');
         const buttonContainer = document.getElementById('customModalButtons');
@@ -758,6 +760,7 @@
         input.value = "";
         input.style.display = "none";
         dropdownList.style.display = "none";
+        backBtn.style.display = "none";
         cancelBtn.style.display = "block";
         buttonContainer.style.display = "flex";
         msg.innerHTML = message;
@@ -805,6 +808,11 @@
       });
     };
 
+    // --- CLOSE PICKER MODAL FUNCTION (BACK BUTTON HANDLER) ---
+    window.closePickerModal = () => {
+      document.getElementById('customModalOverlay').classList.remove('show');
+    };
+
     // --- CUSTOM PICKER MODAL FOR ROLES, COUNTRIES, ID TYPES, SERVICES, BARBERS ---
     window.openPickerModal = async (pickerType) => {
       const overlay = document.getElementById('customModalOverlay');
@@ -812,12 +820,14 @@
       const msg = document.getElementById('customModalMessage');
       const input = document.getElementById('customModalInput');
       const dropdownList = document.getElementById('customDropdownList');
+      const backBtn = document.getElementById('customPickerBackBtn');
       const buttonContainer = document.getElementById('customModalButtons');
 
       input.style.display = "none";
       buttonContainer.style.display = "none";
       msg.innerHTML = "";
       dropdownList.style.display = "block";
+      backBtn.style.display = "block"; // Show Back button on selector modals
 
       let options = [];
       let currentValue = "";
