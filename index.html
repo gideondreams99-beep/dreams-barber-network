@@ -201,7 +201,6 @@
     .pay-cash { background: #28a745; color: white; border-color: #28a745; }
     .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
     .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
-    .pay-card { background: #4285F4; color: white; border-color: #4285F4; }
 
     /* EYE-CATCHING CONFIRMATION TOAST */
     #toastNotification {
@@ -461,6 +460,20 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: var(--accent-gold);">Settings & Controls</h3>
 
+    <!-- OWNER PAYMENT SETTINGS SECTION -->
+    <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
+      <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment Details (MoMo / Telecel)</h4>
+      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name and number so staff can display it during mobile money checkouts.</p>
+      
+      <label>MoMo / Merchant Account Name</label>
+      <input type="text" id="ownerMomoNameSet" placeholder="e.g. John Doe / SJ'S SALOON">
+
+      <label>MoMo / Merchant Phone Number</label>
+      <input type="tel" id="ownerMomoNumberSet" placeholder="e.g. 0240000000">
+
+      <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Payment Details</button>
+    </div>
+
     <!-- INSTALL APP SECTION FOR IOS & ANDROID (Will hide after installation) -->
     <div id="installAppContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
       <h4 style="color: var(--accent-gold); margin-top: 0;">📱 Install App on Phone</h4>
@@ -494,14 +507,16 @@
 
     <div id="ownerRefBox" style="display: none; background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
       <strong style="color: #ffc107;">📱 OWNER PAYMENT REFERENCE:</strong>
-      <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Please have funds sent to Owner's Merchant / Number:<br><strong style="color: var(--accent-gold); font-size: 16px;">0240000000 (SJ'S SALOON)</strong></p>
+      <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Please send funds to:<br>
+        Name: <strong id="displayOwnerPayName" style="color: var(--accent-gold); font-size: 16px;">--</strong><br>
+        Number: <strong id="displayOwnerPayNum" style="color: var(--accent-gold); font-size: 16px;">--</strong>
+      </p>
     </div>
 
     <label style="margin-bottom: 15px; font-weight: bold;">Select Payment Method:</label>
     <button class="pay-btn pay-cash" onclick="processPayment('Cash')">💵 Cash Payment</button>
     <button class="pay-btn pay-momo" onclick="processPayment('MTN MoMo')">📱 MTN MoMo</button>
     <button class="pay-btn pay-telecel" onclick="processPayment('Telecel Cash')">🟠 Telecel Cash</button>
-    <button class="pay-btn pay-card" onclick="processPayment('Card')">💳 Card Payment</button>
   </div>
 
   <!-- DEDICATED BLACKLIST PAGE VIEW -->
@@ -600,7 +615,10 @@
 
     <!-- LIVE SHOP QUEUE -->
     <div id="queuePanel" class="panel" style="display: none;">
-      <h3>Live Shop Queue</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; margin-bottom: 15px;">
+        <h3 style="margin: 0; border: none; padding: 0;">Live Shop Queue</h3>
+        <span id="queueCountBadge" class="status-badge" style="margin: 0; background: var(--accent-gold); color: #111;">0 Active</span>
+      </div>
       <div id="queueList"></div>
     </div>
 
@@ -633,9 +651,12 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // --- PUSH / AUDIO NOTIFICATION RING SOUND ---
+    // --- PUSH / AUDIO NOTIFICATION RING & VIBRATION SOUND ---
     function playRingTone() {
       try {
+        if ('vibrate' in navigator) {
+          navigator.vibrate([200, 100, 200]);
+        }
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') {
           audioCtx.resume();
@@ -739,6 +760,7 @@
     let activeReassignTicketId = null;
     let activeBlacklistCustomer = null;
     let activeBlacklistActionType = null; 
+    let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000" };
 
     // FORM STATES FOR CUSTOM DROPDOWN PICKERS
     let selectedSetupRole = "barber";
@@ -1032,11 +1054,30 @@
 
       if (currentUserDoc && currentUserDoc.role === "owner") {
         document.getElementById('ownerDangerZoneBox').style.display = "block";
+        document.getElementById('ownerPaymentSettingsBox').style.display = "block";
+        document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name;
+        document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number;
       } else {
         document.getElementById('ownerDangerZoneBox').style.display = "none";
+        document.getElementById('ownerPaymentSettingsBox').style.display = "none";
       }
 
       document.getElementById('settingsPage').style.display = "block";
+    };
+
+    window.saveOwnerPaymentSettings = async () => {
+      const name = document.getElementById('ownerMomoNameSet').value.trim();
+      const number = document.getElementById('ownerMomoNumberSet').value.trim();
+      if (!name || !number) return await customPopup('alert', "Please provide both payment name and number.");
+
+      try {
+        await setDoc(doc(db, "shop_config", "payment"), { name, number }, { merge: true });
+        shopPaymentConfig = { name, number };
+        playRingTone();
+        showToast("Payment details saved successfully!");
+      } catch (err) {
+        await customPopup('alert', "Error saving payment settings: " + err.message);
+      }
     };
 
     window.openChatPage = () => {
@@ -1174,6 +1215,12 @@
           const userRef = doc(db, "users", user.uid);
           const userSnap = await getDoc(userRef);
           statusText.style.display = "none";
+
+          // Fetch payment config
+          const payConfigSnap = await getDoc(doc(db, "shop_config", "payment"));
+          if (payConfigSnap.exists()) {
+            shopPaymentConfig = payConfigSnap.data();
+          }
 
           if (!userSnap.exists()) {
             document.getElementById('setupDisplayName').value = user.displayName || "";
@@ -1687,14 +1734,18 @@
         const cust = customerMap[key];
         cust.visits.sort((a, b) => b.timestamp - a.timestamp);
         const lastVisit = new Date(cust.visits[0].timestamp).toLocaleDateString();
+        const hasPhone = cust.phone && cust.phone !== 'Not Provided' && cust.phone.trim() !== '';
 
         html += `
-          <div class="list-item clickable-customer" onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')">
-            <div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; opacity: 0.7;">(${cust.phone})</span></div>
-            <div class="ticket-details">
-              Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>
-              Tap to view full service history & report options ➡
+          <div class="list-item clickable-customer">
+            <div onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')">
+              <div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; opacity: 0.7;">(${cust.phone})</span></div>
+              <div class="ticket-details" style="margin-bottom: 8px;">
+                Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>
+                Tap to view full service history & report options ➡
+              </div>
             </div>
+            ${hasPhone ? `<a href="tel:${cust.phone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 14px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold;">📞 Call Customer</a>` : ''}
           </div>
         `;
       });
@@ -1716,10 +1767,12 @@
 
       ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp);
       const phoneNum = ticketsToProcess[0]?.customerPhone || 'Not Provided';
+      const hasPhone = phoneNum && phoneNum !== 'Not Provided' && phoneNum.trim() !== '';
 
       let html = `
         <h3 style="color: var(--accent-gold); margin-bottom: 5px;">History for: ${customerName}</h3>
         <p style="opacity: 0.8; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>
+        ${hasPhone ? `<a href="tel:${phoneNum}" style="display:inline-block; background:#28a745; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold; margin-bottom:15px;">📞 Call ${customerName}</a>` : ''}
         <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>
       `;
 
@@ -2063,6 +2116,9 @@
       document.getElementById('payServiceName').innerText = serviceName;
       document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2);
       
+      document.getElementById('displayOwnerPayName').innerText = shopPaymentConfig.name;
+      document.getElementById('displayOwnerPayNum').innerText = shopPaymentConfig.number;
+
       dashboard.style.display = "none";
       document.getElementById('ownerRefBox').style.display = "none";
       paymentPage.style.display = "block";
@@ -2077,9 +2133,9 @@
     window.processPayment = async (method) => {
       if (!activePaymentTicketId) return;
 
-      if (method === "MTN MoMo" || method === "Telecel Cash" || method === "Card") {
+      if (method === "MTN MoMo" || method === "Telecel Cash") {
         document.getElementById('ownerRefBox').style.display = "block";
-        await customPopup('alert', "📱 Please collect the transfer or card swipe using Owner Number: 0240000000. Click OK once confirmed.");
+        await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`);
       }
 
       try {
@@ -2096,6 +2152,7 @@
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
         let html = "";
         let dailyDeniedHtml = "";
+        let activeQueueCount = 0;
         let hasNewTicketOrChange = false;
         
         const now = new Date();
@@ -2126,9 +2183,14 @@
             `;
           }
 
-          if (ticket.status !== "paid" && ticket.status !== "cancelled") {
+          // Count active waiting / in_progress customers (exclude paid, cancelled, and finalized/reason-provided denied tickets from main active queue view)
+          if (ticket.status === "in_progress" || ticket.status === "completed") {
+            activeQueueCount++;
+          }
+
+          if (ticket.status !== "paid" && ticket.status !== "cancelled" && ticket.status !== "denied") {
             let actionButton = "";
-            let statusColor = ticket.status === "denied" ? "#ff4444" : "#ffc107"; 
+            let statusColor = "#ffc107"; 
 
             const isOwner = currentUserDoc.role === "owner";
             const isSec = currentUserDoc.role === "secretary";
@@ -2147,27 +2209,21 @@
             else if (ticket.status === "completed" && (isSec || isOwner)) {
                actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
             }
-            else if (ticket.status === "denied" && (isSec || isOwner)) {
-               actionButton = `
-                 <div style="display: flex; gap: 8px;">
-                   <button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button>
-                   <button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button>
-                 </div>
-               `;
-            }
+
+            const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== '';
 
             html += `
-              <div class="ticket" style="${ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ''}">
+              <div class="ticket">
                 <div class="ticket-header">
                   <span class="ticket-number">${ticket.ticketNo || '--'}</span>
-                  <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.status.toUpperCase().replace('_', ' ')}</span>
+                  <span class="status-badge" style="background: ${statusColor}; color: #111;">${ticket.status.toUpperCase().replace('_', ' ')}</span>
                 </div>
                 <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div>
-                <div class="ticket-details">
+                <div class="ticket-details" style="margin-bottom: 10px;">
                   ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} <br>
                   Assigned to: <strong>${ticket.assignedBarber}</strong>
-                  ${ticket.denyReason ? `<br><span style="color: #ff4444;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
                 </div>
+                ${hasPhone ? `<a href="tel:${ticket.customerPhone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold; margin-bottom:8px;">📞 Call Customer</a>` : ''}
                 ${actionButton}
               </div>
             `;
@@ -2178,7 +2234,8 @@
           playRingTone();
         }
         queueInitialized = true;
-        document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers.</p>" : html;
+        document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers in queue.</p>" : html;
+        document.getElementById('queueCountBadge').innerText = `${activeQueueCount} Active`;
         
         const deniedListEl = document.getElementById('ownerDailyDeniedList');
         if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") {
