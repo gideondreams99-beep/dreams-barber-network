@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SJ'S SALOON</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#d4af37">
+  <meta name="theme-color" content="#121212">
   <style>
     /* SYSTEM DEFAULT THEME (AUTOMATIC LIGHT & DARK MODE SUPPORT) */
     :root {
@@ -546,10 +546,10 @@
     
     <div class="flex-row" style="margin-top: 10px; margin-bottom: 10px;">
       <button onclick="openChatPage()" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; font-size: 13px;">💬 Team Chat</button>
-      <button onclick="openAnnouncementsPage()" style="flex: 1; background: linear-gradient(145deg, #ffc107, #b28704); color: #111; border-color: #ffc107; font-size: 13px;">📢 Announcements</button>
+      <button onclick="openAnnouncementsPage()" style="flex: 1; font-size: 13px;">📢 Announcements</button>
     </div>
     
-    <button onclick="openSettingsPage()" style="width: 100%; background: linear-gradient(145deg, #d4af37, #997d20); color: #111; border-color: var(--accent-gold); font-size: 13px; margin-bottom: 15px;">⚙️ Settings</button>
+    <button onclick="openSettingsPage()" style="width: 100%; font-size: 13px; margin-bottom: 15px;">⚙️ Settings</button>
 
     <!-- BARBER AVAILABILITY TOGGLE (Hidden by default) -->
     <div id="barberControls" style="display: none; margin-bottom: 15px;">
@@ -607,7 +607,7 @@
     <div class="panel" style="text-align: center; border-color: var(--accent-gold);">
       <h3 style="color: var(--accent-gold); margin-bottom: 10px;">Customer Records</h3>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Access past customer visits, history reports, and blacklist logs.</p>
-      <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #d4af37, #997d20); color: #111; font-weight: bold;">📂 Open Customer Records</button>
+      <button id="openDirectoryBtn" class="btn-submit" style="background: linear-gradient(145deg, #333, #111); color: var(--accent-gold); border: 1px solid var(--accent-gold); font-weight: bold;">📂 Open Customer Records</button>
     </div>
 
     <!-- ANALYTICS PANEL -->
@@ -634,7 +634,6 @@
           audioCtx.resume();
         }
         
-        // Play a pleasant double-chime ring
         const playTone = (freq, start, duration) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -669,7 +668,6 @@
       deferredPrompt = e;
     });
 
-    // Check if app is already installed or standalone mode is active
     window.addEventListener('DOMContentLoaded', () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       const isInstalledFlag = localStorage.getItem('sjs_app_installed');
@@ -828,7 +826,6 @@
         title.innerText = "Select Your Role";
         currentValue = selectedSetupRole;
         
-        // Check if an owner already exists in the database
         let ownerExists = false;
         try {
           const userSnapshots = await getDocs(collection(db, "users"));
@@ -1193,7 +1190,6 @@
       }
 
       if (role === "owner") {
-        // Enforce single owner rule across the entire database
         try {
           const allUsers = await getDocs(collection(db, "users"));
           let ownerExists = false;
