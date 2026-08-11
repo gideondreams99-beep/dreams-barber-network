@@ -75,6 +75,7 @@
     button:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5); }
     
     #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
+    #phoneLoginBtn { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
 
     img { 
       border-radius: 50%; 
@@ -323,14 +324,23 @@
       <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px;">SJ'S SALOON</h1>
     </div>
     <p style="opacity: 0.8; font-size: 15px; margin-bottom: 25px; line-height: 1.5;">Welcome to the premier digital workstation for professional barbering and front-desk management.</p>
+    
     <button id="loginBtn" style="width: 100%; padding: 16px; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
       <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.25 3.36-7.27 7.72-7.27c2.14 0 4.05.74 5.55 2.14l2.05-2.05C18.75 3.1 15.89 2 12.72 2C6.8 2 2 6.8 2 12.72s4.8 10.72 10.72 10.72c6.2 0 10.3-4.36 10.3-10.48c0-.72-.08-1.42-.19-2.06z"/></svg>
       Sign in with Google
     </button>
+
+    <button id="phoneLoginBtn" style="width: 100%; padding: 16px; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+      📱 Sign in with Phone Number
+    </button>
+
     <button id="welcomeInstallBtn" onclick="triggerInstall()" style="width: 100%; padding: 14px; font-size: 14px; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; display: flex; align-items: center; justify-content: center; gap: 8px;">
-      📱 Install App on Device
+      📲 Install App on Device
     </button>
   </div>
+
+  <!-- HIDDEN RECAPTCHA CONTAINER REQUIRED FOR PHONE AUTH -->
+  <div id="recaptcha-container"></div>
 
   <h1 id="mainAppTitle" style="display: none;">SJ'S SALOON</h1>
   <p id="statusText" style="opacity: 0.7; display: none;">Please log in to continue.</p>
@@ -711,7 +721,7 @@
 
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     // --- PUSH / AUDIO NOTIFICATION RING & VIBRATION SOUND ---
@@ -1191,6 +1201,7 @@
     };
 
     const loginBtn = document.getElementById('loginBtn');
+    const phoneLoginBtn = document.getElementById('phoneLoginBtn');
     const loginWelcomeView = document.getElementById('loginWelcomeView');
     const mainAppTitle = document.getElementById('mainAppTitle');
     const statusText = document.getElementById('statusText');
@@ -1207,6 +1218,31 @@
         showToast("Signed in successfully!");
       } catch (error) {
         await customPopup('alert', "Login failed: " + error.message);
+      }
+    });
+
+    // --- PHONE NUMBER AUTHENTICATION SETUP ---
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'invisible'
+    });
+
+    phoneLoginBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const phoneNumber = await customPopup('prompt', "Enter your phone number with country code (e.g. +233240000000):", "+233...");
+      if (!phoneNumber) return;
+
+      try {
+        const appVerifier = window.recaptchaVerifier;
+        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+        window.confirmationResult = confirmationResult;
+
+        const verificationCode = await customPopup('prompt', "Enter the 6-digit SMS verification code sent to your phone:", "123456");
+        if (!verificationCode) return;
+
+        const result = await window.confirmationResult.confirm(verificationCode);
+        showToast("Phone sign-in successful!");
+      } catch (error) {
+        await customPopup('alert', "Phone authentication failed: " + error.message);
       }
     });
 
@@ -1281,7 +1317,7 @@
           }
 
           if (!userSnap.exists()) {
-            document.getElementById('setupDisplayName').value = user.displayName || "";
+            document.getElementById('setupDisplayName').value = user.displayName || user.phoneNumber || "";
             document.getElementById('setupView').style.display = "block";
           } else {
             currentUserDoc = userSnap.data();
@@ -1351,7 +1387,7 @@
         }
       }
 
-      let photoUrlToSave = user.photoURL || ""; 
+      let photoUrlToSave = user.photoURL || "https://via.placeholder.com/150"; 
       const saveBtn = document.getElementById('saveProfileBtn');
       saveBtn.innerText = "Uploading & Saving... ⏳";
       saveBtn.disabled = true;
@@ -1372,13 +1408,15 @@
           const uploadData = await uploadRes.json();
           if (uploadData.secure_url) {
              photoUrlToSave = uploadData.secure_url;
-             await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
+             if (user.email) {
+               await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
+             }
           }
         }
 
         const isOwner = (role === "owner");
         await setDoc(doc(db, "users", user.uid), {
-          name: displayName, email: user.email, photoURL: photoUrlToSave,
+          name: displayName, email: user.email || user.phoneNumber || "", photoURL: photoUrlToSave,
           role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber,
           isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime()
         });
@@ -1470,7 +1508,9 @@
           const uploadData = await uploadRes.json();
           if (uploadData.secure_url) {
             photoUrlToSave = uploadData.secure_url;
-            await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
+            if (user.email) {
+              await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
+            }
           }
         }
 
@@ -2083,7 +2123,7 @@
           <span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span>
         </div>
         <div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6;">
-          <p style="margin: 0 0 8px 0;">📧 <b>Email:</b> ${s.email || 'N/A'}</p>
+          <p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p>
           <p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p>
           <p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p>
           <p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p>
@@ -2542,6 +2582,7 @@
 
         document.getElementById('todayRev').innerText = todayVal.toFixed(2);
         document.getElementById('todayCuts').innerText = todayCuts;
+        document.getElementById('weekRev').innerText.toFixed(2);
         document.getElementById('weekRev').innerText = weekVal.toFixed(2);
         document.getElementById('weekCuts').innerText = weekCuts;
         document.getElementById('monthRev').innerText = monthVal.toFixed(2);
