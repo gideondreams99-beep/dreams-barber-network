@@ -644,7 +644,7 @@
     let activeBlacklistCustomer = null;
     let activeBlacklistActionType = null; 
 
-    // --- LOGOUT HANDLER ---
+    // --- LOGOUT HANDLERS ---
     window.performLogout = async () => {
       const confirmLogout = await customPopup('confirm', "Are you sure you want to log out?");
       if (confirmLogout) {
@@ -655,6 +655,16 @@
 
     document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout);
     document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
+
+    window.deleteMyAccount = async () => {
+      const confirm1 = await customPopup('confirm', "Are you sure you want to delete your account and leave SJ'S SALOON?");
+      if (!confirm1) return;
+      try {
+        await deleteDoc(doc(db, "users", auth.currentUser.uid));
+        await signOut(auth);
+        window.location.reload();
+      } catch (err) { await customPopup('alert', "Error deleting account: " + err.message); }
+    };
 
     // --- CUSTOM DROPDOWN UI CONFIGURATIONS ---
     const roleConfig = [
@@ -876,7 +886,8 @@
       const user = auth.currentUser;
       const role = document.getElementById('setupRole').value;
       const displayName = document.getElementById('setupDisplayName').value.trim();
-      
+      const fileInput = document.getElementById('setupPhoto');
+
       let legalName = document.getElementById('setupLegalName').value.trim();
       let country = document.getElementById('setupCountry').value;
       let idType = document.getElementById('setupIdType').value;
@@ -915,13 +926,33 @@
         }
       }
 
+      let photoUrlToSave = user.photoURL || "";
       const saveBtn = document.getElementById('saveProfileBtn');
       saveBtn.innerText = "Saving Account... ⏳"; saveBtn.disabled = true;
 
+      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; 
+      const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+
       try {
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+            method: "POST", body: formData
+          });
+          const uploadData = await uploadRes.json();
+          if (uploadData.secure_url) {
+             photoUrlToSave = uploadData.secure_url;
+             await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave });
+          }
+        }
+
         const isOwner = (role === "owner");
         await setDoc(doc(db, "users", user.uid), {
-          name: displayName, email: user.email, photoURL: user.photoURL || "",
+          name: displayName, email: user.email, photoURL: photoUrlToSave,
           role: role, country: country, idType: idType, idNumber: idNumber, legalName: legalName,
           isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime()
         });
@@ -1130,6 +1161,29 @@
         snapshot.forEach((doc) => {
           allPaidTicketsCache.push({ id: doc.id, ...doc.data() });
         });
+      });
+    }
+
+    const custNameInput = document.getElementById('custName');
+    if (custNameInput) {
+      custNameInput.addEventListener('input', (e) => {
+        const typedName = e.target.value.trim().toLowerCase();
+        const historyBox = document.getElementById('customerHistoryBox');
+        const historyContent = document.getElementById('historyContent');
+        if (typedName.length < 2) { historyBox.style.display = "none"; return; }
+        const matches = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase().includes(typedName));
+        if (matches.length > 0) {
+          let html = "";
+          matches.forEach(m => {
+            const dateStr = new Date(m.timestamp).toLocaleString();
+            html += `<div style="border-bottom: 1px dashed #444; padding: 4px 0;"><strong>${m.customerName}</strong><br>Service: ${m.serviceName} (GHS ${m.price})<br>Date: ${dateStr}</div>`;
+          });
+          historyContent.innerHTML = html;
+          historyBox.style.display = "block";
+        } else {
+          historyContent.innerHTML = "No previous history found (New Customer).";
+          historyBox.style.display = "block";
+        }
       });
     }
 
