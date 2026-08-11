@@ -240,7 +240,6 @@
     }
     .pay-cash { background: #28a745; color: white; border-color: #28a745; }
     .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
-    .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
 
     /* EYE-CATCHING CONFIRMATION TOAST */
     #toastNotification {
@@ -506,9 +505,7 @@
     <label>Preferred Remittance / Payment Method</label>
     <select id="payoutMethod" style="margin-bottom: 20px;">
       <option value="MTN MoMo">MTN MoMo</option>
-      <option value="Telecel Cash">Telecel Cash</option>
       <option value="Cash">Cash Delivery</option>
-      <option value="Bank Transfer">Bank Transfer</option>
     </select>
 
     <button onclick="submitSalesRemittanceRequest()" class="btn-submit" style="background: #1a4b8c; border-color: #2a6bcc; margin-bottom: 25px;">Send Remittance Request to Secretary</button>
@@ -597,7 +594,7 @@
 
     <!-- OWNER PAYMENT SETTINGS SECTION -->
     <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
-      <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment Details (MoMo / Telecel)</h4>
+      <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment Details (MoMo)</h4>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name and number so staff can display it during mobile money checkouts.</p>
       
       <label>MoMo / Merchant Account Name</label>
@@ -651,7 +648,6 @@
     <label style="margin-bottom: 15px; font-weight: bold;">Select Payment Method:</label>
     <button class="pay-btn pay-cash" onclick="processPayment('Cash')">💵 Cash Payment</button>
     <button class="pay-btn pay-momo" onclick="processPayment('MTN MoMo')">📱 MTN MoMo</button>
-    <button class="pay-btn pay-telecel" onclick="processPayment('Telecel Cash')">🟠 Telecel Cash</button>
   </div>
 
   <!-- DEDICATED BLACKLIST PAGE VIEW -->
@@ -1352,7 +1348,6 @@
       let totalPeople = 0;
       let momoCount = 0;
       let cashCount = 0;
-      let telecelCount = 0;
       let otherCount = 0;
       let txHtml = "";
 
@@ -1364,7 +1359,6 @@
             totalPeople++;
             const method = (t.paymentMethod || 'Cash').toLowerCase();
             if (method.includes('momo')) momoCount++;
-            else if (method.includes('telecel')) telecelCount++;
             else if (method.includes('cash')) cashCount++;
             else otherCount++;
 
@@ -1390,7 +1384,6 @@
         👥 <b>Total Customers / People:</b> ${totalPeople}<br>
         📱 <b>Mobile Money (MoMo) Payments:</b> ${momoCount}<br>
         💵 <b>Cash Payments:</b> ${cashCount}<br>
-        🟠 <b>Telecel Cash Payments:</b> ${telecelCount}<br>
         💳 <b>Other Methods:</b> ${otherCount}
       `;
 
@@ -2780,7 +2773,7 @@
     window.processPayment = async (method) => {
       if (!activePaymentTicketId) return;
 
-      if (method === "MTN MoMo" || method === "Telecel Cash") {
+      if (method === "MTN MoMo") {
         document.getElementById('ownerRefBox').style.display = "block";
         await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`);
       }
