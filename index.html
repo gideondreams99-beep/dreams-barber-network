@@ -17,6 +17,10 @@
       margin: 0;
       min-height: 100vh;
       overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     h1 {
@@ -56,8 +60,9 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage { display: none; margin-top: 15px; }
-    
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage { display: none; margin-top: 15px; width: 100%; max-width: 480px; text-align: left; }
+    #dashboard { text-align: center; }
+
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
     #userRole {
       background: linear-gradient(145deg, #2a2a2a, #111);
@@ -82,6 +87,8 @@
       margin-top: 25px;
       text-align: left;
       box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+      width: 100%;
+      box-sizing: border-box;
     }
     .panel h3 { 
       margin-top: 0; color: #d4af37; text-align: center; 
@@ -214,7 +221,7 @@
       content: ''; width: 8px; height: 8px; background: #111; border-radius: 50%;
     }
 
-    /* JUMPING ANIMATED LOGIN SCREEN */
+    /* JUMPING ANIMATED LOGIN SCREEN CENTERED */
     @keyframes jumpBounce {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-12px); }
@@ -227,13 +234,16 @@
     .login-welcome-box {
       background: linear-gradient(145deg, #1c1c1c, #111);
       border: 1px solid #333; border-radius: 16px;
-      padding: 30px 20px; margin-top: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
     }
   </style>
 </head>
 <body>
 
-  <!-- JUMPING ANIMATED LOGIN SCREEN -->
+  <!-- JUMPING ANIMATED LOGIN SCREEN CENTERED -->
   <div id="loginWelcomeView" class="login-welcome-box">
     <div class="jumping-logo-container">
       <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px;">SJ'S SALOON</h1>
@@ -291,7 +301,7 @@
       </div>
 
       <label>Government ID Number / Details</label>
-      <input type="text" id="setupIdNumber" placeholder="Enter ID number (e.g. GHA-000000000-0)">
+      <input type="text" id="setupIdNumber" placeholder="Enter ID number...">
     </div>
 
     <label>Upload Profile Picture (Optional)</label>
@@ -312,8 +322,8 @@
   <!-- EDIT PROFILE VIEW -->
   <div id="editProfileView" class="panel" style="border-color: #4285F4;">
     <button onclick="cancelEditProfile()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
-    <h3 style="color: #4285F4;">Edit My Profile & ID Credentials</h3>
-    <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">Owners update instantly. Staff updates require owner approval.</p>
+    <h3 style="color: #4285F4;" id="editProfileTitle">Edit My Profile & ID Credentials</h3>
+    <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;" id="editProfileSubtitle">Owners update instantly. Staff updates require owner approval.</p>
 
     <label>Full Display Name</label>
     <input type="text" id="editDisplayName">
@@ -324,14 +334,17 @@
       <span style="color: #d4af37;">▼</span>
     </div>
 
-    <label>Government ID Type</label>
-    <div id="editIdTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('editIdType')">
-      <span id="editIdTypeText">National ID / Ghana Card</span>
-      <span style="color: #d4af37;">▼</span>
-    </div>
+    <!-- Staff-Only ID Edit Section -->
+    <div id="editIdVerificationContainer">
+      <label>Government ID Type</label>
+      <div id="editIdTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('editIdType')">
+        <span id="editIdTypeText">National ID / Ghana Card</span>
+        <span style="color: #d4af37;">▼</span>
+      </div>
 
-    <label>Government ID Number / Details</label>
-    <input type="text" id="editIdNumber">
+      <label>Government ID Number / Details</label>
+      <input type="text" id="editIdNumber">
+    </div>
 
     <label>Upload New Profile Picture (Optional)</label>
     <input type="file" id="editPhoto" accept="image/*">
@@ -417,8 +430,8 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 style="color: #d4af37;">Settings & Controls</h3>
 
-    <!-- INSTALL APP SECTION FOR IOS & ANDROID -->
-    <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #d4af37; margin-bottom: 20px;">
+    <!-- INSTALL APP SECTION FOR IOS & ANDROID (Will hide after installation) -->
+    <div id="installAppContainer" style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #d4af37; margin-bottom: 20px;">
       <h4 style="color: #d4af37; margin-top: 0;">📱 Install App on Phone</h4>
       <p style="color: #aaa; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen for quick, full-screen access.</p>
       <button onclick="triggerInstall()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Install App Now</button>
@@ -596,27 +609,48 @@
       deferredPrompt = e;
     });
 
+    // Check if app is already installed or standalone mode is active
+    window.addEventListener('DOMContentLoaded', () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      const isInstalledFlag = localStorage.getItem('sjs_app_installed');
+      if (isStandalone || isInstalledFlag === 'true') {
+        const installBox = document.getElementById('installAppContainer');
+        if (installBox) installBox.style.display = 'none';
+      }
+    });
+
     // --- CROSS-PLATFORM INSTALL HANDLER (iOS & Android) ---
     window.triggerInstall = async () => {
       const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase());
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-      if (isStandalone) {
+      if (isStandalone || localStorage.getItem('sjs_app_installed') === 'true') {
         await customPopup('alert', "The app is already installed on your device!");
+        const installBox = document.getElementById('installAppContainer');
+        if (installBox) installBox.style.display = 'none';
         return;
       }
 
       if (isIOS) {
         await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share</b> button in Safari (the square with an arrow pointing upward).<br>2. Scroll down the menu and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>Add</b> in the top right corner!");
+        localStorage.setItem('sjs_app_installed', 'true');
+        const installBox = document.getElementById('installAppContainer');
+        if (installBox) installBox.style.display = 'none';
       } else if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
           showToast("App installed successfully!");
+          localStorage.setItem('sjs_app_installed', 'true');
+          const installBox = document.getElementById('installAppContainer');
+          if (installBox) installBox.style.display = 'none';
         }
         deferredPrompt = null;
       } else {
         await customPopup('alert', "To install this app, open your browser menu (the three dots in the corner) and select <b>'Install app'</b> or <b>'Add to Home screen'</b>.");
+        localStorage.setItem('sjs_app_installed', 'true');
+        const installBox = document.getElementById('installAppContainer');
+        if (installBox) installBox.style.display = 'none';
       }
     };
 
@@ -638,7 +672,7 @@
     let allPaidTicketsCache = []; 
     let activePaymentTicketId = null;
     let activeBlacklistCustomer = null;
-    let activeBlacklistActionType = modelName => {}; 
+    let activeBlacklistActionType = null; 
 
     // FORM STATES FOR CUSTOM DROPDOWN PICKERS
     let selectedSetupRole = "barber";
@@ -714,7 +748,7 @@
     };
 
     // --- CUSTOM PICKER MODAL FOR ROLES, COUNTRIES, ID TYPES, SERVICES, BARBERS ---
-    window.openPickerModal = (pickerType) => {
+    window.openPickerModal = async (pickerType) => {
       const overlay = document.getElementById('customModalOverlay');
       const title = document.getElementById('customModalTitle');
       const msg = document.getElementById('customModalMessage');
@@ -733,11 +767,26 @@
       if (pickerType === 'role') {
         title.innerText = "Select Your Role";
         currentValue = selectedSetupRole;
+        
+        // Check if an owner already exists in the database
+        let ownerExists = false;
+        try {
+          const userSnapshots = await getDocs(collection(db, "users"));
+          userSnapshots.forEach(docSnap => {
+            if (docSnap.data().role === 'owner') {
+              ownerExists = true;
+            }
+          });
+        } catch(e) {}
+
         options = [
           { label: "Barber", value: "barber" },
-          { label: "Secretary", value: "secretary" },
-          { label: "Shop Owner", value: "owner" }
+          { label: "Secretary", value: "secretary" }
         ];
+
+        if (!ownerExists) {
+          options.push({ label: "Shop Owner", value: "owner" });
+        }
       } else if (pickerType === 'country' || pickerType === 'editCountry') {
         title.innerText = "Select Country";
         currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry;
@@ -758,12 +807,41 @@
       } else if (pickerType === 'idType' || pickerType === 'editIdType') {
         title.innerText = "Select Government ID Type";
         currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType;
-        options = [
-          { label: "National ID / Ghana Card", value: "National ID / Ghana Card" },
-          { label: "International Passport", value: "Passport" },
-          { label: "Driver's License", value: "Drivers License" },
-          { label: "Voter's ID / Electoral Card", value: "Voters ID" }
-        ];
+        const activeCountry = pickerType === 'idType' ? selectedSetupCountry : selectedEditCountry;
+        
+        if (activeCountry === "Ghana") {
+          options = [
+            { label: "National ID / Ghana Card", value: "National ID / Ghana Card" },
+            { label: "Passport", value: "Passport" },
+            { label: "Drivers License", value: "Drivers License" },
+            { label: "Voters ID", value: "Voters ID" }
+          ];
+        } else if (activeCountry === "Nigeria") {
+          options = [
+            { label: "National Identity Number (NIN)", value: "NIN" },
+            { label: "International Passport", value: "Passport" },
+            { label: "Drivers License", value: "Drivers License" },
+            { label: "Permanent Voter Card (PVC)", value: "PVC" }
+          ];
+        } else if (activeCountry === "United States") {
+          options = [
+            { label: "Social Security Number (SSN)", value: "SSN" },
+            { label: "State ID / Driver's License", value: "Drivers License" },
+            { label: "Passport", value: "Passport" }
+          ];
+        } else if (activeCountry === "United Kingdom") {
+          options = [
+            { label: "National Insurance Number", value: "National Insurance" },
+            { label: "UK Driver's License", value: "Drivers License" },
+            { label: "Passport", value: "Passport" }
+          ];
+        } else {
+          options = [
+            { label: "National Identity Card", value: "National ID" },
+            { label: "Passport", value: "Passport" },
+            { label: "Drivers License", value: "Drivers License" }
+          ];
+        }
       } else if (pickerType === 'serviceType') {
         title.innerText = "Select Service Type";
         currentValue = selectedIntakeService;
@@ -807,9 +885,16 @@
       } else if (pickerType === 'country') {
         selectedSetupCountry = val;
         document.getElementById('setupCountryText').innerText = label;
+        selectedSetupIdType = "";
+        document.getElementById('setupIdTypeText').innerText = "Select ID Type...";
       } else if (pickerType === 'idType') {
         selectedSetupIdType = val;
         document.getElementById('setupIdTypeText').innerText = label;
+        const idNumInput = document.getElementById('setupIdNumber');
+        if (val === "National ID / Ghana Card") idNumInput.placeholder = "e.g. GHA-000000000-0";
+        else if (val === "NIN") idNumInput.placeholder = "e.g. 11-digit NIN number";
+        else if (val === "SSN") idNumInput.placeholder = "e.g. XXX-XX-XXXX";
+        else idNumInput.placeholder = "Enter ID number...";
       } else if (pickerType === 'editCountry') {
         selectedEditCountry = val;
         document.getElementById('editCountryText').innerText = label;
@@ -876,17 +961,25 @@
       startAnnouncementsListener();
     };
 
-    // --- GLOBAL ID VERIFICATION VALIDATOR ---
-    function validateGovernmentID(idType, idNumber) {
-      if (!idNumber || idNumber.trim().length < 5) {
-        return "ID Number is too short or invalid. Please enter a valid identification number.";
+    // --- DYNAMIC ID VALIDATION ACCORDING TO COUNTRY & ID TYPE ---
+    function validateGovernmentID(country, idType, idNumber) {
+      if (!idNumber || idNumber.trim().length < 4) {
+        return "ID Number is too short or invalid.";
       }
       const cleanNum = idNumber.trim();
-      if (idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) {
-        return "Invalid Ghana Card format. It must start with 'GHA-' followed by digits.";
-      }
-      if (idType === "Passport" && cleanNum.length < 6) {
-        return "Invalid Passport number length. Must be at least 6 characters.";
+      
+      if (country === "Ghana") {
+        if (idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) {
+          return "Invalid Ghana Card format. Must start with 'GHA-' followed by digits.";
+        }
+      } else if (country === "Nigeria") {
+        if (idType === "NIN" && !/^\d{11}$/.test(cleanNum)) {
+          return "Invalid NIN format. Must be exactly 11 digits.";
+        }
+      } else if (country === "United States") {
+        if (idType === "SSN" && !/^\d{3}-?\d{2}-?\d{4}$/.test(cleanNum)) {
+          return "Invalid SSN format (e.g., XXX-XX-XXXX).";
+        }
       }
       return null; 
     }
@@ -1039,11 +1132,23 @@
         return await customPopup('alert', "Please fill in your display name and select a country.");
       }
 
-      if (role !== "owner") {
+      if (role === "owner") {
+        // Enforce single owner rule across the entire database
+        try {
+          const allUsers = await getDocs(collection(db, "users"));
+          let ownerExists = false;
+          allUsers.forEach(d => {
+            if (d.data().role === "owner") ownerExists = true;
+          });
+          if (ownerExists) {
+            return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists. Only one person can be registered as owner until their account is permanently deleted.");
+          }
+        } catch(e) {}
+      } else {
         if (!idType || !idNumber) {
           return await customPopup('alert', "Please select your ID type and enter your ID number.");
         }
-        const idError = validateGovernmentID(idType, idNumber);
+        const idError = validateGovernmentID(country, idType, idNumber);
         if (idError) {
           return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
         }
@@ -1097,11 +1202,23 @@
       document.getElementById('editDisplayName').value = currentUserDoc.name || "";
       selectedEditCountry = currentUserDoc.country || "Ghana";
       document.getElementById('editCountryText').innerText = selectedEditCountry;
-      
-      selectedEditIdType = currentUserDoc.idType || "National ID / Ghana Card";
-      document.getElementById('editIdTypeText').innerText = selectedEditIdType;
-      
-      document.getElementById('editIdNumber').value = currentUserDoc.idNumber || "";
+
+      const idVerificationContainer = document.getElementById('editIdVerificationContainer');
+      const editTitle = document.getElementById('editProfileTitle');
+      const editSubtitle = document.getElementById('editProfileSubtitle');
+
+      if (currentUserDoc.role === "owner") {
+        idVerificationContainer.style.display = "none";
+        editTitle.innerText = "Edit My Owner Profile";
+        editSubtitle.innerText = "Owners update instantly without ID verification.";
+      } else {
+        idVerificationContainer.style.display = "block";
+        editTitle.innerText = "Edit My Profile & ID Credentials";
+        editSubtitle.innerText = "Staff updates require owner approval.";
+        selectedEditIdType = currentUserDoc.idType || "National ID / Ghana Card";
+        document.getElementById('editIdTypeText').innerText = selectedEditIdType;
+        document.getElementById('editIdNumber').value = currentUserDoc.idNumber || "";
+      }
     };
 
     window.cancelEditProfile = () => {
@@ -1113,16 +1230,22 @@
       const user = auth.currentUser;
       const displayName = document.getElementById('editDisplayName').value.trim();
       const country = selectedEditCountry;
-      const idType = selectedEditIdType;
-      const idNumber = document.getElementById('editIdNumber').value.trim();
       const fileInput = document.getElementById('editPhoto');
 
-      if (!displayName || !country || !idType || !idNumber) {
-        return await customPopup('alert', "Please complete all fields.");
+      if (!displayName || !country) {
+        return await customPopup('alert', "Please complete all required fields.");
       }
 
+      let idType = currentUserDoc.idType;
+      let idNumber = currentUserDoc.idNumber;
+
       if (currentUserDoc.role !== "owner") {
-        const idError = validateGovernmentID(idType, idNumber);
+        idType = selectedEditIdType;
+        idNumber = document.getElementById('editIdNumber').value.trim();
+        if (!idType || !idNumber) {
+          return await customPopup('alert', "Please complete ID type and ID number.");
+        }
+        const idError = validateGovernmentID(country, idType, idNumber);
         if (idError) {
           return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError);
         }
@@ -1155,13 +1278,11 @@
 
         if (currentUserDoc.role === "owner") {
           await updateDoc(doc(db, "users", user.uid), {
-            name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave
+            name: displayName, country: country, photoURL: photoUrlToSave
           });
           
           currentUserDoc.name = displayName;
           currentUserDoc.country = country;
-          currentUserDoc.idType = idType;
-          currentUserDoc.idNumber = idNumber;
           currentUserDoc.photoURL = photoUrlToSave;
           
           document.getElementById('userName').innerText = displayName;
@@ -1905,3 +2026,4 @@
   </script>
 </body>
 </html>
+
