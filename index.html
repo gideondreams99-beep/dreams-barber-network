@@ -14,7 +14,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SJ Saloon">
   
-  <!-- This is what iOS uses for the home screen icon -->
+  <!-- iOS Home Screen Icon -->
   <link rel="apple-touch-icon" href="https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/clipper.png">
 
   <style>
@@ -485,10 +485,11 @@
       <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Payment Details</button>
     </div>
 
-    <!-- INSTALL APP SECTION FOR IOS & ANDROID (Will hide after installation) -->
-    <div id="installAppContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
-      <h4 style="color: var(--accent-gold); margin-top: 0;">📱 Install App on Phone</h4>
-      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen for quick, full-screen access.</p>
+    <!-- INSTALL APP SECTION WITH SJ'S SALOON BRAND ICON -->
+    <div id="installAppContainer" style="background: var(--input-bg); padding: 20px 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: center;">
+      <img src="https://res.cloudinary.com/Vs5fuvnv/image/upload/v1/clipper.png" style="width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--accent-gold); margin-bottom: 10px; object-fit: cover;" alt="SJ'S SALOON Icon">
+      <h4 style="color: var(--accent-gold); margin-top: 0; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">SJ'S SALOON App</h4>
+      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Install this app on your mobile home screen for quick, full-screen access.</p>
       <button onclick="triggerInstall()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Install App Now</button>
     </div>
 
