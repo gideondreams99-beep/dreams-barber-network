@@ -1217,13 +1217,26 @@
 
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data(); const ticketId = docSnap.id; 
-          if (ticket.status === "denied" && ticket.timestamp >= startOfToday) { const timeStr = new Date(ticket.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); dailyDeniedHtml += `<div class="list-item" style="border-left-color: #ff4444; margin-bottom: 10px; padding: 12px;"><div style="font-size: 14px; font-weight: bold; color: #ff4444;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div><div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason'}"</em><br><span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span></div></div>`; }
-          if (ticket.status === "pending_acceptance" || ticket.status === "in_progress" || ticket.status === "completed") { activeQueueCount++; }
+          
+          const isOwner = currentUserDoc && currentUserDoc.role === "owner"; 
+          const isSec = currentUserDoc && currentUserDoc.role === "secretary"; 
+          const isBarber = currentUserDoc && currentUserDoc.role === "barber";
+          const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : ""; 
+          const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
+
+          // STRICT BARBER ISOLATION: Barbers should only process/see their own assigned tickets in queue
+          if (isBarber && ticketBarber !== myFirstName) {
+            return;
+          }
+
+          if ((ticket.status === "denied" || ticket.status === "pending_denial") && ticket.timestamp >= startOfToday) { 
+            const timeStr = new Date(ticket.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
+            dailyDeniedHtml += `<div class="list-item" style="border-left-color: #ff4444; margin-bottom: 10px; padding: 12px;"><div style="font-size: 14px; font-weight: bold; color: #ff4444;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div><div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>Status: <strong>${ticket.status.toUpperCase().replace('_', ' ')}</strong><br>Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason'}"</em><br><span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span></div></div>`; 
+          }
+          if (ticket.status === "pending_acceptance" || ticket.status === "in_progress" || ticket.status === "completed" || ticket.status === "pending_denial") { activeQueueCount++; }
 
           if (ticket.status !== "paid" && ticket.status !== "cancelled") {
             let actionButton = ""; let statusColor = "#ffc107"; 
-            const isOwner = currentUserDoc && currentUserDoc.role === "owner"; const isSec = currentUserDoc && currentUserDoc.role === "secretary"; const isBarber = currentUserDoc && currentUserDoc.role === "barber";
-            const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : ""; const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
 
             if (!isOwner) {
               if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
