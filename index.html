@@ -35,6 +35,12 @@
       }
     }
 
+    * {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      box-sizing: border-box;
+    }
+
     body { 
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
       background: var(--bg-color); 
@@ -119,7 +125,6 @@
       text-align: left;
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
       width: 100%;
-      box-sizing: border-box;
     }
     .panel h3 { 
       margin-top: 0; color: var(--accent-gold); text-align: center; 
@@ -154,11 +159,13 @@
       border-left: 4px solid var(--accent-gold); box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       border: 1px solid var(--panel-border);
       border-left-width: 4px;
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
     .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .ticket-number { font-size: 16px; font-weight: bold; color: var(--accent-gold); background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--panel-border); }
-    .ticket-title { font-size: 16px; font-weight: bold; color: var(--text-color); text-transform: uppercase; letter-spacing: 1px; }
-    .ticket-details { font-size: 14px; opacity: 0.8; margin-bottom: 12px; line-height: 1.4; }
+    .ticket-title { font-size: 16px; font-weight: bold; color: var(--text-color); text-transform: uppercase; letter-spacing: 1px; word-break: break-word; }
+    .ticket-details { font-size: 14px; opacity: 0.8; margin-bottom: 12px; line-height: 1.4; word-break: break-word; }
     
     .status-badge {
       font-size: 11px; padding: 5px 10px; border-radius: 12px;
@@ -196,6 +203,7 @@
       font-size: 13px;
       opacity: 0.9;
       line-height: 1.4;
+      word-break: break-word;
     }
 
     /* OWNER ADMIN & ANALYTICS */
@@ -267,7 +275,7 @@
     }
     #customModalOverlay.show #customModalBox { transform: scale(1); }
     #customModalTitle { margin-top: 0; color: var(--accent-gold); letter-spacing: 1px; font-size: 18px; text-transform: uppercase; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 15px; }
-    #customModalMessage { opacity: 0.9; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; }
+    #customModalMessage { opacity: 0.9; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; word-break: break-word; }
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
 
     /* RADIO OPTION LIST FOR CUSTOM DROPDOWN PICKER */
@@ -781,9 +789,10 @@
         if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none';
       }
 
-      // UNIVERSAL GLOBAL CLICK LISTENER FOR ANY PICTURE IN THE APP
+      // GLOBAL IMAGE CLICK LISTENER: ONLY OPENS GALLERY VIEWER WITHOUT TRIGGERING PARENT DETAILS MODAL
       document.addEventListener('click', (e) => {
         if (e.target.tagName === 'IMG' && !e.target.closest('#fullscreenImageViewer')) {
+          e.stopPropagation();
           const src = e.target.src;
           if (src && !src.endsWith('undefined') && !src.includes('data:image/svg+xml')) {
             openFullscreenImageViewer(src, e.target.alt || e.target.title || "SJ'S SALOON PREVIEW");
@@ -2163,15 +2172,18 @@
           if (!u.isApproved) {
             approvalHtml += `
               <div class="list-item" style="border-left-color: #ffc107;">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info">
-                  <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;">
-                  <div>
-                    <div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div>
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                  <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0; cursor: pointer;" onclick="openFullscreenImageViewer('${u.photoURL}', '${u.name || 'Staff'}' )" title="View Profile Picture">
+                  <div style="cursor: pointer; flex: 1; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info">
+                    <div class="ticket-title" style="word-break: break-all;">${u.name || u.email || 'Staff'} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div>
                     <div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div>
                     <div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
                   </div>
                 </div>
-                <button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve New Account</button>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn-action btn-submit" style="flex: 1;" onclick="approveUser('${uid}')">Approve</button>
+                  <button class="btn-action" style="flex: 1; background: #ff4444; border-color: #ff4444; color: white;" onclick="denyStaff('${uid}')">Deny</button>
+                </div>
               </div>
             `;
           } else if (u.pendingUpdates) {
@@ -2180,30 +2192,36 @@
             
             approvalHtml += `
               <div class="list-item" style="border-left-color: #4285F4;">
-                <div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info">
-                  <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div>
-                  <div class="ticket-details" style="margin-bottom: 10px;">
-                    New Name: <strong>${p.name}</strong><br>
-                    New Country: <strong>${p.country}</strong><br>
-                    New ID: <strong>${p.idType}</strong> (${p.idNumber})
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                  <img src="${p.photoURL || u.photoURL}" style="width: 50px; height: 50px; margin: 0; cursor: pointer;" onclick="openFullscreenImageViewer('${p.photoURL || u.photoURL}', '${p.name || 'Staff'}' )" title="View Profile Picture">
+                  <div style="cursor: pointer; flex: 1; min-width: 0;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info">
+                    <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${p.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div>
+                    <div class="ticket-details" style="margin-bottom: 10px;">
+                      New Name: <strong>${p.name}</strong><br>
+                      New Country: <strong>${p.country}</strong><br>
+                      New ID: <strong>${p.idType}</strong> (${p.idNumber})
+                    </div>
                   </div>
                 </div>
-                <button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Profile Update</button>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn-action btn-submit" style="flex: 1; background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Update</button>
+                  <button class="btn-action" style="flex: 1; background: #ff4444; border-color: #ff4444; color: white;" onclick="denyProfileUpdate('${uid}')">Deny Update</button>
+                </div>
               </div>
             `;
           }
 
           if (u.isApproved && u.role !== "owner") {
             activeHtml += `
-              <div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info">
-                  <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;">
-                  <div>
-                    <strong style="color: var(--text-color);">${u.name}</strong> 👁️<br>
+              <div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                  <img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0; cursor: pointer;" onclick="openFullscreenImageViewer('${u.photoURL}', '${u.name}' )" title="View Profile Picture">
+                  <div style="cursor: pointer; flex: 1; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info">
+                    <strong style="color: var(--text-color); word-break: break-all;">${u.name}</strong> 👁️<br>
                     <span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span>
                   </div>
                 </div>
-                <button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button>
+                <button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; white-space: nowrap;">Fire / Remove</button>
               </div>
             `;
           }
@@ -2284,6 +2302,18 @@
       showToast(`${userName} approved successfully!`);
     };
 
+    window.denyStaff = async (uid) => {
+      if (await customPopup('confirm', "Are you sure you want to deny and remove this pending staff account?")) {
+        try {
+          await deleteDoc(doc(db, "users", uid));
+          playRingTone();
+          showToast("Staff registration denied and removed.");
+        } catch (err) {
+          await customPopup('alert', "Error denying staff: " + err.message);
+        }
+      }
+    };
+
     window.approveProfileUpdate = async (uid) => {
       const userRef = doc(db, "users", uid);
       const snap = await getDoc(userRef);
@@ -2295,6 +2325,18 @@
         });
         playRingTone();
         showToast(`Profile updates approved for ${updatedName}!`);
+      }
+    };
+
+    window.denyProfileUpdate = async (uid) => {
+      if (await customPopup('confirm', "Are you sure you want to deny this profile update request?")) {
+        try {
+          await updateDoc(doc(db, "users", uid), { pendingUpdates: null });
+          playRingTone();
+          showToast("Profile update request denied.");
+        } catch (err) {
+          await customPopup('alert', "Error denying profile update: " + err.message);
+        }
       }
     };
 
@@ -2565,7 +2607,7 @@
         if (hasNewTicketOrChange) playRingTone();
         queueInitialized = true;
         document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers in queue.</p>" : html;
-        document.getElementById('queueCountBadge').innerText = `${activeQueueCount} Active`;
+        document.getElementById('queueCountBadge',).innerText = `${activeQueueCount} Active`;
         
         const deniedListEl = document.getElementById('ownerDailyDeniedList');
         if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") {
