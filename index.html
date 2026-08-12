@@ -317,13 +317,8 @@
     <button id="sidebarSettingsBtn" class="sidebar-btn" onclick="openSettingsPage(); closeSidebar();">⚙️ Settings & Payment</button>
   </div>
 
-  <!-- OFFLINE NOTICE VIEW -->
-  <div id="offlineView" class="panel" style="border-color: #ffc107; text-align: center;">
-    <div style="font-size: 40px; margin-bottom: 10px;">📡</div>
-    <h3 style="color: #ffc107;">You Are Offline</h3>
-    <p style="opacity: 0.9; font-size: 15px; line-height: 1.5; margin-bottom: 25px;">SJ'S SALOON requires an active internet connection to load shop records and sync live queues. Please check your network connection and try again.</p>
-    <button onclick="window.location.reload()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Retry Connection</button>
-  </div>
+  <!-- OFFLINE NOTICE VIEW (Hidden) -->
+  <div id="offlineView" class="panel" style="display: none;"></div>
 
   <!-- JUMPING ANIMATED LOGIN SCREEN CENTERED -->
   <div id="loginWelcomeView" class="login-welcome-box" style="display: none;">
@@ -745,31 +740,14 @@
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
-    // OFFLINE & ONLINE CONNECTION HANDLERS
+    // OFFLINE & ONLINE CONNECTION HANDLERS (Silently managed)
     function checkConnectionStatus() {
       const offlineView = document.getElementById('offlineView');
-      if (!navigator.onLine) {
-        offlineView.style.display = "block";
-        offlineView.style.position = "fixed";
-        offlineView.style.bottom = "0";
-        offlineView.style.top = "auto";
-        offlineView.style.width = "100%";
-        offlineView.style.zIndex = "999999";
-        offlineView.style.padding = "10px";
-        offlineView.style.border = "none";
-        offlineView.style.borderRadius = "0";
-        offlineView.style.background = "#ffc107";
-        offlineView.style.color = "#111";
-        offlineView.innerHTML = "<strong>📡 Offline Mode</strong>: Working locally. Data will sync automatically when internet returns.";
-      } else {
-        offlineView.style.display = "none";
-        offlineView.style.position = "static";
-        offlineView.innerHTML = `<div style="font-size: 40px; margin-bottom: 10px;">📡</div><h3 style="color: #ffc107;">You Are Offline</h3><p style="opacity: 0.9; font-size: 15px; line-height: 1.5; margin-bottom: 25px;">SJ'S SALOON requires an active internet connection to load shop records and sync live queues. Please check your network connection and try again.</p><button onclick="window.location.reload()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Retry Connection</button>`;
-      }
-      return true; 
+      if (offlineView) offlineView.style.display = "none";
+      return true;
     }
 
-    window.addEventListener('online', () => { window.location.reload(); });
+    window.addEventListener('online', () => { checkConnectionStatus(); });
     window.addEventListener('offline', () => { checkConnectionStatus(); });
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -1190,7 +1168,7 @@
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), { 
           ownerFreeApproval: 'approved',
-          status: 'paid' // This finalizes it and removes it completely from the live queue for everyone
+          status: 'paid' 
         });
         playRingTone();
         showToast("Free service approved by owner!");
@@ -1208,7 +1186,7 @@
       }
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), {
-          isFree: false, // Removes free status so Secretary is forced to pay
+          isFree: false, 
           ownerFreeApproval: 'paid_forced',
           price: newPrice
         });
@@ -1259,8 +1237,7 @@
     }
 
     function loadApp(user, docData) {
-      // WHAT'S NEW POPUP TRACKER
-      const currentAppVersion = "1.1"; // Change this to "1.2", "1.3" etc., on future updates
+      const currentAppVersion = "1.1"; 
       const savedVersion = localStorage.getItem('sjs_app_version');
       
       if (savedVersion !== currentAppVersion) {
@@ -1273,7 +1250,6 @@
       document.getElementById('topHeader').style.display = "flex";
       dashboard.style.display = "block"; document.getElementById('queuePanel').style.display = "block";
       
-      // Update Sidebar Info
       document.getElementById('sidebarUserName').innerText = docData.name; document.getElementById('sidebarUserPic').src = docData.photoURL;
       const sidebarRole = document.getElementById('sidebarUserRole');
       const sidebarSettingsBtn = document.getElementById('sidebarSettingsBtn');
@@ -1606,7 +1582,7 @@
               else if (ticket.status === "completed" && isSec) {
                 if (ticket.isFree) {
                   statusColor = "#ffc107";
-                  actionButton = ""; // NO MORE "Secretary Must Pay" BOX HERE!
+                  actionButton = ""; 
                 } else {
                   actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
                 }
@@ -1692,11 +1668,9 @@
       const swipeDistance = touchEndX - touchStartX;
       const sidebar = document.getElementById('sidebarMenu');
       
-      // Swipe Right (from the left edge) to OPEN
       if (swipeDistance > 70 && touchStartX < 40) { 
         openSidebar();
       }
-      // Swipe Left to CLOSE
       if (swipeDistance < -70 && sidebar.classList.contains('show')) {
         closeSidebar();
       }
