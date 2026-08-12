@@ -122,7 +122,6 @@
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
     #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 480px; text-align: left; }
-    #offlineView { display: none !important; }
     #dashboard { text-align: center; }
 
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
@@ -738,32 +737,7 @@
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
-    // OFFLINE & ONLINE CONNECTION HANDLERS (Auto-hides any banner after 1 second if it appears)
-    function checkConnectionStatus() {
-      const offlineView = document.getElementById('offlineView');
-      if (offlineView) {
-        setTimeout(() => {
-          offlineView.style.display = "none";
-        }, 1000);
-      }
-      return true;
-    }
-
-    // Auto-hide watcher loop in case cached DOM elements try to render it
-    setInterval(() => {
-      const offlineView = document.getElementById('offlineView');
-      if (offlineView && offlineView.style.display !== 'none') {
-        setTimeout(() => {
-          offlineView.style.display = 'none';
-        }, 1000);
-      }
-    }, 500);
-
-    window.addEventListener('online', () => { checkConnectionStatus(); });
-    window.addEventListener('offline', () => { checkConnectionStatus(); });
-
     window.addEventListener('DOMContentLoaded', () => {
-      if (!checkConnectionStatus()) return;
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       if (isStandalone) { const installBox = document.getElementById('installAppContainer'); if (installBox) installBox.style.display = 'none'; const welcomeInstallBtn = document.getElementById('welcomeInstallBtn'); if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none'; }
       document.addEventListener('click', (e) => { if (e.target.tagName === 'IMG' && !e.target.closest('#fullscreenImageViewer')) { const src = e.target.src; if (src && !src.endsWith('undefined') && !src.includes('data:image/svg+xml')) { openFullscreenImageViewer(src, e.target.alt || e.target.title || "SJ'S SALOON PREVIEW"); } } });
@@ -1043,7 +1017,6 @@
     window.backToDirectoryList = () => { document.getElementById('customerDetailView').style.display = "none"; document.getElementById('directoryListView').style.display = "block"; };
 
     onAuthStateChanged(auth, async (user) => {
-      if (!checkConnectionStatus()) return;
       if (user) {
         loginWelcomeView.style.display = "none"; 
         
