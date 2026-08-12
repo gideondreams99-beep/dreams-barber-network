@@ -281,12 +281,13 @@
       overflow: hidden;
       word-break: break-word;
       transition: all 0.3s ease;
+      cursor: pointer;
     }
     .notice-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
-    .notice-card h5 { margin: 0 0 5px 0; color: var(--accent-gold); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+    .notice-card h5 { margin: 0 0 5px 0; color: var(--accent-gold); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .notice-card p { margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.4; word-break: break-word; }
 
     /* ANALYTICS */
@@ -1954,6 +1955,7 @@
 
     let dashboardNotifTimer = null;
 
+    // UNIFIED INTERACTIVE DASHBOARD NOTIFICATION SYSTEM (EVERY USER ROLE IS CLICKABLE TO SPECIFIC LINK)
     function startDashboardNotifications() {
       const notifBox = document.getElementById('dashboardNotificationBox');
       
@@ -1964,7 +1966,7 @@
           notifBox.innerHTML = htmlContent;
           dashboardNotifTimer = setTimeout(() => {
             notifBox.style.display = "none";
-          }, 5000);
+          }, 8000);
         } else {
           notifBox.style.display = "none";
         }
@@ -1972,16 +1974,48 @@
 
       if (currentUserDoc && currentUserDoc.role === "owner") {
         const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qChat, (snap) => { let chatNotice = ""; snap.forEach(d => { const m = d.data(); if (m.senderId !== auth.currentUser.uid) { chatNotice = `<div class="notice-card clickable" style="cursor: pointer;" onclick="openChatPage()"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; } }); renderOwnerNotifications(chatNotice, null, null, null); });
+        onSnapshot(qChat, (snap) => { 
+          let chatNotice = ""; 
+          snap.forEach(d => { 
+            const m = d.data(); 
+            if (m.senderId !== auth.currentUser.uid) { 
+              chatNotice = `<div class="notice-card" onclick="openChatPage()"><h5>💬 New Team Message <span style="font-size:10px; color:var(--accent-gold);">Tap to view ➔</span></h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; 
+            } 
+          }); 
+          renderOwnerNotifications(chatNotice, null, null, null); 
+        });
         
         const qTickets = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qTickets, (snap) => { let ticketNotice = ""; snap.forEach(d => { const t = d.data(); if (t.status === "completed") { ticketNotice = `<div class="notice-card clickable" style="border-color:#28a745; cursor: pointer;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`; } else if (t.status === "pending_acceptance") { ticketNotice = `<div class="notice-card clickable" style="border-color:#4285F4; cursor: pointer;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`; } }); renderOwnerNotifications(null, ticketNotice, null, null); });
+        onSnapshot(qTickets, (snap) => { 
+          let ticketNotice = ""; 
+          snap.forEach(d => { 
+            const t = d.data(); 
+            if (t.status === "completed") { 
+              ticketNotice = `<div class="notice-card" style="border-color:#28a745;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>✂️ Cut Completed <span style="font-size:10px; color:#28a745;">View Queue ➔</span></h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`; 
+            } else if (t.status === "pending_acceptance") { 
+              ticketNotice = `<div class="notice-card" style="border-color:#4285F4;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎟️ Ticket Assigned <span style="font-size:10px; color:#4285F4;">View Queue ➔</span></h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> assigned to <b>${t.assignedBarber}</b></p></div>`; 
+            } 
+          }); 
+          renderOwnerNotifications(null, ticketNotice, null, null); 
+        });
         
         const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
-        onSnapshot(qUsers, (snap) => { let approvalNotice = ""; if (snap.size > 0) { approvalNotice = `<div class="notice-card clickable" style="border-color:#ffc107; cursor: pointer;" onclick="openOwnerPage('staff')"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; } renderOwnerNotifications(null, null, approvalNotice, null); });
+        onSnapshot(qUsers, (snap) => { 
+          let approvalNotice = ""; 
+          if (snap.size > 0) { 
+            approvalNotice = `<div class="notice-card" style="border-color:#ffc107;" onclick="openOwnerPage('staff')"><h5>⚠️ Pending Staff Registration <span style="font-size:10px; color:#ffc107;">Manage Staff ➔</span></h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; 
+          } 
+          renderOwnerNotifications(null, null, approvalNotice, null); 
+        });
         
         const qFree = query(collection(db, "daily_tickets"), where("isFree", "==", true), where("ownerFreeApproval", "==", "pending"));
-        onSnapshot(qFree, (snap) => { let freeNotice = ""; if (snap.size > 0) { freeNotice = `<div class="notice-card clickable" style="border-color:#ffc107; cursor: pointer;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎁 Pending Free Service Review</h5><p>You have <b>${snap.size} free service request(s)</b> waiting for review.</p></div>`; } renderOwnerNotifications(null, null, null, freeNotice); });
+        onSnapshot(qFree, (snap) => { 
+          let freeNotice = ""; 
+          if (snap.size > 0) { 
+            freeNotice = `<div class="notice-card" style="border-color:#ffc107;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎁 Pending Free Service Review <span style="font-size:10px; color:#ffc107;">Review ➔</span></h5><p>You have <b>${snap.size} free service request(s)</b> waiting for review.</p></div>`; 
+          } 
+          renderOwnerNotifications(null, null, null, freeNotice); 
+        });
 
         let cachedChatN = "", cachedTicketN = "", cachedApproveN = "", cachedFreeN = "";
         function renderOwnerNotifications(c, t, a, f) { 
@@ -1990,16 +2024,55 @@
           showDashboardNotifContent(combined);
         }
       } else {
+        // BARBER AND SECRETARY NOTIFICATION CONTROLLERS
+        const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : "";
+
         const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qAnn, (snap) => { let annNotice = ""; snap.forEach(d => { const a = d.data(); annNotice = `<div class="notice-card clickable" style="border-color:#ffc107; cursor: pointer;" onclick="openAnnouncementsPage()"><h5>📢 Latest Owner Announcement</h5><p>"${a.text}" <br><span style="font-size:10px; opacity:0.7;">By ${a.author}</span></p></div>`; }); renderStaffNotifs(annNotice, null); });
+        onSnapshot(qAnn, (snap) => { 
+          let annNotice = ""; 
+          snap.forEach(d => { 
+            const a = d.data(); 
+            annNotice = `<div class="notice-card" style="border-color:#ffc107;" onclick="openAnnouncementsPage()"><h5>📢 Announcement <span style="font-size:10px; color:#ffc107;">Read More ➔</span></h5><p>"${a.text}" <br><span style="font-size:10px; opacity:0.7;">By ${a.author}</span></p></div>`; 
+          }); 
+          renderStaffNotifs(annNotice, null, null); 
+        });
         
         const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qChat, (snap) => { let chatNotice = ""; snap.forEach(d => { const m = d.data(); if (m.senderRole === "owner") { chatNotice = `<div class="notice-card clickable" style="border-color:#4285F4; cursor: pointer;" onclick="openChatPage()"><h5>👑 Message from Owner</h5><p><b>${m.senderName}</b>: "${m.text}"</p></div>`; } }); renderStaffNotifs(null, chatNotice); });
+        onSnapshot(qChat, (snap) => { 
+          let chatNotice = ""; 
+          snap.forEach(d => { 
+            const m = d.data(); 
+            if (m.senderId !== auth.currentUser.uid) { 
+              chatNotice = `<div class="notice-card" style="border-color:#4285F4;" onclick="openChatPage()"><h5>💬 Team Chat <span style="font-size:10px; color:#4285F4;">Open Chat ➔</span></h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; 
+            } 
+          }); 
+          renderStaffNotifs(null, chatNotice, null); 
+        });
 
-        let cachedAnn = "", cachedChat = "";
-        function renderStaffNotifs(a, c) {
-            if (a !== null) cachedAnn = a; if (c !== null) cachedChat = c;
-            showDashboardNotifContent(cachedAnn + cachedChat);
+        const qTicketsStaff = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
+        onSnapshot(qTicketsStaff, (snap) => {
+          let ticketNotice = "";
+          snap.forEach(d => {
+            const t = d.data();
+            const ticketBarber = t.assignedBarber ? t.assignedBarber.trim().toLowerCase() : "";
+            
+            if (currentUserDoc.role === "barber" && ticketBarber === myFirstName && t.status === "pending_acceptance") {
+              ticketNotice = `<div class="notice-card" style="border-color:var(--accent-gold);" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎟️ New Ticket Assigned! <span style="font-size:10px; color:var(--accent-gold);">Review Cut ➔</span></h5><p>You have a new customer ticket <b>${t.ticketNo || ''} (${t.customerName})</b> waiting for review.</p></div>`;
+            } else if (currentUserDoc.role === "secretary" && t.status === "completed" && !t.isFree) {
+              ticketNotice = `<div class="notice-card" style="border-color:#28a745;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>✂️ Cut Finished! <span style="font-size:10px; color:#28a745;">Collect Pay ➔</span></h5><p><b>${t.assignedBarber}</b> finished <b>${t.customerName}</b>. Ready for payment!</p></div>`;
+            } else if (currentUserDoc.role === "secretary" && (t.status === "denied" || t.status === "pending_denial")) {
+              ticketNotice = `<div class="notice-card" style="border-color:#ff4444;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🚨 Barber Denied Ticket <span style="font-size:10px; color:#ff4444;">Reassign ➔</span></h5><p><b>${t.assignedBarber}</b> denied <b>${t.customerName}</b>. Reason: "${t.denyReason || 'No reason'}"</p></div>`;
+            }
+          });
+          renderStaffNotifs(null, null, ticketNotice);
+        });
+
+        let cachedAnn = "", cachedChat = "", cachedTicket = "";
+        function renderStaffNotifs(a, c, t) {
+            if (a !== null) cachedAnn = a; 
+            if (c !== null) cachedChat = c;
+            if (t !== null) cachedTicket = t;
+            showDashboardNotifContent(cachedTicket + cachedAnn + cachedChat);
         }
       }
     }

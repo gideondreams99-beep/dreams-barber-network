@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sjs-saloon-cache-v16';
+const CACHE_NAME = 'sjs-saloon-cache-v17';
 const urlsToCache = [
   '/',
   '/index.html',
