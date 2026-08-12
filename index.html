@@ -738,12 +738,26 @@
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
-    // OFFLINE & ONLINE CONNECTION HANDLERS (Silently managed)
+    // OFFLINE & ONLINE CONNECTION HANDLERS (Auto-hides any banner after 1 second if it appears)
     function checkConnectionStatus() {
       const offlineView = document.getElementById('offlineView');
-      if (offlineView) offlineView.style.display = "none";
+      if (offlineView) {
+        setTimeout(() => {
+          offlineView.style.display = "none";
+        }, 1000);
+      }
       return true;
     }
+
+    // Auto-hide watcher loop in case cached DOM elements try to render it
+    setInterval(() => {
+      const offlineView = document.getElementById('offlineView');
+      if (offlineView && offlineView.style.display !== 'none') {
+        setTimeout(() => {
+          offlineView.style.display = 'none';
+        }, 1000);
+      }
+    }, 500);
 
     window.addEventListener('online', () => { checkConnectionStatus(); });
     window.addEventListener('offline', () => { checkConnectionStatus(); });
