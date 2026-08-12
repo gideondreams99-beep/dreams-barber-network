@@ -1,51 +1,53 @@
-const CACHE_NAME = 'sjs-saloon-v1';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'sjs-saloon-cache-v1';
+const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/icon.svg'
+  '/manifest.json'
 ];
 
-// Install Event - Caching core assets
-self.addEventListener('install', (event) => {
+// Install the Service Worker and cache the core files
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        return cache.addAll(urlsToCache);
+      })
   );
   self.skipWaiting();
 });
 
-// Activate Event - Cleaning up old caches
-self.addEventListener('activate', (event) => {
+// Serve cached files when offline
+self.addEventListener('fetch', event => {
+  // Only intercept GET requests. Let Firestore handle database requests directly.
+  if (event.request.method !== 'GET') return;
+  if (event.request.url.includes('firestore.googleapis.com')) return;
+
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        // Return cached version if found, otherwise fetch from the network
+        return response || fetch(event.request).catch(() => {
+          // If the network fails and it's an HTML page request, load the offline index.html
+          if (event.request.headers.get('accept').includes('text/html')) {
+            return caches.match('/index.html');
+          }
+        });
+      })
+  );
+});
+
+// Clean up old caches when the app updates
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
           }
         })
       );
     })
   );
   self.clients.claim();
-});
-
-// Fetch Event - Network first, falling back to cache for offline support
-self.addEventListener('fetch', (event) => {
-  // Only handle GET requests and local origin assets (let Firebase/Cloudinary pass through normally)
-  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
-    return;
-  }
-
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request);
-      })
-  );
 });

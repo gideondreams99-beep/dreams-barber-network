@@ -726,7 +726,7 @@
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     function playRingTone() {
       try {
@@ -748,19 +748,25 @@
     // OFFLINE & ONLINE CONNECTION HANDLERS
     function checkConnectionStatus() {
       const offlineView = document.getElementById('offlineView');
-      const loginView = document.getElementById('loginWelcomeView');
       if (!navigator.onLine) {
-        loginView.style.display = "none";
-        document.getElementById('setupView').style.display = "none";
-        document.getElementById('pendingView').style.display = "none";
-        dashboard.style.display = "none";
-        document.getElementById('statusText').style.display = "none";
         offlineView.style.display = "block";
-        return false;
+        offlineView.style.position = "fixed";
+        offlineView.style.bottom = "0";
+        offlineView.style.top = "auto";
+        offlineView.style.width = "100%";
+        offlineView.style.zIndex = "999999";
+        offlineView.style.padding = "10px";
+        offlineView.style.border = "none";
+        offlineView.style.borderRadius = "0";
+        offlineView.style.background = "#ffc107";
+        offlineView.style.color = "#111";
+        offlineView.innerHTML = "<strong>📡 Offline Mode</strong>: Working locally. Data will sync automatically when internet returns.";
       } else {
         offlineView.style.display = "none";
-        return true;
+        offlineView.style.position = "static";
+        offlineView.innerHTML = `<div style="font-size: 40px; margin-bottom: 10px;">📡</div><h3 style="color: #ffc107;">You Are Offline</h3><p style="opacity: 0.9; font-size: 15px; line-height: 1.5; margin-bottom: 25px;">SJ'S SALOON requires an active internet connection to load shop records and sync live queues. Please check your network connection and try again.</p><button onclick="window.location.reload()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Retry Connection</button>`;
       }
+      return true; 
     }
 
     window.addEventListener('online', () => { window.location.reload(); });
@@ -790,7 +796,12 @@
     };
 
     const firebaseConfig = { apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI", authDomain: "sjs-saloon.firebaseapp.com", projectId: "sjs-saloon", storageBucket: "sjs-saloon.firebasestorage.app", messagingSenderId: "346208182886", appId: "1:346208182886:web:0766d465a0c628bd5c03a7" };
-    const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const provider = new GoogleAuthProvider();
+    const app = initializeApp(firebaseConfig); 
+    const auth = getAuth(app); 
+    const provider = new GoogleAuthProvider();
+    const db = initializeFirestore(app, {
+      localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
+    });
 
     let currentUserDoc = null; let allPaidTicketsCache = []; let activePaymentTicketId = null; let activeReassignTicketId = null; let activeBlacklistCustomer = null; let activeBlacklistActionType = null; let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000", ownerPhone: "" };
     let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; let selectedIntakeService = ""; let selectedIntakeBarber = ""; let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
