@@ -121,7 +121,7 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #offlineView { display: none; width: 100%; max-width: 480px; text-align: left; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage, #offlineView { display: none; width: 100%; max-width: 480px; text-align: left; }
     #dashboard { text-align: center; }
 
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
@@ -304,6 +304,7 @@
     <button class="sidebar-btn" onclick="document.getElementById('openDirectoryBtn').click(); closeSidebar();">📂 Customer Records</button>
     <button class="sidebar-btn" onclick="openChatPage(); closeSidebar();">💬 Team Chat</button>
     <button class="sidebar-btn" onclick="openAnnouncementsPage(); closeSidebar();">📢 Announcements</button>
+    <button class="sidebar-btn" onclick="openAiAssistantPage(); closeSidebar();">🤖 App AI Assistant</button>
     
     <div id="sidebarAdminSection" style="display: none;">
       <div class="sidebar-category">Shop Management (Owner)</div>
@@ -503,25 +504,55 @@
     </div>
   </div>
 
+  <!-- APP AI ASSISTANT PAGE -->
+  <div id="aiAssistantPage" class="panel" style="border-color: #4285F4;">
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <h3 style="color: #4285F4;">🤖 App AI Assistant</h3>
+    <p style="opacity: 0.8; font-size: 13px; text-align: center; margin-bottom: 15px;">Ask any questions about how SJ'S SALOON works, workflows, or troubleshooting!</p>
+    
+    <div id="aiChatBox" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 15px; height: 260px; overflow-y: auto; margin-bottom: 15px; text-align: left;">
+      <div style="margin-bottom: 12px;">
+        <span style="font-size: 11px; color: #4285F4;">SJ'S AI Assistant</span><br>
+        <div style="display: inline-block; background: var(--panel-bg); color: var(--text-color); padding: 8px 12px; border-radius: 8px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">
+          Hello! I am your SJ'S SALOON AI assistant. Ask me anything about issuing tickets, free service approvals, reporting staff, or collecting payments!
+        </div>
+      </div>
+    </div>
+    
+    <div style="display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap;">
+      <button onclick="askAiQuickPrompt('How do free services work?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Free Services?</button>
+      <button onclick="askAiQuickPrompt('How do I issue a ticket?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Issue Ticket?</button>
+      <button onclick="askAiQuickPrompt('How do I report staff?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Report Staff?</button>
+    </div>
+
+    <div class="flex-row">
+      <input type="text" id="aiQueryInput" placeholder="Ask a question about the app..." autocomplete="off" style="margin-bottom: 0;">
+      <button id="sendAiQueryBtn" style="background: #4285F4; border-color: #4285F4; width: 120px;">Ask AI</button>
+    </div>
+  </div>
+
   <!-- UNIVERSAL SETTINGS PAGE -->
   <div id="settingsPage" class="panel" style="border-color: var(--accent-gold);">
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
+    
     <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
-      <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment Details</h4>
-      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name and number so staff can display it during mobile money checkouts.</p>
+      <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment & Owner Contact Details</h4>
+      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name/number and your direct phone number for staff calls.</p>
       <label>MoMo / Merchant Account Name</label>
       <input type="text" id="ownerMomoNameSet" placeholder="e.g. John Doe / SJ'S SALOON">
       <label>MoMo / Merchant Phone Number</label>
       <input type="tel" id="ownerMomoNumberSet" placeholder="e.g. 0240000000">
-      <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Payment Details</button>
+      <label>Direct Owner Phone (For Staff Calls)</label>
+      <input type="tel" id="ownerDirectPhoneSet" placeholder="e.g. 0241234567">
+      <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Details</button>
     </div>
 
-    <!-- REPORT STAFF SECTION -->
-    <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px;">
-      <h4 style="color: #ff4444; margin-top: 0;">🚨 Report Staff Member</h4>
-      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Report a barber or secretary to the owner with a detailed reason.</p>
-      <button onclick="openReportStaffModal()" style="background: #ff4444; border-color: #ff4444; width: 100%; color: white;">Report Barber / Secretary</button>
+    <!-- REPORT STAFF SECTION (Hidden for Owner) -->
+    <div id="staffReportContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px; display: none;">
+      <h4 id="reportSectionTitle" style="color: #ff4444; margin-top: 0;">🚨 Report Staff Member</h4>
+      <p id="reportSectionDesc" style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Report a staff member to the owner with a detailed reason.</p>
+      <button id="openReportStaffBtn" onclick="openReportStaffModal()" style="background: #ff4444; border-color: #ff4444; width: 100%; color: white;">Report Staff</button>
     </div>
 
     <div id="installAppContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
@@ -608,6 +639,13 @@
 
   <!-- MAIN DASHBOARD -->
   <div id="dashboard">
+    <!-- CALL OWNER QUICK BUTTON (BARBERS & SECRETARIES) -->
+    <div id="dashboardCallOwnerContainer" style="display: none; margin-bottom: 15px;">
+      <a id="dashboardCallOwnerLink" href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 1px solid #2a6bcc; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+        📞 Call Shop Owner Now
+      </a>
+    </div>
+
     <!-- REAL-TIME DASHBOARD NOTIFICATION BANNER / ACTIVITY FEED -->
     <div id="dashboardNotificationBox" style="display: none; margin-bottom: 15px;"></div>
 
@@ -754,7 +792,7 @@
     const firebaseConfig = { apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI", authDomain: "sjs-saloon.firebaseapp.com", projectId: "sjs-saloon", storageBucket: "sjs-saloon.firebasestorage.app", messagingSenderId: "346208182886", appId: "1:346208182886:web:0766d465a0c628bd5c03a7" };
     const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const provider = new GoogleAuthProvider();
 
-    let currentUserDoc = null; let allPaidTicketsCache = []; let activePaymentTicketId = null; let activeReassignTicketId = null; let activeBlacklistCustomer = null; let activeBlacklistActionType = null; let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000" };
+    let currentUserDoc = null; let allPaidTicketsCache = []; let activePaymentTicketId = null; let activeReassignTicketId = null; let activeBlacklistCustomer = null; let activeBlacklistActionType = null; let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000", ownerPhone: "" };
     let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; let selectedIntakeService = ""; let selectedIntakeBarber = ""; let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
 
     window.customPopup = function(type, message, placeholder = "Enter details...") {
@@ -822,52 +860,115 @@
     };
 
     window.openOwnerPage = (pageName) => {
-      dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none"; document.getElementById('settingsPage').style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none";
+      dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none"; document.getElementById('settingsPage').style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none"; document.getElementById('aiAssistantPage').style.display = "none";
       if (pageName === 'staff') document.getElementById('ownerStaffPage').style.display = "block";
       else if (pageName === 'services') document.getElementById('ownerServicesPage').style.display = "block";
       else if (pageName === 'blacklist') document.getElementById('ownerBlacklistPage').style.display = "block";
     };
 
     window.openSettingsPage = () => {
-      dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none"; customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none";
+      dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none"; customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none"; document.getElementById('aiAssistantPage').style.display = "none";
+      
+      const staffReportContainer = document.getElementById('staffReportContainer');
+      const reportTitle = document.getElementById('reportSectionTitle');
+      const reportDesc = document.getElementById('reportSectionDesc');
+      const reportBtn = document.getElementById('openReportStaffBtn');
+
       if (currentUserDoc && currentUserDoc.role === "owner") { 
         document.getElementById('ownerDangerZoneBox').style.display = "block"; 
         document.getElementById('ownerPaymentSettingsBox').style.display = "block"; 
         document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name; 
         document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number; 
+        document.getElementById('ownerDirectPhoneSet').value = shopPaymentConfig.ownerPhone || "";
         document.getElementById('settingsPageHeading').innerText = "Settings & Payment";
+        staffReportContainer.style.display = "none";
       } else { 
         document.getElementById('ownerDangerZoneBox').style.display = "none"; 
         document.getElementById('ownerPaymentSettingsBox').style.display = "none"; 
         document.getElementById('settingsPageHeading').innerText = "Settings";
+        staffReportContainer.style.display = "block";
+        if (currentUserDoc.role === "secretary") {
+          reportTitle.innerText = "🚨 Report a Barber";
+          reportDesc.innerText = "Report a barber to the owner with a detailed reason.";
+          reportBtn.innerText = "Report Barber";
+        } else if (currentUserDoc.role === "barber") {
+          reportTitle.innerText = "🚨 Report Secretary";
+          reportDesc.innerText = "Report the secretary to the owner with a detailed reason.";
+          reportBtn.innerText = "Report Secretary";
+        }
       }
       document.getElementById('settingsPage').style.display = "block";
     };
 
     window.saveOwnerPaymentSettings = async () => {
-      const name = document.getElementById('ownerMomoNameSet').value.trim(); const number = document.getElementById('ownerMomoNumberSet').value.trim();
+      const name = document.getElementById('ownerMomoNameSet').value.trim(); 
+      const number = document.getElementById('ownerMomoNumberSet').value.trim();
+      const ownerPhone = document.getElementById('ownerDirectPhoneSet').value.trim();
       if (!name || !number) return await customPopup('alert', "Please provide both payment name and number.");
-      try { await setDoc(doc(db, "shop_config", "payment"), { name, number }, { merge: true }); shopPaymentConfig = { name, number }; playRingTone(); showToast("Payment details saved successfully!"); } catch (err) { await customPopup('alert', "Error saving payment settings: " + err.message); }
+      try { 
+        await setDoc(doc(db, "shop_config", "payment"), { name, number, ownerPhone }, { merge: true }); 
+        shopPaymentConfig = { name, number, ownerPhone }; 
+        playRingTone(); 
+        showToast("Payment and contact details saved successfully!"); 
+        updateCallOwnerButton();
+      } catch (err) { await customPopup('alert', "Error saving settings: " + err.message); }
     };
 
     window.openChatPage = () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('chatPage').style.display = "block"; startChatListener(); };
     window.openAnnouncementsPage = () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('announcementsPage').style.display = "block"; if (currentUserDoc && currentUserDoc.role === "owner") { document.getElementById('ownerAnnouncementCreator').style.display = "block"; } startAnnouncementsListener(); };
+    window.openAiAssistantPage = () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('aiAssistantPage').style.display = "block"; };
 
-    // STAFF REPORTING MODAL
+    // APP AI ASSISTANT LOGIC
+    window.askAiQuickPrompt = (promptText) => {
+      document.getElementById('aiQueryInput').value = promptText;
+      processAiQuery();
+    };
+
+    document.getElementById('sendAiQueryBtn').addEventListener('click', () => { processAiQuery(); });
+    window.processAiQuery = () => {
+      const input = document.getElementById('aiQueryInput');
+      const q = input.value.trim().toLowerCase();
+      if (!q) return;
+
+      const box = document.getElementById('aiChatBox');
+      const userHtml = `<div style="margin-bottom: 12px; text-align: right;"><span style="font-size: 11px; color: var(--accent-gold);">You</span><br><div style="display: inline-block; background: #4285F4; color: #fff; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px;">${input.value}</div></div>`;
+      box.innerHTML += userHtml;
+
+      let answer = "I'm not completely sure about that. You can check the announcements or team chat for more details!";
+      if (q.includes("free service") || q.includes("free")) {
+        answer = "🎁 <b>Free Services:</b> When an owner lists a service with 0 GHS price, the secretary enters a reason upon selection. The ticket goes straight to the barber's chair for acceptance. Once finished by the barber, it shows completed on the secretary's dashboard while awaiting owner review/approval!";
+      } else if (q.includes("ticket") || q.includes("issue") || q.includes("front desk")) {
+        answer = "🎟️ <b>Issuing Tickets:</b> Secretaries use the Front Desk Intake panel to type customer names (auto-loading history), select a service, and assign an available barber. Click 'Issue Ticket' to send it straight to the barber's queue.";
+      } else if (q.includes("report") || q.includes("complaint")) {
+        answer = "🚨 <b>Staff Reports:</b> Secretaries can report barbers, and barbers can report secretaries via their Settings menu. Owners can review all complaints in the Staff Management panel.";
+      } else if (q.includes("payment") || q.includes("collect") || q.includes("momo")) {
+        answer = "💳 <b>Collecting Payments:</b> Once a barber finishes a cut, secretaries can click 'Collect Payment' on the ticket to process Cash, MTN MoMo, or Telecel Cash using the owner's saved payment merchant details.";
+      } else if (q.includes("owner") || q.includes("call")) {
+        answer = "📞 <b>Calling Owner:</b> Barbers and secretaries can tap the 'Call Shop Owner Now' button directly on their dashboard to quickly place a call using the phone number set by the owner.";
+      }
+
+      const aiHtml = `<div style="margin-bottom: 12px; text-align: left;"><span style="font-size: 11px; color: #4285F4;">SJ'S AI Assistant</span><br><div style="display: inline-block; background: var(--panel-bg); color: var(--text-color); padding: 8px 12px; border-radius: 8px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">${answer}</div></div>`;
+      box.innerHTML += aiHtml;
+      input.value = "";
+      box.scrollTop = box.scrollHeight;
+    };
+
+    // STAFF REPORTING MODAL (Role-based)
     window.openReportStaffModal = async () => {
-      let barbersSecs = [];
+      let targetRoleQuery = currentUserDoc.role === "secretary" ? "barber" : "secretary";
+      let staffList = [];
       try {
         const snap = await getDocs(collection(db, "users"));
         snap.forEach(d => {
           const u = d.data();
-          if (u.isApproved && u.role !== "owner" && u.role !== "customer") {
-            barbersSecs.push({ label: `${u.name} (${u.role.toUpperCase()})`, value: u.name });
+          if (u.isApproved && u.role === targetRoleQuery) {
+            staffList.push({ label: `${u.name} (${u.role.toUpperCase()})`, value: u.name });
           }
         });
       } catch(e) {}
 
-      if (barbersSecs.length === 0) {
-        return await customPopup('alert', "No active staff members found to report.");
+      if (staffList.length === 0) {
+        return await customPopup('alert', `No active ${targetRoleQuery}s found to report.`);
       }
 
       const overlay = document.getElementById('customModalOverlay');
@@ -881,12 +982,12 @@
       const buttonContainer = document.getElementById('customModalButtons');
 
       input.style.display = "none"; buttonContainer.style.display = "none"; backBtn.style.display = "block"; dropdownList.style.display = "block";
-      title.innerText = "Select Staff Member to Report";
+      title.innerText = currentUserDoc.role === "secretary" ? "Select Barber to Report" : "Select Secretary to Report";
       title.style.color = "#ff4444";
       msg.innerHTML = "";
 
       let html = "";
-      barbersSecs.forEach(staff => {
+      staffList.forEach(staff => {
         html += `<div class="dropdown-option-item" onclick="promptStaffReportReason('${staff.value.replace(/'/g, "\\'")}')"><span>${staff.label}</span><div class="radio-circle"></div></div>`;
       });
       dropdownList.innerHTML = html;
@@ -934,7 +1035,7 @@
     window.backToDashboard = () => {
       customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none";
       document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none";
-      document.getElementById('settingsPage').style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none";
+      document.getElementById('settingsPage').style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none"; document.getElementById('aiAssistantPage').style.display = "none";
       dashboard.style.display = "block"; document.getElementById('topHeader').style.display = "flex"; document.getElementById('customerDetailView').style.display = "none"; document.getElementById('directoryListView').style.display = "block";
     };
 
@@ -1042,7 +1143,7 @@
 
     window.toggleAvailability = async () => { if (!currentUserDoc) return; const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets."); if (!confirmAction) return; try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus; const btn = document.getElementById('toggleAvailabilityBtn'); btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.borderColor = !newStatus ? "#555" : "#28a745"; playRingTone(); showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴"); } catch (err) { await customPopup('alert', "Error updating status: " + err.message); } };
 
-    window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); playRingTone(); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); playRingTone(); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); playRingTone(); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.promptBarberDenyReason = async (ticketId) => { const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason..."); if (reason === null) return; if (!reason.trim()) { await customPopup('alert', "A reason is required to deny a customer."); return; } try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied", denyReason: reason.trim() }); playRingTone(); showToast("Customer denied and reason recorded."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
 
@@ -1073,7 +1174,6 @@
         playRingTone();
         showToast("Service converted to paid successfully!");
         if (isSecretaryMustPay) {
-          // Open payment page immediately for secretary
           const t = ticketsMapCache.get(ticketId);
           if (t) {
             openPaymentPage(ticketId, t.customerName, t.serviceName, newPrice);
@@ -1090,12 +1190,38 @@
       if (t.isFree) {
         freeInfoHtml = `<p style="margin: 0 0 8px 0; color: #ffc107;">🎁 <b>Free Service Reason:</b> ${t.freeReason || 'None'}</p><p style="margin: 0 0 8px 0; font-size:13px; color: ${t.ownerFreeApproval === 'approved' ? '#28a745' : '#ffc107'};"><b>Owner Approval Status:</b> ${(t.ownerFreeApproval || 'pending').toUpperCase()}</p>`;
       }
-      const reviewHtml = `<div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6;"><p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p><p style="margin: 0 0 8px 0;">👤 <b>Customer Name:</b> ${t.customerName}</p><p style="margin: 0 0 8px 0;">📞 <b>Phone:</b> ${t.customerPhone || 'Not Provided'}</p><p style="margin: 0 0 8px 0;">✂️ <b>Service Requested:</b> ${t.serviceName}</p><p style="margin: 0 0 8px 0; color: #28a745; font-weight: bold;">💰 Price: GHS ${t.price.toFixed(2)}</p>${freeInfoHtml}</div><div style="display: flex; gap: 10px; margin-top: 20px;"><button onclick="acceptTicket('${ticketId}')" class="btn-submit" style="flex: 1; background: #28a745; border-color: #28a745;">✅ Accept Cut</button><button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #8c1a1a; color: white; border-color: #cc2a2a;">❌ Deny</button></div>`;
+      const reviewHtml = `
+        <div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6;">
+          <p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p>
+          <p style="margin: 0 0 8px 0;">👤 <b>Customer Name:</b> ${t.customerName}</p>
+          <p style="margin: 0 0 8px 0;">📞 <b>Phone:</b> ${t.customerPhone || 'Not Provided'}</p>
+          <p style="margin: 0 0 8px 0;">✂️ <b>Service Requested:</b> ${t.serviceName}</p>
+          <p style="margin: 0 0 8px 0; color: #28a745; font-weight: bold;">💰 Price: GHS ${t.price.toFixed(2)}</p>
+          ${freeInfoHtml}
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button onclick="acceptTicket('${ticketId}')" class="btn-submit" style="flex: 1; background: #28a745; border-color: #28a745;">✅ Accept Cut</button>
+          <button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #8c1a1a; color: white; border-color: #cc2a2a;">❌ Deny</button>
+        </div>
+        <button onclick="closePickerModal()" style="width: 100%; margin-top: 10px; background: #444; border: 1px solid #555; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px;">⬅ Cancel & Go Back</button>
+      `;
       const overlay = document.getElementById('customModalOverlay'); document.getElementById('customModalTitle').innerText = "Review Customer & Service"; document.getElementById('customModalMessage').innerHTML = reviewHtml; document.getElementById('customModalInput').style.display = "none"; document.getElementById('customDropdownList').style.display = "none"; document.getElementById('customPickerBackBtn').style.display = "none"; document.getElementById('customModalButtons').style.display = "none"; overlay.classList.add('show');
     };
 
     window.approveDenial = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied" }); playRingTone(); showToast("Denial approved and recorded."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.openReassignModal = (ticketId) => { activeReassignTicketId = ticketId; openPickerModal('reassignBarber'); };
+
+    function updateCallOwnerButton() {
+      const container = document.getElementById('dashboardCallOwnerContainer');
+      const link = document.getElementById('dashboardCallOwnerLink');
+      if (currentUserDoc && (currentUserDoc.role === "barber" || currentUserDoc.role === "secretary") && shopPaymentConfig.ownerPhone) {
+        link.href = `tel:${shopPaymentConfig.ownerPhone}`;
+        link.innerText = `📞 Call Shop Owner (${shopPaymentConfig.ownerPhone})`;
+        container.style.display = "block";
+      } else {
+        container.style.display = "none";
+      }
+    }
 
     function loadApp(user, docData) {
       document.getElementById('topHeader').style.display = "flex";
@@ -1129,6 +1255,7 @@
         btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = isOff ? "#555" : "#28a745";
         document.getElementById('barberControls').style.display = "block";
       }
+      updateCallOwnerButton();
       startLiveQueue(); if (docData.role === "secretary") { populateIntakeForm(); } cacheAllTickets(); startDashboardNotifications();
     }
 
@@ -1397,7 +1524,7 @@
               else if (ticket.status === "completed" && isSec) {
                 if (ticket.isFree && ticket.ownerFreeApproval !== 'approved') {
                   statusColor = "#ffc107";
-                  actionButton = `<div style="background: rgba(255,193,7,0.1); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 8px 0; font-size:12px; color:#ffc107;">🎁 Waiting for Owner Free Service Review</p><button class="btn-action" style="background: #28a745; border-color:#28a745; margin-bottom:5px;" onclick="forcePaymentService('${ticketId}', true)">Secretary Must Pay / Collect</button></div>`;
+                  actionButton = `<div style="background: rgba(255,193,7,0.1); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 8px 0; font-size:12px; color:#ffc107;">🎁 Completed (Waiting for Owner Free Service Review)</p><button class="btn-action" style="background: #28a745; border-color:#28a745; margin-bottom:5px;" onclick="forcePaymentService('${ticketId}', true)">Secretary Must Pay / Collect</button></div>`;
                 } else if (ticket.isFree && ticket.ownerFreeApproval === 'approved') {
                   statusColor = "#28a745";
                   actionButton = `<div style="background: rgba(40,167,69,0.1); padding: 10px; border-radius: 6px; border: 1px solid #28a745; margin-top:5px;"><p style="margin:0; font-size:12px; color:#28a745; font-weight:bold;">✅ Free Service Approved by Owner</p><button class="btn-action" style="background: #28a745; border-color:#28a745; margin-top:5px;" onclick="updateTicketStatus('${ticketId}', 'paid')">Complete Free Record</button></div>`;
@@ -1408,9 +1535,8 @@
               else if (ticket.status === "pending_denial" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"><button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button></div>`; }
               else if (ticket.status === "denied" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button><button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button></div>`; }
             } else {
-              // Owner queue controls for free service
               if (ticket.isFree && ticket.ownerFreeApproval === 'pending') {
-                actionButton = `<div style="background: rgba(255,193,7,0.15); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 5px 0; font-size:12px; color:#ffc107;">🎁 Free Reason: "${ticket.freeReason || 'None'}"</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#28a745; border-color:#28a745; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ff4444; border-color:#ff4444; font-size:12px;" onclick="forcePaymentService('${ticketId}', false)">Still Pay</button></div></div>`;
+                actionButton = `<div style="background: rgba(255,193,7,0.15); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 5px 0; font-size:12px; color:#ffc107;">🎁 Free Reason: "${ticket.freeReason || 'None'}" (${ticket.status === 'completed' ? 'Completed by Barber' : 'In Progress'})</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#28a745; border-color:#28a745; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ff4444; border-color:#ff4444; font-size:12px;" onclick="forcePaymentService('${ticketId}', false)">Still Pay</button></div></div>`;
               }
             }
 
@@ -1421,7 +1547,7 @@
                 <div ${isClickableForBarber ? `onclick="openTicketReviewModal('${ticketId}')"` : ''} style="${isClickableForBarber ? 'cursor: pointer;' : ''}">
                   <div class="ticket-header">
                     <span class="ticket-number">${ticket.ticketNo || '--'}</span>
-                    <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.isFree ? '🎁 FREE SERVICE' : ticket.status.toUpperCase().replace('_', ' ')}</span>
+                    <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.isFree ? (ticket.status === 'completed' ? 'COMPLETED (FREE)' : 'FREE SERVICE') : ticket.status.toUpperCase().replace('_', ' ')}</span>
                   </div>
                   <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div>
                   <div class="ticket-details" style="margin-bottom: 10px;">
