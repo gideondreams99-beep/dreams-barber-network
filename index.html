@@ -795,8 +795,16 @@
       else if (pickerType === 'country' || pickerType === 'editCountry') { title.innerText = "Select Country"; currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry; options = [ { label: "Ghana", value: "Ghana" }, { label: "Nigeria", value: "Nigeria" }, { label: "United States", value: "United States" }, { label: "United Kingdom", value: "United Kingdom" }, { label: "Canada", value: "Canada" }, { label: "South Africa", value: "South Africa" }, { label: "Kenya", value: "Kenya" }, { label: "Germany", value: "Germany" }, { label: "France", value: "France" }, { label: "Australia", value: "Australia" }, { label: "India", value: "India" }, { label: "Other Country", value: "Other" } ]; } 
       else if (pickerType === 'idType' || pickerType === 'editIdType') { title.innerText = "Select Government ID Type"; currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType; const activeCountry = pickerType === 'idType' ? selectedSetupCountry : selectedEditCountry; if (activeCountry === "Ghana") { options = [ { label: "National ID / Ghana Card", value: "National ID / Ghana Card" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Voters ID", value: "Voters ID" } ]; } else if (activeCountry === "Nigeria") { options = [ { label: "National Identity Number (NIN)", value: "NIN" }, { label: "International Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Permanent Voter Card (PVC)", value: "PVC" } ]; } else { options = [ { label: "National Identity Card", value: "National ID" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" } ]; } } 
       else if (pickerType === 'serviceType') { title.innerText = "Select Service Type"; currentValue = selectedIntakeService; options = cachedServicesList.map(s => ({ label: `${s.name} - GHS ${s.price}`, value: `${s.name}|${s.price}` })); } 
-      else if (pickerType === 'barberName') { title.innerText = "Assign To Barber"; currentValue = selectedIntakeBarber; const availableBarbers = cachedBarbersList.filter(b => !activeBusyBarbers.has(b.toLowerCase())); options = availableBarbers.map(b => ({ label: b, value: b })); } 
-      else if (pickerType === 'reassignBarber') { title.innerText = "Select Barber to Assign Again"; currentValue = ""; const availableBarbers = cachedBarbersList.filter(b => !activeBusyBarbers.has(b.toLowerCase())); options = availableBarbers.map(b => ({ label: b, value: b })); }
+      else if (pickerType === 'barberName') { 
+        title.innerText = "Assign To Barber"; 
+        currentValue = selectedIntakeBarber; 
+        options = cachedBarbersList.map(b => ({ label: b.label, value: b.name })); 
+      } 
+      else if (pickerType === 'reassignBarber') { 
+        title.innerText = "Select Barber to Assign Again"; 
+        currentValue = ""; 
+        options = cachedBarbersList.map(b => ({ label: b.label, value: b.name })); 
+      }
       else if (pickerType === 'reportMonth') { title.innerText = "Select Month to View"; currentValue = ""; const d = new Date(); for (let i = 0; i < 24; i++) { const m = new Date(d.getFullYear(), d.getMonth() - i, 1); const label = m.toLocaleString('default', { month: 'long', year: 'numeric' }); const value = `${m.getFullYear()}-${m.getMonth()}`; options.push({ label, value }); } }
 
       let html = "";
@@ -963,7 +971,7 @@
 
       let html = "";
       staffList.forEach(staff => {
-        html += `<div class="dropdown-option-item" onclick="promptStaffReportReason('${staff.value.replace(/'/g, "\\'")}')"><span>${staff.label}</span><div class="radio-circle"></div></div>`;
+        html += `<div class="dropdown-option-item" onclick="promptStaffReportReason('${staff.value.replace(/'/g, "\\Analytical")}')"><span>${staff.label}</span><div class="radio-circle"></div></div>`;
       });
       dropdownList.innerHTML = html;
       overlay.classList.add('show');
@@ -997,9 +1005,54 @@
 
     const loginBtn = document.getElementById('loginBtn'); const emailLoginBtn = document.getElementById('emailLoginBtn'); const emailRegisterBtn = document.getElementById('emailRegisterBtn'); const loginWelcomeView = document.getElementById('loginWelcomeView'); const mainAppTitle = document.getElementById('mainAppTitle'); const statusText = document.getElementById('statusText'); const dashboard = document.getElementById('dashboard'); const customerDirectoryPage = document.getElementById('customerDirectoryPage'); const paymentPage = document.getElementById('paymentPage'); const blacklistPage = document.getElementById('blacklistPage'); const editProfileView = document.getElementById('editProfileView');
 
-    loginBtn.addEventListener('click', async (e) => { e.preventDefault(); try { await signInWithPopup(auth, provider); showToast("Signed in successfully!"); } catch (error) { await customPopup('alert', "Login failed: " + error.message); } });
-    emailLoginBtn.addEventListener('click', async (e) => { e.preventDefault(); const email = document.getElementById('authEmailInput').value.trim(); const password = document.getElementById('authPasswordInput').value; if (!email || !password) { return await customPopup('alert', "Please enter your email and password."); } try { await signInWithEmailAndPassword(auth, email, password); showToast("Signed in successfully!"); } catch (error) { await customPopup('alert', "Sign in failed: " + error.message); } });
-    emailRegisterBtn.addEventListener('click', async (e) => { e.preventDefault(); const email = document.getElementById('authEmailInput').value.trim(); const password = document.getElementById('authPasswordInput').value; if (!email || !password) { return await customPopup('alert', "Please enter an email and password."); } if (password.length < 6) { return await customPopup('alert', "Password must be at least 6 characters long."); } try { await createUserWithEmailAndPassword(auth, email, password); showToast("Account created successfully!"); } catch (error) { await customPopup('alert', "Registration failed: " + error.message); } });
+    loginBtn.addEventListener('click', async (e) => { 
+      e.preventDefault(); 
+      try { 
+        await signInWithPopup(auth, provider); 
+        showToast("Signed in successfully!"); 
+      } catch (error) { 
+        if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed') || !navigator.onLine) {
+          await customPopup('alert', "Offline: Please connect to the internet to log in.");
+        } else {
+          await customPopup('alert', "Login failed: " + error.message); 
+        }
+      } 
+    });
+
+    emailLoginBtn.addEventListener('click', async (e) => { 
+      e.preventDefault(); 
+      const email = document.getElementById('authEmailInput').value.trim(); 
+      const password = document.getElementById('authPasswordInput').value; 
+      if (!email || !password) { return await customPopup('alert', "Please enter your email and password."); } 
+      try { 
+        await signInWithEmailAndPassword(auth, email, password); 
+        showToast("Signed in successfully!"); 
+      } catch (error) { 
+        if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed') || !navigator.onLine) {
+          await customPopup('alert', "Offline: Please connect to the internet to log in.");
+        } else {
+          await customPopup('alert', "Sign in failed: " + error.message); 
+        }
+      } 
+    });
+
+    emailRegisterBtn.addEventListener('click', async (e) => { 
+      e.preventDefault(); 
+      const email = document.getElementById('authEmailInput').value.trim(); 
+      const password = document.getElementById('authPasswordInput').value; 
+      if (!email || !password) { return await customPopup('alert', "Please enter an email and password."); } 
+      if (password.length < 6) { return await customPopup('alert', "Password must be at least 6 characters long."); } 
+      try { 
+        await createUserWithEmailAndPassword(auth, email, password); 
+        showToast("Account created successfully!"); 
+      } catch (error) { 
+        if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed') || !navigator.onLine) {
+          await customPopup('alert', "Offline: Please connect to the internet to log in.");
+        } else {
+          await customPopup('alert', "Registration failed: " + error.message); 
+        }
+      } 
+    });
 
     const performLogout = async () => { const confirmLogout = await customPopup('confirm', "Are you sure you want to log out of SJ'S SALOON?"); if (confirmLogout) { await signOut(auth); window.location.reload(); } };
     document.getElementById('setupLogoutBtn').addEventListener('click', performLogout); document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout); document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
@@ -1263,7 +1316,7 @@
         document.getElementById('barberControls').style.display = "block";
       }
       updateCallOwnerButton();
-      startLiveQueue(); if (docData.role === "secretary") { populateIntakeForm(); } cacheAllTickets(); startDashboardNotifications();
+      startLiveQueue(); populateIntakeForm(); cacheAllTickets(); startDashboardNotifications();
     }
 
     function startDashboardNotifications() {
@@ -1277,7 +1330,7 @@
         const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
         onSnapshot(qUsers, (snap) => { let approvalNotice = ""; if (snap.size > 0) { approvalNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; } renderOwnerNotifications(null, null, approvalNotice, null); });
         const qFree = query(collection(db, "daily_tickets"), where("isFree", "==", true), where("ownerFreeApproval", "==", "pending"));
-        onSnapshot(qFree, (snap) => { let freeNotice = ""; if (snap.size > 0) { freeNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>🎁 Pending Free Service Review</h5><p>You have <b>${snap.size} free service request(s)</b> waiting for review.</p></div>`; } renderOwnerNotifications(null, null, null, freeNotice); });
+        onSnapshot(qFree, (snap) => { let freeNotice = ""; if (snap.size > 0) { freeNotice = `<div class="notice-card" style="border-color:#ffc107;">🎁 Pending Free Service Review</h5><p>You have <b>${snap.size} free service request(s)</b> waiting for review.</p></div>`; } renderOwnerNotifications(null, null, null, freeNotice); });
 
         let cachedChatN = "", cachedTicketN = "", cachedApproveN = "", cachedFreeN = "";
         function renderOwnerNotifications(c, t, a, f) { if (c !== null) cachedChatN = c; if (t !== null) cachedTicketN = t; if (a !== null) cachedApproveN = a; if (f !== null) cachedFreeN = f; const combined = cachedApproveN + cachedTicketN + cachedFreeN + cachedChatN; notifBox.innerHTML = combined !== "" ? combined : `<div class="notice-card" style="border-color:#555;"><h5>✨ All Clear</h5><p>No new staff activities or pending notifications.</p></div>`; }
@@ -1454,7 +1507,7 @@
             <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
               <span style="color: var(--text-color);">${s.name} - GHS ${s.price} ${s.price === 0 ? '(FREE)' : ''}</span>
               <div style="display: flex; gap: 8px;">
-                <button onclick="editService('${sDoc.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})" style="background: #4285F4; border:none; padding: 5px 12px; font-size: 12px; border-radius: 4px; color: white;">Edit</button>
+                <button onclick="editService('${sDoc.id}', '${s.name.replace(/'/g, "\\ Analytical")}', ${s.price})" style="background: #4285F4; border:none; padding: 5px 12px; font-size: 12px; border-radius: 4px; color: white;">Edit</button>
                 <button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 12px; font-size: 12px; border-radius: 4px; color: white;">Delete</button>
               </div>
             </div>`; 
@@ -1477,7 +1530,19 @@
     function populateIntakeForm() {
       onSnapshot(collection(db, "services"), (snapshot) => { cachedServicesList = []; snapshot.forEach((sDoc) => { cachedServicesList.push(sDoc.data()); }); });
       const qBarbers = query(collection(db, "users"), where("role", "==", "barber"), where("isApproved", "==", true));
-      onSnapshot(qBarbers, (snapshot) => { cachedBarbersList = []; snapshot.forEach((bDoc) => { const b = bDoc.data(); if (b.isAvailable === false) return; cachedBarbersList.push(b.name.split(' ')[0]); }); });
+      onSnapshot(qBarbers, (snapshot) => { 
+        cachedBarbersList = []; 
+        snapshot.forEach((bDoc) => { 
+          const b = bDoc.data(); 
+          const firstName = b.name.split(' ')[0];
+          const isOff = b.isAvailable === false;
+          cachedBarbersList.push({ 
+            name: firstName, 
+            label: isOff ? `${firstName} (Off Duty 🔴)` : `${firstName} (On Duty 🟢)`,
+            isAvailable: !isOff
+          }); 
+        }); 
+      });
     }
 
     const sendBtn = document.getElementById('sendBtn');
@@ -1497,9 +1562,7 @@
         if (sPrice === 0) {
           freeReason = await customPopup('prompt', "This is a FREE service. Please enter the reason:", "Enter reason for free service...");
           if (freeReason === null) return;
-          if (!freeReason.trim()) {
-            return await customPopup('alert', "A reason is required for free services.");
-          }
+          if (!reasonCheck(freeReason)) return;
         }
 
         try {
@@ -1520,6 +1583,14 @@
           playRingTone(); document.getElementById('custName').value = ""; document.getElementById('custPhone').value = ""; document.getElementById('customerHistoryBox').style.display = "none"; document.getElementById('intakeCustomerStats').style.display = "none"; selectedIntakeService = ""; document.getElementById('serviceTypeText').innerText = "Select Service..."; selectedIntakeBarber = ""; document.getElementById('barberNameText').innerText = "Select Barber..."; showToast(sPrice === 0 ? "Free service ticket issued & sent to owner/barber!" : "Ticket issued & sent for barber review!");
         } catch (error) { await customPopup('alert', "Error saving: " + error.message); }
       });
+    }
+
+    function reasonCheck(freeReason) {
+      if (!freeReason.trim()) {
+        customPopup('alert', "A reason is required for free services.");
+        return false;
+      }
+      return true;
     }
 
     window.openPaymentPage = (ticketId, custName, serviceName, price) => {
