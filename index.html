@@ -19,6 +19,10 @@
       --input-text: #ffffff;
       --input-border: #444;
       --accent-gold: #d4af37;
+      --wa-header-bg: #075e54;
+      --wa-chat-bg: #0b141a;
+      --wa-bubble-sent: #005c4b;
+      --wa-bubble-recv: #202c33;
     }
 
     @media (prefers-color-scheme: light) {
@@ -32,6 +36,10 @@
         --input-text: #000000;
         --input-border: #c7c7cc;
         --accent-gold: #b89728;
+        --wa-header-bg: #008069;
+        --wa-chat-bg: #efeae2;
+        --wa-bubble-sent: #d9fdd3;
+        --wa-bubble-recv: #ffffff;
       }
     }
 
@@ -255,6 +263,22 @@
     .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
     .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
 
+    /* WHATSAPP STYLE CHAT INTERFACE */
+    #chatPage { padding: 0 !important; border: none !important; background: var(--wa-chat-bg) !important; height: calc(100vh - 70px); display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; }
+    .wa-header { background: var(--wa-header-bg); color: #ffffff; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    .wa-header-info { display: flex; align-items: center; gap: 12px; }
+    .wa-avatar { width: 40px; height: 40px; border-radius: 50%; background: #ffffff; color: var(--wa-header-bg); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+    .wa-title { font-weight: bold; font-size: 16px; margin: 0; }
+    .wa-subtitle { font-size: 11px; opacity: 0.85; margin: 0; }
+    .wa-chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+    .wa-bubble { max-width: 80%; padding: 8px 12px; font-size: 14px; line-height: 1.4; position: relative; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .wa-bubble-sent { align-self: flex-end; background: var(--wa-bubble-sent); color: #111; border-radius: 12px 12px 0px 12px; text-align: left; }
+    .wa-bubble-recv { align-self: flex-start; background: var(--wa-bubble-recv); color: var(--text-color); border-radius: 12px 12px 12px 0px; text-align: left; }
+    .wa-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; font-size: 10px; opacity: 0.75; }
+    .wa-input-bar { background: var(--panel-bg); padding: 10px 12px; display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--panel-border); }
+    .wa-input-field { flex: 1; padding: 12px 16px; border-radius: 24px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); margin-bottom: 0 !important; font-size: 15px; }
+    .wa-send-btn { width: 45px; height: 45px; border-radius: 50%; background: #128c7e; color: #ffffff; border: none; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+
     /* EYE-CATCHING CONFIRMATION TOAST */
     #toastNotification {
       position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150px);
@@ -433,7 +457,7 @@
 
   <!-- EDIT PROFILE VIEW -->
   <div id="editProfileView" class="panel" style="border-color: #4285F4;">
-    <button onclick="cancelEditProfile()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
     <h3 style="color: #4285F4;" id="editProfileTitle">Edit My Profile & ID Credentials</h3>
     <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;" id="editProfileSubtitle">Owners update instantly. Staff updates require owner approval.</p>
     <label>Full Display Name</label>
@@ -490,17 +514,26 @@
     <div id="blacklistList"></div>
   </div>
 
-  <!-- DEDICATED TEAM CHAT PAGE -->
-  <div id="chatPage" class="panel" style="border-color: var(--accent-gold);">
-    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-    <h3 style="color: var(--accent-gold);">💬 Shop Team Chat Room</h3>
-    <p style="opacity: 0.8; font-size: 13px; text-align: center; margin-bottom: 15px;">Real-time messaging between Owners, Barbers, and Secretaries.</p>
-    <div id="chatMessagesBox" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 15px; height: 300px; overflow-y: auto; margin-bottom: 15px; text-align: left;">
-      <p style="opacity: 0.6; text-align: center; font-style: italic;">Loading chat messages...</p>
+  <!-- DEDICATED TEAM CHAT PAGE (WHATSAPP STYLE) -->
+  <div id="chatPage">
+    <div class="wa-header">
+      <div class="wa-header-info">
+        <button onclick="backToDashboard()" style="background:none; border:none; color:#fff; font-size:22px; padding:0; cursor:pointer; box-shadow:none;">←</button>
+        <div class="wa-avatar">💬</div>
+        <div>
+          <h4 class="wa-title">Shop Team Chat</h4>
+          <p class="wa-subtitle">Owners, Barbers & Secretaries</p>
+        </div>
+      </div>
     </div>
-    <div class="flex-row">
-      <input type="text" id="chatInputMessage" placeholder="Type message here..." autocomplete="off" style="margin-bottom: 0;">
-      <button id="sendChatMessageBtn" style="background: #28a745; border-color: #28a745; width: 120px;">Send</button>
+    <div id="chatMessagesBox" class="wa-chat-messages">
+      <p style="opacity: 0.6; text-align: center; font-style: italic; color: #888;">Loading chat messages...</p>
+    </div>
+    <div class="wa-input-bar">
+      <input type="text" id="chatInputMessage" class="wa-input-field" placeholder="Type a message..." autocomplete="off">
+      <button id="sendChatMessageBtn" class="wa-send-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
     </div>
   </div>
 
@@ -588,7 +621,7 @@
 
   <!-- DEDICATED PAYMENT PAGE VIEW -->
   <div id="paymentPage" class="panel" style="border-color: #28a745;">
-    <button onclick="cancelPayment()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
+    <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
     <h3 style="color: #28a745;">Checkout & Payment</h3>
     <div id="paymentInfoBox" style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left; word-break: break-word;">
       <p style="margin: 0 0 5px 0; opacity: 0.8;">Customer: <strong id="payCustName" style="color: var(--text-color);">--</strong></p>
@@ -663,11 +696,11 @@
     <!-- REAL-TIME DASHBOARD NOTIFICATION BANNER / ACTIVITY FEED -->
     <div id="dashboardNotificationBox" style="display: none; margin-bottom: 15px;"></div>
 
-    <!-- SECRETARY FRONT DESK PANEL -->
+    <!-- SECRETARY FRONT DESK PANEL (UPDATED: MULTI-SERVICE SELECTION & AUTO-CALCULATION) -->
     <div id="secretaryPanel" class="panel" style="display: none; margin-top: 0;">
       <h3>Front Desk Intake</h3>
       
-      <!-- NEW: SHOP & SECRETARY STATUS CONTROLS -->
+      <!-- SHOP & SECRETARY STATUS CONTROLS -->
       <div style="display: flex; gap: 10px; margin-bottom: 20px;">
         <button id="toggleShopBtn" onclick="toggleShopStatus()" style="flex: 1; background: #28a745; border-color: #28a745; font-size: 13px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🔓 Shop OPEN</button>
         <button id="toggleSecAwayBtn" onclick="toggleSecStatus()" style="flex: 1; background: #1a4b8c; border-color: #2a6bcc; font-size: 13px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🟢 I am HERE</button>
@@ -684,9 +717,16 @@
       <label>Customer Phone Number (Optional)</label>
       <input type="tel" id="custPhone" placeholder="Enter phone number (optional)..." autocomplete="off">
 
-      <label>Service Type</label>
-      <div id="serviceTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('serviceType')">
-        <span id="serviceTypeText">Select Service...</span><span style="color: var(--accent-gold);">▼</span>
+      <!-- MULTI-SERVICE SELECTOR CONTAINER -->
+      <label>Select Services (Multi-Select Allowed)</label>
+      <div id="secretaryServicesContainer" style="background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; padding: 10px; margin-bottom: 15px; max-height: 180px; overflow-y: auto;">
+        <p style="opacity: 0.6; font-style: italic; font-size: 13px; margin: 0;">Loading services...</p>
+      </div>
+
+      <!-- AUTO-CALCULATED TOTAL DISPLAY -->
+      <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent-gold); padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: space-between; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: bold; color: var(--text-color);">Total Amount to Pay:</span>
+        <span style="font-size: 18px; font-weight: bold; color: var(--accent-gold);">GHS <span id="intakeCalculatedTotal">0.00</span></span>
       </div>
 
       <label>Assign To Barber</label>
@@ -778,6 +818,54 @@
     window.openSidebar = () => { document.getElementById('sidebarMenu').classList.add('show'); document.getElementById('sidebarOverlay').classList.add('show'); };
     window.closeSidebar = () => { document.getElementById('sidebarMenu').classList.remove('show'); document.getElementById('sidebarOverlay').classList.remove('show'); };
 
+    // --- CENTRAL NAVIGATION & BROWSER HARDWARE BACK BUTTON (POPSTATE HISTORY) ---
+    const ALL_APP_VIEWS = [
+      'loginWelcomeView', 'setupView', 'pendingView', 'editProfileView',
+      'ownerStaffPage', 'ownerServicesPage', 'ownerBlacklistPage',
+      'chatPage', 'announcementsPage', 'aiAssistantPage', 'settingsPage',
+      'paymentPage', 'blacklistPage', 'customerDirectoryPage',
+      'monthlyReportPage', 'dashboard'
+    ];
+
+    window.navigateToView = (targetViewId, pushToHistory = true) => {
+      ALL_APP_VIEWS.forEach(vId => {
+        const el = document.getElementById(vId);
+        if (el) el.style.display = "none";
+      });
+
+      const target = document.getElementById(targetViewId);
+      if (target) {
+        if (targetViewId === 'chatPage') target.style.display = "flex";
+        else target.style.display = "block";
+      }
+
+      if (targetViewId === 'dashboard') {
+        document.getElementById('topHeader').style.display = "flex";
+        document.getElementById('customerDetailView').style.display = "none";
+        document.getElementById('directoryListView').style.display = "block";
+      } else if (targetViewId === 'loginWelcomeView' || targetViewId === 'setupView' || targetViewId === 'pendingView') {
+        document.getElementById('topHeader').style.display = "none";
+      } else {
+        document.getElementById('topHeader').style.display = "none";
+      }
+
+      if (pushToHistory) {
+        history.pushState({ view: targetViewId }, '', `#${targetViewId}`);
+      }
+    };
+
+    window.addEventListener('popstate', (event) => {
+      if (event.state && event.state.view) {
+        navigateToView(event.state.view, false);
+      } else {
+        navigateToView('dashboard', false);
+      }
+    });
+
+    window.addEventListener('load', () => {
+      history.replaceState({ view: 'dashboard' }, '', '#dashboard');
+    });
+
     window.triggerInstall = async () => {
       const ua = navigator.userAgent.toLowerCase(); const isIOS = /iphone|ipad|ipod/.test(ua); const isAndroid = /android/.test(ua); const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       if (isStandalone) { return await customPopup('alert', "✨ <b>SJ'S SALOON</b> is already installed and running in full-screen mode on your device!"); }
@@ -796,7 +884,7 @@
     });
 
     let currentUserDoc = null; let allPaidTicketsCache = []; let activePaymentTicketId = null; let activeReassignTicketId = null; let activeBlacklistCustomer = null; let activeBlacklistActionType = null; let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000", ownerPhone: "" };
-    let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; let selectedIntakeService = ""; let selectedIntakeBarber = ""; let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
+    let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; let selectedIntakeBarber = ""; let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
 
     window.customPopup = function(type, message, placeholder = "Enter details...") {
       return new Promise((resolve) => {
@@ -822,7 +910,6 @@
       if (pickerType === 'role') { title.innerText = "Select Your Role"; currentValue = selectedSetupRole; let ownerExists = false; try { const userSnapshots = await getDocs(collection(db, "users")); userSnapshots.forEach(docSnap => { if (docSnap.data().role === 'owner') { ownerExists = true; } }); } catch(e) {} options = [ { label: "Barber", value: "barber" }, { label: "Secretary", value: "secretary" } ]; if (!ownerExists) { options.push({ label: "Shop Owner", value: "owner" }); } } 
       else if (pickerType === 'country' || pickerType === 'editCountry') { title.innerText = "Select Country"; currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry; options = [ { label: "Ghana", value: "Ghana" }, { label: "Nigeria", value: "Nigeria" }, { label: "United States", value: "United States" }, { label: "United Kingdom", value: "United Kingdom" }, { label: "Canada", value: "Canada" }, { label: "South Africa", value: "South Africa" }, { label: "Kenya", value: "Kenya" }, { label: "Germany", value: "Germany" }, { label: "France", value: "France" }, { label: "Australia", value: "Australia" }, { label: "India", value: "India" }, { label: "Other Country", value: "Other" } ]; } 
       else if (pickerType === 'idType' || pickerType === 'editIdType') { title.innerText = "Select Government ID Type"; currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType; const activeCountry = pickerType === 'idType' ? selectedSetupCountry : selectedEditCountry; if (activeCountry === "Ghana") { options = [ { label: "National ID / Ghana Card", value: "National ID / Ghana Card" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Voters ID", value: "Voters ID" } ]; } else if (activeCountry === "Nigeria") { options = [ { label: "National Identity Number (NIN)", value: "NIN" }, { label: "International Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Permanent Voter Card (PVC)", value: "PVC" } ]; } else { options = [ { label: "National Identity Card", value: "National ID" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" } ]; } } 
-      else if (pickerType === 'serviceType') { title.innerText = "Select Service Type"; currentValue = selectedIntakeService; options = cachedServicesList.map(s => ({ label: `${s.name} - GHS ${s.price}`, value: `${s.name}|${s.price}` })); } 
       else if (pickerType === 'barberName') { 
         title.innerText = "Assign To Barber"; 
         currentValue = selectedIntakeBarber; 
@@ -847,14 +934,14 @@
       else if (pickerType === 'idType') { selectedSetupIdType = val; document.getElementById('setupIdTypeText').innerText = label; } 
       else if (pickerType === 'editCountry') { selectedEditCountry = val; document.getElementById('editCountryText').innerText = label; } 
       else if (pickerType === 'editIdType') { selectedEditIdType = val; document.getElementById('editIdTypeText').innerText = label; } 
-      else if (pickerType === 'serviceType') { selectedIntakeService = val; document.getElementById('serviceTypeText').innerText = label; } 
       else if (pickerType === 'barberName') { selectedIntakeBarber = val; document.getElementById('barberNameText').innerText = label; } 
       else if (pickerType === 'reportMonth') { const parts = val.split('-'); generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label); }
       else if (pickerType === 'reassignBarber') { if (activeReassignTicketId) { try { await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), { assignedBarber: val, status: "pending_acceptance", denyReason: null }); playRingTone(); showToast(`Ticket reassigned to ${val} for review!`); } catch (err) { await customPopup('alert', "Error reassigning ticket: " + err.message); } activeReassignTicketId = null; } }
     };
 
     window.generateMonthlyReport = (year, month, labelText) => {
-      dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "block"; document.getElementById('reportPageTitle').innerText = labelText.trim().toUpperCase() + " REPORT";
+      navigateToView('monthlyReportPage');
+      document.getElementById('reportPageTitle').innerText = labelText.trim().toUpperCase() + " REPORT";
       let totalVal = 0; let totalCuts = 0; let serviceMap = {};
       allPaidTicketsCache.forEach(t => {
         if (t.status === "paid" || (t.isFree && t.ownerFreeApproval === 'approved')) {
@@ -871,15 +958,12 @@
     };
 
     window.openOwnerPage = (pageName) => {
-      dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none"; document.getElementById('settingsPage').style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none"; document.getElementById('aiAssistantPage').style.display = "none";
-      if (pageName === 'staff') document.getElementById('ownerStaffPage').style.display = "block";
-      else if (pageName === 'services') document.getElementById('ownerServicesPage').style.display = "block";
-      else if (pageName === 'blacklist') document.getElementById('ownerBlacklistPage').style.display = "block";
+      if (pageName === 'staff') navigateToView('ownerStaffPage');
+      else if (pageName === 'services') navigateToView('ownerServicesPage');
+      else if (pageName === 'blacklist') navigateToView('ownerBlacklistPage');
     };
 
     window.openSettingsPage = () => {
-      dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none"; customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none"; document.getElementById('aiAssistantPage').style.display = "none";
-      
       const staffReportContainer = document.getElementById('staffReportContainer');
       const reportTitle = document.getElementById('reportSectionTitle');
       const reportDesc = document.getElementById('reportSectionDesc');
@@ -908,7 +992,7 @@
           reportBtn.innerText = "Report Secretary";
         }
       }
-      document.getElementById('settingsPage').style.display = "block";
+      navigateToView('settingsPage');
     };
 
     window.saveOwnerPaymentSettings = async () => {
@@ -925,9 +1009,9 @@
       } catch (err) { await customPopup('alert', "Error saving settings: " + err.message); }
     };
 
-    window.openChatPage = () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('chatPage').style.display = "block"; startChatListener(); };
-    window.openAnnouncementsPage = () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('announcementsPage').style.display = "block"; if (currentUserDoc && currentUserDoc.role === "owner") { document.getElementById('ownerAnnouncementCreator').style.display = "block"; } startAnnouncementsListener(); };
-    window.openAiAssistantPage = () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('aiAssistantPage').style.display = "block"; };
+    window.openChatPage = () => { navigateToView('chatPage'); startChatListener(); };
+    window.openAnnouncementsPage = () => { navigateToView('announcementsPage'); if (currentUserDoc && currentUserDoc.role === "owner") { document.getElementById('ownerAnnouncementCreator').style.display = "block"; } startAnnouncementsListener(); };
+    window.openAiAssistantPage = () => { navigateToView('aiAssistantPage'); };
 
     // APP AI ASSISTANT LOGIC
     window.askAiQuickPrompt = (promptText) => {
@@ -949,7 +1033,7 @@
       if (q.includes("free service") || q.includes("free")) {
         answer = "🎁 <b>Free Services:</b> When an owner lists a service with 0 GHS price, the secretary enters a reason upon selection. The ticket goes straight to the barber's chair for acceptance. Once finished by the barber, it shows completed on the secretary's dashboard while awaiting owner review/approval!";
       } else if (q.includes("ticket") || q.includes("issue") || q.includes("front desk")) {
-        answer = "🎟️ <b>Issuing Tickets:</b> Secretaries use the Front Desk Intake panel to type customer names (auto-loading history), select a service, and assign an available barber. Click 'Issue Ticket' to send it straight to the barber's queue.";
+        answer = "🎟️ <b>Issuing Tickets:</b> Secretaries use the Front Desk Intake panel to type customer names, select multiple services, and assign an available barber. Click 'Issue Ticket' to send it straight to the barber's queue.";
       } else if (q.includes("report") || q.includes("complaint")) {
         answer = "🚨 <b>Staff Reports:</b> Secretaries can report barbers, and barbers can report secretaries via their Settings menu. Owners can review all complaints in the Staff Management panel.";
       } else if (q.includes("payment") || q.includes("collect") || q.includes("momo")) {
@@ -964,7 +1048,7 @@
       box.scrollTop = box.scrollHeight;
     };
 
-    // STAFF REPORTING MODAL (Role-based)
+    // STAFF REPORTING MODAL
     window.openReportStaffModal = async () => {
       let targetRoleQuery = currentUserDoc.role === "secretary" ? "barber" : "secretary";
       let staffList = [];
@@ -988,11 +1072,8 @@
       const input = document.getElementById('customModalInput');
       const dropdownList = document.getElementById('customDropdownList');
       const backBtn = document.getElementById('customPickerBackBtn');
-      const cancelBtn = document.getElementById('customModalCancel');
-      const confirmBtn = document.getElementById('customModalConfirm');
-      const buttonContainer = document.getElementById('customModalButtons');
 
-      input.style.display = "none"; buttonContainer.style.display = "none"; backBtn.style.display = "block"; dropdownList.style.display = "block";
+      input.style.display = "none"; backBtn.style.display = "block"; dropdownList.style.display = "block";
       title.innerText = currentUserDoc.role === "secretary" ? "Select Barber to Report" : "Select Secretary to Report";
       title.style.color = "#ff4444";
       msg.innerHTML = "";
@@ -1032,18 +1113,12 @@
     window.showToast = (message) => { let toast = document.getElementById('toastNotification'); if(!toast) { toast = document.createElement('div'); toast.id = 'toastNotification'; document.body.appendChild(toast); } toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3500); };
 
     // --- SHOP & SECRETARY STATUS LOGIC ---
-
-    // Function to calculate today's sales and send the report with dates/times
     window.generateDailyReportAndSend = async (openTimeMs, closeTimeMs) => {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
       
-      let totalVal = 0;
-      let totalCuts = 0;
-      let cancelledDenied = 0;
-      let freeCuts = 0;
+      let totalVal = 0; let totalCuts = 0; let cancelledDenied = 0; let freeCuts = 0;
 
-      // Calculate stats from today's cached tickets
       allPaidTicketsCache.forEach(t => {
         if (t.timestamp >= startOfToday) {
           if (t.status === "paid" || (t.isFree && t.ownerFreeApproval === 'approved')) {
@@ -1065,7 +1140,6 @@
 
       const reportText = `📊 END OF DAY REPORT:\n📅 Date: ${openDateStr}\n🔓 Opened: ${openTimeStr}\n🔒 Closed: ${closeTimeStr}\n💰 Total Revenue: GHS ${totalVal.toFixed(2)}\n✂️ Total Paid Cuts: ${totalCuts}\n🎁 Free Cuts Approved: ${freeCuts}\n❌ Denied/Cancelled: ${cancelledDenied}`;
 
-      // Send the report instantly to the team chat so the owner sees it
       await addDoc(collection(db, "team_chat"), {
         senderId: auth.currentUser.uid,
         senderName: currentUserDoc.name + " (Front Desk)",
@@ -1075,7 +1149,6 @@
       });
     };
 
-    // Shop Open/Close Button Action
     window.toggleShopStatus = async () => {
       const btn = document.getElementById('toggleShopBtn');
       const isCurrentlyOpen = btn.innerText.includes('OPEN');
@@ -1085,16 +1158,13 @@
 
       try {
         if (isCurrentlyOpen) {
-          // Change UI to CLOSED
           btn.innerText = "🔒 Shop CLOSED";
           btn.style.background = "#8c1a1a";
           btn.style.borderColor = "#cc2a2a";
           
           const closeTime = Date.now();
-          // Get the stored open time for today
           const openTime = parseInt(localStorage.getItem('shopOpenTimestamp')) || closeTime;
           
-          // Send closing alert and then the report
           await addDoc(collection(db, "team_chat"), {
             senderId: auth.currentUser.uid,
             senderName: currentUserDoc.name + " (Front Desk)",
@@ -1104,21 +1174,16 @@
           });
           
           await generateDailyReportAndSend(openTime, closeTime);
-          
-          // Clear the open timestamp for the next day
           localStorage.removeItem('shopOpenTimestamp');
           showToast("Shop closed! Report sent to Owner.");
         } else {
-          // Change UI to OPEN
           btn.innerText = "🔓 Shop OPEN";
           btn.style.background = "#28a745";
           btn.style.borderColor = "#28a745";
           
           const openTime = Date.now();
-          // Store the exact time the shop was opened locally
           localStorage.setItem('shopOpenTimestamp', openTime);
           
-          // Send opening alert
           await addDoc(collection(db, "team_chat"), {
             senderId: auth.currentUser.uid,
             senderName: currentUserDoc.name + " (Front Desk)",
@@ -1133,14 +1198,12 @@
       }
     };
 
-    // Secretary Away/Here Button Action
     window.toggleSecStatus = async () => {
       const btn = document.getElementById('toggleSecAwayBtn');
       const isCurrentlyHere = btn.innerText.includes('HERE');
       
       try {
         if (isCurrentlyHere) {
-          // Change UI to AWAY
           btn.innerText = "🔴 I am AWAY";
           btn.style.background = "#ff4444";
           btn.style.borderColor = "#ff4444";
@@ -1154,7 +1217,6 @@
           });
           showToast("Status: AWAY");
         } else {
-          // Change UI to HERE
           btn.innerText = "🟢 I am HERE";
           btn.style.background = "#1a4b8c";
           btn.style.borderColor = "#2a6bcc";
@@ -1173,7 +1235,6 @@
       }
     };
 
-    // --- FRIENDLY ERROR HANDLER FOR LOGIN/REGISTRATION ---
     function getFriendlyErrorMessage(error) {
       if (!navigator.onLine || error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed')) {
         return "No internet connection. Please check your network and try again.";
@@ -1193,8 +1254,6 @@
           return "Your password is too weak. Please use a stronger password (at least 6 characters).";
         case 'auth/popup-closed-by-user':
           return "Google sign-in was cancelled. Please try again.";
-        case 'auth/account-exists-with-different-credential':
-          return "An account already exists with the same email address but different sign-in credentials.";
         default:
           return "An unexpected error occurred. Please try again later. (" + error.code + ")";
       }
@@ -1204,7 +1263,6 @@
     const emailLoginBtn = document.getElementById('emailLoginBtn'); 
     const emailRegisterBtn = document.getElementById('emailRegisterBtn'); 
     const loginWelcomeView = document.getElementById('loginWelcomeView'); 
-    const mainAppTitle = document.getElementById('mainAppTitle'); 
     const statusText = document.getElementById('statusText'); 
     const dashboard = document.getElementById('dashboard'); 
     const customerDirectoryPage = document.getElementById('customerDirectoryPage'); 
@@ -1253,13 +1311,10 @@
     document.getElementById('setupLogoutBtn').addEventListener('click', performLogout); document.getElementById('pendingLogoutBtn').addEventListener('click', performLogout); document.getElementById('settingsLogoutBtn').addEventListener('click', performLogout);
     window.deleteMyAccount = async () => { const confirm1 = await customPopup('confirm', "Are you sure you want to delete your account and leave SJ'S SALOON?"); if (!confirm1) return; const confirm2 = await customPopup('confirm', "This action is PERMANENT. You will lose access to the shop instantly. Proceed?"); if (!confirm2) return; try { await deleteDoc(doc(db, "users", auth.currentUser.uid)); await signOut(auth); window.location.reload(); } catch (err) { await customPopup('alert', "Error deleting account: " + err.message); } };
 
-    document.getElementById('openDirectoryBtn').addEventListener('click', () => { dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; customerDirectoryPage.style.display = "block"; renderCustomerDirectoryList(); });
+    document.getElementById('openDirectoryBtn').addEventListener('click', () => { navigateToView('customerDirectoryPage'); renderCustomerDirectoryList(); });
 
     window.backToDashboard = () => {
-      customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none";
-      document.getElementById('ownerStaffPage').style.display = "none"; document.getElementById('ownerServicesPage').style.display = "none"; document.getElementById('ownerBlacklistPage').style.display = "none";
-      document.getElementById('settingsPage').style.display = "none"; document.getElementById('chatPage').style.display = "none"; document.getElementById('announcementsPage').style.display = "none"; document.getElementById('monthlyReportPage').style.display = "none"; document.getElementById('aiAssistantPage').style.display = "none";
-      dashboard.style.display = "block"; document.getElementById('topHeader').style.display = "flex"; document.getElementById('customerDetailView').style.display = "none"; document.getElementById('directoryListView').style.display = "block";
+      navigateToView('dashboard');
     };
 
     window.backToDirectoryList = () => { document.getElementById('customerDetailView').style.display = "none"; document.getElementById('directoryListView').style.display = "block"; };
@@ -1277,7 +1332,7 @@
           
           if (!userSnap.exists()) { 
             document.getElementById('setupDisplayName').value = user.displayName || user.email.split('@')[0] || ""; 
-            document.getElementById('setupView').style.display = "block"; 
+            navigateToView('setupView');
           } 
           else {
             currentUserDoc = userSnap.data();
@@ -1289,7 +1344,7 @@
             if (currentUserDoc.isApproved) { 
               loadApp(user, currentUserDoc); 
             } else { 
-              document.getElementById('pendingView').style.display = "block"; 
+              navigateToView('pendingView');
             }
           }
         } catch (error) { 
@@ -1298,16 +1353,7 @@
           await customPopup('alert', "Firebase Error: " + error.message); 
         }
       } else {
-        loginWelcomeView.style.display = "block"; 
-        document.getElementById('topHeader').style.display = "none"; 
-        statusText.style.display = "none"; 
-        dashboard.style.display = "none"; 
-        document.getElementById('setupView').style.display = "none"; 
-        document.getElementById('pendingView').style.display = "none"; 
-        customerDirectoryPage.style.display = "none"; 
-        paymentPage.style.display = "none"; 
-        blacklistPage.style.display = "none"; 
-        editProfileView.style.display = "none";
+        navigateToView('loginWelcomeView');
       }
     });
 
@@ -1337,13 +1383,12 @@
     });
 
     window.openEditProfile = () => {
-      dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; editProfileView.style.display = "block";
+      navigateToView('editProfileView');
       document.getElementById('editDisplayName').value = currentUserDoc.name || ""; selectedEditCountry = currentUserDoc.country || "Ghana"; document.getElementById('editCountryText').innerText = selectedEditCountry;
       const idVerificationContainer = document.getElementById('editIdVerificationContainer'); const editTitle = document.getElementById('editProfileTitle'); const editSubtitle = document.getElementById('editProfileSubtitle');
       if (currentUserDoc.role === "owner") { idVerificationContainer.style.display = "none"; editTitle.innerText = "Edit My Owner Profile"; editSubtitle.innerText = "Owners update instantly without ID verification."; } 
       else { idVerificationContainer.style.display = "block"; editTitle.innerText = "Edit My Profile & ID Credentials"; editSubtitle.innerText = "Staff updates require owner approval."; selectedEditIdType = currentUserDoc.idType || "National ID / Ghana Card"; document.getElementById('editIdTypeText').innerText = selectedEditIdType; document.getElementById('editIdNumber').value = currentUserDoc.idNumber || ""; }
     };
-    window.cancelEditProfile = () => { editProfileView.style.display = "none"; dashboard.style.display = "block"; document.getElementById('topHeader').style.display = "flex"; };
 
     document.getElementById('submitEditProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser; const displayName = document.getElementById('editDisplayName').value.trim(); const country = selectedEditCountry; const fileInput = document.getElementById('editPhoto');
@@ -1356,10 +1401,11 @@
         if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
         if (currentUserDoc.role === "owner") { await updateDoc(doc(db, "users", user.uid), { name: displayName, country: country, photoURL: photoUrlToSave }); currentUserDoc.name = displayName; currentUserDoc.country = country; currentUserDoc.photoURL = photoUrlToSave; document.getElementById('sidebarUserName').innerText = displayName; document.getElementById('sidebarUserPic').src = photoUrlToSave; showToast("Profile updated successfully!"); } 
         else { await updateDoc(doc(db, "users", user.uid), { pendingUpdates: { name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime() } }); showToast("Profile updates submitted for owner approval!"); }
-        btn.innerText = "Save & Update Profile"; btn.disabled = false; fileInput.value = ""; cancelEditProfile(); 
+        btn.innerText = "Save & Update Profile"; btn.disabled = false; fileInput.value = ""; backToDashboard(); 
       } catch (err) { await customPopup('alert', "Error updating profile: " + err.message); btn.innerText = "Save & Update Profile"; btn.disabled = false; }
     });
 
+    // --- WHATSAPP STYLE REAL-TIME CHAT LOGIC ---
     let chatInitialized = false;
     function startChatListener() {
       const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
@@ -1368,9 +1414,21 @@
         snapshot.forEach((docSnap) => {
           const msg = docSnap.data(); const msgId = docSnap.id; const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const isMe = msg.senderId === auth.currentUser.uid; const isOwner = currentUserDoc && currentUserDoc.role === "owner"; const canDelete = isMe || isOwner;
-          html += `<div style="margin-bottom: 12px; text-align: ${isMe ? 'right' : 'left'};"><span style="font-size: 11px; color: var(--accent-gold);">${msg.senderName} (${msg.senderRole.toUpperCase()}) - ${timeStr}</span><br><div style="display: inline-block; background: ${isMe ? '#1a4b8c' : 'var(--input-bg)'}; color: ${isMe ? '#fff' : 'var(--text-color)'}; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border); position: relative;">${msg.text} ${canDelete ? `<br><span onclick="deleteChatMessage('${msgId}')" style="font-size: 10px; color: #ff4444; cursor: pointer; text-decoration: underline; display: inline-block; margin-top: 4px;">Delete message</span>` : ''}</div></div>`;
+          
+          html += `
+            <div class="wa-bubble ${isMe ? 'wa-bubble-sent' : 'wa-bubble-recv'}">
+              <div style="font-size: 11px; font-weight: bold; color: ${isMe ? '#111' : 'var(--accent-gold)'}; margin-bottom: 2px;">
+                ${msg.senderName} (${msg.senderRole.toUpperCase()})
+              </div>
+              <div style="font-size: 14px;">${msg.text}</div>
+              <div class="wa-meta">
+                <span>${timeStr}</span>
+                ${canDelete ? `<span onclick="deleteChatMessage('${msgId}')" style="color: #ff4444; cursor: pointer; font-weight: bold; text-decoration: underline;">Delete</span>` : ''}
+              </div>
+            </div>
+          `;
         });
-        if (hasNewMessage) playRingTone(); chatInitialized = true; const box = document.getElementById('chatMessagesBox'); box.innerHTML = html === "" ? "<p style='opacity:0.6; text-align: center;'>No messages yet.</p>" : html; box.scrollTop = box.scrollHeight;
+        if (hasNewMessage) playRingTone(); chatInitialized = true; const box = document.getElementById('chatMessagesBox'); box.innerHTML = html === "" ? "<p style='opacity:0.6; text-align: center; color: #888;'>No messages yet. Start chatting!</p>" : html; box.scrollTop = box.scrollHeight;
       });
     }
 
@@ -1470,18 +1528,18 @@
     }
 
     function loadApp(user, docData) {
-      const currentAppVersion = "1.1"; 
+      const currentAppVersion = "1.2"; 
       const savedVersion = localStorage.getItem('sjs_app_version');
       
       if (savedVersion !== currentAppVersion) {
         setTimeout(async () => {
-          await customPopup('alert', '🚀 <b>App Updated!</b><br><br>• You can now edit service prices.<br>• Swipe from the left edge to open the menu.<br>• App stays open when the screen turns off.');
+          await customPopup('alert', '🚀 <b>App Updated!</b><br><br>• Multi-service selection with auto-calculated total.<br>• Redesigned WhatsApp-style team chat room.<br>• Hardware back button support added.');
           localStorage.setItem('sjs_app_version', currentAppVersion);
         }, 1500);
       }
 
-      document.getElementById('topHeader').style.display = "flex";
-      dashboard.style.display = "block"; document.getElementById('queuePanel').style.display = "block";
+      navigateToView('dashboard');
+      document.getElementById('queuePanel').style.display = "block";
       
       document.getElementById('sidebarUserName').innerText = docData.name; document.getElementById('sidebarUserPic').src = docData.photoURL;
       const sidebarRole = document.getElementById('sidebarUserRole');
@@ -1514,7 +1572,7 @@
       startLiveQueue(); populateIntakeForm(); cacheAllTickets(); startDashboardNotifications();
     }
 
-    // --- DASHBOARD NOTIFICATIONS (NOW FULLY CLICKABLE) ---
+    // --- DASHBOARD NOTIFICATIONS ---
     function startDashboardNotifications() {
       const notifBox = document.getElementById('dashboardNotificationBox'); notifBox.style.display = "block";
       if (currentUserDoc && currentUserDoc.role === "owner") {
@@ -1649,10 +1707,10 @@
       const customerName = decodeURIComponent(encodedName); activeBlacklistCustomer = customerName; activeBlacklistActionType = actionType;
       document.getElementById('blPageCustName').innerText = customerName; document.getElementById('blPageReason').value = "";
       if (actionType === 'instant') { document.getElementById('blacklistPageTitle').innerText = "Instantly Blacklist Customer"; document.getElementById('blPageSubmitBtn').innerText = "Banish & Add to Blacklist"; } else { document.getElementById('blacklistPageTitle').innerText = "Report Customer for Blacklist"; document.getElementById('blPageSubmitBtn').innerText = "Send Report to Owner"; }
-      customerDirectoryPage.style.display = "none"; blacklistPage.style.display = "block";
+      navigateToView('blacklistPage');
     };
 
-    window.cancelBlacklistPage = () => { blacklistPage.style.display = "none"; customerDirectoryPage.style.display = "block"; activeBlacklistCustomer = null; };
+    window.cancelBlacklistPage = () => { navigateToView('customerDirectoryPage'); activeBlacklistCustomer = null; };
 
     document.getElementById('blPageSubmitBtn').addEventListener('click', async () => {
       const reason = document.getElementById('blPageReason').value.trim(); if (!reason) return await customPopup('alert', "Please provide a reason.");
@@ -1751,6 +1809,7 @@
             </div>`; 
         }); 
         document.getElementById('servicesList').innerHTML = html; 
+        renderSecretaryMultiServiceList();
       });
 
       onSnapshot(collection(db, "blacklist"), (snapshot) => { let html = ""; snapshot.forEach((bDoc) => { const b = bDoc.data(); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-left-color: #ff4444;"><span style="color: #ff4444; font-weight: bold; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Unblock</button></div>`; }); document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html; });
@@ -1787,8 +1846,54 @@
     window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); playRingTone(); showToast(`${customerName} added to blacklist!`); };
     window.wipeShopHistory = async () => { const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here"); if (c1 !== 'DELETE') return; const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly."); if (!c2) return; try { const ticketSnaps = await getDocs(collection(db, "daily_tickets")); ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id))); const reportSnaps = await getDocs(collection(db, "blacklist_reports")); reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id))); playRingTone(); showToast("All customer data history wiped successfully."); } catch(e) { await customPopup('alert', "Error wiping data: " + e.message); } };
 
+    // MULTI-SERVICE INTAKE RENDER & AUTO CALCULATIONS
+    function renderSecretaryMultiServiceList() {
+      const container = document.getElementById('secretaryServicesContainer');
+      if (!container) return;
+      if (cachedServicesList.length === 0) {
+        container.innerHTML = "<p style='opacity: 0.6; font-style: italic; font-size: 13px; margin: 0;'>No services found in shop settings.</p>";
+        updateCalculatedTotal();
+        return;
+      }
+      let html = "";
+      cachedServicesList.forEach((s) => {
+        html += `
+          <label style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; margin-bottom: 6px; background: var(--panel-bg); border-radius: 6px; cursor: pointer; border: 1px solid var(--panel-border);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="checkbox" class="sec-service-checkbox" data-name="${s.name}" data-price="${s.price}" style="width: 18px; height: 18px; accent-color: var(--accent-gold);">
+              <span style="font-size: 14px; font-weight: bold; color: var(--text-color);">${s.name} ${s.price === 0 ? '(FREE)' : ''}</span>
+            </div>
+            <span style="font-size: 14px; font-weight: bold; color: var(--accent-gold);">GHS ${Number(s.price).toFixed(2)}</span>
+          </label>
+        `;
+      });
+      container.innerHTML = html;
+      
+      const checkboxes = container.querySelectorAll('.sec-service-checkbox');
+      checkboxes.forEach(box => {
+        box.addEventListener('change', updateCalculatedTotal);
+      });
+      updateCalculatedTotal();
+    }
+
+    window.updateCalculatedTotal = () => {
+      const checkboxes = document.querySelectorAll('.sec-service-checkbox');
+      let total = 0;
+      checkboxes.forEach(cb => {
+        if (cb.checked) {
+          total += parseFloat(cb.getAttribute('data-price') || 0);
+        }
+      });
+      const display = document.getElementById('intakeCalculatedTotal');
+      if (display) display.innerText = total.toFixed(2);
+    };
+
     function populateIntakeForm() {
-      onSnapshot(collection(db, "services"), (snapshot) => { cachedServicesList = []; snapshot.forEach((sDoc) => { cachedServicesList.push(sDoc.data()); }); });
+      onSnapshot(collection(db, "services"), (snapshot) => { 
+        cachedServicesList = []; 
+        snapshot.forEach((sDoc) => { cachedServicesList.push(sDoc.data()); }); 
+        renderSecretaryMultiServiceList();
+      });
       const qBarbers = query(collection(db, "users"), where("role", "==", "barber"), where("isApproved", "==", true));
       onSnapshot(qBarbers, (snapshot) => { 
         cachedBarbersList = []; 
@@ -1808,25 +1913,45 @@
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
       sendBtn.addEventListener('click', async () => {
-        const name = document.getElementById('custName').value.trim(); const phone = document.getElementById('custPhone').value.trim(); const serviceVal = selectedIntakeService; const barber = selectedIntakeBarber;
-        if (!name || !serviceVal || !barber) return await customPopup('alert', "Please fill out customer name, service type, and barber.");
-        if (activeBusyBarbers.has(barber.toLowerCase())) { return await customPopup('alert', `⚠️ Barber ${barber} is currently busy with an active cut or pending review and cannot be assigned.`); }
+        const name = document.getElementById('custName').value.trim(); 
+        const phone = document.getElementById('custPhone').value.trim(); 
+        const barber = selectedIntakeBarber;
+        
+        const selectedCheckboxes = document.querySelectorAll('.sec-service-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+          return await customPopup('alert', "Please select at least one service for the customer.");
+        }
+        if (!name || !barber) {
+          return await customPopup('alert', "Please fill out customer name and assign a barber.");
+        }
+        if (activeBusyBarbers.has(barber.toLowerCase())) { 
+          return await customPopup('alert', `⚠️ Barber ${barber} is currently busy with an active cut or pending review and cannot be assigned.`); 
+        }
+
         const blacklistSnap = await getDocs(collection(db, "blacklist")); let isBanned = false; blacklistSnap.forEach(bDoc => { if (bDoc.data().name === name.toLowerCase()) { isBanned = true; } });
         if (isBanned) return await customPopup('alert', "🚫 ACCESS DENIED: This customer is blacklisted!");
         
-        const serviceData = serviceVal.split('|');
-        const sName = serviceData[0];
-        const sPrice = Number(serviceData[1]);
+        let selectedServiceNames = [];
+        let totalPrice = 0;
+        selectedCheckboxes.forEach(cb => {
+          selectedServiceNames.push(cb.getAttribute('data-name'));
+          totalPrice += parseFloat(cb.getAttribute('data-price') || 0);
+        });
+
+        const sName = selectedServiceNames.join(" + ");
+        const sPrice = totalPrice;
         
         let freeReason = "";
         if (sPrice === 0) {
-          freeReason = await customPopup('prompt', "This is a FREE service. Please enter the reason:", "Enter reason for free service...");
+          freeReason = await customPopup('prompt', "This ticket total is FREE (GHS 0.00). Please enter the reason:", "Enter reason for free service...");
           if (freeReason === null) return;
           if (!reasonCheck(freeReason)) return;
         }
 
         try {
-          const querySnapshot = await getDocs(collection(db, "daily_tickets")); const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
+          const querySnapshot = await getDocs(collection(db, "daily_tickets")); 
+          const ticketNumber = "Ticket #" + String(querySnapshot.size + 1).padStart(3, '0');
+          
           await addDoc(collection(db, "daily_tickets"), { 
             ticketNo: ticketNumber, 
             customerName: name, 
@@ -1840,7 +1965,20 @@
             status: "pending_acceptance", 
             timestamp: new Date().getTime() 
           });
-          playRingTone(); document.getElementById('custName').value = ""; document.getElementById('custPhone').value = ""; document.getElementById('customerHistoryBox').style.display = "none"; document.getElementById('intakeCustomerStats').style.display = "none"; selectedIntakeService = ""; document.getElementById('serviceTypeText').innerText = "Select Service..."; selectedIntakeBarber = ""; document.getElementById('barberNameText').innerText = "Select Barber..."; showToast(sPrice === 0 ? "Free service ticket issued & sent to owner/barber!" : "Ticket issued & sent for barber review!");
+          
+          playRingTone(); 
+          document.getElementById('custName').value = ""; 
+          document.getElementById('custPhone').value = ""; 
+          document.getElementById('customerHistoryBox').style.display = "none"; 
+          document.getElementById('intakeCustomerStats').style.display = "none"; 
+          
+          selectedCheckboxes.forEach(cb => cb.checked = false);
+          updateCalculatedTotal();
+
+          selectedIntakeBarber = ""; 
+          document.getElementById('barberNameText').innerText = "Select Barber..."; 
+          
+          showToast(sPrice === 0 ? "Free service ticket issued & sent to owner/barber!" : "Ticket issued & sent for barber review!");
         } catch (error) { await customPopup('alert', "Error saving: " + error.message); }
       });
     }
@@ -1854,13 +1992,12 @@
     }
 
     window.openPaymentPage = (ticketId, custName, serviceName, price) => {
-      activePaymentTicketId = ticketId; document.getElementById('payCustName').innerText = custName; document.getElementById('payServiceName').innerText = serviceName; document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2); document.getElementById('displayOwnerPayName').innerText = shopPaymentConfig.name; document.getElementById('displayOwnerPayNum').innerText = shopPaymentConfig.number; dashboard.style.display = "none"; document.getElementById('topHeader').style.display = "none"; document.getElementById('ownerRefBox').style.display = "none"; paymentPage.style.display = "block";
+      activePaymentTicketId = ticketId; document.getElementById('payCustName').innerText = custName; document.getElementById('payServiceName').innerText = serviceName; document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2); document.getElementById('displayOwnerPayName').innerText = shopPaymentConfig.name; document.getElementById('displayOwnerPayNum').innerText = shopPaymentConfig.number; document.getElementById('ownerRefBox').style.display = "none"; navigateToView('paymentPage');
     };
-    window.cancelPayment = () => { paymentPage.style.display = "none"; dashboard.style.display = "block"; document.getElementById('topHeader').style.display = "flex"; activePaymentTicketId = null; };
     window.processPayment = async (method) => {
       if (!activePaymentTicketId) return;
       if (method === "MTN MoMo" || method === "Telecel Cash") { document.getElementById('ownerRefBox').style.display = "block"; await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`); }
-      try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); playRingTone(); showToast(`Payment recorded as ${method}!`); paymentPage.style.display = "none"; dashboard.style.display = "block"; document.getElementById('topHeader').style.display = "flex"; activePaymentTicketId = null; } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
+      try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); playRingTone(); showToast(`Payment recorded as ${method}!`); backToDashboard(); activePaymentTicketId = null; } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
     };
 
     let queueInitialized = false;
