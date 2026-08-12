@@ -129,7 +129,7 @@
       object-fit: cover;
     }
     
-    /* VIEWS */
+    /* VIEWS - HIDDEN BY DEFAULT */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
     #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 480px; text-align: left; overflow: hidden; }
     #dashboard { text-align: center; }
@@ -263,8 +263,8 @@
     .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
     .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
 
-    /* WHATSAPP STYLE CHAT INTERFACE */
-    #chatPage { padding: 0 !important; border: none !important; background: var(--wa-chat-bg) !important; height: calc(100vh - 70px); display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; }
+    /* WHATSAPP STYLE CHAT INTERFACE (FIXED: REMOVED GLOBAL DISPLAY FLEX THAT OVERRODE DISPLAY NONE) */
+    #chatPage { padding: 0 !important; border: none !important; background: var(--wa-chat-bg) !important; height: calc(100vh - 70px); flex-direction: column; border-radius: 12px; overflow: hidden; }
     .wa-header { background: var(--wa-header-bg); color: #ffffff; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
     .wa-header-info { display: flex; align-items: center; gap: 12px; }
     .wa-avatar { width: 40px; height: 40px; border-radius: 50%; background: #ffffff; color: var(--wa-header-bg); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
@@ -514,8 +514,8 @@
     <div id="blacklistList"></div>
   </div>
 
-  <!-- DEDICATED TEAM CHAT PAGE (WHATSAPP STYLE) -->
-  <div id="chatPage">
+  <!-- DEDICATED TEAM CHAT PAGE (WHATSAPP STYLE - HIDDEN ON STARTUP) -->
+  <div id="chatPage" style="display: none;">
     <div class="wa-header">
       <div class="wa-header-info">
         <button onclick="backToDashboard()" style="background:none; border:none; color:#fff; font-size:22px; padding:0; cursor:pointer; box-shadow:none;">←</button>
@@ -696,7 +696,7 @@
     <!-- REAL-TIME DASHBOARD NOTIFICATION BANNER / ACTIVITY FEED -->
     <div id="dashboardNotificationBox" style="display: none; margin-bottom: 15px;"></div>
 
-    <!-- SECRETARY FRONT DESK PANEL (UPDATED: MULTI-SERVICE SELECTION & AUTO-CALCULATION) -->
+    <!-- SECRETARY FRONT DESK PANEL -->
     <div id="secretaryPanel" class="panel" style="display: none; margin-top: 0;">
       <h3>Front Desk Intake</h3>
       
@@ -1528,12 +1528,12 @@
     }
 
     function loadApp(user, docData) {
-      const currentAppVersion = "1.2"; 
+      const currentAppVersion = "1.3"; 
       const savedVersion = localStorage.getItem('sjs_app_version');
       
       if (savedVersion !== currentAppVersion) {
         setTimeout(async () => {
-          await customPopup('alert', '🚀 <b>App Updated!</b><br><br>• Multi-service selection with auto-calculated total.<br>• Redesigned WhatsApp-style team chat room.<br>• Hardware back button support added.');
+          await customPopup('alert', '🚀 <b>App Updated!</b><br><br>• Default view corrected to Dashboard on startup.<br>• Multi-service selection with auto-calculated total.<br>• Redesigned WhatsApp-style team chat room.');
           localStorage.setItem('sjs_app_version', currentAppVersion);
         }, 1500);
       }
