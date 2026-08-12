@@ -1065,6 +1065,8 @@
       } catch (error) { 
         if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed') || !navigator.onLine) {
           await customPopup('alert', "Offline: Please connect to the internet to log in.");
+        } else if (error.code === 'auth/email-already-in-use' || error.message.includes('email-already-in-use')) {
+          await customPopup('alert', "This email address is already registered. Please sign in instead or use a different email.");
         } else {
           await customPopup('alert', "Registration failed: " + error.message); 
         }
