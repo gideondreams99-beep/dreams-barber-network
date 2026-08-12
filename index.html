@@ -1150,7 +1150,10 @@
     // FREE SERVICE OWNER REVIEW ACTIONS
     window.approveFreeService = async (ticketId) => {
       try {
-        await updateDoc(doc(db, "daily_tickets", ticketId), { ownerFreeApproval: 'approved' });
+        await updateDoc(doc(db, "daily_tickets", ticketId), { 
+          ownerFreeApproval: 'approved',
+          status: 'paid' // This finalizes it and removes it completely from the live queue for everyone
+        });
         playRingTone();
         showToast("Free service approved by owner!");
       } catch(err) {
@@ -1158,7 +1161,7 @@
       }
     };
 
-    window.forcePaymentService = async (ticketId, isSecretaryMustPay = false) => {
+    window.forcePaymentService = async (ticketId) => {
       const newPriceStr = await customPopup('prompt', "Enter price for this service:", "Enter amount (e.g. 50)...");
       if (newPriceStr === null) return;
       const newPrice = Number(newPriceStr);
@@ -1167,18 +1170,12 @@
       }
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), {
-          isFree: false,
+          isFree: false, // Removes free status so Secretary is forced to pay
           ownerFreeApproval: 'paid_forced',
           price: newPrice
         });
         playRingTone();
-        showToast("Service converted to paid successfully!");
-        if (isSecretaryMustPay) {
-          const t = ticketsMapCache.get(ticketId);
-          if (t) {
-            openPaymentPage(ticketId, t.customerName, t.serviceName, newPrice);
-          }
-        }
+        showToast("Ticket sent back! Customer/Secretary must now pay.");
       } catch(err) {
         await customPopup('alert', "Error forcing payment: " + err.message);
       }
@@ -1522,12 +1519,9 @@
               if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
               else if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
               else if (ticket.status === "completed" && isSec) {
-                if (ticket.isFree && ticket.ownerFreeApproval !== 'approved') {
+                if (ticket.isFree) {
                   statusColor = "#ffc107";
-                  actionButton = `<div style="background: rgba(255,193,7,0.1); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 8px 0; font-size:12px; color:#ffc107;">🎁 Completed (Waiting for Owner Free Service Review)</p><button class="btn-action" style="background: #28a745; border-color:#28a745; margin-bottom:5px;" onclick="forcePaymentService('${ticketId}', true)">Secretary Must Pay / Collect</button></div>`;
-                } else if (ticket.isFree && ticket.ownerFreeApproval === 'approved') {
-                  statusColor = "#28a745";
-                  actionButton = `<div style="background: rgba(40,167,69,0.1); padding: 10px; border-radius: 6px; border: 1px solid #28a745; margin-top:5px;"><p style="margin:0; font-size:12px; color:#28a745; font-weight:bold;">✅ Free Service Approved by Owner</p><button class="btn-action" style="background: #28a745; border-color:#28a745; margin-top:5px;" onclick="updateTicketStatus('${ticketId}', 'paid')">Complete Free Record</button></div>`;
+                  actionButton = ""; // NO MORE "Secretary Must Pay" BOX HERE!
                 } else {
                   actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
                 }
@@ -1536,7 +1530,7 @@
               else if (ticket.status === "denied" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button><button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button></div>`; }
             } else {
               if (ticket.isFree && ticket.ownerFreeApproval === 'pending') {
-                actionButton = `<div style="background: rgba(255,193,7,0.15); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 5px 0; font-size:12px; color:#ffc107;">🎁 Free Reason: "${ticket.freeReason || 'None'}" (${ticket.status === 'completed' ? 'Completed by Barber' : 'In Progress'})</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#28a745; border-color:#28a745; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ff4444; border-color:#ff4444; font-size:12px;" onclick="forcePaymentService('${ticketId}', false)">Still Pay</button></div></div>`;
+                actionButton = `<div style="background: rgba(255,193,7,0.15); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 5px 0; font-size:12px; color:#ffc107;">🎁 Free Reason: "${ticket.freeReason || 'None'}" (${ticket.status === 'completed' ? 'Completed by Barber' : 'In Progress'})</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#28a745; border-color:#28a745; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ff4444; border-color:#ff4444; font-size:12px;" onclick="forcePaymentService('${ticketId}')">Customer/Secretary must pay</button></div></div>`;
               }
             }
 
@@ -1547,7 +1541,7 @@
                 <div ${isClickableForBarber ? `onclick="openTicketReviewModal('${ticketId}')"` : ''} style="${isClickableForBarber ? 'cursor: pointer;' : ''}">
                   <div class="ticket-header">
                     <span class="ticket-number">${ticket.ticketNo || '--'}</span>
-                    <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.isFree ? (ticket.status === 'completed' ? 'COMPLETED (FREE)' : 'FREE SERVICE') : ticket.status.toUpperCase().replace('_', ' ')}</span>
+                    <span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.isFree && ticket.status === 'completed' ? 'COMPLETED (FREE)' : ticket.isFree ? 'FREE SERVICE' : ticket.status.toUpperCase().replace('_', ' ')}</span>
                   </div>
                   <div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div>
                   <div class="ticket-details" style="margin-bottom: 10px;">
