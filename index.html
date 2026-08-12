@@ -681,11 +681,6 @@
         <button id="settingsLogoutBtn" style="background: linear-gradient(145deg, #444, #222); color: white; border-color: #555; width: 100%; margin-bottom: 15px;">Log Out</button>
         <button id="settingsDeleteAccountBtn" onclick="deleteMyAccount()" style="background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; width: 100%;">Delete My Account & Leave Shop</button>
       </div>
-
-      <!-- COPYRIGHT FOOTER (VISIBILITY RESTRICTED TO SETTINGS ONLY) -->
-      <footer style="width: 100%; text-align: center; padding: 20px 0 5px 0; font-size: 12px; color: var(--accent-gold); opacity: 0.8; margin-top: 25px; border-top: 1px solid var(--panel-border);">
-        <p style="margin: 0; font-weight: bold; letter-spacing: 1px;">&copy; 2026 SJ'S GROUP OF COMPANIES INC. All rights reserved.</p>
-      </footer>
     </div>
 
     <!-- DEDICATED PAYMENT PAGE VIEW -->
@@ -860,6 +855,11 @@
       </div>
     </div>
 
+    <!-- COPYRIGHT FOOTER -->
+    <footer style="width: 100%; text-align: center; padding: 20px 0; font-size: 12px; color: var(--accent-gold); opacity: 0.8; margin-top: auto; border-top: 1px solid var(--panel-border);">
+      <p style="margin: 0; font-weight: bold; letter-spacing: 1px;">&copy; 2026 SJ'S GROUP OF COMPANIES INC. All rights reserved.</p>
+    </footer>
+
   </div> <!-- END SCROLLABLE VIEW CONTAINER -->
 
   <!-- FULLSCREEN NATIVE GALLERY IMAGE VIEWER MODAL -->
@@ -911,7 +911,7 @@
     // DEFAULT AVATAR STICKER FALLBACK SVG DATA URI
     window.DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23222222'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' font-size='50'>🧔‍♂️</text></svg>";
 
-    // NATIVE DEVICE NOTIFICATION PANEL & RINGTONE CONTROLLER
+    // NATIVE DEVICE NOTIFICATION PANEL & CONTROLLER
     window.requestNotificationPermission = async () => {
       if (!("Notification" in window)) {
         await customPopup('alert', "Device Notifications are not supported by this browser.");
@@ -957,10 +957,9 @@
       }
     }
 
-    // REMOVED IN-APP NOTIFICATION SOUND (SYSTEM NOTIFICATIONS HANDLE ALERTS)
     function playRingTone() {}
 
-    // 2. SERVICE WORKER PWA AUTO-UPDATE CHECK (FIXED PERSISTENCE WITH LOCALSTORAGE)
+    // 2. SERVICE WORKER PWA AUTO-UPDATE CHECK (PERSISTENT STATE)
     if ('serviceWorker' in navigator) { 
       window.addEventListener('load', () => { 
         navigator.serviceWorker.register('/sw.js').then(reg => {
@@ -976,7 +975,6 @@
                   localStorage.setItem('pre_update_view', currentActiveViewId);
                 }
 
-                playRingTone();
                 await customPopup(
                   'alert', 
                   "📲 <b>New Version Ready!</b><br><br>The app has downloaded new updates. Tap <b>OK</b> to restart and apply."
@@ -1028,7 +1026,7 @@
       document.getElementById('sidebarOverlay').classList.remove('show');
     };
 
-    // --- CENTRAL NAVIGATION & HARDWARE/BROWSER BACK BUTTON OVERHAUL ---
+    // --- CENTRAL NAVIGATION & HARDWARE/BROWSER BACK BUTTON ---
     const ALL_APP_VIEWS = [
       'loginWelcomeView', 'setupView', 'pendingView', 'editProfileView',
       'ownerStaffPage', 'ownerServicesPage', 'ownerBlacklistPage',
@@ -1149,7 +1147,7 @@
     let currentUserDoc = null; let allPaidTicketsCache = []; let activePaymentTicketId = null; let activeReassignTicketId = null; let activeBlacklistCustomer = null; let activeBlacklistActionType = null; let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000", ownerPhone: "" };
     let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; let selectedIntakeBarber = ""; let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
 
-    // 3. REAL-TIME GLOBAL UPDATE LISTENER (FIXED PERSISTENCE WITH LOCALSTORAGE)
+    // 3. REAL-TIME GLOBAL UPDATE LISTENER (PERSISTENT STATE)
     function startGlobalUpdateListener() {
       onSnapshot(doc(db, "shop_config", "app_version"), async (docSnap) => {
         if (docSnap.exists()) {
@@ -1163,7 +1161,6 @@
               localStorage.setItem('pre_update_view', currentActiveViewId);
             }
 
-            playRingTone();
             sendSystemNotification("🚀 SJ'S SALOON Update", "A new version of the app is ready!");
             
             await customPopup(
@@ -1264,7 +1261,7 @@
       else if (pickerType === 'editIdType') { selectedEditIdType = val; document.getElementById('editIdTypeText').innerText = label; } 
       else if (pickerType === 'barberName') { selectedIntakeBarber = val; document.getElementById('barberNameText').innerText = label; } 
       else if (pickerType === 'reportMonth') { const parts = val.split('-'); generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label); }
-      else if (pickerType === 'reassignBarber') { if (activeReassignTicketId) { try { await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), { assignedBarber: val, status: "pending_acceptance", denyReason: null }); playRingTone(); showToast(`Ticket reassigned to ${val} for review!`); } catch (err) { await customPopup('alert', "Error reassigning ticket: " + err.message); } activeReassignTicketId = null; } }
+      else if (pickerType === 'reassignBarber') { if (activeReassignTicketId) { try { await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), { assignedBarber: val, status: "pending_acceptance", denyReason: null }); showToast(`Ticket reassigned to ${val} for review!`); } catch (err) { await customPopup('alert', "Error reassigning ticket: " + err.message); } activeReassignTicketId = null; } }
     };
 
     window.generateMonthlyReport = (year, month, labelText) => {
@@ -1342,7 +1339,6 @@
       try { 
         await setDoc(doc(db, "shop_config", "payment"), { name, number, ownerPhone }, { merge: true }); 
         shopPaymentConfig = { name, number, ownerPhone }; 
-        playRingTone(); 
         showToast("Payment and contact details saved successfully!"); 
         updateCallOwnerButton();
       } catch (err) { await customPopup('alert', "Error saving settings: " + err.message); }
@@ -1448,7 +1444,6 @@
             reason: reason.trim(),
             timestamp: new Date().getTime()
           });
-          playRingTone();
           sendSystemNotification("SJ'S SALOON - Staff Report", `Report submitted against ${staffName}`);
           showToast(`Report submitted against ${staffName}!`);
         } catch(err) {
@@ -1707,7 +1702,7 @@
       try {
         if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
         const isOwner = (role === "owner"); await setDoc(doc(db, "users", user.uid), { name: displayName, email: user.email || "", photoURL: photoUrlToSave, role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber, isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime() });
-        playRingTone(); showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!"); setTimeout(() => window.location.reload(), 1500);
+        showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!"); setTimeout(() => window.location.reload(), 1500);
       } catch (error) { 
         statusText.style.display = "none";
         document.getElementById('setupView').style.display = "block";
@@ -1740,21 +1735,37 @@
       } catch (err) { await customPopup('alert', "Error updating profile: " + err.message); btn.innerText = "Save & Update Profile"; btn.disabled = false; }
     });
 
+    // CHAT LISTENER FIX: Prevent duplicate listeners & filter out self-notifications
+    let chatUnsubscribe = null;
     let chatInitialized = false;
+
     function startChatListener() {
+      if (chatUnsubscribe) return; // Prevent attaching multiple active Firestore listeners
+
       const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
-      onSnapshot(q, (snapshot) => {
-        let html = ""; let hasNewMessage = false; let lastMsgSender = "", lastMsgText = "";
+      chatUnsubscribe = onSnapshot(q, (snapshot) => {
+        let html = ""; 
+        let hasNewMessage = false; 
+        let lastMsgSender = "", lastMsgText = "";
+
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added" && chatInitialized) {
-            hasNewMessage = true;
-            lastMsgSender = change.doc.data().senderName;
-            lastMsgText = change.doc.data().text;
+            // ONLY notify if the message came from someone else
+            if (change.doc.data().senderId !== auth.currentUser.uid) {
+              hasNewMessage = true;
+              lastMsgSender = change.doc.data().senderName;
+              lastMsgText = change.doc.data().text;
+            }
           }
         });
+
         snapshot.forEach((docSnap) => {
-          const msg = docSnap.data(); const msgId = docSnap.id; const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const isMe = msg.senderId === auth.currentUser.uid; const isOwner = currentUserDoc && currentUserDoc.role === "owner"; const canDelete = isMe || isOwner;
+          const msg = docSnap.data(); 
+          const msgId = docSnap.id; 
+          const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const isMe = msg.senderId === auth.currentUser.uid; 
+          const isOwner = currentUserDoc && currentUserDoc.role === "owner"; 
+          const canDelete = isMe || isOwner;
           
           html += `
             <div class="wa-bubble ${isMe ? 'wa-bubble-sent' : 'wa-bubble-recv'}">
@@ -1769,10 +1780,11 @@
             </div>
           `;
         });
+
         if (hasNewMessage) {
-          playRingTone();
           sendSystemNotification(`💬 Chat from ${lastMsgSender}`, lastMsgText);
         }
+
         chatInitialized = true;
         const box = document.getElementById('chatMessagesBox');
         box.innerHTML = html === "" ? "<p style='opacity:0.6; text-align: center; color: #888;'>No messages yet. Start chatting!</p>" : html;
@@ -1780,8 +1792,34 @@
       });
     }
 
-    document.getElementById('sendChatMessageBtn').addEventListener('click', async () => { const input = document.getElementById('chatInputMessage'); const text = input.value.trim(); if (!text) return; try { await addDoc(collection(db, "team_chat"), { senderId: auth.currentUser.uid, senderName: currentUserDoc.name, senderRole: currentUserDoc.role, text: text, timestamp: new Date().getTime() }); playRingTone(); input.value = ""; } catch (err) { await customPopup('alert', "Error sending message: " + err.message); } });
-    window.deleteChatMessage = async (msgId) => { if (await customPopup('confirm', "Delete this message?")) { try { await deleteDoc(doc(db, "team_chat", msgId)); playRingTone(); showToast("Message deleted"); } catch (err) { await customPopup('alert', "Error deleting message: " + err.message); } } };
+    document.getElementById('sendChatMessageBtn').addEventListener('click', async () => { 
+      const input = document.getElementById('chatInputMessage'); 
+      const text = input.value.trim(); 
+      if (!text) return; 
+      try { 
+        await addDoc(collection(db, "team_chat"), { 
+          senderId: auth.currentUser.uid, 
+          senderName: currentUserDoc.name, 
+          senderRole: currentUserDoc.role, 
+          text: text, 
+          timestamp: new Date().getTime() 
+        }); 
+        input.value = ""; 
+      } catch (err) { 
+        await customPopup('alert', "Error sending message: " + err.message); 
+      } 
+    });
+
+    window.deleteChatMessage = async (msgId) => { 
+      if (await customPopup('confirm', "Delete this message?")) { 
+        try { 
+          await deleteDoc(doc(db, "team_chat", msgId)); 
+          showToast("Message deleted"); 
+        } catch (err) { 
+          await customPopup('alert', "Error deleting message: " + err.message); 
+        } 
+      } 
+    };
 
     let announcementsInitialized = false;
     function startAnnouncementsListener() {
@@ -1796,7 +1834,6 @@
         });
         snapshot.forEach((docSnap) => { const ann = docSnap.data(); const annId = docSnap.id; const dateStr = new Date(ann.timestamp).toLocaleString(); const isOwner = currentUserDoc && currentUserDoc.role === "owner"; html += `<div class="list-item" style="border-left-color: #ffc107;"><div class="ticket-title" style="color: #ffc107;">📢 Announcement</div><div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">${ann.text}</div><div style="font-size: 11px; opacity: 0.7; text-align: right; margin-bottom: ${isOwner ? '10px' : '0'};">Posted by: <strong>${ann.author}</strong> | ${dateStr}</div>${isOwner ? `<button onclick="deleteAnnouncement('${annId}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; width: 100%;">Delete Announcement</button>` : ''}</div>`; });
         if (hasNewAnn) {
-          playRingTone();
           sendSystemNotification("📢 New Shop Announcement", lastAnnText);
         }
         announcementsInitialized = true;
@@ -1804,14 +1841,14 @@
       });
     }
 
-    document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => { const textarea = document.getElementById('announcementText'); const text = textarea.value.trim(); if (!text) return await customPopup('alert', "Please write an announcement."); try { await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() }); playRingTone(); sendSystemNotification("📢 Announcement Published", text); textarea.value = ""; showToast("Announcement published successfully!"); } catch (err) { await customPopup('alert', "Error publishing announcement: " + err.message); } });
-    window.deleteAnnouncement = async (annId) => { if (await customPopup('confirm', "Delete this announcement?")) { try { await deleteDoc(doc(db, "announcements", annId)); playRingTone(); showToast("Announcement deleted"); } catch (err) { await customPopup('alert', "Error deleting announcement: " + err.message); } } };
+    document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => { const textarea = document.getElementById('announcementText'); const text = textarea.value.trim(); if (!text) return await customPopup('alert', "Please write an announcement."); try { await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() }); sendSystemNotification("📢 Announcement Published", text); textarea.value = ""; showToast("Announcement published successfully!"); } catch (err) { await customPopup('alert', "Error publishing announcement: " + err.message); } });
+    window.deleteAnnouncement = async (annId) => { if (await customPopup('confirm', "Delete this announcement?")) { try { await deleteDoc(doc(db, "announcements", annId)); showToast("Announcement deleted"); } catch (err) { await customPopup('alert', "Error deleting announcement: " + err.message); } } };
 
-    window.toggleAvailability = async () => { if (!currentUserDoc) return; const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets."); if (!confirmAction) return; try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus; const btn = document.getElementById('toggleAvailabilityBtn'); btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = !newStatus ? "#555" : "#28a745"; playRingTone(); showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴"); } catch (err) { await customPopup('alert', "Error updating status: " + err.message); } };
+    window.toggleAvailability = async () => { if (!currentUserDoc) return; const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets."); if (!confirmAction) return; try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus; const btn = document.getElementById('toggleAvailabilityBtn'); btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = !newStatus ? "#555" : "#28a745"; showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴"); } catch (err) { await customPopup('alert', "Error updating status: " + err.message); } };
 
-    window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); playRingTone(); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
-    window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); playRingTone(); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
-    window.promptBarberDenyReason = async (ticketId) => { const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason..."); if (reason === null) return; if (!reason.trim()) { await customPopup('alert', "A reason is required to deny a customer."); return; } try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied", denyReason: reason.trim() }); playRingTone(); showToast("Customer denied and reason recorded."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.promptBarberDenyReason = async (ticketId) => { const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason..."); if (reason === null) return; if (!reason.trim()) { await customPopup('alert', "A reason is required to deny a customer."); return; } try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied", denyReason: reason.trim() }); showToast("Customer denied and reason recorded."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
 
     window.approveFreeService = async (ticketId) => {
       try {
@@ -1819,7 +1856,6 @@
           ownerFreeApproval: 'approved',
           status: 'paid' 
         });
-        playRingTone();
         showToast("Free service approved by owner!");
       } catch(err) {
         await customPopup('alert', "Error approving free service: " + err.message);
@@ -1839,7 +1875,6 @@
           ownerFreeApproval: 'paid_forced',
           price: newPrice
         });
-        playRingTone();
         showToast("Ticket sent back! Customer/Secretary must now pay.");
       } catch(err) {
         await customPopup('alert', "Error forcing payment: " + err.message);
@@ -1871,7 +1906,7 @@
       history.pushState({ modal: 'reviewTicket' }, '');
     };
 
-    window.approveDenial = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied" }); playRingTone(); showToast("Denial approved and recorded."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.approveDenial = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied" }); showToast("Denial approved and recorded."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.openReassignModal = (ticketId) => { activeReassignTicketId = ticketId; openPickerModal('reassignBarber'); };
 
     function updateCallOwnerButton() {
@@ -2163,7 +2198,7 @@
 
     document.getElementById('blPageSubmitBtn').addEventListener('click', async () => {
       const reason = document.getElementById('blPageReason').value.trim(); if (!reason) return await customPopup('alert', "Please provide a reason.");
-      try { if (activeBlacklistActionType === 'instant') { await addDoc(collection(db, "blacklist"), { name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime() }); playRingTone(); showToast(`${activeBlacklistCustomer} is instantly blacklisted!`); } else { await addDoc(collection(db, "blacklist_reports"), { customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name, feedback: reason, timestamp: new Date().getTime() }); playRingTone(); showToast("Blacklist report sent to Owner!"); } cancelBlacklistPage(); backToDirectoryList(); } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
+      try { if (activeBlacklistActionType === 'instant') { await addDoc(collection(db, "blacklist"), { name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime() }); showToast(`${activeBlacklistCustomer} is instantly blacklisted!`); } else { await addDoc(collection(db, "blacklist_reports"), { customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name, feedback: reason, timestamp: new Date().getTime() }); showToast("Blacklist report sent to Owner!"); } cancelBlacklistPage(); backToDirectoryList(); } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
     });
 
     window.viewStaffSubmissionDetails = async (staffDataJson) => { const s = JSON.parse(decodeURIComponent(staffDataJson)); const detailsHtml = `<div style="text-align: center;"><img src="${s.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;"><h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase; word-break: break-word;">${s.name}</h4><span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span></div><div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6; word-break: break-word;"><p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p><p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p><p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p><p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p></div>`; await customPopup('alert', detailsHtml); };
@@ -2179,7 +2214,6 @@
 
       try {
         await updateDoc(doc(db, "services", sid), { price: newPrice });
-        playRingTone();
         showToast("Service price updated!");
       } catch (err) {
         await customPopup('alert', "Error updating service: " + err.message);
@@ -2239,7 +2273,7 @@
       });
 
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => { let html = ""; snapshot.forEach((rDoc) => { const r = rDoc.data(); const dateStr = new Date(r.timestamp).toLocaleString(); html += `<div class="list-item" style="border-left-color: #ff4444;"><div class="ticket-title" style="color: #ff4444;">Customer: ${r.customerName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy}</strong><br>Feedback / Reason: <em>"${r.feedback}"</em><br>Date: ${dateStr}</div><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="confirmBlacklistFromReport('${rDoc.id}', '${r.customerName}')">Confirm & Add to Blacklist</button></div>`; }); document.getElementById('reportsList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No pending blacklist reports.</p>" : html; });
-      document.getElementById('addServiceBtn').addEventListener('click', async () => { const name = document.getElementById('newServiceName').value.trim(); const price = document.getElementById('newServicePrice').value; if (!name || price === "") return await customPopup('alert', "Enter both name and price (use 0 for free service)."); await addDoc(collection(db, "services"), { name, price: Number(price) }); playRingTone(); document.getElementById('newServiceName').value = ""; document.getElementById('newServicePrice').value = ""; showToast("Service added successfully!"); });
+      document.getElementById('addServiceBtn').addEventListener('click', async () => { const name = document.getElementById('newServiceName').value.trim(); const price = document.getElementById('newServicePrice').value; if (!name || price === "") return await customPopup('alert', "Enter both name and price (use 0 for free service)."); await addDoc(collection(db, "services"), { name, price: Number(price) }); document.getElementById('newServiceName').value = ""; document.getElementById('newServicePrice').value = ""; showToast("Service added successfully!"); });
       
       onSnapshot(collection(db, "services"), (snapshot) => { 
         let html = ""; 
@@ -2263,36 +2297,34 @@
       onSnapshot(collection(db, "blacklist"), (snapshot) => { let html = ""; snapshot.forEach((bDoc) => { const b = bDoc.data(); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-left-color: #ff4444;"><span style="color: #ff4444; font-weight: bold; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Unblock</button></div>`; }); document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html; });
     }
 
-    window.deleteStaffReport = async (reportId) => { try { await deleteDoc(doc(db, "staff_reports", reportId)); playRingTone(); showToast("Report dismissed"); } catch(e) {} };
-    window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); playRingTone(); sendSystemNotification("SJ'S SALOON", `Account for ${userName} has been APPROVED!`); showToast(`${userName} approved successfully!`); };
+    window.deleteStaffReport = async (reportId) => { try { await deleteDoc(doc(db, "staff_reports", reportId)); showToast("Report dismissed"); } catch(e) {} };
+    window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); sendSystemNotification("SJ'S SALOON", `Account for ${userName} has been APPROVED!`); showToast(`${userName} approved successfully!`); };
     window.denyUser = async (uid) => {
       if (await customPopup('confirm', "Are you sure you want to deny and dismiss this staff account request?")) {
         try {
           await deleteDoc(doc(db, "users", uid));
-          playRingTone();
           showToast("Staff account request denied and dismissed.");
         } catch (err) {
           await customPopup('alert', "Error denying request: " + err.message);
         }
       }
     };
-    window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); playRingTone(); showToast(`Profile updates approved for ${updatedName}!`); } };
+    window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); showToast(`Profile updates approved for ${updatedName}!`); } };
     window.denyProfileUpdate = async (uid) => {
       if (await customPopup('confirm', "Are you sure you want to deny and dismiss this profile update request?")) {
         try {
           await updateDoc(doc(db, "users", uid), { pendingUpdates: null });
-          playRingTone();
           showToast("Profile update request dismissed.");
         } catch (err) {
           await customPopup('alert', "Error dismissing update: " + err.message);
         }
       }
     };
-    window.fireStaff = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) { await deleteDoc(userRef); playRingTone(); showToast(`${userName} removed from the shop.`); } };
-    window.deleteService = async (sid) => { if (await customPopup('confirm', "Delete this service?")) { await deleteDoc(doc(db, "services", sid)); playRingTone(); } };
-    window.removeBlacklist = async (bid) => { if (await customPopup('confirm', "Unblock this customer?")) { await deleteDoc(doc(db, "blacklist", bid)); playRingTone(); showToast("Customer unblocked"); } };
-    window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); playRingTone(); showToast(`${customerName} added to blacklist!`); };
-    window.wipeShopHistory = async () => { const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here"); if (c1 !== 'DELETE') return; const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly."); if (!c2) return; try { const ticketSnaps = await getDocs(collection(db, "daily_tickets")); ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id))); const reportSnaps = await getDocs(collection(db, "blacklist_reports")); reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id))); playRingTone(); showToast("All customer data history wiped successfully."); } catch(e) { await customPopup('alert', "Error wiping data: " + e.message); } };
+    window.fireStaff = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) { await deleteDoc(userRef); showToast(`${userName} removed from the shop.`); } };
+    window.deleteService = async (sid) => { if (await customPopup('confirm', "Delete this service?")) { await deleteDoc(doc(db, "services", sid)); } };
+    window.removeBlacklist = async (bid) => { if (await customPopup('confirm', "Unblock this customer?")) { await deleteDoc(doc(db, "blacklist", bid)); showToast("Customer unblocked"); } };
+    window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); showToast(`${customerName} added to blacklist!`); };
+    window.wipeShopHistory = async () => { const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here"); if (c1 !== 'DELETE') return; const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly."); if (!c2) return; try { const ticketSnaps = await getDocs(collection(db, "daily_tickets")); ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id))); const reportSnaps = await getDocs(collection(db, "blacklist_reports")); reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id))); showToast("All customer data history wiped successfully."); } catch(e) { await customPopup('alert', "Error wiping data: " + e.message); } };
 
     function renderSecretaryMultiServiceList() {
       const container = document.getElementById('secretaryServicesContainer');
@@ -2413,7 +2445,6 @@
             timestamp: new Date().getTime() 
           });
           
-          playRingTone(); 
           sendSystemNotification("🎟️ New Ticket Assigned", `${ticketNumber} for ${name} assigned to Barber ${barber}`);
 
           document.getElementById('custName').value = ""; 
@@ -2446,7 +2477,7 @@
     window.processPayment = async (method) => {
       if (!activePaymentTicketId) return;
       if (method === "MTN MoMo" || method === "Telecel Cash") { document.getElementById('ownerRefBox').style.display = "block"; await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`); }
-      try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); playRingTone(); showToast(`Payment recorded as ${method}!`); backToDashboard(); activePaymentTicketId = null; } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
+      try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); showToast(`Payment recorded as ${method}!`); backToDashboard(); activePaymentTicketId = null; } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
     };
 
     let queueInitialized = false;
@@ -2531,7 +2562,6 @@
           }
         });
         if (hasNewTicketOrChange) {
-          playRingTone();
           if (notifyText) sendSystemNotification("✂️ Live Queue Alert", notifyText);
         }
         queueInitialized = true;

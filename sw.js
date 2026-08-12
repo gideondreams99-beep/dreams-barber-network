@@ -5,7 +5,7 @@ const urlsToCache = [
   '/manifest.json'
 ];
 
-// 1. Install Service Worker and pre-cache core offline assets
+// 1. Install Service Worker & Pre-cache Core Offline Assets
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -15,7 +15,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// 2. Clean up old caches immediately when new SW activates
+// 2. Activate & Clean Up Old Caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -31,7 +31,7 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// 3. Intercept fetch requests
+// 3. Intercept Network Fetch Requests
 self.addEventListener('fetch', event => {
   const request = event.request;
 
@@ -40,7 +40,7 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
 
-  // Direct bypass for Firestore DB, Firebase Auth API, and Cloudinary image uploads
+  // Direct bypass for Firestore DB, Firebase Auth API, and Cloudinary uploads
   if (
     url.hostname.includes('firestore.googleapis.com') ||
     url.hostname.includes('identitytoolkit.googleapis.com') ||
@@ -52,7 +52,7 @@ self.addEventListener('fetch', event => {
   const isHtmlRequest = request.mode === 'navigate' || 
     (request.headers.get('accept') && request.headers.get('accept').includes('text/html'));
 
-  // NETWORK-FIRST STRATEGY FOR HTML (Always pulls latest HTML when online)
+  // NETWORK-FIRST STRATEGY FOR HTML (Always pulls latest app code online, falls back offline)
   if (isHtmlRequest) {
     event.respondWith(
       fetch(request)
