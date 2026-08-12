@@ -121,7 +121,8 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage, #offlineView { display: none; width: 100%; max-width: 480px; text-align: left; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 480px; text-align: left; }
+    #offlineView { display: none !important; }
     #dashboard { text-align: center; }
 
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
@@ -316,9 +317,6 @@
     <div class="sidebar-category">System</div>
     <button id="sidebarSettingsBtn" class="sidebar-btn" onclick="openSettingsPage(); closeSidebar();">⚙️ Settings & Payment</button>
   </div>
-
-  <!-- OFFLINE NOTICE VIEW (Hidden) -->
-  <div id="offlineView" class="panel" style="display: none;"></div>
 
   <!-- JUMPING ANIMATED LOGIN SCREEN CENTERED -->
   <div id="loginWelcomeView" class="login-welcome-box" style="display: none;">
