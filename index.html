@@ -352,7 +352,7 @@
     </button>
   </div>
 
-  <p id="statusText" style="opacity: 0.8; font-weight: bold; margin-top: 40px; display: block; font-size: 16px; color: var(--accent-gold); letter-spacing: 1px;">Loading... ⏳</p>
+  <p id="statusText" style="opacity: 0.8; font-weight: bold; margin-top: 40px; display: none; font-size: 16px; color: var(--accent-gold); letter-spacing: 1px;">Loading... ⏳</p>
 
   <!-- FULLSCREEN NATIVE GALLERY IMAGE VIEWER MODAL -->
   <div id="fullscreenImageViewer">
@@ -1045,20 +1045,47 @@
       if (!checkConnectionStatus()) return;
       if (user) {
         loginWelcomeView.style.display = "none"; 
-        statusText.style.display = "block"; 
-        statusText.innerText = "Loading... ⏳"; 
+        
         try {
-          const userRef = doc(db, "users", user.uid); const userSnap = await getDoc(userRef); statusText.style.display = "none";
-          const payConfigSnap = await getDoc(doc(db, "shop_config", "payment")); if (payConfigSnap.exists()) { shopPaymentConfig = payConfigSnap.data(); }
-          if (!userSnap.exists()) { document.getElementById('setupDisplayName').value = user.displayName || user.email.split('@')[0] || ""; document.getElementById('setupView').style.display = "block"; } 
+          const userRef = doc(db, "users", user.uid); 
+          const userSnap = await getDoc(userRef); 
+          
+          const payConfigSnap = await getDoc(doc(db, "shop_config", "payment")); 
+          if (payConfigSnap.exists()) { shopPaymentConfig = payConfigSnap.data(); }
+          
+          if (!userSnap.exists()) { 
+            document.getElementById('setupDisplayName').value = user.displayName || user.email.split('@')[0] || ""; 
+            document.getElementById('setupView').style.display = "block"; 
+          } 
           else {
             currentUserDoc = userSnap.data();
-            if (user.email === "gismartsghana@gmail.com" && !currentUserDoc.isApproved) { await updateDoc(userRef, { isApproved: true, role: "owner" }); currentUserDoc.isApproved = true; currentUserDoc.role = "owner"; }
-            if (currentUserDoc.isApproved) { loadApp(user, currentUserDoc); } else { document.getElementById('pendingView').style.display = "block"; }
+            if (user.email === "gismartsghana@gmail.com" && !currentUserDoc.isApproved) { 
+              await updateDoc(userRef, { isApproved: true, role: "owner" }); 
+              currentUserDoc.isApproved = true; 
+              currentUserDoc.role = "owner"; 
+            }
+            if (currentUserDoc.isApproved) { 
+              loadApp(user, currentUserDoc); 
+            } else { 
+              document.getElementById('pendingView').style.display = "block"; 
+            }
           }
-        } catch (error) { statusText.style.display = "block"; statusText.innerText = "Error: " + error.message; await customPopup('alert', "Firebase Error: " + error.message); }
+        } catch (error) { 
+          statusText.style.display = "block"; 
+          statusText.innerText = "Error: " + error.message; 
+          await customPopup('alert', "Firebase Error: " + error.message); 
+        }
       } else {
-        loginWelcomeView.style.display = "block"; document.getElementById('topHeader').style.display = "none"; statusText.style.display = "none"; dashboard.style.display = "none"; document.getElementById('setupView').style.display = "none"; document.getElementById('pendingView').style.display = "none"; customerDirectoryPage.style.display = "none"; paymentPage.style.display = "none"; blacklistPage.style.display = "none"; editProfileView.style.display = "none";
+        loginWelcomeView.style.display = "block"; 
+        document.getElementById('topHeader').style.display = "none"; 
+        statusText.style.display = "none"; 
+        dashboard.style.display = "none"; 
+        document.getElementById('setupView').style.display = "none"; 
+        document.getElementById('pendingView').style.display = "none"; 
+        customerDirectoryPage.style.display = "none"; 
+        paymentPage.style.display = "none"; 
+        blacklistPage.style.display = "none"; 
+        editProfileView.style.display = "none";
       }
     });
 
