@@ -1,11 +1,11 @@
-const CACHE_NAME = 'sjs-saloon-cache-v19';
+const CACHE_NAME = 'sjs-saloon-cache-v1.0.2';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json'
 ];
 
-// Install the Service Worker and pre-cache core offline assets
+// 1. Install Service Worker and pre-cache core offline assets
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -15,7 +15,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Clean up old caches when the app updates
+// 2. Clean up old caches immediately when new SW activates
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -31,7 +31,7 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Intercept fetch requests
+// 3. Intercept fetch requests
 self.addEventListener('fetch', event => {
   const request = event.request;
 
@@ -40,7 +40,7 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
 
-  // Bypass cache for Firestore, Firebase Auth, and Cloudinary uploads
+  // Direct bypass for Firestore DB, Firebase Auth API, and Cloudinary image uploads
   if (
     url.hostname.includes('firestore.googleapis.com') ||
     url.hostname.includes('identitytoolkit.googleapis.com') ||
@@ -52,7 +52,7 @@ self.addEventListener('fetch', event => {
   const isHtmlRequest = request.mode === 'navigate' || 
     (request.headers.get('accept') && request.headers.get('accept').includes('text/html'));
 
-  // 1. NETWORK-FIRST STRATEGY FOR HTML (Guarantees users always get the latest app code when online)
+  // NETWORK-FIRST STRATEGY FOR HTML (Always pulls latest HTML when online)
   if (isHtmlRequest) {
     event.respondWith(
       fetch(request)
@@ -64,14 +64,14 @@ self.addEventListener('fetch', event => {
           return networkResponse;
         })
         .catch(() => {
-          // Fallback to cached index.html when offline
+          // Offline fallback to cached index.html
           return caches.match('/index.html') || caches.match('/');
         })
     );
     return;
   }
 
-  // 2. CACHE-FIRST STRATEGY FOR STATIC ASSETS (Manifest, icons, CSS) WITH NETWORK FALLBACK
+  // CACHE-FIRST STRATEGY FOR STATIC ASSETS (Manifest, icons, CSS) WITH NETWORK FALLBACK
   event.respondWith(
     caches.match(request).then(cachedResponse => {
       if (cachedResponse) {
@@ -86,25 +86,22 @@ self.addEventListener('fetch', event => {
           return networkResponse;
         })
         .catch(() => {
-          // Graceful offline fallback for missing non-HTML assets
           return new Response('Offline resource unavailable', { status: 503, statusText: 'Offline' });
         });
     })
   );
 });
 
-// Handle clicking on System Device Notifications
+// 4. Handle System Device Notification Taps
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      // Focus existing app window if already open
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           return client.focus();
         }
       }
-      // Otherwise open a new app window
       if (clients.openWindow) {
         return clients.openWindow('/');
       }
