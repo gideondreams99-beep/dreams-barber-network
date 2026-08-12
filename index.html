@@ -263,7 +263,7 @@
     .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
     .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
 
-    /* WHATSAPP STYLE CHAT INTERFACE (FIXED: REMOVED GLOBAL DISPLAY FLEX THAT OVERRODE DISPLAY NONE) */
+    /* WHATSAPP STYLE CHAT INTERFACE */
     #chatPage { padding: 0 !important; border: none !important; background: var(--wa-chat-bg) !important; height: calc(100vh - 70px); flex-direction: column; border-radius: 12px; overflow: hidden; }
     .wa-header { background: var(--wa-header-bg); color: #ffffff; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
     .wa-header-info { display: flex; align-items: center; gap: 12px; }
@@ -583,6 +583,13 @@
     <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
     <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
     
+    <!-- DEVICE NOTIFICATIONS PANEL ENABLE BUTTON -->
+    <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
+      <h4 style="color: var(--accent-gold); margin-top: 0;">🔔 Device Notification Panel</h4>
+      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Enable native device system alerts in your phone's notification bar for new chat messages, tickets, and announcements.</p>
+      <button onclick="requestNotificationPermission()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; width: 100%;">Enable Device Notifications</button>
+    </div>
+
     <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
       <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment & Owner Contact Details</h4>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name/number and your direct phone number for staff calls.</p>
@@ -788,6 +795,50 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    // NATIVE DEVICE NOTIFICATION PANEL & RINGTONE CONTROLLER
+    window.requestNotificationPermission = async () => {
+      if (!("Notification" in window)) {
+        await customPopup('alert', "Device Notifications are not supported by this browser.");
+        return;
+      }
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          showToast("Device Notification Panel enabled!");
+          sendSystemNotification("SJ'S SALOON", "Device notifications are active and ready!");
+        } else {
+          await customPopup('alert', "Notification permission was denied. You can enable it in your browser site settings.");
+        }
+      } catch (e) {
+        console.log("Notification request error:", e);
+      }
+    };
+
+    function sendSystemNotification(title, body) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+            navigator.serviceWorker.ready.then(reg => {
+              reg.showNotification(title, {
+                body: body,
+                icon: 'https://via.placeholder.com/192/075e54/ffffff?text=SJS',
+                vibrate: [200, 100, 200],
+                tag: 'sjs-saloon-notification',
+                renotify: true
+              });
+            });
+          } else {
+            new Notification(title, {
+              body: body,
+              icon: 'https://via.placeholder.com/192/075e54/ffffff?text=SJS'
+            });
+          }
+        } catch(e) {
+          console.log("System notification error:", e);
+        }
+      }
+    }
+
     function playRingTone() {
       try {
         if ('vibrate' in navigator) { navigator.vibrate([200, 100, 200]); }
@@ -811,14 +862,37 @@
       document.addEventListener('click', (e) => { if (e.target.tagName === 'IMG' && !e.target.closest('#fullscreenImageViewer')) { const src = e.target.src; if (src && !src.endsWith('undefined') && !src.includes('data:image/svg+xml')) { openFullscreenImageViewer(src, e.target.alt || e.target.title || "SJ'S SALOON PREVIEW"); } } });
     });
 
-    window.openFullscreenImageViewer = (imgSrc, titleText) => { const viewer = document.getElementById('fullscreenImageViewer'); const imgEl = document.getElementById('fullscreenImageElement'); const titleEl = document.getElementById('fullscreenImageTitle'); imgEl.src = imgSrc; titleEl.innerText = titleText; viewer.classList.add('show'); };
-    window.closeFullscreenViewer = () => { const viewer = document.getElementById('fullscreenImageViewer'); viewer.classList.remove('show'); document.getElementById('fullscreenImageElement').src = ""; };
+    window.openFullscreenImageViewer = (imgSrc, titleText) => {
+      const viewer = document.getElementById('fullscreenImageViewer');
+      const imgEl = document.getElementById('fullscreenImageElement');
+      const titleEl = document.getElementById('fullscreenImageTitle');
+      imgEl.src = imgSrc;
+      titleEl.innerText = titleText;
+      viewer.classList.add('show');
+      history.pushState({ modal: 'fullscreenImage' }, '');
+    };
+    
+    window.closeFullscreenViewer = () => {
+      const viewer = document.getElementById('fullscreenImageViewer');
+      if (viewer.classList.contains('show')) {
+        viewer.classList.remove('show');
+        document.getElementById('fullscreenImageElement').src = "";
+      }
+    };
 
     // --- SIDEBAR MENU LOGIC ---
-    window.openSidebar = () => { document.getElementById('sidebarMenu').classList.add('show'); document.getElementById('sidebarOverlay').classList.add('show'); };
-    window.closeSidebar = () => { document.getElementById('sidebarMenu').classList.remove('show'); document.getElementById('sidebarOverlay').classList.remove('show'); };
+    window.openSidebar = () => {
+      document.getElementById('sidebarMenu').classList.add('show');
+      document.getElementById('sidebarOverlay').classList.add('show');
+      history.pushState({ modal: 'sidebar' }, '');
+    };
+    
+    window.closeSidebar = () => {
+      document.getElementById('sidebarMenu').classList.remove('show');
+      document.getElementById('sidebarOverlay').classList.remove('show');
+    };
 
-    // --- CENTRAL NAVIGATION & BROWSER HARDWARE BACK BUTTON (POPSTATE HISTORY) ---
+    // --- CENTRAL NAVIGATION & HARDWARE/BROWSER BACK BUTTON OVERHAUL ---
     const ALL_APP_VIEWS = [
       'loginWelcomeView', 'setupView', 'pendingView', 'editProfileView',
       'ownerStaffPage', 'ownerServicesPage', 'ownerBlacklistPage',
@@ -854,7 +928,29 @@
       }
     };
 
+    // HARDWARE BACK BUTTON POPSTATE HANDLER
     window.addEventListener('popstate', (event) => {
+      const sidebar = document.getElementById('sidebarMenu');
+      const modalOverlay = document.getElementById('customModalOverlay');
+      const imageViewer = document.getElementById('fullscreenImageViewer');
+
+      // 1. Dismiss open overlays first
+      if (imageViewer && imageViewer.classList.contains('show')) {
+        imageViewer.classList.remove('show');
+        document.getElementById('fullscreenImageElement').src = "";
+        return;
+      }
+      if (modalOverlay && modalOverlay.classList.contains('show')) {
+        modalOverlay.classList.remove('show');
+        return;
+      }
+      if (sidebar && sidebar.classList.contains('show')) {
+        document.getElementById('sidebarMenu').classList.remove('show');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+        return;
+      }
+
+      // 2. Step back to previous view or default to Dashboard
       if (event.state && event.state.view) {
         navigateToView(event.state.view, false);
       } else {
@@ -894,8 +990,12 @@
         if (type === 'alert') { title.innerText = "System Notice"; title.style.color = "var(--accent-gold)"; cancelBtn.style.display = "none"; confirmBtn.innerText = "OK"; confirmBtn.style.background = "linear-gradient(145deg, #d4af37, #997d20)"; confirmBtn.style.borderColor = "#997d20"; confirmBtn.style.color = "#111"; } 
         else if (type === 'confirm') { title.innerText = "Confirm Action"; title.style.color = "#ffc107"; confirmBtn.innerText = "Yes, Proceed"; confirmBtn.style.background = "linear-gradient(145deg, #ff4444, #cc0000)"; confirmBtn.style.borderColor = "#cc0000"; confirmBtn.style.color = "#fff"; } 
         else if (type === 'prompt') { title.innerText = "Input Required"; title.style.color = "#4285F4"; input.style.display = "block"; input.placeholder = placeholder; confirmBtn.innerText = "Submit"; confirmBtn.style.background = "linear-gradient(145deg, #4285F4, #1a4b8c)"; confirmBtn.style.borderColor = "#1a4b8c"; confirmBtn.style.color = "#fff"; setTimeout(() => input.focus(), 100); }
+        
         overlay.classList.add('show');
-        const handleConfirm = () => { cleanup(); resolve(type === 'prompt' ? input.value : true); }; const handleCancel = () => { cleanup(); resolve(type === 'prompt' ? null : false); };
+        history.pushState({ modal: 'popup' }, '');
+
+        const handleConfirm = () => { cleanup(); resolve(type === 'prompt' ? input.value : true); }; 
+        const handleCancel = () => { cleanup(); resolve(type === 'prompt' ? null : false); };
         const cleanup = () => { overlay.classList.remove('show'); confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); };
         confirmBtn.addEventListener('click', handleConfirm); cancelBtn.addEventListener('click', handleCancel);
       });
@@ -925,6 +1025,7 @@
       let html = "";
       options.forEach(opt => { const isSelected = opt.value === currentValue; html += `<div class="dropdown-option-item ${isSelected ? 'selected' : ''}" onclick="selectPickerOption('${pickerType}', '${opt.value}', '${opt.label.replace(/'/g, "\\'")} ')"><span>${opt.label}</span><div class="radio-circle"></div></div>`; });
       dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No available options right now.</p>" : html; overlay.classList.add('show');
+      history.pushState({ modal: 'picker' }, '');
     };
 
     window.selectPickerOption = async (pickerType, val, label) => {
@@ -1084,6 +1185,7 @@
       });
       dropdownList.innerHTML = html;
       overlay.classList.add('show');
+      history.pushState({ modal: 'reportStaff' }, '');
     };
 
     window.promptStaffReportReason = async (staffName) => {
@@ -1102,6 +1204,7 @@
           timestamp: new Date().getTime()
         });
         playRingTone();
+        sendSystemNotification("SJ'S SALOON - Staff Report", `Report submitted against ${staffName}`);
         showToast(`Report submitted against ${staffName}!`);
       } catch(err) {
         await customPopup('alert', "Error submitting report: " + err.message);
@@ -1175,6 +1278,7 @@
           
           await generateDailyReportAndSend(openTime, closeTime);
           localStorage.removeItem('shopOpenTimestamp');
+          sendSystemNotification("SJ'S SALOON", "Shop is now CLOSED. End-of-Day report sent!");
           showToast("Shop closed! Report sent to Owner.");
         } else {
           btn.innerText = "🔓 Shop OPEN";
@@ -1191,6 +1295,7 @@
             text: "🔓 The shop is now OPEN and ready for business!",
             timestamp: openTime
           });
+          sendSystemNotification("SJ'S SALOON", "Shop is now OPEN for business!");
           showToast("Shop opened! Owner notified.");
         }
       } catch (e) {
@@ -1410,7 +1515,14 @@
     function startChatListener() {
       const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
       onSnapshot(q, (snapshot) => {
-        let html = ""; let hasNewMessage = false; snapshot.docChanges().forEach((change) => { if (change.type === "added" && chatInitialized) { hasNewMessage = true; } });
+        let html = ""; let hasNewMessage = false; let lastMsgSender = "", lastMsgText = "";
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added" && chatInitialized) {
+            hasNewMessage = true;
+            lastMsgSender = change.doc.data().senderName;
+            lastMsgText = change.doc.data().text;
+          }
+        });
         snapshot.forEach((docSnap) => {
           const msg = docSnap.data(); const msgId = docSnap.id; const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const isMe = msg.senderId === auth.currentUser.uid; const isOwner = currentUserDoc && currentUserDoc.role === "owner"; const canDelete = isMe || isOwner;
@@ -1428,7 +1540,14 @@
             </div>
           `;
         });
-        if (hasNewMessage) playRingTone(); chatInitialized = true; const box = document.getElementById('chatMessagesBox'); box.innerHTML = html === "" ? "<p style='opacity:0.6; text-align: center; color: #888;'>No messages yet. Start chatting!</p>" : html; box.scrollTop = box.scrollHeight;
+        if (hasNewMessage) {
+          playRingTone();
+          sendSystemNotification(`💬 Chat from ${lastMsgSender}`, lastMsgText);
+        }
+        chatInitialized = true;
+        const box = document.getElementById('chatMessagesBox');
+        box.innerHTML = html === "" ? "<p style='opacity:0.6; text-align: center; color: #888;'>No messages yet. Start chatting!</p>" : html;
+        box.scrollTop = box.scrollHeight;
       });
     }
 
@@ -1439,16 +1558,27 @@
     function startAnnouncementsListener() {
       const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
       onSnapshot(q, (snapshot) => {
-        let html = ""; let hasNewAnn = false; snapshot.docChanges().forEach((change) => { if (change.type === "added" && announcementsInitialized) { hasNewAnn = true; } });
+        let html = ""; let hasNewAnn = false; let lastAnnText = "";
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added" && announcementsInitialized) {
+            hasNewAnn = true;
+            lastAnnText = change.doc.data().text;
+          }
+        });
         snapshot.forEach((docSnap) => { const ann = docSnap.data(); const annId = docSnap.id; const dateStr = new Date(ann.timestamp).toLocaleString(); const isOwner = currentUserDoc && currentUserDoc.role === "owner"; html += `<div class="list-item" style="border-left-color: #ffc107;"><div class="ticket-title" style="color: #ffc107;">📢 Announcement</div><div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">${ann.text}</div><div style="font-size: 11px; opacity: 0.7; text-align: right; margin-bottom: ${isOwner ? '10px' : '0'};">Posted by: <strong>${ann.author}</strong> | ${dateStr}</div>${isOwner ? `<button onclick="deleteAnnouncement('${annId}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; width: 100%;">Delete Announcement</button>` : ''}</div>`; });
-        if (hasNewAnn) playRingTone(); announcementsInitialized = true; document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='opacity:0.6;'>No announcements posted yet.</p>" : html;
+        if (hasNewAnn) {
+          playRingTone();
+          sendSystemNotification("📢 New Shop Announcement", lastAnnText);
+        }
+        announcementsInitialized = true;
+        document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='opacity:0.6;'>No announcements posted yet.</p>" : html;
       });
     }
 
-    document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => { const textarea = document.getElementById('announcementText'); const text = textarea.value.trim(); if (!text) return await customPopup('alert', "Please write an announcement."); try { await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() }); playRingTone(); textarea.value = ""; showToast("Announcement published successfully!"); } catch (err) { await customPopup('alert', "Error publishing announcement: " + err.message); } });
+    document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => { const textarea = document.getElementById('announcementText'); const text = textarea.value.trim(); if (!text) return await customPopup('alert', "Please write an announcement."); try { await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() }); playRingTone(); sendSystemNotification("📢 Announcement Published", text); textarea.value = ""; showToast("Announcement published successfully!"); } catch (err) { await customPopup('alert', "Error publishing announcement: " + err.message); } });
     window.deleteAnnouncement = async (annId) => { if (await customPopup('confirm', "Delete this announcement?")) { try { await deleteDoc(doc(db, "announcements", annId)); playRingTone(); showToast("Announcement deleted"); } catch (err) { await customPopup('alert', "Error deleting announcement: " + err.message); } } };
 
-    window.toggleAvailability = async () => { if (!currentUserDoc) return; const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets."); if (!confirmAction) return; try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus; const btn = document.getElementById('toggleAvailabilityBtn'); btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; playRingTone(); showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴"); } catch (err) { await customPopup('alert', "Error updating status: " + err.message); } };
+    window.toggleAvailability = async () => { if (!currentUserDoc) return; const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets."); if (!confirmAction) return; try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus; const btn = document.getElementById('toggleAvailabilityBtn'); btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = isOff ? "#555" : "#28a745"; playRingTone(); showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴"); } catch (err) { await customPopup('alert', "Error updating status: " + err.message); } };
 
     window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); playRingTone(); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); playRingTone(); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
@@ -1510,6 +1640,7 @@
         <button onclick="closePickerModal()" style="width: 100%; margin-top: 10px; background: #444; border: 1px solid #555; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px;">⬅ Cancel & Go Back</button>
       `;
       const overlay = document.getElementById('customModalOverlay'); document.getElementById('customModalTitle').innerText = "Review Customer & Service"; document.getElementById('customModalMessage').innerHTML = reviewHtml; document.getElementById('customModalInput').style.display = "none"; document.getElementById('customDropdownList').style.display = "none"; document.getElementById('customPickerBackBtn').style.display = "none"; document.getElementById('customModalButtons').style.display = "none"; overlay.classList.add('show');
+      history.pushState({ modal: 'reviewTicket' }, '');
     };
 
     window.approveDenial = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied" }); playRingTone(); showToast("Denial approved and recorded."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
@@ -1528,14 +1659,9 @@
     }
 
     function loadApp(user, docData) {
-      const currentAppVersion = "1.3"; 
-      const savedVersion = localStorage.getItem('sjs_app_version');
-      
-      if (savedVersion !== currentAppVersion) {
-        setTimeout(async () => {
-          await customPopup('alert', '🚀 <b>App Updated!</b><br><br>• Default view corrected to Dashboard on startup.<br>• Multi-service selection with auto-calculated total.<br>• Redesigned WhatsApp-style team chat room.');
-          localStorage.setItem('sjs_app_version', currentAppVersion);
-        }, 1500);
+      // Auto-prompt Notification Panel permissions on login
+      if ("Notification" in window && Notification.permission === "default") {
+        setTimeout(() => { Notification.requestPermission(); }, 3000);
       }
 
       navigateToView('dashboard');
@@ -1816,7 +1942,7 @@
     }
 
     window.deleteStaffReport = async (reportId) => { try { await deleteDoc(doc(db, "staff_reports", reportId)); playRingTone(); showToast("Report dismissed"); } catch(e) {} };
-    window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); playRingTone(); showToast(`${userName} approved successfully!`); };
+    window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); playRingTone(); sendSystemNotification("SJ'S SALOON", `Account for ${userName} has been APPROVED!`); showToast(`${userName} approved successfully!`); };
     window.denyUser = async (uid) => {
       if (await customPopup('confirm', "Are you sure you want to deny and dismiss this staff account request?")) {
         try {
@@ -1967,6 +2093,8 @@
           });
           
           playRingTone(); 
+          sendSystemNotification("🎟️ New Ticket Assigned", `${ticketNumber} for ${name} assigned to Barber ${barber}`);
+
           document.getElementById('custName').value = ""; 
           document.getElementById('custPhone').value = ""; 
           document.getElementById('customerHistoryBox').style.display = "none"; 
@@ -2003,9 +2131,18 @@
     let queueInitialized = false;
     function startLiveQueue() {
       onSnapshot(collection(db, "daily_tickets"), (snapshot) => {
-        let html = ""; let dailyDeniedHtml = ""; let activeQueueCount = 0; let hasNewTicketOrChange = false;
+        let html = ""; let dailyDeniedHtml = ""; let activeQueueCount = 0; let hasNewTicketOrChange = false; let notifyText = "";
         const now = new Date(); const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        snapshot.docChanges().forEach((change) => { if (change.type === "added" && queueInitialized) { hasNewTicketOrChange = true; } });
+        
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added" && queueInitialized) {
+            hasNewTicketOrChange = true;
+            notifyText = `New Ticket #${change.doc.data().ticketNo || ''} created for ${change.doc.data().customerName}`;
+          } else if (change.type === "modified" && queueInitialized) {
+            hasNewTicketOrChange = true;
+            notifyText = `Ticket #${change.doc.data().ticketNo || ''} status updated to ${change.doc.data().status.toUpperCase()}`;
+          }
+        });
 
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data(); const ticketId = docSnap.id; 
@@ -2072,8 +2209,17 @@
             `;
           }
         });
-        if (hasNewTicketOrChange) playRingTone(); queueInitialized = true; document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers in queue.</p>" : html; document.getElementById('queueCountBadge').innerText = `${activeQueueCount} Active`;
-        const deniedListEl = document.getElementById('ownerDailyDeniedList'); if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") { deniedListEl.innerHTML = dailyDeniedHtml === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No denied tickets recorded today.</p>" : dailyDeniedHtml; }
+        if (hasNewTicketOrChange) {
+          playRingTone();
+          if (notifyText) sendSystemNotification("✂️ Live Queue Alert", notifyText);
+        }
+        queueInitialized = true;
+        document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers in queue.</p>" : html;
+        document.getElementById('queueCountBadge').innerText = `${activeQueueCount} Active`;
+        const deniedListEl = document.getElementById('ownerDailyDeniedList');
+        if (deniedListEl && currentUserDoc && currentUserDoc.role === "owner") {
+          deniedListEl.innerHTML = dailyDeniedHtml === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No denied tickets recorded today.</p>" : dailyDeniedHtml;
+        }
       });
     }
 
