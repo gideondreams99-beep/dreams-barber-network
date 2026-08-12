@@ -662,6 +662,12 @@
     <div id="secretaryPanel" class="panel" style="display: none; margin-top: 0;">
       <h3>Front Desk Intake</h3>
       
+      <!-- NEW: SHOP & SECRETARY STATUS CONTROLS -->
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button id="toggleShopBtn" onclick="toggleShopStatus()" style="flex: 1; background: #28a745; border-color: #28a745; font-size: 13px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🔓 Shop OPEN</button>
+        <button id="toggleSecAwayBtn" onclick="toggleSecStatus()" style="flex: 1; background: #1a4b8c; border-color: #2a6bcc; font-size: 13px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🟢 I am HERE</button>
+      </div>
+
       <label>Customer Full Name</label>
       <input type="text" id="custName" placeholder="Start typing name..." autocomplete="off" style="margin-bottom: 10px;">
       
@@ -1020,7 +1026,169 @@
 
     window.showToast = (message) => { let toast = document.getElementById('toastNotification'); if(!toast) { toast = document.createElement('div'); toast.id = 'toastNotification'; document.body.appendChild(toast); } toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3500); };
 
-    const loginBtn = document.getElementById('loginBtn'); const emailLoginBtn = document.getElementById('emailLoginBtn'); const emailRegisterBtn = document.getElementById('emailRegisterBtn'); const loginWelcomeView = document.getElementById('loginWelcomeView'); const mainAppTitle = document.getElementById('mainAppTitle'); const statusText = document.getElementById('statusText'); const dashboard = document.getElementById('dashboard'); const customerDirectoryPage = document.getElementById('customerDirectoryPage'); const paymentPage = document.getElementById('paymentPage'); const blacklistPage = document.getElementById('blacklistPage'); const editProfileView = document.getElementById('editProfileView');
+    // --- SHOP & SECRETARY STATUS LOGIC ---
+
+    // Function to calculate today's sales and send the report
+    window.generateDailyReportAndSend = async () => {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      
+      let totalVal = 0;
+      let totalCuts = 0;
+      let cancelledDenied = 0;
+      let freeCuts = 0;
+
+      // Calculate stats from today's cached tickets
+      allPaidTicketsCache.forEach(t => {
+        if (t.timestamp >= startOfToday) {
+          if (t.status === "paid" || (t.isFree && t.ownerFreeApproval === 'approved')) {
+            totalVal += Number(t.price) || 0;
+            totalCuts++;
+          } else if (t.status === "cancelled" || t.status === "denied") {
+            cancelledDenied++;
+          }
+          if (t.isFree && t.ownerFreeApproval === 'approved') {
+            freeCuts++;
+          }
+        }
+      });
+
+      const reportText = `📊 END OF DAY REPORT:\n💰 Total Revenue: GHS ${totalVal.toFixed(2)}\n✂️ Total Paid Cuts: ${totalCuts}\n🎁 Free Cuts Approved: ${freeCuts}\n❌ Denied/Cancelled: ${cancelledDenied}`;
+
+      // Send the report instantly to the team chat so the owner sees it
+      await addDoc(collection(db, "team_chat"), {
+        senderId: auth.currentUser.uid,
+        senderName: currentUserDoc.name + " (Front Desk)",
+        senderRole: "secretary",
+        text: reportText,
+        timestamp: new Date().getTime()
+      });
+    };
+
+    // Shop Open/Close Button Action
+    window.toggleShopStatus = async () => {
+      const btn = document.getElementById('toggleShopBtn');
+      const isCurrentlyOpen = btn.innerText.includes('OPEN');
+      
+      const confirmAction = await customPopup('confirm', isCurrentlyOpen ? "Close the shop and send the End-of-Day report to the Owner?" : "Open the shop and notify the Owner?");
+      if (!confirmAction) return;
+
+      try {
+        if (isCurrentlyOpen) {
+          // Change UI to CLOSED
+          btn.innerText = "🔒 Shop CLOSED";
+          btn.style.background = "#8c1a1a";
+          btn.style.borderColor = "#cc2a2a";
+          
+          // Send closing alert and then the report
+          await addDoc(collection(db, "team_chat"), {
+            senderId: auth.currentUser.uid,
+            senderName: currentUserDoc.name + " (Front Desk)",
+            senderRole: "secretary",
+            text: "🔒 The shop is now CLOSED. Generating daily report...",
+            timestamp: new Date().getTime()
+          });
+          await generateDailyReportAndSend();
+          showToast("Shop closed! Report sent to Owner.");
+        } else {
+          // Change UI to OPEN
+          btn.innerText = "🔓 Shop OPEN";
+          btn.style.background = "#28a745";
+          btn.style.borderColor = "#28a745";
+          
+          // Send opening alert
+          await addDoc(collection(db, "team_chat"), {
+            senderId: auth.currentUser.uid,
+            senderName: currentUserDoc.name + " (Front Desk)",
+            senderRole: "secretary",
+            text: "🔓 The shop is now OPEN and ready for business!",
+            timestamp: new Date().getTime()
+          });
+          showToast("Shop opened! Owner notified.");
+        }
+      } catch (e) {
+        await customPopup('alert', "Error: " + e.message);
+      }
+    };
+
+    // Secretary Away/Here Button Action
+    window.toggleSecStatus = async () => {
+      const btn = document.getElementById('toggleSecAwayBtn');
+      const isCurrentlyHere = btn.innerText.includes('HERE');
+      
+      try {
+        if (isCurrentlyHere) {
+          // Change UI to AWAY
+          btn.innerText = "🔴 I am AWAY";
+          btn.style.background = "#ff4444";
+          btn.style.borderColor = "#ff4444";
+          
+          await addDoc(collection(db, "team_chat"), {
+            senderId: auth.currentUser.uid,
+            senderName: currentUserDoc.name + " (Front Desk)",
+            senderRole: "secretary",
+            text: "🔴 I have stepped AWAY from the front desk.",
+            timestamp: new Date().getTime()
+          });
+          showToast("Status: AWAY");
+        } else {
+          // Change UI to HERE
+          btn.innerText = "🟢 I am HERE";
+          btn.style.background = "#1a4b8c";
+          btn.style.borderColor = "#2a6bcc";
+          
+          await addDoc(collection(db, "team_chat"), {
+            senderId: auth.currentUser.uid,
+            senderName: currentUserDoc.name + " (Front Desk)",
+            senderRole: "secretary",
+            text: "🟢 I am BACK at the front desk.",
+            timestamp: new Date().getTime()
+          });
+          showToast("Status: HERE");
+        }
+      } catch(e) {
+        await customPopup('alert', "Error: " + e.message);
+      }
+    };
+
+    // --- FRIENDLY ERROR HANDLER FOR LOGIN/REGISTRATION ---
+    function getFriendlyErrorMessage(error) {
+      if (!navigator.onLine || error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed')) {
+        return "No internet connection. Please check your network and try again.";
+      }
+      switch (error.code) {
+        case 'auth/invalid-credential':
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          return "Incorrect email or password. Please check your details and try again.";
+        case 'auth/too-many-requests':
+          return "Too many failed login attempts. Please wait a few minutes and try again.";
+        case 'auth/invalid-email':
+          return "The email address you entered is not valid.";
+        case 'auth/email-already-in-use':
+          return "This email is already registered. Please sign in instead.";
+        case 'auth/weak-password':
+          return "Your password is too weak. Please use a stronger password (at least 6 characters).";
+        case 'auth/popup-closed-by-user':
+          return "Google sign-in was cancelled. Please try again.";
+        case 'auth/account-exists-with-different-credential':
+          return "An account already exists with the same email address but different sign-in credentials.";
+        default:
+          return "An unexpected error occurred. Please try again later. (" + error.code + ")";
+      }
+    }
+
+    const loginBtn = document.getElementById('loginBtn'); 
+    const emailLoginBtn = document.getElementById('emailLoginBtn'); 
+    const emailRegisterBtn = document.getElementById('emailRegisterBtn'); 
+    const loginWelcomeView = document.getElementById('loginWelcomeView'); 
+    const mainAppTitle = document.getElementById('mainAppTitle'); 
+    const statusText = document.getElementById('statusText'); 
+    const dashboard = document.getElementById('dashboard'); 
+    const customerDirectoryPage = document.getElementById('customerDirectoryPage'); 
+    const paymentPage = document.getElementById('paymentPage'); 
+    const blacklistPage = document.getElementById('blacklistPage'); 
+    const editProfileView = document.getElementById('editProfileView');
 
     loginBtn.addEventListener('click', async (e) => { 
       e.preventDefault(); 
@@ -1028,11 +1196,7 @@
         await signInWithPopup(auth, provider); 
         showToast("Signed in successfully!"); 
       } catch (error) { 
-        if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed') || !navigator.onLine) {
-          await customPopup('alert', "Offline: Please connect to the internet to log in.");
-        } else {
-          await customPopup('alert', "Login failed: " + error.message); 
-        }
+        await customPopup('alert', "⚠️ <b>Login Failed</b><br><br>" + getFriendlyErrorMessage(error)); 
       } 
     });
 
@@ -1045,11 +1209,7 @@
         await signInWithEmailAndPassword(auth, email, password); 
         showToast("Signed in successfully!"); 
       } catch (error) { 
-        if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed') || !navigator.onLine) {
-          await customPopup('alert', "Offline: Please connect to the internet to log in.");
-        } else {
-          await customPopup('alert', "Sign in failed: " + error.message); 
-        }
+        await customPopup('alert', "⚠️ <b>Login Failed</b><br><br>" + getFriendlyErrorMessage(error)); 
       } 
     });
 
@@ -1063,13 +1223,7 @@
         await createUserWithEmailAndPassword(auth, email, password); 
         showToast("Account created successfully!"); 
       } catch (error) { 
-        if (error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed') || !navigator.onLine) {
-          await customPopup('alert', "Offline: Please connect to the internet to log in.");
-        } else if (error.code === 'auth/email-already-in-use' || error.message.includes('email-already-in-use')) {
-          await customPopup('alert', "This email address is already registered. Please sign in instead or use a different email.");
-        } else {
-          await customPopup('alert', "Registration failed: " + error.message); 
-        }
+        await customPopup('alert', "⚠️ <b>Registration Failed</b><br><br>" + getFriendlyErrorMessage(error)); 
       } 
     });
 
