@@ -35,6 +35,8 @@
       }
     }
 
+    * { box-sizing: border-box; }
+
     body { 
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
       background: var(--bg-color); 
@@ -121,7 +123,7 @@
     
     /* VIEWS */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 480px; text-align: left; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 480px; text-align: left; overflow: hidden; }
     #dashboard { text-align: center; }
 
     #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
@@ -149,7 +151,9 @@
       text-align: left;
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
       width: 100%;
+      max-width: 100%;
       box-sizing: border-box;
+      overflow: hidden;
     }
     .panel h3 { 
       margin-top: 0; color: var(--accent-gold); text-align: center; 
@@ -184,11 +188,14 @@
       border-left: 4px solid var(--accent-gold); box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       border: 1px solid var(--panel-border);
       border-left-width: 4px;
+      max-width: 100%;
+      overflow: hidden;
+      word-break: break-word;
     }
     .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .ticket-number { font-size: 16px; font-weight: bold; color: var(--accent-gold); background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--panel-border); }
-    .ticket-title { font-size: 16px; font-weight: bold; color: var(--text-color); text-transform: uppercase; letter-spacing: 1px; }
-    .ticket-details { font-size: 14px; opacity: 0.8; margin-bottom: 12px; line-height: 1.4; }
+    .ticket-title { font-size: 16px; font-weight: bold; color: var(--text-color); text-transform: uppercase; letter-spacing: 1px; word-break: break-word; }
+    .ticket-details { font-size: 14px; opacity: 0.8; margin-bottom: 12px; line-height: 1.4; word-break: break-word; }
     
     .status-badge {
       font-size: 11px; padding: 5px 10px; border-radius: 12px;
@@ -205,31 +212,36 @@
       background: var(--panel-bg); border: 1px solid var(--accent-gold);
       border-left: 5px solid var(--accent-gold); border-radius: 10px; padding: 12px 15px; margin-bottom: 10px;
       text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      max-width: 100%;
+      overflow: hidden;
+      word-break: break-word;
     }
     .notice-card h5 { margin: 0 0 5px 0; color: var(--accent-gold); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
-    .notice-card p { margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.4; }
+    .notice-card p { margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.4; word-break: break-word; }
 
     /* ANALYTICS */
     #analyticsPanel { border-color: #145523; }
     #analyticsPanel h3 { color: #28a745; border-color: #145523; margin-bottom: 20px; }
     
     /* DAILY / WEEKLY / MONTHLY STATS GRID */
-    .stats-grid { display: flex; justify-content: space-between; gap: 8px; }
-    .stat-box { flex: 1; background: rgba(0,0,0,0.1); padding: 12px 5px; border-radius: 8px; text-align: center; border: 1px solid #145523; }
-    .stat-box p { opacity: 0.7; font-size: 11px; text-transform: uppercase; margin: 0 0 5px 0; }
-    .stat-box .money { margin: 0; color: #28a745; font-size: 15px; font-weight: bold; }
-    .stat-box .cuts { margin: 5px 0 0 0; opacity: 0.8; font-size: 12px; }
+    .stats-grid { display: flex; justify-content: space-between; gap: 6px; width: 100%; max-width: 100%; overflow: hidden; }
+    .stat-box { flex: 1; min-width: 0; background: rgba(0,0,0,0.1); padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #145523; overflow: hidden; }
+    .stat-box p { opacity: 0.7; font-size: 10px; text-transform: uppercase; margin: 0 0 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .stat-box .money { margin: 0; color: #28a745; font-size: 12px; font-weight: bold; word-break: break-all; overflow-wrap: break-word; }
+    .stat-box .cuts { margin: 4px 0 0 0; opacity: 0.8; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     /* BREAKDOWN SERVICE LISTS */
-    .service-breakdown-box { background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 12px; margin-top: 15px; text-align: left; }
+    .service-breakdown-box { background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 12px; margin-top: 15px; text-align: left; max-width: 100%; overflow: hidden; }
     .service-breakdown-box h4 { margin: 0 0 8px 0; color: var(--accent-gold); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--panel-border); padding-bottom: 5px; }
-    .breakdown-row { display: flex; justify-content: space-between; font-size: 13px; opacity: 0.9; margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
+    .breakdown-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; opacity: 0.9; margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; min-width: 0; }
+    .breakdown-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .breakdown-row strong { flex-shrink: 0; word-break: break-all; max-width: 55%; text-align: right; }
     .breakdown-row:last-child { border-bottom: none; padding-bottom: 0; }
     
-    .flex-row { display: flex; gap: 10px; margin-bottom: 15px; }
-    .flex-row input { margin-bottom: 0; }
+    .flex-row { display: flex; gap: 10px; margin-bottom: 15px; max-width: 100%; }
+    .flex-row input { margin-bottom: 0; min-width: 0; }
     
-    #customerHistoryBox { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; margin-bottom: 15px; font-size: 13px; opacity: 0.9; max-height: 140px; overflow-y: auto; text-align: left; box-shadow: inset 0 2px 6px rgba(0,0,0,0.5); }
+    #customerHistoryBox { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; margin-bottom: 15px; font-size: 13px; opacity: 0.9; max-height: 140px; overflow-y: auto; text-align: left; box-shadow: inset 0 2px 6px rgba(0,0,0,0.5); word-break: break-word; }
     .clickable-customer { cursor: pointer; transition: 0.2s; border-left: 3px solid #28a745; background: var(--panel-bg); }
     .clickable-customer:hover { background: rgba(40,167,69,0.1); opacity: 1; }
 
@@ -244,6 +256,9 @@
       background: linear-gradient(145deg, #113518, #07190a); color: #28a745; border: 2px solid #28a745; padding: 14px 28px; border-radius: 35px;
       font-weight: bold; font-size: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 999999; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       display: flex; align-items: center; gap: 12px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; pointer-events: none;
+      max-width: 90%;
+      text-align: center;
+      word-break: break-word;
     }
     #toastNotification.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
@@ -251,21 +266,23 @@
     #customModalOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
+      padding: 15px;
     }
     #customModalOverlay.show { display: flex; opacity: 1; }
     #customModalBox {
       background: var(--panel-bg); border: 1px solid var(--accent-gold); border-radius: 16px;
-      padding: 25px; width: 85%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto;
+      padding: 25px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto;
+      word-break: break-word;
     }
     #customModalOverlay.show #customModalBox { transform: scale(1); }
     #customModalTitle { margin-top: 0; color: var(--accent-gold); letter-spacing: 1px; font-size: 18px; text-transform: uppercase; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 15px; }
-    #customModalMessage { opacity: 0.9; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; }
+    #customModalMessage { opacity: 0.9; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; word-break: break-word; }
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
 
     #customDropdownList { display: none; max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 15px; }
-    .dropdown-option-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--panel-border); cursor: pointer; font-size: 15px; }
+    .dropdown-option-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--panel-border); cursor: pointer; font-size: 15px; word-break: break-word; }
     .dropdown-option-item:hover { background: rgba(212, 175, 55, 0.1); color: var(--accent-gold); }
-    .radio-circle { width: 18px; height: 18px; border: 2px solid #888; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .radio-circle { width: 18px; height: 18px; border: 2px solid #888; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px; }
     .dropdown-option-item.selected .radio-circle { border-color: var(--accent-gold); background: var(--accent-gold); }
     .dropdown-option-item.selected .radio-circle::after { content: ''; width: 8px; height: 8px; background: #111; border-radius: 50%; }
 
@@ -276,7 +293,7 @@
     /* JUMPING ANIMATED LOGIN SCREEN CENTERED */
     @keyframes jumpBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
     .jumping-logo-container { display: inline-block; animation: jumpBounce 2s infinite ease-in-out; margin-bottom: 15px; }
-    .login-welcome-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; box-sizing: border-box; margin-top: 40px; }
+    .login-welcome-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; box-sizing: border-box; margin-top: 40px; overflow: hidden; }
   </style>
 </head>
 <body>
@@ -295,7 +312,7 @@
     <!-- Sidebar User Profile Summary -->
     <div style="text-align: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 15px; margin-bottom: 10px; margin-top: 10px;">
       <img id="sidebarUserPic" src="" class="avatar" style="width: 80px; height: 80px;">
-      <h4 id="sidebarUserName" style="margin: 5px 0 0 0; color: var(--accent-gold); letter-spacing: 1px;">Name</h4>
+      <h4 id="sidebarUserName" style="margin: 5px 0 0 0; color: var(--accent-gold); letter-spacing: 1px; word-break: break-word;">Name</h4>
       <p id="sidebarUserRole" style="margin: 5px 0 0 0; font-size: 11px; opacity: 0.8; text-transform: uppercase; font-weight: bold;">Role</p>
     </div>
     
@@ -350,7 +367,7 @@
   <div id="fullscreenImageViewer">
     <div style="position: absolute; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.8); box-sizing: border-box; z-index: 200001;">
       <button onclick="closeFullscreenViewer()" style="background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; padding: 0; box-shadow: none; text-transform: none;">←</button>
-      <span id="fullscreenImageTitle" style="color: #fff; font-size: 14px; opacity: 0.85; font-family: monospace; letter-spacing: 1px;">SJ'S SALOON PREVIEW</span>
+      <span id="fullscreenImageTitle" style="color: #fff; font-size: 14px; opacity: 0.85; font-family: monospace; letter-spacing: 1px; word-break: break-word;">SJ'S SALOON PREVIEW</span>
       <div style="width: 26px;"></div>
     </div>
     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 60px 10px 20px 10px; box-sizing: border-box;">
@@ -568,14 +585,14 @@
   <div id="paymentPage" class="panel" style="border-color: #28a745;">
     <button onclick="cancelPayment()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
     <h3 style="color: #28a745;">Checkout & Payment</h3>
-    <div id="paymentInfoBox" style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left;">
+    <div id="paymentInfoBox" style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left; word-break: break-word;">
       <p style="margin: 0 0 5px 0; opacity: 0.8;">Customer: <strong id="payCustName" style="color: var(--text-color);">--</strong></p>
       <p style="margin: 0 0 5px 0; opacity: 0.8;">Service: <strong id="payServiceName" style="color: var(--text-color);">--</strong></p>
-      <p style="margin: 0; opacity: 0.8;">Amount Due: <strong id="payAmount" style="color: #28a745; font-size: 18px;">GHS 0.00</strong></p>
+      <p style="margin: 0; opacity: 0.8;">Amount Due: <strong id="payAmount" style="color: #28a745; font-size: 18px; word-break: break-all;">GHS 0.00</strong></p>
     </div>
-    <div id="ownerRefBox" style="display: none; background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+    <div id="ownerRefBox" style="display: none; background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; word-break: break-word;">
       <strong style="color: #ffc107;">📱 OWNER PAYMENT REFERENCE:</strong>
-      <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Please send funds to:<br>Name: <strong id="displayOwnerPayName" style="color: var(--accent-gold); font-size: 16px;">--</strong><br>Number: <strong id="displayOwnerPayNum" style="color: var(--accent-gold); font-size: 16px;">--</strong></p>
+      <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Please send funds to:<br>Name: <strong id="displayOwnerPayName" style="color: var(--accent-gold); font-size: 16px;">--</strong><br>Number: <strong id="displayOwnerPayNum" style="color: var(--accent-gold); font-size: 16px; word-break: break-all;">--</strong></p>
     </div>
     <label style="margin-bottom: 15px; font-weight: bold;">Select Payment Method:</label>
     <button class="pay-btn pay-cash" onclick="processPayment('Cash')">💵 Cash Payment</button>
@@ -587,7 +604,7 @@
   <div id="blacklistPage" class="panel" style="border-color: #ff4444;">
     <button onclick="cancelBlacklistPage()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Go Back</button>
     <h3 style="color: #ff4444;" id="blacklistPageTitle">Blacklist Customer</h3>
-    <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left;">
+    <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left; word-break: break-word;">
       <p style="margin: 0; opacity: 0.8;">Target Customer: <strong id="blPageCustName" style="color: var(--text-color); font-size: 18px;">--</strong></p>
     </div>
     <label>Reason for Blacklist / Report:</label>
@@ -616,11 +633,11 @@
     <div class="stats-grid" style="margin-bottom: 20px;">
       <div class="stat-box" style="border-color: var(--accent-gold); background: rgba(212,175,55,0.05);">
         <p style="color: var(--text-color);">Total Revenue</p>
-        <h2 class="money" style="color: var(--accent-gold); font-size: 18px;">GHS <span id="reportTotalRev">0.00</span></h2>
+        <h2 class="money" style="color: var(--accent-gold); font-size: 13px; word-break: break-all;">GHS <span id="reportTotalRev">0.00</span></h2>
       </div>
       <div class="stat-box" style="border-color: var(--accent-gold); background: rgba(212,175,55,0.05);">
         <p style="color: var(--text-color);">Total Cuts</p>
-        <h2 class="money" style="color: var(--text-color); font-size: 18px;"><span id="reportTotalCuts">0</span></h2>
+        <h2 class="money" style="color: var(--text-color); font-size: 13px;"><span id="reportTotalCuts">0</span></h2>
       </div>
     </div>
     <div class="service-breakdown-box" style="border-color: var(--accent-gold); background: transparent;">
@@ -633,7 +650,7 @@
   <div id="dashboard">
     <!-- CALL OWNER QUICK BUTTON (BARBERS & SECRETARIES) -->
     <div id="dashboardCallOwnerContainer" style="display: none; margin-bottom: 15px;">
-      <a id="dashboardCallOwnerLink" href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 1px solid #2a6bcc; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+      <a id="dashboardCallOwnerLink" href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 1px solid #2a6bcc; box-shadow: 0 4px 10px rgba(0,0,0,0.2); word-break: break-word;">
         📞 Call Shop Owner Now
       </a>
     </div>
@@ -651,7 +668,7 @@
       <div id="customerHistoryBox" style="display: none;">
         <div id="historyContent">No history found.</div>
       </div>
-      <div id="intakeCustomerStats" style="color: #28a745; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; text-align: left;"></div>
+      <div id="intakeCustomerStats" style="color: #28a745; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; text-align: left; word-break: break-word;"></div>
 
       <label>Customer Phone Number (Optional)</label>
       <input type="tel" id="custPhone" placeholder="Enter phone number (optional)..." autocomplete="off">
@@ -971,7 +988,7 @@
 
       let html = "";
       staffList.forEach(staff => {
-        html += `<div class="dropdown-option-item" onclick="promptStaffReportReason('${staff.value.replace(/'/g, "\\Analytical")}')"><span>${staff.label}</span><div class="radio-circle"></div></div>`;
+        html += `<div class="dropdown-option-item" onclick="promptStaffReportReason('${staff.value.replace(/'/g, "\\'")}')"><span>${staff.label}</span><div class="radio-circle"></div></div>`;
       });
       dropdownList.innerHTML = html;
       overlay.classList.add('show');
@@ -1242,12 +1259,12 @@
         freeInfoHtml = `<p style="margin: 0 0 8px 0; color: #ffc107;">🎁 <b>Free Service Reason:</b> ${t.freeReason || 'None'}</p><p style="margin: 0 0 8px 0; font-size:13px; color: ${t.ownerFreeApproval === 'approved' ? '#28a745' : '#ffc107'};"><b>Owner Approval Status:</b> ${(t.ownerFreeApproval || 'pending').toUpperCase()}</p>`;
       }
       const reviewHtml = `
-        <div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6;">
+        <div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6; word-break: break-word;">
           <p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p>
           <p style="margin: 0 0 8px 0;">👤 <b>Customer Name:</b> ${t.customerName}</p>
           <p style="margin: 0 0 8px 0;">📞 <b>Phone:</b> ${t.customerPhone || 'Not Provided'}</p>
           <p style="margin: 0 0 8px 0;">✂️ <b>Service Requested:</b> ${t.serviceName}</p>
-          <p style="margin: 0 0 8px 0; color: #28a745; font-weight: bold;">💰 Price: GHS ${t.price.toFixed(2)}</p>
+          <p style="margin: 0 0 8px 0; color: #28a745; font-weight: bold; word-break: break-all;">💰 Price: GHS ${t.price.toFixed(2)}</p>
           ${freeInfoHtml}
         </div>
         <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1451,7 +1468,7 @@
       try { if (activeBlacklistActionType === 'instant') { await addDoc(collection(db, "blacklist"), { name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime() }); playRingTone(); showToast(`${activeBlacklistCustomer} is instantly blacklisted!`); } else { await addDoc(collection(db, "blacklist_reports"), { customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name, feedback: reason, timestamp: new Date().getTime() }); playRingTone(); showToast("Blacklist report sent to Owner!"); } cancelBlacklistPage(); backToDirectoryList(); } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
     });
 
-    window.viewStaffSubmissionDetails = async (staffDataJson) => { const s = JSON.parse(decodeURIComponent(staffDataJson)); const detailsHtml = `<div style="text-align: center;"><img src="${s.photoURL || 'https://via.placeholder.com/100'}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;"><h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase;">${s.name}</h4><span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span></div><div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6;"><p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p><p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p><p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p><p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p></div>`; await customPopup('alert', detailsHtml); };
+    window.viewStaffSubmissionDetails = async (staffDataJson) => { const s = JSON.parse(decodeURIComponent(staffDataJson)); const detailsHtml = `<div style="text-align: center;"><img src="${s.photoURL || 'https://via.placeholder.com/100'}" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;"><h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase; word-break: break-word;">${s.name}</h4><span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span></div><div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6; word-break: break-word;"><p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p><p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p><p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p><p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p></div>`; await customPopup('alert', detailsHtml); };
 
     window.editService = async (sid, currentName, currentPrice) => {
       const newPriceStr = await customPopup('prompt', `Editing: <strong>${currentName}</strong><br>Current Price: GHS ${currentPrice}<br><br>Enter new price:`, currentPrice);
@@ -1476,9 +1493,9 @@
         let approvalHtml = ""; let activeHtml = "";
         snapshot.forEach((userDoc) => {
           const u = userDoc.data(); const uid = userDoc.id; const encodedStaff = encodeURIComponent(JSON.stringify(u));
-          if (!u.isApproved) { approvalHtml += `<div class="list-item" style="border-left-color: #ffc107;"><div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info"><img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0;"><div><div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div><div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div><div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div></div></div><button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve New Account</button></div>`; } 
+          if (!u.isApproved) { approvalHtml += `<div class="list-item" style="border-left-color: #ffc107;"><div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info"><img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0; flex-shrink: 0;"><div><div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div><div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div><div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div></div></div><button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve New Account</button></div>`; } 
           else if (u.pendingUpdates) { const p = u.pendingUpdates; const updateStaffObj = encodeURIComponent(JSON.stringify({ ...u, name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL || u.photoURL })); approvalHtml += `<div class="list-item" style="border-left-color: #4285F4;"><div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info"><div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div><div class="ticket-details" style="margin-bottom: 10px;">New Name: <strong>${p.name}</strong><br>New Country: <strong>${p.country}</strong><br>New ID: <strong>${p.idType}</strong> (${p.idNumber})</div></div><button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Profile Update</button></div>`; }
-          if (u.isApproved && u.role !== "owner") { activeHtml += `<div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0;"><div><strong style="color: var(--text-color);">${u.name}</strong> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} | ID: ${u.idType || 'N/A'}</span></div></div><button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white;">Fire / Remove</button></div>`; }
+          if (u.isApproved && u.role !== "owner") { activeHtml += `<div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center; gap: 10px;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0; flex-shrink: 0;"><div style="min-width: 0;"><strong style="color: var(--text-color); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.name}</strong> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()}</span></div></div><button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Fire / Remove</button></div>`; }
         });
         document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml; document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='opacity:0.6;'>No active staff found.</p>" : activeHtml;
       });
@@ -1504,10 +1521,10 @@
           const s = sDoc.data(); 
           cachedServicesList.push({ id: sDoc.id, ...s }); 
           html += `
-            <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-              <span style="color: var(--text-color);">${s.name} - GHS ${s.price} ${s.price === 0 ? '(FREE)' : ''}</span>
-              <div style="display: flex; gap: 8px;">
-                <button onclick="editService('${sDoc.id}', '${s.name.replace(/'/g, "\\ Analytical")}', ${s.price})" style="background: #4285F4; border:none; padding: 5px 12px; font-size: 12px; border-radius: 4px; color: white;">Edit</button>
+            <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px;">
+              <span style="color: var(--text-color); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.name} - GHS ${s.price} ${s.price === 0 ? '(FREE)' : ''}</span>
+              <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                <button onclick="editService('${sDoc.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})" style="background: #4285F4; border:none; padding: 5px 12px; font-size: 12px; border-radius: 4px; color: white;">Edit</button>
                 <button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 12px; font-size: 12px; border-radius: 4px; color: white;">Delete</button>
               </div>
             </div>`; 
@@ -1515,7 +1532,7 @@
         document.getElementById('servicesList').innerHTML = html; 
       });
 
-      onSnapshot(collection(db, "blacklist"), (snapshot) => { let html = ""; snapshot.forEach((bDoc) => { const b = bDoc.data(); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-left-color: #ff4444;"><span style="color: #ff4444; font-weight: bold;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white;">Unblock</button></div>`; }); document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html; });
+      onSnapshot(collection(db, "blacklist"), (snapshot) => { let html = ""; snapshot.forEach((bDoc) => { const b = bDoc.data(); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-left-color: #ff4444;"><span style="color: #ff4444; font-weight: bold; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Unblock</button></div>`; }); document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html; });
     }
 
     window.deleteStaffReport = async (reportId) => { try { await deleteDoc(doc(db, "staff_reports", reportId)); playRingTone(); showToast("Report dismissed"); } catch(e) {} };
@@ -1625,7 +1642,7 @@
 
           if ((ticket.status === "denied" || ticket.status === "pending_denial") && ticket.timestamp >= startOfToday) { 
             const timeStr = new Date(ticket.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
-            dailyDeniedHtml += `<div class="list-item" style="border-left-color: #ff4444; margin-bottom: 10px; padding: 12px;"><div style="font-size: 14px; font-weight: bold; color: #ff4444;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div><div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>Status: <strong>${ticket.status.toUpperCase().replace('_', ' ')}</strong><br>Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason'}"</em><br><span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span></div></div>`; 
+            dailyDeniedHtml += `<div class="list-item" style="border-left-color: #ff4444; margin-bottom: 10px; padding: 12px;"><div style="font-size: 14px; font-weight: bold; color: #ff4444; word-break: break-word;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div><div style="font-size: 13px; opacity: 0.8; margin-top: 4px; word-break: break-word;">Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>Status: <strong>${ticket.status.toUpperCase().replace('_', ' ')}</strong><br>Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason'}"</em><br><span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span></div></div>`; 
           }
           if (ticket.status === "pending_acceptance" || ticket.status === "in_progress" || ticket.status === "completed" || ticket.status === "pending_denial") { activeQueueCount++; }
 
@@ -1634,7 +1651,7 @@
 
             if (!isOwner) {
               if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
-              else if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
+              else if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #555, #333); border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
               else if (ticket.status === "completed" && isSec) {
                 if (ticket.isFree) {
                   statusColor = "#ffc107";
@@ -1647,7 +1664,7 @@
               else if (ticket.status === "denied" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button><button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button></div>`; }
             } else {
               if (ticket.isFree && ticket.ownerFreeApproval === 'pending') {
-                actionButton = `<div style="background: rgba(255,193,7,0.15); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px;"><p style="margin:0 0 5px 0; font-size:12px; color:#ffc107;">🎁 Free Reason: "${ticket.freeReason || 'None'}" (${ticket.status === 'completed' ? 'Completed by Barber' : 'In Progress'})</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#28a745; border-color:#28a745; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ff4444; border-color:#ff4444; font-size:12px;" onclick="forcePaymentService('${ticketId}')">Customer/Secretary must pay</button></div></div>`;
+                actionButton = `<div style="background: rgba(255,193,7,0.15); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px; word-break: break-word;"><p style="margin:0 0 5px 0; font-size:12px; color:#ffc107;">🎁 Free Reason: "${ticket.freeReason || 'None'}" (${ticket.status === 'completed' ? 'Completed by Barber' : 'In Progress'})</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#28a745; border-color:#28a745; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ff4444; border-color:#ff4444; font-size:12px;" onclick="forcePaymentService('${ticketId}')">Customer/Secretary must pay</button></div></div>`;
               }
             }
 
