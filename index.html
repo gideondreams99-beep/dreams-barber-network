@@ -952,17 +952,8 @@
       }
     }
 
-    function playRingTone() {
-      try {
-        if ('vibrate' in navigator) { navigator.vibrate([200, 100, 200]); }
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-        const playTone = (freq, start, duration) => {
-          const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start); gain.gain.setValueAtTime(0.4, audioCtx.currentTime + start); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + start + duration); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(audioCtx.currentTime + start); osc.stop(audioCtx.currentTime + start + duration);
-        };
-        playTone(659.25, 0, 0.2); playTone(783.99, 0.25, 0.3); playTone(1046.50, 0.6, 0.4); 
-      } catch (e) { console.log("Audio notification played error: ", e); }
-    }
+    // REMOVED IN-APP NOTIFICATION SOUND (SYSTEM NOTIFICATIONS HANDLE ALERTS)
+    function playRingTone() {}
 
     // 2. SERVICE WORKER PWA AUTO-UPDATE CHECK
     if ('serviceWorker' in navigator) { 
@@ -1552,6 +1543,7 @@
       }
     };
 
+    // SECRETARY STATUS TOGGLE (UPDATED: NO AUTOMATIC CHAT POSTING)
     window.toggleSecStatus = async () => {
       const btn = document.getElementById('toggleSecAwayBtn');
       const isCurrentlyHere = btn.innerText.includes('HERE');
@@ -1561,27 +1553,11 @@
           btn.innerText = "🔴 I am AWAY";
           btn.style.background = "#ff4444";
           btn.style.borderColor = "#ff4444";
-          
-          await addDoc(collection(db, "team_chat"), {
-            senderId: auth.currentUser.uid,
-            senderName: currentUserDoc.name + " (Front Desk)",
-            senderRole: "secretary",
-            text: "🔴 I have stepped AWAY from the front desk.",
-            timestamp: new Date().getTime()
-          });
           showToast("Status: AWAY");
         } else {
           btn.innerText = "🟢 I am HERE";
           btn.style.background = "#1a4b8c";
           btn.style.borderColor = "#2a6bcc";
-          
-          await addDoc(collection(db, "team_chat"), {
-            senderId: auth.currentUser.uid,
-            senderName: currentUserDoc.name + " (Front Desk)",
-            senderRole: "secretary",
-            text: "🟢 I am BACK at the front desk.",
-            timestamp: new Date().getTime()
-          });
           showToast("Status: HERE");
         }
       } catch(e) {
@@ -1955,7 +1931,7 @@
 
     let dashboardNotifTimer = null;
 
-    // UNIFIED INTERACTIVE DASHBOARD NOTIFICATION SYSTEM (EVERY USER ROLE IS CLICKABLE TO SPECIFIC LINK)
+    // UNIFIED INTERACTIVE DASHBOARD NOTIFICATION SYSTEM
     function startDashboardNotifications() {
       const notifBox = document.getElementById('dashboardNotificationBox');
       
