@@ -1214,7 +1214,7 @@
     document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => { const textarea = document.getElementById('announcementText'); const text = textarea.value.trim(); if (!text) return await customPopup('alert', "Please write an announcement."); try { await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() }); playRingTone(); textarea.value = ""; showToast("Announcement published successfully!"); } catch (err) { await customPopup('alert', "Error publishing announcement: " + err.message); } });
     window.deleteAnnouncement = async (annId) => { if (await customPopup('confirm', "Delete this announcement?")) { try { await deleteDoc(doc(db, "announcements", annId)); playRingTone(); showToast("Announcement deleted"); } catch (err) { await customPopup('alert', "Error deleting announcement: " + err.message); } } };
 
-    window.toggleAvailability = async () => { if (!currentUserDoc) return; const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets."); if (!confirmAction) return; try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus; const btn = document.getElementById('toggleAvailabilityBtn'); btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.borderColor = !newStatus ? "#555" : "#28a745"; playRingTone(); showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴"); } catch (err) { await customPopup('alert', "Error updating status: " + err.message); } };
+    window.toggleAvailability = async () => { if (!currentUserDoc) return; const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets."); if (!confirmAction) return; try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus; const btn = document.getElementById('toggleAvailabilityBtn'); btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; playRingTone(); showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴"); } catch (err) { await customPopup('alert', "Error updating status: " + err.message); } };
 
     window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); playRingTone(); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); playRingTone(); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
@@ -1495,8 +1495,38 @@
         let approvalHtml = ""; let activeHtml = "";
         snapshot.forEach((userDoc) => {
           const u = userDoc.data(); const uid = userDoc.id; const encodedStaff = encodeURIComponent(JSON.stringify(u));
-          if (!u.isApproved) { approvalHtml += `<div class="list-item" style="border-left-color: #ffc107;"><div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info"><img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0; flex-shrink: 0;"><div><div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div><div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div><div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div></div></div><button class="btn-action btn-submit" onclick="approveUser('${uid}')">Approve New Account</button></div>`; } 
-          else if (u.pendingUpdates) { const p = u.pendingUpdates; const updateStaffObj = encodeURIComponent(JSON.stringify({ ...u, name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL || u.photoURL })); approvalHtml += `<div class="list-item" style="border-left-color: #4285F4;"><div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info"><div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div><div class="ticket-details" style="margin-bottom: 10px;">New Name: <strong>${p.name}</strong><br>New Country: <strong>${p.country}</strong><br>New ID: <strong>${p.idType}</strong> (${p.idNumber})</div></div><button class="btn-action btn-submit" style="background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve Profile Update</button></div>`; }
+          if (!u.isApproved) { 
+            approvalHtml += `
+              <div class="list-item" style="border-left-color: #ffc107;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info">
+                  <img src="${u.photoURL}" style="width: 50px; height: 50px; margin: 0; flex-shrink: 0;">
+                  <div>
+                    <div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div>
+                    <div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div>
+                    <div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn-action btn-submit" style="flex: 1;" onclick="approveUser('${uid}')">Approve</button>
+                  <button class="btn-action" style="flex: 1; background: #ff4444; border-color: #ff4444; color: white;" onclick="denyUser('${uid}')">Deny / Dismiss</button>
+                </div>
+              </div>`; 
+          } 
+          else if (u.pendingUpdates) { 
+            const p = u.pendingUpdates; 
+            const updateStaffObj = encodeURIComponent(JSON.stringify({ ...u, name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL || u.photoURL })); 
+            approvalHtml += `
+              <div class="list-item" style="border-left-color: #4285F4;">
+                <div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info">
+                  <div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div>
+                  <div class="ticket-details" style="margin-bottom: 10px;">New Name: <strong>${p.name}</strong><br>New Country: <strong>${p.country}</strong><br>New ID: <strong>${p.idType}</strong> (${p.idNumber})</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn-action btn-submit" style="flex: 1; background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve</button>
+                  <button class="btn-action" style="flex: 1; background: #ff4444; border-color: #ff4444; color: white;" onclick="denyProfileUpdate('${uid}')">Deny / Dismiss</button>
+                </div>
+              </div>`; 
+          }
           if (u.isApproved && u.role !== "owner") { activeHtml += `<div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center; gap: 10px;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL}" style="width: 40px; height: 40px; margin: 0; flex-shrink: 0;"><div style="min-width: 0;"><strong style="color: var(--text-color); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.name}</strong> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()}</span></div></div><button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Fire / Remove</button></div>`; }
         });
         document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml; document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='opacity:0.6;'>No active staff found.</p>" : activeHtml;
@@ -1539,7 +1569,29 @@
 
     window.deleteStaffReport = async (reportId) => { try { await deleteDoc(doc(db, "staff_reports", reportId)); playRingTone(); showToast("Report dismissed"); } catch(e) {} };
     window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); playRingTone(); showToast(`${userName} approved successfully!`); };
+    window.denyUser = async (uid) => {
+      if (await customPopup('confirm', "Are you sure you want to deny and dismiss this staff account request?")) {
+        try {
+          await deleteDoc(doc(db, "users", uid));
+          playRingTone();
+          showToast("Staff account request denied and dismissed.");
+        } catch (err) {
+          await customPopup('alert', "Error denying request: " + err.message);
+        }
+      }
+    };
     window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); playRingTone(); showToast(`Profile updates approved for ${updatedName}!`); } };
+    window.denyProfileUpdate = async (uid) => {
+      if (await customPopup('confirm', "Are you sure you want to deny and dismiss this profile update request?")) {
+        try {
+          await updateDoc(doc(db, "users", uid), { pendingUpdates: null });
+          playRingTone();
+          showToast("Profile update request dismissed.");
+        } catch (err) {
+          await customPopup('alert', "Error dismissing update: " + err.message);
+        }
+      }
+    };
     window.fireStaff = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) { await deleteDoc(userRef); playRingTone(); showToast(`${userName} removed from the shop.`); } };
     window.deleteService = async (sid) => { if (await customPopup('confirm', "Delete this service?")) { await deleteDoc(doc(db, "services", sid)); playRingTone(); } };
     window.removeBlacklist = async (bid) => { if (await customPopup('confirm', "Unblock this customer?")) { await deleteDoc(doc(db, "blacklist", bid)); playRingTone(); showToast("Customer unblocked"); } };
