@@ -43,23 +43,36 @@
       }
     }
 
-    * { box-sizing: border-box; }
+    * { 
+      box-sizing: border-box; 
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+      transition: scrollbar-color 0.3s ease;
+    }
 
-    /* SLEEK CUSTOM SCROLLBAR DESIGN */
+    /* SLEEK AUTO-HIDING SCROLLBAR DESIGN */
     ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
+      width: 4px;
+      height: 4px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 10px;
+      background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: var(--accent-gold);
+      background: transparent;
       border-radius: 10px;
+      transition: background-color 0.3s ease;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #e6c247;
+
+    /* Gold scroll line appears ONLY when container is being hovered, active, or scrolled */
+    *:hover::-webkit-scrollbar-thumb,
+    *:focus::-webkit-scrollbar-thumb,
+    *:active::-webkit-scrollbar-thumb,
+    .is-scrolling::-webkit-scrollbar-thumb {
+      background: var(--accent-gold);
+    }
+    *:hover {
+      scrollbar-color: var(--accent-gold) transparent;
     }
 
     /* LOCK BODY PREVENT OVER-SCROLL BOUNCE */
@@ -875,6 +888,17 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    // AUTO-HIDE SCROLLBAR LISTENER
+    document.addEventListener('scroll', (e) => {
+      if (e.target && e.target.classList) {
+        e.target.classList.add('is-scrolling');
+        clearTimeout(e.target._scrollTimer);
+        e.target._scrollTimer = setTimeout(() => {
+          e.target.classList.remove('is-scrolling');
+        }, 800);
+      }
+    }, true);
+
     // 1. CURRENT LOCAL HARDCODED APP VERSION
     const CURRENT_APP_VERSION = "1.0.2";
 
@@ -1351,6 +1375,7 @@
     };
 
     window.openReportStaffModal = async () => {
+      if (!currentUserDoc) return;
       let targetRoleQuery = currentUserDoc.role === "secretary" ? "barber" : "secretary";
       let staffList = [];
       try {
@@ -1361,7 +1386,9 @@
             staffList.push({ label: `${u.name} (${u.role.toUpperCase()})`, value: u.name });
           }
         });
-      } catch(e) {}
+      } catch(e) {
+        console.error(e);
+      }
 
       if (staffList.length === 0) {
         return await customPopup('alert', `No active ${targetRoleQuery}s found to report.`);
@@ -1373,11 +1400,16 @@
       const input = document.getElementById('customModalInput');
       const dropdownList = document.getElementById('customDropdownList');
       const backBtn = document.getElementById('customPickerBackBtn');
+      const buttonContainer = document.getElementById('customModalButtons');
 
-      input.style.display = "none"; backBtn.style.display = "block"; dropdownList.style.display = "block";
+      input.style.display = "none"; 
+      buttonContainer.style.display = "none";
+      msg.innerHTML = ""; 
+      dropdownList.style.display = "block"; 
+      backBtn.style.display = "block";
+      
       title.innerText = currentUserDoc.role === "secretary" ? "Select Barber to Report" : "Select Secretary to Report";
       title.style.color = "#ff4444";
-      msg.innerHTML = "";
 
       let html = "";
       staffList.forEach(staff => {
@@ -1390,25 +1422,27 @@
 
     window.promptStaffReportReason = async (staffName) => {
       document.getElementById('customModalOverlay').classList.remove('show');
-      const reason = await customPopup('prompt', `Please enter your reason for reporting <strong>${staffName}</strong>:`, "Enter reason...");
-      if (reason === null) return;
-      if (!reason.trim()) {
-        return await customPopup('alert', "A reason is required to submit a report.");
-      }
-      try {
-        await addDoc(collection(db, "staff_reports"), {
-          staffName: staffName,
-          reportedBy: currentUserDoc.name,
-          reporterRole: currentUserDoc.role,
-          reason: reason.trim(),
-          timestamp: new Date().getTime()
-        });
-        playRingTone();
-        sendSystemNotification("SJ'S SALOON - Staff Report", `Report submitted against ${staffName}`);
-        showToast(`Report submitted against ${staffName}!`);
-      } catch(err) {
-        await customPopup('alert', "Error submitting report: " + err.message);
-      }
+      setTimeout(async () => {
+        const reason = await customPopup('prompt', `Please enter your reason for reporting <strong>${staffName}</strong>:`, "Enter reason...");
+        if (reason === null) return;
+        if (!reason.trim()) {
+          return await customPopup('alert', "A reason is required to submit a report.");
+        }
+        try {
+          await addDoc(collection(db, "staff_reports"), {
+            staffName: staffName,
+            reportedBy: currentUserDoc.name,
+            reporterRole: currentUserDoc.role,
+            reason: reason.trim(),
+            timestamp: new Date().getTime()
+          });
+          playRingTone();
+          sendSystemNotification("SJ'S SALOON - Staff Report", `Report submitted against ${staffName}`);
+          showToast(`Report submitted against ${staffName}!`);
+        } catch(err) {
+          await customPopup('alert', "Error submitting report: " + err.message);
+        }
+      }, 200);
     };
 
     function validateGovernmentID(country, idType, idNumber) { if (!idNumber || idNumber.trim().length < 4) { return "ID Number is too short or invalid."; } const cleanNum = idNumber.trim(); if (country === "Ghana" && idType === "National ID / Ghana Card" && !cleanNum.toUpperCase().startsWith("GHA-")) { return "Invalid Ghana Card format. Must start with 'GHA-'."; } return null; }
