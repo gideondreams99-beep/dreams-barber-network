@@ -619,11 +619,18 @@
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
       
-      <!-- DEVICE NOTIFICATIONS PANEL (Hidden automatically when permission granted) -->
+      <!-- DEVICE NOTIFICATIONS PANEL -->
       <div id="deviceNotificationPanel" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
         <h4 style="color: var(--accent-gold); margin-top: 0;">🔔 Device Notification Panel</h4>
         <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Enable native device system alerts in your phone's notification bar for new chat messages, tickets, and announcements.</p>
         <button onclick="requestNotificationPermission()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; width: 100%;">Enable Device Notifications</button>
+      </div>
+
+      <!-- OWNER BROADCAST UPDATE BUTTON -->
+      <div id="ownerUpdateBroadcastBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #4285F4; margin-bottom: 20px;">
+        <h4 style="color: #4285F4; margin-top: 0;">🚀 Broadcast App Update to Everyone</h4>
+        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Trigger an instant pop-up on all barbers' and secretaries' phones asking them to refresh the app.</p>
+        <button onclick="broadcastGlobalUpdate()" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Broadcast Update Alert</button>
       </div>
 
       <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
@@ -868,6 +875,9 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    // 1. CURRENT LOCAL HARDCODED APP VERSION
+    const CURRENT_APP_VERSION = "1.0.2";
+
     // DEFAULT AVATAR STICKER FALLBACK SVG DATA URI
     window.DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23222222'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' font-size='50'>🧔‍♂️</text></svg>";
 
@@ -929,7 +939,27 @@
       } catch (e) { console.log("Audio notification played error: ", e); }
     }
 
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed: ', err)); }); }
+    // 2. SERVICE WORKER PWA AUTO-UPDATE CHECK
+    if ('serviceWorker' in navigator) { 
+      window.addEventListener('load', () => { 
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          reg.update();
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', async () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                playRingTone();
+                await customPopup(
+                  'alert', 
+                  "📲 <b>New Version Ready!</b><br><br>The app has downloaded new updates. Tap <b>OK</b> to restart and apply."
+                );
+                window.location.reload(true);
+              }
+            });
+          });
+        }).catch(err => console.log('SW registration failed: ', err)); 
+      }); 
+    }
 
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
@@ -996,7 +1026,7 @@
       currentActiveViewId = targetViewId;
 
       const container = document.getElementById('appViewContainer');
-      if (container) container.scrollTop = 0; // Scroll view back to top smoothly on view change
+      if (container) container.scrollTop = 0;
 
       if (targetViewId === 'dashboard') {
         document.getElementById('topHeader').style.display = "flex";
@@ -1011,7 +1041,6 @@
       }
     };
 
-    // HARDWARE & POPSTATE BACK BUTTON LOGIC
     let lastBackTapTime = 0;
 
     window.exitAppHandler = () => {
@@ -1029,7 +1058,6 @@
       const modalOverlay = document.getElementById('customModalOverlay');
       const imageViewer = document.getElementById('fullscreenImageViewer');
 
-      // 1. Dismiss open overlays first
       if (imageViewer && imageViewer.classList.contains('show')) {
         imageViewer.classList.remove('show');
         document.getElementById('fullscreenImageElement').src = "";
@@ -1045,13 +1073,11 @@
         return;
       }
 
-      // 2. Sign-in page logic: Exit instantly
       if (currentActiveViewId === 'loginWelcomeView' || currentActiveViewId === 'setupView' || currentActiveViewId === 'pendingView') {
         exitAppHandler();
         return;
       }
 
-      // 3. Dashboard logic: Double tap back button within 2s to exit
       if (currentActiveViewId === 'dashboard') {
         const currentTime = new Date().getTime();
         if (currentTime - lastBackTapTime < 2000) {
@@ -1064,7 +1090,6 @@
         return;
       }
 
-      // 4. Sub-pages logic: Step back to Dashboard
       if (event.state && event.state.view) {
         navigateToView(event.state.view, false);
       } else {
@@ -1095,6 +1120,58 @@
 
     let currentUserDoc = null; let allPaidTicketsCache = []; let activePaymentTicketId = null; let activeReassignTicketId = null; let activeBlacklistCustomer = null; let activeBlacklistActionType = null; let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000", ownerPhone: "" };
     let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; let selectedIntakeBarber = ""; let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
+
+    // 3. REAL-TIME GLOBAL UPDATE LISTENER (Pushes updates simultaneously to all devices)
+    function startGlobalUpdateListener() {
+      onSnapshot(doc(db, "shop_config", "app_version"), async (docSnap) => {
+        if (docSnap.exists()) {
+          const serverVersion = docSnap.data().version;
+          if (serverVersion && serverVersion !== CURRENT_APP_VERSION) {
+            playRingTone();
+            sendSystemNotification("🚀 SJ'S SALOON Update", "A new version of the app is ready!");
+            
+            await customPopup(
+              'alert', 
+              "🚀 <b>New App Update Available!</b><br><br>A new update for SJ'S SALOON has been released. Click <b>OK</b> to update automatically now."
+            );
+
+            if ('caches' in window) {
+              try {
+                const cacheKeys = await caches.keys();
+                await Promise.all(cacheKeys.map(key => caches.delete(key)));
+              } catch(e) { console.log("Cache clear error:", e); }
+            }
+
+            if ('serviceWorker' in navigator) {
+              const registrations = await navigator.serviceWorker.getRegistrations();
+              for (let registration of registrations) {
+                await registration.unregister();
+              }
+            }
+
+            window.location.reload(true);
+          }
+        }
+      });
+    }
+
+    // 4. OWNER BROADCAST UPDATE SIGNAL FUNCTION
+    window.broadcastGlobalUpdate = async () => {
+      const newVersionStr = await customPopup('prompt', "Enter New Version Number to broadcast to all devices:", "e.g. 1.0.3");
+      if (!newVersionStr || !newVersionStr.trim()) return;
+
+      try {
+        await setDoc(doc(db, "shop_config", "app_version"), {
+          version: newVersionStr.trim(),
+          updatedAt: new Date().getTime(),
+          updatedBy: currentUserDoc.name
+        }, { merge: true });
+
+        showToast("Update broadcast sent to all online devices!");
+      } catch(err) {
+        await customPopup('alert', "Error broadcasting update: " + err.message);
+      }
+    };
 
     window.customPopup = function(type, message, placeholder = "Enter details...") {
       return new Promise((resolve) => {
@@ -1196,6 +1273,7 @@
       if (currentUserDoc && currentUserDoc.role === "owner") { 
         document.getElementById('ownerDangerZoneBox').style.display = "block"; 
         document.getElementById('ownerPaymentSettingsBox').style.display = "block"; 
+        document.getElementById('ownerUpdateBroadcastBox').style.display = "block"; 
         document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name; 
         document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number; 
         document.getElementById('ownerDirectPhoneSet').value = shopPaymentConfig.ownerPhone || "";
@@ -1204,6 +1282,7 @@
       } else { 
         document.getElementById('ownerDangerZoneBox').style.display = "none"; 
         document.getElementById('ownerPaymentSettingsBox').style.display = "none"; 
+        document.getElementById('ownerUpdateBroadcastBox').style.display = "none"; 
         document.getElementById('settingsPageHeading').innerText = "Settings";
         staffReportContainer.style.display = "block";
         if (currentUserDoc.role === "secretary") {
@@ -1237,7 +1316,6 @@
     window.openAnnouncementsPage = () => { navigateToView('announcementsPage'); if (currentUserDoc && currentUserDoc.role === "owner") { document.getElementById('ownerAnnouncementCreator').style.display = "block"; } startAnnouncementsListener(); };
     window.openAiAssistantPage = () => { navigateToView('aiAssistantPage'); };
 
-    // APP AI ASSISTANT LOGIC
     window.askAiQuickPrompt = (promptText) => {
       document.getElementById('aiQueryInput').value = promptText;
       processAiQuery();
@@ -1272,7 +1350,6 @@
       box.scrollTop = box.scrollHeight;
     };
 
-    // STAFF REPORTING MODAL
     window.openReportStaffModal = async () => {
       let targetRoleQuery = currentUserDoc.role === "secretary" ? "barber" : "secretary";
       let staffList = [];
@@ -1338,7 +1415,6 @@
 
     window.showToast = (message) => { let toast = document.getElementById('toastNotification'); if(!toast) { toast = document.createElement('div'); toast.id = 'toastNotification'; document.body.appendChild(toast); } toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3500); };
 
-    // --- SHOP & SECRETARY STATUS LOGIC ---
     window.generateDailyReportAndSend = async (openTimeMs, closeTimeMs) => {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -1633,7 +1709,6 @@
       } catch (err) { await customPopup('alert', "Error updating profile: " + err.message); btn.innerText = "Save & Update Profile"; btn.disabled = false; }
     });
 
-    // --- WHATSAPP STYLE REAL-TIME CHAT LOGIC ---
     let chatInitialized = false;
     function startChatListener() {
       const q = query(collection(db, "team_chat"), orderBy("timestamp", "asc"));
@@ -1707,7 +1782,6 @@
     window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); playRingTone(); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.promptBarberDenyReason = async (ticketId) => { const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason..."); if (reason === null) return; if (!reason.trim()) { await customPopup('alert', "A reason is required to deny a customer."); return; } try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied", denyReason: reason.trim() }); playRingTone(); showToast("Customer denied and reason recorded."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
 
-    // FREE SERVICE OWNER REVIEW ACTIONS
     window.approveFreeService = async (ticketId) => {
       try {
         await updateDoc(doc(db, "daily_tickets", ticketId), { 
@@ -1819,10 +1893,9 @@
         document.getElementById('barberControls').style.display = "block";
       }
       updateCallOwnerButton();
-      startLiveQueue(); populateIntakeForm(); cacheAllTickets(); startDashboardNotifications();
+      startLiveQueue(); populateIntakeForm(); cacheAllTickets(); startDashboardNotifications(); startGlobalUpdateListener();
     }
 
-    // DASHBOARD NOTIFICATION AUTO-DISAPPEAR TIMER
     let dashboardNotifTimer = null;
 
     function startDashboardNotifications() {
@@ -2045,7 +2118,6 @@
         document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml; document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='opacity:0.6;'>No active staff found.</p>" : activeHtml;
       });
 
-      // Staff Reports Listener
       onSnapshot(collection(db, "staff_reports"), (snapshot) => {
         let html = "";
         snapshot.forEach((docSnap) => {
@@ -2112,7 +2184,6 @@
     window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); playRingTone(); showToast(`${customerName} added to blacklist!`); };
     window.wipeShopHistory = async () => { const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here"); if (c1 !== 'DELETE') return; const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly."); if (!c2) return; try { const ticketSnaps = await getDocs(collection(db, "daily_tickets")); ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id))); const reportSnaps = await getDocs(collection(db, "blacklist_reports")); reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id))); playRingTone(); showToast("All customer data history wiped successfully."); } catch(e) { await customPopup('alert', "Error wiping data: " + e.message); } };
 
-    // MULTI-SERVICE INTAKE RENDER & AUTO CALCULATIONS
     function renderSecretaryMultiServiceList() {
       const container = document.getElementById('secretaryServicesContainer');
       if (!container) return;
