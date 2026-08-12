@@ -972,6 +972,13 @@
             const newWorker = reg.installing;
             newWorker.addEventListener('statechange', async () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                if (sessionStorage.getItem('sw_update_prompted')) return;
+                sessionStorage.setItem('sw_update_prompted', 'true');
+
+                if (currentActiveViewId) {
+                  localStorage.setItem('pre_update_view', currentActiveViewId);
+                }
+
                 playRingTone();
                 await customPopup(
                   'alert', 
@@ -1150,7 +1157,15 @@
       onSnapshot(doc(db, "shop_config", "app_version"), async (docSnap) => {
         if (docSnap.exists()) {
           const serverVersion = docSnap.data().version;
-          if (serverVersion && serverVersion !== CURRENT_APP_VERSION) {
+          const hasPrompted = sessionStorage.getItem('prompted_ver_' + serverVersion);
+
+          if (serverVersion && serverVersion !== CURRENT_APP_VERSION && !hasPrompted) {
+            sessionStorage.setItem('prompted_ver_' + serverVersion, 'true');
+
+            if (currentActiveViewId) {
+              localStorage.setItem('pre_update_view', currentActiveViewId);
+            }
+
             playRingTone();
             sendSystemNotification("🚀 SJ'S SALOON Update", "A new version of the app is ready!");
             
@@ -1894,7 +1909,14 @@
         setTimeout(() => { Notification.requestPermission(); }, 3000);
       }
 
-      navigateToView('dashboard');
+      const savedView = localStorage.getItem('pre_update_view');
+      if (savedView && ALL_APP_VIEWS.includes(savedView)) {
+        localStorage.removeItem('pre_update_view');
+        navigateToView(savedView, true);
+      } else {
+        navigateToView('dashboard');
+      }
+
       document.getElementById('queuePanel').style.display = "block";
       
       document.getElementById('sidebarUserName').innerText = docData.name; 
