@@ -215,6 +215,11 @@
       max-width: 100%;
       overflow: hidden;
       word-break: break-word;
+      transition: all 0.2s ease;
+    }
+    .notice-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
     .notice-card h5 { margin: 0 0 5px 0; color: var(--accent-gold); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
     .notice-card p { margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.4; word-break: break-word; }
@@ -1028,8 +1033,8 @@
 
     // --- SHOP & SECRETARY STATUS LOGIC ---
 
-    // Function to calculate today's sales and send the report
-    window.generateDailyReportAndSend = async () => {
+    // Function to calculate today's sales and send the report with dates/times
+    window.generateDailyReportAndSend = async (openTimeMs, closeTimeMs) => {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
       
@@ -1053,7 +1058,12 @@
         }
       });
 
-      const reportText = `📊 END OF DAY REPORT:\n💰 Total Revenue: GHS ${totalVal.toFixed(2)}\n✂️ Total Paid Cuts: ${totalCuts}\n🎁 Free Cuts Approved: ${freeCuts}\n❌ Denied/Cancelled: ${cancelledDenied}`;
+      const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const openDateStr = new Date(closeTimeMs).toLocaleDateString(undefined, optionsDate);
+      const openTimeStr = openTimeMs ? new Date(openTimeMs).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Not recorded';
+      const closeTimeStr = new Date(closeTimeMs).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      const reportText = `📊 END OF DAY REPORT:\n📅 Date: ${openDateStr}\n🔓 Opened: ${openTimeStr}\n🔒 Closed: ${closeTimeStr}\n💰 Total Revenue: GHS ${totalVal.toFixed(2)}\n✂️ Total Paid Cuts: ${totalCuts}\n🎁 Free Cuts Approved: ${freeCuts}\n❌ Denied/Cancelled: ${cancelledDenied}`;
 
       // Send the report instantly to the team chat so the owner sees it
       await addDoc(collection(db, "team_chat"), {
@@ -1080,15 +1090,23 @@
           btn.style.background = "#8c1a1a";
           btn.style.borderColor = "#cc2a2a";
           
+          const closeTime = Date.now();
+          // Get the stored open time for today
+          const openTime = parseInt(localStorage.getItem('shopOpenTimestamp')) || closeTime;
+          
           // Send closing alert and then the report
           await addDoc(collection(db, "team_chat"), {
             senderId: auth.currentUser.uid,
             senderName: currentUserDoc.name + " (Front Desk)",
             senderRole: "secretary",
             text: "🔒 The shop is now CLOSED. Generating daily report...",
-            timestamp: new Date().getTime()
+            timestamp: closeTime
           });
-          await generateDailyReportAndSend();
+          
+          await generateDailyReportAndSend(openTime, closeTime);
+          
+          // Clear the open timestamp for the next day
+          localStorage.removeItem('shopOpenTimestamp');
           showToast("Shop closed! Report sent to Owner.");
         } else {
           // Change UI to OPEN
@@ -1096,13 +1114,17 @@
           btn.style.background = "#28a745";
           btn.style.borderColor = "#28a745";
           
+          const openTime = Date.now();
+          // Store the exact time the shop was opened locally
+          localStorage.setItem('shopOpenTimestamp', openTime);
+          
           // Send opening alert
           await addDoc(collection(db, "team_chat"), {
             senderId: auth.currentUser.uid,
             senderName: currentUserDoc.name + " (Front Desk)",
             senderRole: "secretary",
             text: "🔓 The shop is now OPEN and ready for business!",
-            timestamp: new Date().getTime()
+            timestamp: openTime
           });
           showToast("Shop opened! Owner notified.");
         }
@@ -1492,27 +1514,40 @@
       startLiveQueue(); populateIntakeForm(); cacheAllTickets(); startDashboardNotifications();
     }
 
+    // --- DASHBOARD NOTIFICATIONS (NOW FULLY CLICKABLE) ---
     function startDashboardNotifications() {
       const notifBox = document.getElementById('dashboardNotificationBox'); notifBox.style.display = "block";
       if (currentUserDoc && currentUserDoc.role === "owner") {
-        let notifHtml = "";
         const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qChat, (snap) => { let chatNotice = ""; snap.forEach(d => { const m = d.data(); if (m.senderId !== auth.currentUser.uid) { chatNotice = `<div class="notice-card"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; } }); renderOwnerNotifications(chatNotice, null, null, null); });
+        onSnapshot(qChat, (snap) => { let chatNotice = ""; snap.forEach(d => { const m = d.data(); if (m.senderId !== auth.currentUser.uid) { chatNotice = `<div class="notice-card clickable" style="cursor: pointer;" onclick="openChatPage()"><h5>💬 New Team Message</h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; } }); renderOwnerNotifications(chatNotice, null, null, null); });
+        
         const qTickets = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qTickets, (snap) => { let ticketNotice = ""; snap.forEach(d => { const t = d.data(); if (t.status === "completed") { ticketNotice = `<div class="notice-card" style="border-color:#28a745;"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`; } else if (t.status === "pending_acceptance") { ticketNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`; } }); renderOwnerNotifications(null, ticketNotice, null, null); });
+        onSnapshot(qTickets, (snap) => { let ticketNotice = ""; snap.forEach(d => { const t = d.data(); if (t.status === "completed") { ticketNotice = `<div class="notice-card clickable" style="border-color:#28a745; cursor: pointer;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>✂️ Cut Completed</h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`; } else if (t.status === "pending_acceptance") { ticketNotice = `<div class="notice-card clickable" style="border-color:#4285F4; cursor: pointer;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎟️ Ticket Assigned</h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> pending review by <b>${t.assignedBarber}</b></p></div>`; } }); renderOwnerNotifications(null, ticketNotice, null, null); });
+        
         const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
-        onSnapshot(qUsers, (snap) => { let approvalNotice = ""; if (snap.size > 0) { approvalNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; } renderOwnerNotifications(null, null, approvalNotice, null); });
+        onSnapshot(qUsers, (snap) => { let approvalNotice = ""; if (snap.size > 0) { approvalNotice = `<div class="notice-card clickable" style="border-color:#ffc107; cursor: pointer;" onclick="openOwnerPage('staff')"><h5>⚠️ Pending Staff Registration</h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; } renderOwnerNotifications(null, null, approvalNotice, null); });
+        
         const qFree = query(collection(db, "daily_tickets"), where("isFree", "==", true), where("ownerFreeApproval", "==", "pending"));
-        onSnapshot(qFree, (snap) => { let freeNotice = ""; if (snap.size > 0) { freeNotice = `<div class="notice-card" style="border-color:#ffc107;">🎁 Pending Free Service Review</h5><p>You have <b>${snap.size} free service request(s)</b> waiting for review.</p></div>`; } renderOwnerNotifications(null, null, null, freeNotice); });
+        onSnapshot(qFree, (snap) => { let freeNotice = ""; if (snap.size > 0) { freeNotice = `<div class="notice-card clickable" style="border-color:#ffc107; cursor: pointer;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎁 Pending Free Service Review</h5><p>You have <b>${snap.size} free service request(s)</b> waiting for review.</p></div>`; } renderOwnerNotifications(null, null, null, freeNotice); });
 
         let cachedChatN = "", cachedTicketN = "", cachedApproveN = "", cachedFreeN = "";
-        function renderOwnerNotifications(c, t, a, f) { if (c !== null) cachedChatN = c; if (t !== null) cachedTicketN = t; if (a !== null) cachedApproveN = a; if (f !== null) cachedFreeN = f; const combined = cachedApproveN + cachedTicketN + cachedFreeN + cachedChatN; notifBox.innerHTML = combined !== "" ? combined : `<div class="notice-card" style="border-color:#555;"><h5>✨ All Clear</h5><p>No new staff activities or pending notifications.</p></div>`; }
+        function renderOwnerNotifications(c, t, a, f) { 
+          if (c !== null) cachedChatN = c; if (t !== null) cachedTicketN = t; if (a !== null) cachedApproveN = a; if (f !== null) cachedFreeN = f; 
+          const combined = cachedApproveN + cachedTicketN + cachedFreeN + cachedChatN; 
+          notifBox.innerHTML = combined !== "" ? combined : `<div class="notice-card" style="border-color:#555;"><h5>✨ All Clear</h5><p>No new staff activities or pending notifications.</p></div>`; 
+        }
       } else {
-        let annNotice = "", chatNotice = "";
         const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qAnn, (snap) => { snap.forEach(d => { const a = d.data(); annNotice = `<div class="notice-card" style="border-color:#ffc107;"><h5>📢 Latest Owner Announcement</h5><p>"${a.text}" <br><span style="font-size:10px; opacity:0.7;">By ${a.author}</span></p></div>`; }); notifBox.innerHTML = annNotice + chatNotice; });
+        onSnapshot(qAnn, (snap) => { let annNotice = ""; snap.forEach(d => { const a = d.data(); annNotice = `<div class="notice-card clickable" style="border-color:#ffc107; cursor: pointer;" onclick="openAnnouncementsPage()"><h5>📢 Latest Owner Announcement</h5><p>"${a.text}" <br><span style="font-size:10px; opacity:0.7;">By ${a.author}</span></p></div>`; }); renderStaffNotifs(annNotice, null); });
+        
         const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qChat, (snap) => { snap.forEach(d => { const m = d.data(); if (m.senderRole === "owner") { chatNotice = `<div class="notice-card" style="border-color:#4285F4;"><h5>👑 Message from Owner</h5><p><b>${m.senderName}</b>: "${m.text}"</p></div>`; } }); notifBox.innerHTML = annNotice + chatNotice; });
+        onSnapshot(qChat, (snap) => { let chatNotice = ""; snap.forEach(d => { const m = d.data(); if (m.senderRole === "owner") { chatNotice = `<div class="notice-card clickable" style="border-color:#4285F4; cursor: pointer;" onclick="openChatPage()"><h5>👑 Message from Owner</h5><p><b>${m.senderName}</b>: "${m.text}"</p></div>`; } }); renderStaffNotifs(null, chatNotice); });
+
+        let cachedAnn = "", cachedChat = "";
+        function renderStaffNotifs(a, c) {
+            if (a !== null) cachedAnn = a; if (c !== null) cachedChat = c;
+            notifBox.innerHTML = cachedAnn + cachedChat;
+        }
       }
     }
 
