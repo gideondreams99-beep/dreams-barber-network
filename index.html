@@ -875,13 +875,12 @@
   </div>
 
   <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML -->
-  <div id="customModalOverlay">
-    <div id="customModalBox">
+  <div id="customModalOverlay" onclick="closePickerModal()">
+    <div id="customModalBox" onclick="event.stopPropagation()">
       <h3 id="customModalTitle">Notice</h3>
       <p id="customModalMessage">Message</p>
       <input type="text" id="customModalInput" autocomplete="off">
       <div id="customDropdownList"></div>
-      <button id="customPickerBackBtn" onclick="closePickerModal()" style="display: none; width: 100%; margin-top: 10px; background: #444; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 8px; font-size: 14px;">⬅ Cancel & Go Back</button>
       <div id="customModalButtons" style="display: flex; gap: 10px; margin-top: 25px;">
         <button id="customModalCancel" style="flex: 1; background: #333; border: 1px solid #555; color: white;">Cancel</button>
         <button id="customModalConfirm" style="flex: 1;" class="btn-submit">OK</button>
@@ -1221,8 +1220,8 @@
           activePopupResolve = null;
         }
 
-        const overlay = document.getElementById('customModalOverlay'); const title = document.getElementById('customModalTitle'); const msg = document.getElementById('customModalMessage'); const input = document.getElementById('customModalInput'); const dropdownList = document.getElementById('customDropdownList'); const backBtn = document.getElementById('customPickerBackBtn'); const cancelBtn = document.getElementById('customModalCancel'); const confirmBtn = document.getElementById('customModalConfirm'); const buttonContainer = document.getElementById('customModalButtons');
-        input.value = ""; input.style.display = "none"; dropdownList.style.display = "none"; backBtn.style.display = "none"; cancelBtn.style.display = "block"; buttonContainer.style.display = "flex"; msg.innerHTML = message;
+        const overlay = document.getElementById('customModalOverlay'); const title = document.getElementById('customModalTitle'); const msg = document.getElementById('customModalMessage'); const input = document.getElementById('customModalInput'); const dropdownList = document.getElementById('customDropdownList'); const cancelBtn = document.getElementById('customModalCancel'); const confirmBtn = document.getElementById('customModalConfirm'); const buttonContainer = document.getElementById('customModalButtons');
+        input.value = ""; input.style.display = "none"; dropdownList.style.display = "none"; cancelBtn.style.display = "block"; buttonContainer.style.display = "flex"; msg.innerHTML = message;
         
         if (type === 'alert') { title.innerText = "System Notice"; title.style.color = "var(--accent-gold)"; cancelBtn.style.display = "none"; confirmBtn.innerText = "OK"; confirmBtn.style.background = "linear-gradient(145deg, #d4af37, #997d20)"; confirmBtn.style.borderColor = "#997d20"; confirmBtn.style.color = "#111"; } 
         else if (type === 'confirm') { title.innerText = "Confirm Action"; title.style.color = "#ffc107"; confirmBtn.innerText = "Yes, Proceed"; confirmBtn.style.background = "linear-gradient(145deg, #ff4444, #cc0000)"; confirmBtn.style.borderColor = "#cc0000"; confirmBtn.style.color = "#fff"; } 
@@ -1262,8 +1261,8 @@
     };
 
     window.openPickerModal = async (pickerType) => {
-      const overlay = document.getElementById('customModalOverlay'); const title = document.getElementById('customModalTitle'); const msg = document.getElementById('customModalMessage'); const input = document.getElementById('customModalInput'); const dropdownList = document.getElementById('customDropdownList'); const backBtn = document.getElementById('customPickerBackBtn'); const buttonContainer = document.getElementById('customModalButtons');
-      input.style.display = "none"; buttonContainer.style.display = "none"; msg.innerHTML = ""; dropdownList.style.display = "block"; backBtn.style.display = "block";
+      const overlay = document.getElementById('customModalOverlay'); const title = document.getElementById('customModalTitle'); const msg = document.getElementById('customModalMessage'); const input = document.getElementById('customModalInput'); const dropdownList = document.getElementById('customDropdownList'); const buttonContainer = document.getElementById('customModalButtons');
+      input.style.display = "none"; buttonContainer.style.display = "none"; msg.innerHTML = ""; dropdownList.style.display = "block";
       let options = []; let currentValue = "";
 
       if (pickerType === 'role') { title.innerText = "Select Your Role"; currentValue = selectedSetupRole; let ownerExists = false; try { const userSnapshots = await getDocs(collection(db, "users")); userSnapshots.forEach(docSnap => { if (docSnap.data().role === 'owner') { ownerExists = true; } }); } catch(e) {} options = [ { label: "Barber", value: "barber" }, { label: "Secretary", value: "secretary" } ]; if (!ownerExists) { options.push({ label: "Shop Owner", value: "owner" }); } } 
@@ -1437,14 +1436,12 @@
       const msg = document.getElementById('customModalMessage');
       const input = document.getElementById('customModalInput');
       const dropdownList = document.getElementById('customDropdownList');
-      const backBtn = document.getElementById('customPickerBackBtn');
       const buttonContainer = document.getElementById('customModalButtons');
 
       input.style.display = "none"; 
       buttonContainer.style.display = "none";
       msg.innerHTML = ""; 
-      dropdownList.style.display = "block"; 
-      backBtn.style.display = "block";
+      dropdownList.style.display = "block";
       
       title.innerText = "Select Staff to Report";
       title.style.color = "#ff4444";
@@ -1891,9 +1888,8 @@
           <button onclick="acceptTicket('${ticketId}')" class="btn-submit" style="flex: 1; background: #28a745; border-color: #28a745;">✅ Accept Cut</button>
           <button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #8c1a1a; color: white; border-color: #cc2a2a;">❌ Deny</button>
         </div>
-        <button onclick="closePickerModal()" style="width: 100%; margin-top: 10px; background: #444; border: 1px solid #555; color: #fff; padding: 12px; border-radius: 8px; font-size: 14px;">⬅ Cancel & Go Back</button>
       `;
-      const overlay = document.getElementById('customModalOverlay'); document.getElementById('customModalTitle').innerText = "Review Customer & Service"; document.getElementById('customModalMessage').innerHTML = reviewHtml; document.getElementById('customModalInput').style.display = "none"; document.getElementById('customDropdownList').style.display = "none"; document.getElementById('customPickerBackBtn').style.display = "none"; document.getElementById('customModalButtons').style.display = "none"; overlay.classList.add('show');
+      const overlay = document.getElementById('customModalOverlay'); document.getElementById('customModalTitle').innerText = "Review Customer & Service"; document.getElementById('customModalMessage').innerHTML = reviewHtml; document.getElementById('customModalInput').style.display = "none"; document.getElementById('customDropdownList').style.display = "none"; document.getElementById('customModalButtons').style.display = "none"; overlay.classList.add('show');
       history.pushState({ modal: 'reviewTicket' }, '');
     };
 
