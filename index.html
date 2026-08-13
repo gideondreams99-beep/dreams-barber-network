@@ -105,7 +105,6 @@
       flex: 1;
       min-height: 0; /* Crucial fix for flex child scrolling on mobile */
       width: 100%;
-      height: 100%;
       overflow-y: auto;
       overflow-x: hidden;
       display: flex;
@@ -113,7 +112,7 @@
       align-items: center;
       padding: 15px;
       padding-top: 75px; /* Offset for fixed top header */
-      padding-bottom: 100px; /* Generous bottom padding so form contents never get cut off */
+      padding-bottom: 120px; /* Increased bottom padding so form contents never get cut off */
       box-sizing: border-box;
       -webkit-overflow-scrolling: touch;
       scroll-behavior: smooth;
@@ -397,7 +396,7 @@
     /* JUMPING ANIMATED LOGIN SCREEN CENTERED */
     @keyframes jumpBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
     .jumping-logo-container { display: inline-block; animation: jumpBounce 2s infinite ease-in-out; margin-bottom: 15px; }
-    .login-welcome-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; box-sizing: border-box; margin-top: 10px; overflow: hidden; }
+    .login-welcome-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; box-sizing: border-box; margin-top: 10px; margin-bottom: 40px; }
   </style>
 </head>
 <body>
