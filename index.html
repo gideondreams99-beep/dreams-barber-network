@@ -435,6 +435,11 @@
     
     <div class="sidebar-category">System</div>
     <button id="sidebarSettingsBtn" class="sidebar-btn" onclick="openSettingsPage(); closeSidebar();">⚙️ Settings & Payment</button>
+    
+    <!-- Copyright Tag Below Settings / Settings & Payment Button -->
+    <div style="margin-top: 25px; text-align: center; font-size: 11px; opacity: 0.5; border-top: 1px solid var(--panel-border); padding-top: 15px; letter-spacing: 1px;">
+      &copy; 2026 SJ'S SALOON
+    </div>
   </div>
 
   <!-- WRAPPER FOR SCROLLABLE INNER APP VIEWS -->
@@ -1348,15 +1353,10 @@
         document.getElementById('ownerUpdateBroadcastBox').style.display = "none"; 
         document.getElementById('settingsPageHeading').innerText = "Settings";
         staffReportContainer.style.display = "block";
-        if (currentUserDoc.role === "secretary") {
-          reportTitle.innerText = "🚨 Report a Barber";
-          reportDesc.innerText = "Report a barber to the owner with a detailed reason.";
-          reportBtn.innerText = "Report Barber";
-        } else if (currentUserDoc.role === "barber") {
-          reportTitle.innerText = "🚨 Report Secretary";
-          reportDesc.innerText = "Report the secretary to the owner with a detailed reason.";
-          reportBtn.innerText = "Report Secretary";
-        }
+        
+        reportTitle.innerText = "🚨 Report Staff Member";
+        reportDesc.innerText = "Report a staff member to the owner with a detailed reason.";
+        reportBtn.innerText = "Report Staff";
       }
       navigateToView('settingsPage');
     };
@@ -1400,14 +1400,14 @@
       } else if (q.includes("ticket") || q.includes("issue") || q.includes("front desk")) {
         answer = "🎟️ <b>Issuing Tickets:</b> Secretaries use the Front Desk Intake panel to type customer names, select multiple services, and assign an available barber. Click 'Issue Ticket' to send it straight to the barber's queue.";
       } else if (q.includes("report") || q.includes("complaint")) {
-        answer = "🚨 <b>Staff Reports:</b> Secretaries can report barbers, and barbers can report secretaries via their Settings menu. Owners can review all complaints in the Staff Management panel.";
+        answer = "🚨 <b>Staff Reports:</b> Staff members can report colleagues via their Settings menu. Owners can review all complaints in the Staff Management panel.";
       } else if (q.includes("payment") || q.includes("collect") || q.includes("momo")) {
         answer = "💳 <b>Collecting Payments:</b> Once a barber finishes a cut, secretaries can click 'Collect Payment' on the ticket to process Cash, MTN MoMo, or Telecel Cash using the owner's saved payment merchant details.";
       } else if (q.includes("owner") || q.includes("call")) {
         answer = "📞 <b>Calling Owner:</b> Barbers and secretaries can tap the 'Call Shop Owner Now' button directly on their dashboard to quickly place a call using the phone number set by the owner.";
       }
 
-      const aiHtml = `<div style="margin-bottom: 12px; text-align: left;"><span style="font-size: 11px; color: #4285F4;">SJ'S AI Assistant</span><br><div style="display: inline-block; background: var(--panel-bg); color: var(--text-color); padding: 8px 12px; border-radius: 8px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">${answer}</div></div>`;
+      const aiHtml = `<div style="margin-bottom: 12px; text-align: left;"><span style="font-size: 11px; color: #4285F4;">SJ'S SALOON AI Assistant</span><br><div style="display: inline-block; background: var(--panel-bg); color: var(--text-color); padding: 8px 12px; border-radius: 8px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">${answer}</div></div>`;
       box.innerHTML += aiHtml;
       input.value = "";
       box.scrollTop = box.scrollHeight;
@@ -1415,13 +1415,12 @@
 
     window.openReportStaffModal = async () => {
       if (!currentUserDoc) return;
-      let targetRoleQuery = currentUserDoc.role === "secretary" ? "barber" : "secretary";
       let staffList = [];
       try {
         const snap = await getDocs(collection(db, "users"));
         snap.forEach(d => {
           const u = d.data();
-          if (u.isApproved && u.role === targetRoleQuery) {
+          if (u.isApproved && u.role !== "owner" && d.id !== auth.currentUser.uid) {
             staffList.push({ label: `${u.name} (${u.role.toUpperCase()})`, value: u.name });
           }
         });
@@ -1430,7 +1429,7 @@
       }
 
       if (staffList.length === 0) {
-        return await customPopup('alert', `No active ${targetRoleQuery}s found to report.`);
+        return await customPopup('alert', `No active staff found to report.`);
       }
 
       const overlay = document.getElementById('customModalOverlay');
@@ -1447,7 +1446,7 @@
       dropdownList.style.display = "block"; 
       backBtn.style.display = "block";
       
-      title.innerText = currentUserDoc.role === "secretary" ? "Select Barber to Report" : "Select Secretary to Report";
+      title.innerText = "Select Staff to Report";
       title.style.color = "#ff4444";
 
       let html = "";
