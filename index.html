@@ -1249,7 +1249,6 @@
       });
     };
 
-    // FIX 4: PROPER HISTORY STACK POPPING ON MODAL CLOSURE
     window.closePickerModal = () => {
       const overlay = document.getElementById('customModalOverlay');
       if (overlay.classList.contains('show')) {
@@ -1294,7 +1293,13 @@
       else if (pickerType === 'editCountry') { selectedEditCountry = val; document.getElementById('editCountryText').innerText = label; } 
       else if (pickerType === 'editIdType') { selectedEditIdType = val; document.getElementById('editIdTypeText').innerText = label; } 
       else if (pickerType === 'barberName') { selectedIntakeBarber = val; document.getElementById('barberNameText').innerText = label; } 
-      else if (pickerType === 'reportMonth') { const parts = val.split('-'); generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label); }
+      /* FIX 4 APPLIED: Wrap view navigation in a setTimeout to avoid popstate race condition when closing modal */
+      else if (pickerType === 'reportMonth') { 
+        const parts = val.split('-'); 
+        setTimeout(() => {
+          generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label); 
+        }, 100);
+      }
       else if (pickerType === 'reassignBarber') { if (activeReassignTicketId) { try { await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), { assignedBarber: val, status: "pending_acceptance", denyReason: null }); playRingTone(); showToast(`Ticket reassigned to ${val} for review!`); } catch (err) { await customPopup('alert', "Error reassigning ticket: " + err.message); } activeReassignTicketId = null; } }
     };
 
@@ -1304,7 +1309,11 @@
       let totalVal = 0; let totalCuts = 0; let serviceMap = {};
       allPaidTicketsCache.forEach(t => {
         if (t.status === "paid" || (t.isFree && t.ownerFreeApproval === 'approved')) {
-          if (currentUserDoc && currentUserDoc.role === "barber") { const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); if (t.assignedBarber.toLowerCase() !== myFirstName) return; }
+          /* FIX 1 APPLIED: Safe existence check on assignedBarber to prevent TypeError */
+          if (currentUserDoc && currentUserDoc.role === "barber") { 
+            const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); 
+            if (!t.assignedBarber || t.assignedBarber.toLowerCase() !== myFirstName) return; 
+          }
           const tDate = new Date(t.timestamp);
           if (tDate.getFullYear() === year && tDate.getMonth() === month) { const sName = t.serviceName || "General Service"; const sPrice = Number(t.price) || 0; totalVal += sPrice; totalCuts++; if (!serviceMap[sName]) serviceMap[sName] = { count: 0, total: 0 }; serviceMap[sName].count++; serviceMap[sName].total += sPrice; }
         }
@@ -1726,7 +1735,8 @@
       statusText.style.display = "block";
       statusText.innerText = "Loading... ⏳";
 
-      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+      /* FIX 3 APPLIED: Lowercase Cloudinary cloud name */
+      const CLOUDINARY_CLOUD_NAME = "vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
       try {
         if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
         const isOwner = (role === "owner"); await setDoc(doc(db, "users", user.uid), { name: displayName, email: user.email || "", photoURL: photoUrlToSave, role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber, isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime() });
@@ -1754,7 +1764,9 @@
       let idType = currentUserDoc.idType; let idNumber = currentUserDoc.idNumber;
       if (currentUserDoc.role !== "owner") { idType = selectedEditIdType; idNumber = document.getElementById('editIdNumber').value.trim(); if (!idType || !idNumber) { return await customPopup('alert', "Please complete ID type and ID number."); } const idError = validateGovernmentID(country, idType, idNumber); if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); } }
       let photoUrlToSave = currentUserDoc.photoURL || window.DEFAULT_AVATAR; const btn = document.getElementById('submitEditProfileBtn'); btn.innerText = "Updating... ⏳"; btn.disabled = true;
-      const CLOUDINARY_CLOUD_NAME = "Vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+      
+      /* FIX 3 APPLIED: Lowercase Cloudinary cloud name */
+      const CLOUDINARY_CLOUD_NAME = "vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
       try {
         if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
         if (currentUserDoc.role === "owner") { await updateDoc(doc(db, "users", user.uid), { name: displayName, country: country, photoURL: photoUrlToSave }); currentUserDoc.name = displayName; currentUserDoc.country = country; currentUserDoc.photoURL = photoUrlToSave; document.getElementById('sidebarUserName').innerText = displayName; document.getElementById('sidebarUserPic').src = photoUrlToSave; showToast("Profile updated successfully!"); } 
@@ -2208,7 +2220,6 @@
       }
     };
 
-    // FIX 3: CONSOLIDATED SINGLE LISTENER FOR SERVICES COLLECTION
     function startServicesListener() {
       onSnapshot(collection(db, "services"), (snapshot) => { 
         let html = ""; 
@@ -2320,7 +2331,6 @@
     window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); playRingTone(); showToast(`${customerName} added to blacklist!`); };
     window.wipeShopHistory = async () => { const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here"); if (c1 !== 'DELETE') return; const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly."); if (!c2) return; try { const ticketSnaps = await getDocs(collection(db, "daily_tickets")); ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id))); const reportSnaps = await getDocs(collection(db, "blacklist_reports")); reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id))); playRingTone(); showToast("All customer data history wiped successfully."); } catch(e) { await customPopup('alert', "Error wiping data: " + e.message); } };
 
-    // FIX 2: ESCAPED DOUBLE QUOTES IN INTAKE SERVICE CHECKBOX ATTRIBUTES
     function renderSecretaryMultiServiceList() {
       const container = document.getElementById('secretaryServicesContainer');
       if (!container) return;
@@ -2455,7 +2465,6 @@
       });
     }
 
-    // FIX 1: ASYNC / AWAIT FREE SERVICE REASON VALIDATION
     async function reasonCheck(freeReason) {
       if (!freeReason || !freeReason.trim()) {
         await customPopup('alert', "A reason is required for free services.");
@@ -2519,7 +2528,10 @@
                   statusColor = "#ffc107";
                   actionButton = ""; 
                 } else {
-                  actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${ticket.customerName}', '${ticket.serviceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
+                  /* FIX 2 APPLIED: Escape single quotes and double quotes for safe inline attributes */
+                  const safeCustName = (ticket.customerName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                  const safeServiceName = (ticket.serviceName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                  actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${safeCustName}', '${safeServiceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
                 }
               }
               else if (ticket.status === "pending_denial" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"><button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button></div>`; }
@@ -2576,7 +2588,11 @@
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
           if (ticket.status === "paid" || (ticket.isFree && ticket.ownerFreeApproval === 'approved')) {
-            if (barberNameFilter) { const firstName = barberNameFilter.split(' ')[0].toLowerCase(); if (ticket.assignedBarber.toLowerCase() !== firstName) return; }
+            /* FIX 1 APPLIED: Safe existence check on assignedBarber to prevent TypeError */
+            if (barberNameFilter) { 
+              const firstName = barberNameFilter.split(' ')[0].toLowerCase(); 
+              if (!ticket.assignedBarber || ticket.assignedBarber.toLowerCase() !== firstName) return; 
+            }
             const time = ticket.timestamp; const sName = ticket.serviceName || "General Service"; const sPrice = Number(ticket.price) || 0;
             if (time >= startOfToday) { todayVal += sPrice; todayCuts++; if(!todayServiceMap[sName]) todayServiceMap[sName] = { count: 0, total: 0 }; todayServiceMap[sName].count++; todayServiceMap[sName].total += sPrice; }
             if (time >= startOfWeek) { weekVal += sPrice; weekCuts++; }
