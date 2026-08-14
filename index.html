@@ -363,7 +363,7 @@
     }
     #toastNotification.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
-    /* CUSTOM POPUP MODAL & DROPDOWN PICKER (BACKGROUND CLICK CLOSING REMOVED) */
+    /* CUSTOM POPUP MODAL & DROPDOWN PICKER */
     #customModalOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
@@ -472,20 +472,32 @@
 
     <p id="statusText" style="opacity: 0.8; font-weight: bold; margin-top: 40px; display: none; font-size: 16px; color: var(--accent-gold); letter-spacing: 1px;">Loading... ⏳</p>
 
-    <!-- SETUP PROFILE VIEW -->
+    <!-- SETUP PROFILE VIEW (SEPARATED FIRST NAME & SURNAME) -->
     <div id="setupView" class="panel">
       <h3>Complete Your Profile & ID Verification</h3>
-      <p style="opacity: 0.8; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your full name, select your role and country, and enter a valid government-issued ID for identity verification.</p>
+      <p style="opacity: 0.8; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your First Name, Surname, select your role and country, and enter a valid government-issued ID for verification.</p>
+      
       <label>Select Your Role</label>
       <div id="setupRoleSelectBtn" class="custom-select-box" onclick="openPickerModal('role')">
         <span id="setupRoleText">Barber</span><span style="color: var(--accent-gold);">▼</span>
       </div>
-      <label>Full Display Name (First & Last Name)</label>
-      <input type="text" id="setupDisplayName" placeholder="Enter full display name (e.g. John Doe)...">
+
+      <div class="flex-row" style="margin-bottom: 0;">
+        <div style="flex: 1;">
+          <label>First Name</label>
+          <input type="text" id="setupFirstName" placeholder="e.g. John" style="margin-bottom: 20px;">
+        </div>
+        <div style="flex: 1;">
+          <label>Surname / Last Name</label>
+          <input type="text" id="setupLastName" placeholder="e.g. Doe" style="margin-bottom: 20px;">
+        </div>
+      </div>
+
       <label>Select Country</label>
       <div id="setupCountrySelectBtn" class="custom-select-box" onclick="openPickerModal('country')">
         <span id="setupCountryText">Select Country...</span><span style="color: var(--accent-gold);">▼</span>
       </div>
+      
       <div id="idVerificationContainer">
         <label>Government ID Type</label>
         <div id="setupIdTypeSelectBtn" class="custom-select-box" onclick="openPickerModal('idType')">
@@ -494,6 +506,7 @@
         <label>Government ID Number / Details</label>
         <input type="text" id="setupIdNumber" placeholder="Enter ID number...">
       </div>
+      
       <label>Upload Profile Picture (Optional)</label>
       <input type="file" id="setupPhoto" accept="image/*">
       <button id="saveProfileBtn" class="btn-submit">Submit Profile & ID for Approval</button>
@@ -508,13 +521,23 @@
       <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
     </div>
 
-    <!-- EDIT PROFILE VIEW -->
+    <!-- EDIT PROFILE VIEW (SEPARATED FIRST NAME & SURNAME) -->
     <div id="editProfileView" class="panel" style="border-color: #4285F4;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
       <h3 style="color: #4285F4;" id="editProfileTitle">Edit My Profile & ID Credentials</h3>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;" id="editProfileSubtitle">Owners update instantly. Staff updates require owner approval.</p>
-      <label>Full Display Name (First & Last Name)</label>
-      <input type="text" id="editDisplayName">
+      
+      <div class="flex-row" style="margin-bottom: 0;">
+        <div style="flex: 1;">
+          <label>First Name</label>
+          <input type="text" id="editFirstName" placeholder="First Name" style="margin-bottom: 20px;">
+        </div>
+        <div style="flex: 1;">
+          <label>Surname / Last Name</label>
+          <input type="text" id="editLastName" placeholder="Surname" style="margin-bottom: 20px;">
+        </div>
+      </div>
+
       <label>Select Country</label>
       <div id="editCountrySelectBtn" class="custom-select-box" onclick="openPickerModal('editCountry')">
         <span id="editCountryText">Ghana</span><span style="color: var(--accent-gold);">▼</span>
@@ -671,11 +694,13 @@
         <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Add SJ'S SALOON to your mobile home screen for quick, full-screen access.</p>
         <button onclick="triggerInstall()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Install App Now</button>
       </div>
+
       <div id="ownerDangerZoneBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px;">
         <h4 style="color: #ff4444; margin-top: 0;">⚠️ Owner Danger Zone</h4>
         <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Permanently delete all recorded past customer tickets, history reports, and logs from the database.</p>
         <button onclick="wipeShopHistory()" style="background: #8c1a1a; border-color: #ff4444; width: 100%; color: white;">Wipe All Shop Data History</button>
       </div>
+
       <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--panel-border);">
         <h4 style="color: var(--accent-gold); margin-top: 0;">🔒 Account Controls</h4>
         <button id="settingsLogoutBtn" style="background: linear-gradient(145deg, #444, #222); color: white; border-color: #555; width: 100%; margin-bottom: 15px;">Log Out</button>
@@ -728,7 +753,7 @@
       </div>
     </div>
 
-    <!-- NEW DEDICATED PAST MONTHLY REPORTS PAGE -->
+    <!-- DEDICATED PAST MONTHLY REPORTS PAGE -->
     <div id="monthlyReportPage" class="panel" style="border-color: var(--accent-gold);">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: var(--accent-gold); margin-bottom: 20px; font-size: 18px;" id="reportPageTitle">MONTH YEAR REPORT</h3>
@@ -869,7 +894,7 @@
     </div>
   </div>
 
-  <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML (TAP-OUTSIDE CLOSING REMOVED FOR CLEAN DEVICE NAVIGATION) -->
+  <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML -->
   <div id="customModalOverlay">
     <div id="customModalBox" onclick="event.stopPropagation()">
       <h3 id="customModalTitle">Notice</h3>
@@ -899,8 +924,10 @@
       }
     }, true);
 
-    const CURRENT_APP_VERSION = "1.0.3";
+    const CURRENT_APP_VERSION = "1.0.4";
     window.DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23222222'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' font-size='50'>🧔‍♂️</text></svg>";
+
+    let isClosingModalProgrammatically = false;
 
     window.requestNotificationPermission = async () => {
       if (!("Notification" in window)) {
@@ -1001,6 +1028,10 @@
       if (viewer.classList.contains('show')) {
         viewer.classList.remove('show');
         document.getElementById('fullscreenImageElement').src = "";
+        if (history.state && history.state.modal) {
+          isClosingModalProgrammatically = true;
+          history.back();
+        }
       }
     };
 
@@ -1012,8 +1043,15 @@
     };
     
     window.closeSidebar = () => {
-      document.getElementById('sidebarMenu').classList.remove('show');
-      document.getElementById('sidebarOverlay').classList.remove('show');
+      const sidebar = document.getElementById('sidebarMenu');
+      if (sidebar.classList.contains('show')) {
+        sidebar.classList.remove('show');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+        if (history.state && history.state.modal) {
+          isClosingModalProgrammatically = true;
+          history.back();
+        }
+      }
     };
 
     // --- CENTRAL NAVIGATION & HARDWARE/DEVICE BACK BUTTON CONTROLLER ---
@@ -1070,6 +1108,11 @@
     };
 
     window.addEventListener('popstate', (event) => {
+      if (isClosingModalProgrammatically) {
+        isClosingModalProgrammatically = false;
+        return;
+      }
+
       const sidebar = document.getElementById('sidebarMenu');
       const modalOverlay = document.getElementById('customModalOverlay');
       const imageViewer = document.getElementById('fullscreenImageViewer');
@@ -1185,7 +1228,7 @@
     }
 
     window.broadcastGlobalUpdate = async () => {
-      const newVersionStr = await customPopup('prompt', "Enter New Version Number to broadcast to all devices:", "e.g. 1.0.4");
+      const newVersionStr = await customPopup('prompt', "Enter New Version Number to broadcast to all devices:", "e.g. 1.0.5");
       if (!newVersionStr || !newVersionStr.trim()) return;
 
       try {
@@ -1232,6 +1275,7 @@
           confirmBtn.removeEventListener('click', handleConfirm);
           cancelBtn.removeEventListener('click', handleCancel);
           if (history.state && history.state.modal) {
+            isClosingModalProgrammatically = true;
             history.back();
           }
         };
@@ -1244,6 +1288,7 @@
       if (overlay.classList.contains('show')) {
         overlay.classList.remove('show');
         if (history.state && history.state.modal) {
+          isClosingModalProgrammatically = true;
           history.back();
         }
       }
@@ -1290,9 +1335,7 @@
       } 
       else if (pickerType === 'reportMonth') { 
         const parts = val.split('-'); 
-        setTimeout(() => {
-          generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label); 
-        }, 100);
+        generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label); 
       }
       else if (pickerType === 'reassignBarber') { 
         if (activeReassignTicketId) { 
@@ -1505,17 +1548,36 @@
 
     window.showToast = (message) => { let toast = document.getElementById('toastNotification'); if(!toast) { toast = document.createElement('div'); toast.id = 'toastNotification'; document.body.appendChild(toast); } toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3500); };
 
+    /* EOD REPORT WITH BARBER SALES & UNIQUE ID BREAKDOWN */
     window.generateDailyReportAndSend = async (openTimeMs, closeTimeMs) => {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
       
       let totalVal = 0; let totalCuts = 0; let cancelledDenied = 0; let freeCuts = 0;
+      let barberMap = {}; // uid -> { name, staffId, cuts, revenue }
 
       allPaidTicketsCache.forEach(t => {
         if (t.timestamp >= startOfToday) {
           if (t.status === "paid" || (t.isFree && t.ownerFreeApproval === 'approved')) {
-            totalVal += Number(t.price) || 0;
+            const priceVal = Number(t.price) || 0;
+            totalVal += priceVal;
             totalCuts++;
+
+            const bUid = t.assignedBarberId || t.assignedBarber || "unassigned";
+            if (!barberMap[bUid]) {
+              const bInfo = cachedBarbersList.find(b => b.uid === bUid) || {};
+              const displayName = bInfo.name || t.assignedBarber || "Unknown Barber";
+              const staffId = bInfo.staffId || "N/A";
+              barberMap[bUid] = {
+                name: displayName,
+                staffId: staffId,
+                cuts: 0,
+                revenue: 0
+              };
+            }
+            barberMap[bUid].cuts += 1;
+            barberMap[bUid].revenue += priceVal;
+
           } else if (t.status === "cancelled" || t.status === "denied") {
             cancelledDenied++;
           }
@@ -1530,7 +1592,18 @@
       const openTimeStr = openTimeMs ? new Date(openTimeMs).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Not recorded';
       const closeTimeStr = new Date(closeTimeMs).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-      const reportText = `📊 END OF DAY REPORT:\n📅 Date: ${openDateStr}\n🔓 Opened: ${openTimeStr}\n🔒 Closed: ${closeTimeStr}\n💰 Total Revenue: GHS ${totalVal.toFixed(2)}\n✂️ Total Paid Cuts: ${totalCuts}\n🎁 Free Cuts Approved: ${freeCuts}\n❌ Denied/Cancelled: ${cancelledDenied}`;
+      let barberBreakdownText = "\n\n💈 BARBER WORK & SALES BREAKDOWN:";
+      const barberKeys = Object.keys(barberMap);
+      if (barberKeys.length === 0) {
+        barberBreakdownText += "\nNo completed cuts recorded today.";
+      } else {
+        barberKeys.forEach(k => {
+          const b = barberMap[k];
+          barberBreakdownText += `\n• ${b.name} [ID: ${b.staffId}]: ${b.cuts} cut${b.cuts > 1 ? 's' : ''} | Total: GHS ${b.revenue.toFixed(2)}`;
+        });
+      }
+
+      const reportText = `📊 END OF DAY REPORT:\n📅 Date: ${openDateStr}\n🔓 Opened: ${openTimeStr}\n🔒 Closed: ${closeTimeStr}\n💰 Total Revenue: GHS ${totalVal.toFixed(2)}\n✂️ Total Paid Cuts: ${totalCuts}\n🎁 Free Cuts Approved: ${freeCuts}\n❌ Denied/Cancelled: ${cancelledDenied}${barberBreakdownText}`;
 
       await addDoc(collection(db, "team_chat"), {
         senderId: auth.currentUser.uid,
@@ -1545,7 +1618,7 @@
       const btn = document.getElementById('toggleShopBtn');
       const isCurrentlyOpen = btn.innerText.includes('OPEN');
       
-      const confirmAction = await customPopup('confirm', isCurrentlyOpen ? "Close the shop and send the End-of-Day report to the Owner?" : "Open the shop and notify the Owner?");
+      const confirmAction = await customPopup('confirm', isCurrentlyOpen ? "Close the shop and send the detailed End-of-Day report to the Owner?" : "Open the shop and notify the Owner?");
       if (!confirmAction) return;
 
       try {
@@ -1561,14 +1634,14 @@
             senderId: auth.currentUser.uid,
             senderName: currentUserDoc.name + " (Front Desk)",
             senderRole: "secretary",
-            text: "🔒 The shop is now CLOSED. Generating daily report...",
+            text: "🔒 The shop is now CLOSED. Generating daily barber sales & work report...",
             timestamp: closeTime
           });
           
           await generateDailyReportAndSend(openTime, closeTime);
           localStorage.removeItem('shopOpenTimestamp');
           sendSystemNotification("SJ'S SALOON", "Shop is now CLOSED. End-of-Day report sent!");
-          showToast("Shop closed! Report sent to Owner.");
+          showToast("Shop closed! Detailed report sent to Owner.");
         } else {
           btn.innerText = "🔓 Shop OPEN";
           btn.style.background = "#28a745";
@@ -1592,7 +1665,6 @@
       }
     };
 
-    /* SECRETARY REAL-TIME AWAY / HERE STATUS TOGGLE WITH BROADCAST NOTIFICATION */
     window.toggleSecStatus = async () => {
       const btn = document.getElementById('toggleSecAwayBtn');
       const isCurrentlyHere = btn.innerText.includes('HERE');
@@ -1740,7 +1812,9 @@
           if (payConfigSnap.exists()) { shopPaymentConfig = payConfigSnap.data(); }
           
           if (!userSnap.exists()) { 
-            document.getElementById('setupDisplayName').value = user.displayName || user.email.split('@')[0] || ""; 
+            const splitName = (user.displayName || user.email.split('@')[0] || "").split(' ');
+            document.getElementById('setupFirstName').value = splitName[0] || ""; 
+            document.getElementById('setupLastName').value = splitName.slice(1).join(' ') || ""; 
             navigateToView('setupView');
           } 
           else {
@@ -1766,23 +1840,70 @@
       }
     });
 
+    /* PROFILE SETUP WITH SEPARATED FIRST NAME & SURNAME */
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
-      const user = auth.currentUser; const role = selectedSetupRole; const displayName = document.getElementById('setupDisplayName').value.trim(); const country = selectedSetupCountry; const idType = selectedSetupIdType; const idNumber = document.getElementById('setupIdNumber').value.trim(); const fileInput = document.getElementById('setupPhoto');
-      if (!displayName || !country) { return await customPopup('alert', "Please fill in your full display name and select a country."); }
-      if (role === "owner") { try { const allUsers = await getDocs(collection(db, "users")); let ownerExists = false; allUsers.forEach(d => { if (d.data().role === "owner") ownerExists = true; }); if (ownerExists) { return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists."); } } catch(e) {} } 
-      else { if (!idType || !idNumber) { return await customPopup('alert', "Please select your ID type and enter your ID number."); } const idError = validateGovernmentID(country, idType, idNumber); if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); } }
-      let photoUrlToSave = user.photoURL || window.DEFAULT_AVATAR; const saveBtn = document.getElementById('saveProfileBtn'); 
-      saveBtn.innerText = "Loading... ⏳"; saveBtn.disabled = true;
+      const user = auth.currentUser; 
+      const role = selectedSetupRole; 
+      const firstName = document.getElementById('setupFirstName').value.trim();
+      const lastName = document.getElementById('setupLastName').value.trim();
+      const country = selectedSetupCountry; 
+      const idType = selectedSetupIdType; 
+      const idNumber = document.getElementById('setupIdNumber').value.trim(); 
+      const fileInput = document.getElementById('setupPhoto');
+
+      if (!firstName || !lastName) {
+        return await customPopup('alert', "Please enter both your First Name and Surname.");
+      }
+      if (!country) {
+        return await customPopup('alert', "Please select your country.");
+      }
+
+      const displayName = `${firstName} ${lastName}`;
+
+      if (role === "owner") { 
+        try { 
+          const allUsers = await getDocs(collection(db, "users")); 
+          let ownerExists = false; 
+          allUsers.forEach(d => { if (d.data().role === "owner") ownerExists = true; }); 
+          if (ownerExists) { return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists."); } 
+        } catch(e) {} 
+      } 
+      else { 
+        if (!idType || !idNumber) { return await customPopup('alert', "Please select your ID type and enter your ID number."); } 
+        const idError = validateGovernmentID(country, idType, idNumber); 
+        if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); } 
+      }
+
+      let photoUrlToSave = user.photoURL || window.DEFAULT_AVATAR; 
+      const saveBtn = document.getElementById('saveProfileBtn'); 
+      saveBtn.innerText = "Loading... ⏳"; 
+      saveBtn.disabled = true;
       document.getElementById('setupView').style.display = "none";
       statusText.style.display = "block";
       statusText.innerText = "Loading... ⏳";
 
       const generatedStaffId = "SJ-" + Math.floor(1000 + Math.random() * 9000);
-      const CLOUDINARY_CLOUD_NAME = "vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+      const CLOUDINARY_CLOUD_NAME = "vs5fuvnv"; 
+      const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+
       try {
-        if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
+        if (fileInput.files.length > 0) { 
+          const file = fileInput.files[0]; 
+          const formData = new FormData(); 
+          formData.append("file", file); 
+          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); 
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); 
+          const uploadData = await uploadRes.json(); 
+          if (uploadData.secure_url) { 
+            photoUrlToSave = uploadData.secure_url; 
+            if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } 
+          } 
+        }
+
         const isOwner = (role === "owner"); 
         await setDoc(doc(db, "users", user.uid), { 
+          firstName: firstName,
+          lastName: lastName,
           name: displayName, 
           staffId: generatedStaffId,
           email: user.email || "", 
@@ -1795,7 +1916,10 @@
           isAvailable: true, 
           createdAt: new Date().getTime() 
         });
-        playRingTone(); showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!"); setTimeout(() => window.location.reload(), 1500);
+
+        playRingTone(); 
+        showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!"); 
+        setTimeout(() => window.location.reload(), 1500);
       } catch (error) { 
         statusText.style.display = "none";
         document.getElementById('setupView').style.display = "block";
@@ -1805,28 +1929,123 @@
       }
     });
 
+    /* EDIT PROFILE WITH SEPARATED FIRST NAME & SURNAME */
     window.openEditProfile = () => {
       navigateToView('editProfileView');
-      document.getElementById('editDisplayName').value = currentUserDoc.name || ""; selectedEditCountry = currentUserDoc.country || "Ghana"; document.getElementById('editCountryText').innerText = selectedEditCountry;
-      const idVerificationContainer = document.getElementById('editIdVerificationContainer'); const editTitle = document.getElementById('editProfileTitle'); const editSubtitle = document.getElementById('editProfileSubtitle');
-      if (currentUserDoc.role === "owner") { idVerificationContainer.style.display = "none"; editTitle.innerText = "Edit My Owner Profile"; editSubtitle.innerText = "Owners update instantly without ID verification."; } 
-      else { idVerificationContainer.style.display = "block"; editTitle.innerText = "Edit My Profile & ID Credentials"; editSubtitle.innerText = "Staff updates require owner approval."; selectedEditIdType = currentUserDoc.idType || "National ID / Ghana Card"; document.getElementById('editIdTypeText').innerText = selectedEditIdType; document.getElementById('editIdNumber').value = currentUserDoc.idNumber || ""; }
+      
+      const parts = (currentUserDoc.name || "").split(" ");
+      document.getElementById('editFirstName').value = currentUserDoc.firstName || parts[0] || "";
+      document.getElementById('editLastName').value = currentUserDoc.lastName || parts.slice(1).join(" ") || "";
+      
+      selectedEditCountry = currentUserDoc.country || "Ghana"; 
+      document.getElementById('editCountryText').innerText = selectedEditCountry;
+      
+      const idVerificationContainer = document.getElementById('editIdVerificationContainer'); 
+      const editTitle = document.getElementById('editProfileTitle'); 
+      const editSubtitle = document.getElementById('editProfileSubtitle');
+
+      if (currentUserDoc.role === "owner") { 
+        idVerificationContainer.style.display = "none"; 
+        editTitle.innerText = "Edit My Owner Profile"; 
+        editSubtitle.innerText = "Owners update instantly without ID verification."; 
+      } else { 
+        idVerificationContainer.style.display = "block"; 
+        editTitle.innerText = "Edit My Profile & ID Credentials"; 
+        editSubtitle.innerText = "Staff updates require owner approval."; 
+        selectedEditIdType = currentUserDoc.idType || "National ID / Ghana Card"; 
+        document.getElementById('editIdTypeText').innerText = selectedEditIdType; 
+        document.getElementById('editIdNumber').value = currentUserDoc.idNumber || ""; 
+      }
     };
 
     document.getElementById('submitEditProfileBtn').addEventListener('click', async () => {
-      const user = auth.currentUser; const displayName = document.getElementById('editDisplayName').value.trim(); const country = selectedEditCountry; const fileInput = document.getElementById('editPhoto');
-      if (!displayName || !country) { return await customPopup('alert', "Please complete all required fields."); }
-      let idType = currentUserDoc.idType; let idNumber = currentUserDoc.idNumber;
-      if (currentUserDoc.role !== "owner") { idType = selectedEditIdType; idNumber = document.getElementById('editIdNumber').value.trim(); if (!idType || !idNumber) { return await customPopup('alert', "Please complete ID type and ID number."); } const idError = validateGovernmentID(country, idType, idNumber); if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); } }
-      let photoUrlToSave = currentUserDoc.photoURL || window.DEFAULT_AVATAR; const btn = document.getElementById('submitEditProfileBtn'); btn.innerText = "Updating... ⏳"; btn.disabled = true;
+      const user = auth.currentUser; 
+      const firstName = document.getElementById('editFirstName').value.trim();
+      const lastName = document.getElementById('editLastName').value.trim();
+      const country = selectedEditCountry; 
+      const fileInput = document.getElementById('editPhoto');
+
+      if (!firstName || !lastName) {
+        return await customPopup('alert', "Please enter both First Name and Surname.");
+      }
+      if (!country) {
+        return await customPopup('alert', "Please select your country.");
+      }
+
+      const displayName = `${firstName} ${lastName}`;
+      let idType = currentUserDoc.idType; 
+      let idNumber = currentUserDoc.idNumber;
+
+      if (currentUserDoc.role !== "owner") { 
+        idType = selectedEditIdType; 
+        idNumber = document.getElementById('editIdNumber').value.trim(); 
+        if (!idType || !idNumber) { return await customPopup('alert', "Please complete ID type and ID number."); } 
+        const idError = validateGovernmentID(country, idType, idNumber); 
+        if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); } 
+      }
+
+      let photoUrlToSave = currentUserDoc.photoURL || window.DEFAULT_AVATAR; 
+      const btn = document.getElementById('submitEditProfileBtn'); 
+      btn.innerText = "Updating... ⏳"; 
+      btn.disabled = true;
       
-      const CLOUDINARY_CLOUD_NAME = "vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+      const CLOUDINARY_CLOUD_NAME = "vs5fuvnv"; 
+      const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
+
       try {
-        if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
-        if (currentUserDoc.role === "owner") { await updateDoc(doc(db, "users", user.uid), { name: displayName, country: country, photoURL: photoUrlToSave }); currentUserDoc.name = displayName; currentUserDoc.country = country; currentUserDoc.photoURL = photoUrlToSave; document.getElementById('sidebarUserName').innerText = displayName; document.getElementById('sidebarUserPic').src = photoUrlToSave; showToast("Profile updated successfully!"); } 
-        else { await updateDoc(doc(db, "users", user.uid), { pendingUpdates: { name: displayName, country: country, idType: idType, idNumber: idNumber, photoURL: photoUrlToSave, timestamp: new Date().getTime() } }); showToast("Profile updates submitted for owner approval!"); }
-        btn.innerText = "Save & Update Profile"; btn.disabled = false; fileInput.value = ""; backToDashboard(); 
-      } catch (err) { await customPopup('alert', "Error updating profile: " + err.message); btn.innerText = "Save & Update Profile"; btn.disabled = false; }
+        if (fileInput.files.length > 0) { 
+          const file = fileInput.files[0]; 
+          const formData = new FormData(); 
+          formData.append("file", file); 
+          formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); 
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); 
+          const uploadData = await uploadRes.json(); 
+          if (uploadData.secure_url) { 
+            photoUrlToSave = uploadData.secure_url; 
+            if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } 
+          } 
+        }
+
+        if (currentUserDoc.role === "owner") { 
+          await updateDoc(doc(db, "users", user.uid), { 
+            firstName: firstName,
+            lastName: lastName,
+            name: displayName, 
+            country: country, 
+            photoURL: photoUrlToSave 
+          }); 
+          currentUserDoc.firstName = firstName;
+          currentUserDoc.lastName = lastName;
+          currentUserDoc.name = displayName; 
+          currentUserDoc.country = country; 
+          currentUserDoc.photoURL = photoUrlToSave; 
+          document.getElementById('sidebarUserName').innerText = displayName; 
+          document.getElementById('sidebarUserPic').src = photoUrlToSave; 
+          showToast("Profile updated successfully!"); 
+        } else { 
+          await updateDoc(doc(db, "users", user.uid), { 
+            pendingUpdates: { 
+              firstName: firstName,
+              lastName: lastName,
+              name: displayName, 
+              country: country, 
+              idType: idType, 
+              idNumber: idNumber, 
+              photoURL: photoUrlToSave, 
+              timestamp: new Date().getTime() 
+            } 
+          }); 
+          showToast("Profile updates submitted for owner approval!"); 
+        }
+        btn.innerText = "Save & Update Profile"; 
+        btn.disabled = false; 
+        fileInput.value = ""; 
+        backToDashboard(); 
+      } catch (err) { 
+        await customPopup('alert', "Error updating profile: " + err.message); 
+        btn.innerText = "Save & Update Profile"; 
+        btn.disabled = false; 
+      }
     });
 
     let chatInitialized = false;
@@ -2377,7 +2596,7 @@
         }
       }
     };
-    window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); playRingTone(); showToast(`Profile updates approved for ${updatedName}!`); } };
+    window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { firstName: p.firstName || "", lastName: p.lastName || "", name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); playRingTone(); showToast(`Profile updates approved for ${updatedName}!`); } };
     window.denyProfileUpdate = async (uid) => {
       if (await customPopup('confirm', "Are you sure you want to deny and dismiss this profile update request?")) {
         try {
