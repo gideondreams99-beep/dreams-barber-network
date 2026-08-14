@@ -64,7 +64,6 @@
       transition: background-color 0.3s ease;
     }
 
-    /* Gold scroll line appears ONLY when container is being hovered, active, or scrolled */
     *:hover::-webkit-scrollbar-thumb,
     *:focus::-webkit-scrollbar-thumb,
     *:active::-webkit-scrollbar-thumb,
@@ -103,7 +102,7 @@
     /* MAIN INNER SCROLLABLE VIEW CONTAINER */
     #appViewContainer {
       flex: 1;
-      min-height: 0; /* Crucial fix for flex child scrolling on mobile */
+      min-height: 0;
       width: 100%;
       overflow-y: auto;
       overflow-x: hidden;
@@ -111,8 +110,8 @@
       flex-direction: column;
       align-items: center;
       padding: 15px;
-      padding-top: 75px; /* Offset for fixed top header */
-      padding-bottom: 120px; /* Increased bottom padding so form contents never get cut off */
+      padding-top: 75px;
+      padding-bottom: 120px;
       box-sizing: border-box;
       -webkit-overflow-scrolling: touch;
       scroll-behavior: smooth;
@@ -301,7 +300,6 @@
     .stat-box .money { margin: 0; color: #28a745; font-size: 12px; font-weight: bold; word-break: break-all; overflow-wrap: break-word; }
     .stat-box .cuts { margin: 4px 0 0 0; opacity: 0.8; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* BREAKDOWN SERVICE LISTS WITH INNER SMOOTH SCROLLING */
     .service-breakdown-box { 
       background: rgba(0,0,0,0.15); 
       border: 1px solid var(--panel-border); 
@@ -365,7 +363,7 @@
     }
     #toastNotification.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
-    /* CUSTOM POPUP MODAL & DROPDOWN PICKER */
+    /* CUSTOM POPUP MODAL & DROPDOWN PICKER (BACKGROUND CLICK CLOSING REMOVED) */
     #customModalOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
@@ -417,6 +415,7 @@
       <img id="sidebarUserPic" src="" class="avatar" style="width: 80px; height: 80px;" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;">
       <h4 id="sidebarUserName" style="margin: 5px 0 0 0; color: var(--accent-gold); letter-spacing: 1px; word-break: break-word;">Name</h4>
       <p id="sidebarUserRole" style="margin: 5px 0 0 0; font-size: 11px; opacity: 0.8; text-transform: uppercase; font-weight: bold;">Role</p>
+      <span id="sidebarStaffIdBadge" style="font-size: 10px; color: var(--accent-gold); background: rgba(212,175,55,0.15); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--panel-border); display: inline-block; margin-top: 4px;">ID: --</span>
     </div>
     
     <div class="sidebar-category">Main Navigation</div>
@@ -436,7 +435,6 @@
     <div class="sidebar-category">System</div>
     <button id="sidebarSettingsBtn" class="sidebar-btn" onclick="openSettingsPage(); closeSidebar();">⚙️ Settings & Payment</button>
     
-    <!-- Modern & Professional Copyright Tag Below Settings / Settings & Payment Button -->
     <div style="margin-top: 25px; text-align: center; font-size: 10px; opacity: 0.6; border-top: 1px solid var(--panel-border); padding-top: 16px; letter-spacing: 1.5px; text-transform: uppercase; font-family: inherit;">
       &copy; 2026 <strong style="color: var(--accent-gold);">SJ'S SALOON GROUP INC.</strong><br><span style="font-size: 9px; opacity: 0.75; letter-spacing: 1px; display: inline-block; margin-top: 4px;">All Rights Reserved</span>
     </div>
@@ -477,13 +475,13 @@
     <!-- SETUP PROFILE VIEW -->
     <div id="setupView" class="panel">
       <h3>Complete Your Profile & ID Verification</h3>
-      <p style="opacity: 0.8; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your details, select your role and country, and enter a valid government-issued ID for identity verification.</p>
+      <p style="opacity: 0.8; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your full name, select your role and country, and enter a valid government-issued ID for identity verification.</p>
       <label>Select Your Role</label>
       <div id="setupRoleSelectBtn" class="custom-select-box" onclick="openPickerModal('role')">
         <span id="setupRoleText">Barber</span><span style="color: var(--accent-gold);">▼</span>
       </div>
-      <label>Full Display Name</label>
-      <input type="text" id="setupDisplayName" placeholder="Enter full name...">
+      <label>Full Display Name (First & Last Name)</label>
+      <input type="text" id="setupDisplayName" placeholder="Enter full display name (e.g. John Doe)...">
       <label>Select Country</label>
       <div id="setupCountrySelectBtn" class="custom-select-box" onclick="openPickerModal('country')">
         <span id="setupCountryText">Select Country...</span><span style="color: var(--accent-gold);">▼</span>
@@ -515,7 +513,7 @@
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
       <h3 style="color: #4285F4;" id="editProfileTitle">Edit My Profile & ID Credentials</h3>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;" id="editProfileSubtitle">Owners update instantly. Staff updates require owner approval.</p>
-      <label>Full Display Name</label>
+      <label>Full Display Name (First & Last Name)</label>
       <input type="text" id="editDisplayName">
       <label>Select Country</label>
       <div id="editCountrySelectBtn" class="custom-select-box" onclick="openPickerModal('editCountry')">
@@ -569,7 +567,7 @@
       <div id="blacklistList"></div>
     </div>
 
-    <!-- DEDICATED TEAM CHAT PAGE (WHATSAPP STYLE - HIDDEN ON STARTUP) -->
+    <!-- DEDICATED TEAM CHAT PAGE -->
     <div id="chatPage" style="display: none;">
       <div class="wa-header">
         <div class="wa-header-info">
@@ -638,14 +636,12 @@
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
       
-      <!-- DEVICE NOTIFICATIONS PANEL -->
       <div id="deviceNotificationPanel" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
         <h4 style="color: var(--accent-gold); margin-top: 0;">🔔 Device Notification Panel</h4>
         <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Enable native device system alerts in your phone's notification bar for new chat messages, tickets, and announcements.</p>
         <button onclick="requestNotificationPermission()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; width: 100%;">Enable Device Notifications</button>
       </div>
 
-      <!-- OWNER BROADCAST UPDATE BUTTON -->
       <div id="ownerUpdateBroadcastBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #4285F4; margin-bottom: 20px;">
         <h4 style="color: #4285F4; margin-top: 0;">🚀 Broadcast App Update to Everyone</h4>
         <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Trigger an instant pop-up on all barbers' and secretaries' phones asking them to refresh the app.</p>
@@ -664,7 +660,6 @@
         <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Details</button>
       </div>
 
-      <!-- REPORT STAFF SECTION (Hidden for Owner) -->
       <div id="staffReportContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px; display: none;">
         <h4 id="reportSectionTitle" style="color: #ff4444; margin-top: 0;">🚨 Report Staff Member</h4>
         <p id="reportSectionDesc" style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Report a staff member to the owner with a detailed reason.</p>
@@ -800,7 +795,7 @@
           <span style="font-size: 18px; font-weight: bold; color: var(--accent-gold);">GHS <span id="intakeCalculatedTotal">0.00</span></span>
         </div>
 
-        <label>Assign To Barber</label>
+        <label>Assign To Barber (Full Name & Unique ID)</label>
         <div id="barberNameSelectBtn" class="custom-select-box" onclick="openPickerModal('barberName')">
           <span id="barberNameText">Select Barber...</span><span style="color: var(--accent-gold);">▼</span>
         </div>
@@ -874,8 +869,8 @@
     </div>
   </div>
 
-  <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML -->
-  <div id="customModalOverlay" onclick="closePickerModal()">
+  <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML (TAP-OUTSIDE CLOSING REMOVED FOR CLEAN DEVICE NAVIGATION) -->
+  <div id="customModalOverlay">
     <div id="customModalBox" onclick="event.stopPropagation()">
       <h3 id="customModalTitle">Notice</h3>
       <p id="customModalMessage">Message</p>
@@ -904,13 +899,9 @@
       }
     }, true);
 
-    // 1. CURRENT LOCAL HARDCODED APP VERSION
-    const CURRENT_APP_VERSION = "1.0.2";
-
-    // DEFAULT AVATAR STICKER FALLBACK SVG DATA URI
+    const CURRENT_APP_VERSION = "1.0.3";
     window.DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23222222'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' font-size='50'>🧔‍♂️</text></svg>";
 
-    // NATIVE DEVICE NOTIFICATION PANEL & RINGTONE CONTROLLER
     window.requestNotificationPermission = async () => {
       if (!("Notification" in window)) {
         await customPopup('alert', "Device Notifications are not supported by this browser.");
@@ -958,7 +949,6 @@
 
     function playRingTone() {}
 
-    // 2. SERVICE WORKER PWA AUTO-UPDATE CHECK (PERSISTED IN LOCALSTORAGE SO CLOSING APP DOES NOT RE-PROMPT)
     if ('serviceWorker' in navigator) { 
       window.addEventListener('load', () => { 
         navigator.serviceWorker.register('/sw.js').then(reg => {
@@ -1026,7 +1016,7 @@
       document.getElementById('sidebarOverlay').classList.remove('show');
     };
 
-    // --- CENTRAL NAVIGATION & HARDWARE/BROWSER BACK BUTTON OVERHAUL ---
+    // --- CENTRAL NAVIGATION & HARDWARE/DEVICE BACK BUTTON CONTROLLER ---
     const ALL_APP_VIEWS = [
       'loginWelcomeView', 'setupView', 'pendingView', 'editProfileView',
       'ownerStaffPage', 'ownerServicesPage', 'ownerBlacklistPage',
@@ -1114,7 +1104,7 @@
           exitAppHandler();
         } else {
           lastBackTapTime = currentTime;
-          showToast("Tap back again to exit app");
+          showToast("Press back again to exit app");
           history.pushState({ view: 'dashboard' }, '', '#dashboard');
         }
         return;
@@ -1149,9 +1139,10 @@
     });
 
     let currentUserDoc = null; let allPaidTicketsCache = []; let activePaymentTicketId = null; let activeReassignTicketId = null; let activeBlacklistCustomer = null; let activeBlacklistActionType = null; let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000", ownerPhone: "" };
-    let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; let selectedIntakeBarber = ""; let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
+    let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; 
+    let selectedIntakeBarberId = ""; let selectedIntakeBarberName = ""; 
+    let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
 
-    // 3. REAL-TIME GLOBAL UPDATE LISTENER (PERSISTED IN LOCALSTORAGE SO CLOSING APP DOES NOT RE-PROMPT)
     function startGlobalUpdateListener() {
       onSnapshot(doc(db, "shop_config", "app_version"), async (docSnap) => {
         if (docSnap.exists()) {
@@ -1193,9 +1184,8 @@
       });
     }
 
-    // 4. OWNER BROADCAST UPDATE SIGNAL FUNCTION
     window.broadcastGlobalUpdate = async () => {
-      const newVersionStr = await customPopup('prompt', "Enter New Version Number to broadcast to all devices:", "e.g. 1.0.3");
+      const newVersionStr = await customPopup('prompt', "Enter New Version Number to broadcast to all devices:", "e.g. 1.0.4");
       if (!newVersionStr || !newVersionStr.trim()) return;
 
       try {
@@ -1269,13 +1259,13 @@
       else if (pickerType === 'idType' || pickerType === 'editIdType') { title.innerText = "Select Government ID Type"; currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType; const activeCountry = pickerType === 'idType' ? selectedSetupCountry : selectedEditCountry; if (activeCountry === "Ghana") { options = [ { label: "National ID / Ghana Card", value: "National ID / Ghana Card" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Voters ID", value: "Voters ID" } ]; } else if (activeCountry === "Nigeria") { options = [ { label: "National Identity Number (NIN)", value: "NIN" }, { label: "International Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Permanent Voter Card (PVC)", value: "PVC" } ]; } else { options = [ { label: "National Identity Card", value: "National ID" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" } ]; } } 
       else if (pickerType === 'barberName') { 
         title.innerText = "Assign To Barber"; 
-        currentValue = selectedIntakeBarber; 
-        options = cachedBarbersList.map(b => ({ label: b.label, value: b.name })); 
+        currentValue = selectedIntakeBarberId; 
+        options = cachedBarbersList.map(b => ({ label: b.label, value: b.uid })); 
       } 
       else if (pickerType === 'reassignBarber') { 
         title.innerText = "Select Barber to Assign Again"; 
         currentValue = ""; 
-        options = cachedBarbersList.map(b => ({ label: b.label, value: b.name })); 
+        options = cachedBarbersList.map(b => ({ label: b.label, value: b.uid })); 
       }
       else if (pickerType === 'reportMonth') { title.innerText = "Select Month to View"; currentValue = ""; const d = new Date(); for (let i = 0; i < 24; i++) { const m = new Date(d.getFullYear(), d.getMonth() - i, 1); const label = m.toLocaleString('default', { month: 'long', year: 'numeric' }); const value = `${m.getFullYear()}-${m.getMonth()}`; options.push({ label, value }); } }
 
@@ -1292,15 +1282,37 @@
       else if (pickerType === 'idType') { selectedSetupIdType = val; document.getElementById('setupIdTypeText').innerText = label; } 
       else if (pickerType === 'editCountry') { selectedEditCountry = val; document.getElementById('editCountryText').innerText = label; } 
       else if (pickerType === 'editIdType') { selectedEditIdType = val; document.getElementById('editIdTypeText').innerText = label; } 
-      else if (pickerType === 'barberName') { selectedIntakeBarber = val; document.getElementById('barberNameText').innerText = label; } 
-      /* FIX 4 APPLIED: Wrap view navigation in a setTimeout to avoid popstate race condition when closing modal */
+      else if (pickerType === 'barberName') { 
+        selectedIntakeBarberId = val; 
+        const matched = cachedBarbersList.find(b => b.uid === val);
+        selectedIntakeBarberName = matched ? matched.name : label;
+        document.getElementById('barberNameText').innerText = matched ? `${matched.name} [${matched.staffId}]` : label; 
+      } 
       else if (pickerType === 'reportMonth') { 
         const parts = val.split('-'); 
         setTimeout(() => {
           generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label); 
         }, 100);
       }
-      else if (pickerType === 'reassignBarber') { if (activeReassignTicketId) { try { await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), { assignedBarber: val, status: "pending_acceptance", denyReason: null }); playRingTone(); showToast(`Ticket reassigned to ${val} for review!`); } catch (err) { await customPopup('alert', "Error reassigning ticket: " + err.message); } activeReassignTicketId = null; } }
+      else if (pickerType === 'reassignBarber') { 
+        if (activeReassignTicketId) { 
+          try { 
+            const matched = cachedBarbersList.find(b => b.uid === val);
+            const bName = matched ? `${matched.name} [${matched.staffId}]` : val;
+            await updateDoc(doc(db, "daily_tickets", activeReassignTicketId), { 
+              assignedBarberId: val,
+              assignedBarber: bName, 
+              status: "pending_acceptance", 
+              denyReason: null 
+            }); 
+            playRingTone(); 
+            showToast(`Ticket reassigned to ${bName} for review!`); 
+          } catch (err) { 
+            await customPopup('alert', "Error reassigning ticket: " + err.message); 
+          } 
+          activeReassignTicketId = null; 
+        } 
+      }
     };
 
     window.generateMonthlyReport = (year, month, labelText) => {
@@ -1309,10 +1321,10 @@
       let totalVal = 0; let totalCuts = 0; let serviceMap = {};
       allPaidTicketsCache.forEach(t => {
         if (t.status === "paid" || (t.isFree && t.ownerFreeApproval === 'approved')) {
-          /* FIX 1 APPLIED: Safe existence check on assignedBarber to prevent TypeError */
           if (currentUserDoc && currentUserDoc.role === "barber") { 
-            const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); 
-            if (!t.assignedBarber || t.assignedBarber.toLowerCase() !== myFirstName) return; 
+            const isMatch = (t.assignedBarberId && t.assignedBarberId === auth.currentUser.uid) || 
+                            (t.assignedBarber && t.assignedBarber.toLowerCase().includes(currentUserDoc.name.toLowerCase()));
+            if (!isMatch) return; 
           }
           const tDate = new Date(t.timestamp);
           if (tDate.getFullYear() === year && tDate.getMonth() === month) { const sName = t.serviceName || "General Service"; const sPrice = Number(t.price) || 0; totalVal += sPrice; totalCuts++; if (!serviceMap[sName]) serviceMap[sName] = { count: 0, total: 0 }; serviceMap[sName].count++; serviceMap[sName].total += sPrice; }
@@ -1429,7 +1441,7 @@
         snap.forEach(d => {
           const u = d.data();
           if (u.isApproved && u.role !== "owner" && d.id !== auth.currentUser.uid) {
-            staffList.push({ label: `${u.name} (${u.role.toUpperCase()})`, value: u.name });
+            staffList.push({ label: `${u.name} [ID: ${u.staffId || 'N/A'}] (${u.role.toUpperCase()})`, value: u.name });
           }
         });
       } catch(e) {
@@ -1580,27 +1592,57 @@
       }
     };
 
-    // SECRETARY STATUS TOGGLE
+    /* SECRETARY REAL-TIME AWAY / HERE STATUS TOGGLE WITH BROADCAST NOTIFICATION */
     window.toggleSecStatus = async () => {
       const btn = document.getElementById('toggleSecAwayBtn');
       const isCurrentlyHere = btn.innerText.includes('HERE');
+      const newStatus = isCurrentlyHere ? 'away' : 'here';
       
       try {
-        if (isCurrentlyHere) {
-          btn.innerText = "🔴 I am AWAY";
-          btn.style.background = "#ff4444";
-          btn.style.borderColor = "#ff4444";
-          showToast("Status: AWAY");
-        } else {
-          btn.innerText = "🟢 I am HERE";
-          btn.style.background = "#1a4b8c";
-          btn.style.borderColor = "#2a6bcc";
-          showToast("Status: HERE");
-        }
+        await setDoc(doc(db, "shop_config", "secretary_status"), {
+          status: newStatus,
+          secretaryName: currentUserDoc ? currentUserDoc.name : 'Secretary',
+          updatedAt: new Date().getTime()
+        }, { merge: true });
+
+        const alertText = newStatus === 'away'
+          ? `🔴 Front Desk Alert: Secretary ${currentUserDoc ? currentUserDoc.name : ''} is currently AWAY from the front desk.`
+          : `🟢 Front Desk Alert: Secretary ${currentUserDoc ? currentUserDoc.name : ''} is back HERE at the front desk.`;
+
+        await addDoc(collection(db, "team_chat"), {
+          senderId: auth.currentUser.uid,
+          senderName: (currentUserDoc ? currentUserDoc.name : 'Secretary') + " (Front Desk)",
+          senderRole: "secretary",
+          text: alertText,
+          timestamp: new Date().getTime()
+        });
+
+        sendSystemNotification("SJ'S SALOON", alertText);
+        showToast(newStatus === 'away' ? "Status: AWAY! Team notified." : "Status: HERE! Team notified.");
       } catch(e) {
-        await customPopup('alert', "Error: " + e.message);
+        await customPopup('alert', "Error updating secretary status: " + e.message);
       }
     };
+
+    function startSecretaryStatusListener() {
+      onSnapshot(doc(db, "shop_config", "secretary_status"), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const btn = document.getElementById('toggleSecAwayBtn');
+          if (btn) {
+            if (data.status === 'away') {
+              btn.innerText = "🔴 I am AWAY";
+              btn.style.background = "#ff4444";
+              btn.style.borderColor = "#ff4444";
+            } else {
+              btn.innerText = "🟢 I am HERE";
+              btn.style.background = "#1a4b8c";
+              btn.style.borderColor = "#2a6bcc";
+            }
+          }
+        }
+      });
+    }
 
     function getFriendlyErrorMessage(error) {
       if (!navigator.onLine || error.code === 'auth/network-request-failed' || error.message.includes('network-request-failed')) {
@@ -1726,7 +1768,7 @@
 
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser; const role = selectedSetupRole; const displayName = document.getElementById('setupDisplayName').value.trim(); const country = selectedSetupCountry; const idType = selectedSetupIdType; const idNumber = document.getElementById('setupIdNumber').value.trim(); const fileInput = document.getElementById('setupPhoto');
-      if (!displayName || !country) { return await customPopup('alert', "Please fill in your display name and select a country."); }
+      if (!displayName || !country) { return await customPopup('alert', "Please fill in your full display name and select a country."); }
       if (role === "owner") { try { const allUsers = await getDocs(collection(db, "users")); let ownerExists = false; allUsers.forEach(d => { if (d.data().role === "owner") ownerExists = true; }); if (ownerExists) { return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists."); } } catch(e) {} } 
       else { if (!idType || !idNumber) { return await customPopup('alert', "Please select your ID type and enter your ID number."); } const idError = validateGovernmentID(country, idType, idNumber); if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); } }
       let photoUrlToSave = user.photoURL || window.DEFAULT_AVATAR; const saveBtn = document.getElementById('saveProfileBtn'); 
@@ -1735,11 +1777,24 @@
       statusText.style.display = "block";
       statusText.innerText = "Loading... ⏳";
 
-      /* FIX 3 APPLIED: Lowercase Cloudinary cloud name */
+      const generatedStaffId = "SJ-" + Math.floor(1000 + Math.random() * 9000);
       const CLOUDINARY_CLOUD_NAME = "vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
       try {
         if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
-        const isOwner = (role === "owner"); await setDoc(doc(db, "users", user.uid), { name: displayName, email: user.email || "", photoURL: photoUrlToSave, role: role, country: country, idType: isOwner ? 'Owner Sandbox' : idType, idNumber: isOwner ? 'OWNER-PASS' : idNumber, isApproved: isOwner, isAvailable: true, createdAt: new Date().getTime() });
+        const isOwner = (role === "owner"); 
+        await setDoc(doc(db, "users", user.uid), { 
+          name: displayName, 
+          staffId: generatedStaffId,
+          email: user.email || "", 
+          photoURL: photoUrlToSave, 
+          role: role, 
+          country: country, 
+          idType: isOwner ? 'Owner Sandbox' : idType, 
+          idNumber: isOwner ? 'OWNER-PASS' : idNumber, 
+          isApproved: isOwner, 
+          isAvailable: true, 
+          createdAt: new Date().getTime() 
+        });
         playRingTone(); showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!"); setTimeout(() => window.location.reload(), 1500);
       } catch (error) { 
         statusText.style.display = "none";
@@ -1765,7 +1820,6 @@
       if (currentUserDoc.role !== "owner") { idType = selectedEditIdType; idNumber = document.getElementById('editIdNumber').value.trim(); if (!idType || !idNumber) { return await customPopup('alert', "Please complete ID type and ID number."); } const idError = validateGovernmentID(country, idType, idNumber); if (idError) { return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); } }
       let photoUrlToSave = currentUserDoc.photoURL || window.DEFAULT_AVATAR; const btn = document.getElementById('submitEditProfileBtn'); btn.innerText = "Updating... ⏳"; btn.disabled = true;
       
-      /* FIX 3 APPLIED: Lowercase Cloudinary cloud name */
       const CLOUDINARY_CLOUD_NAME = "vs5fuvnv"; const CLOUDINARY_UPLOAD_PRESET = "sjs_saloon_uploads";
       try {
         if (fileInput.files.length > 0) { const file = fileInput.files[0]; const formData = new FormData(); formData.append("file", file); formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET); const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData }); const uploadData = await uploadRes.json(); if (uploadData.secure_url) { photoUrlToSave = uploadData.secure_url; if (user.email) { await updateProfile(user, { displayName: displayName, photoURL: photoUrlToSave }); } } }
@@ -1937,6 +1991,7 @@
       
       document.getElementById('sidebarUserName').innerText = docData.name; 
       document.getElementById('sidebarUserPic').src = docData.photoURL || window.DEFAULT_AVATAR;
+      document.getElementById('sidebarStaffIdBadge').innerText = `ID: ${docData.staffId || user.uid.substring(0,6).toUpperCase()}`;
       
       const sidebarRole = document.getElementById('sidebarUserRole');
       const sidebarSettingsBtn = document.getElementById('sidebarSettingsBtn');
@@ -1954,6 +2009,7 @@
         document.getElementById('secretaryPanel').style.display = "block"; 
         document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "Shop Revenue Tracker";
         startAnalyticsTracker();
+        startSecretaryStatusListener();
       } 
       else {
         sidebarRole.innerText = "👤 Barber"; 
@@ -1970,7 +2026,6 @@
 
     let dashboardNotifTimer = null;
 
-    // UNIFIED INTERACTIVE DASHBOARD NOTIFICATION SYSTEM
     function startDashboardNotifications() {
       const notifBox = document.getElementById('dashboardNotificationBox');
       
@@ -2039,9 +2094,6 @@
           showDashboardNotifContent(combined);
         }
       } else {
-        // BARBER AND SECRETARY NOTIFICATION CONTROLLERS
-        const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : "";
-
         const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
         onSnapshot(qAnn, (snap) => { 
           let annNotice = ""; 
@@ -2069,9 +2121,10 @@
           let ticketNotice = "";
           snap.forEach(d => {
             const t = d.data();
-            const ticketBarber = t.assignedBarber ? t.assignedBarber.trim().toLowerCase() : "";
+            const isAssignedToMe = (t.assignedBarberId && t.assignedBarberId === auth.currentUser.uid) ||
+                                  (t.assignedBarber && t.assignedBarber.toLowerCase().includes((currentUserDoc ? currentUserDoc.name : '').toLowerCase()));
             
-            if (currentUserDoc.role === "barber" && ticketBarber === myFirstName && t.status === "pending_acceptance") {
+            if (currentUserDoc.role === "barber" && isAssignedToMe && t.status === "pending_acceptance") {
               ticketNotice = `<div class="notice-card" style="border-color:var(--accent-gold);" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎟️ New Ticket Assigned! <span style="font-size:10px; color:var(--accent-gold);">Review Cut ➔</span></h5><p>You have a new customer ticket <b>${t.ticketNo || ''} (${t.customerName})</b> waiting for review.</p></div>`;
             } else if (currentUserDoc.role === "secretary" && t.status === "completed" && !t.isFree) {
               ticketNotice = `<div class="notice-card" style="border-color:#28a745;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>✂️ Cut Finished! <span style="font-size:10px; color:#28a745;">Collect Pay ➔</span></h5><p><b>${t.assignedBarber}</b> finished <b>${t.customerName}</b>. Ready for payment!</p></div>`;
@@ -2097,7 +2150,9 @@
         allPaidTicketsCache = []; activeBusyBarbers.clear(); ticketsMapCache.clear();
         snapshot.forEach((doc) => {
           const t = doc.data(); allPaidTicketsCache.push({ id: doc.id, ...t }); ticketsMapCache.set(doc.id, t);
-          if ((t.status === "pending_acceptance" || t.status === "in_progress") && t.assignedBarber) { activeBusyBarbers.add(t.assignedBarber.trim().toLowerCase()); }
+          if ((t.status === "pending_acceptance" || t.status === "in_progress") && (t.assignedBarberId || t.assignedBarber)) { 
+            activeBusyBarbers.add(t.assignedBarberId || t.assignedBarber.trim().toLowerCase()); 
+          }
         });
         if (customerDirectoryPage.style.display === "block") { renderCustomerDirectoryList(); }
       });
@@ -2162,7 +2217,10 @@
 
     function renderCustomerDirectoryList() {
       const listContainer = document.getElementById('directoryCustomerList'); let ticketsToProcess = allPaidTicketsCache.filter(t => t.status === "paid" || t.status === "completed" || (t.isFree && t.ownerFreeApproval === 'approved'));
-      if (currentUserDoc && currentUserDoc.role === "barber") { const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName); }
+      if (currentUserDoc && currentUserDoc.role === "barber") { 
+        ticketsToProcess = ticketsToProcess.filter(t => (t.assignedBarberId && t.assignedBarberId === auth.currentUser.uid) || 
+                                                        (t.assignedBarber && t.assignedBarber.toLowerCase().includes(currentUserDoc.name.toLowerCase()))); 
+      }
       let customerMap = {}; ticketsToProcess.forEach(t => { const nameKey = t.customerName.trim().toLowerCase(); if (!customerMap[nameKey]) { customerMap[nameKey] = { displayName: t.customerName, phone: t.customerPhone || 'Not Provided', visits: [] }; } customerMap[nameKey].visits.push(t); });
       let html = ""; const customerKeys = Object.keys(customerMap);
       if (customerKeys.length === 0) { listContainer.innerHTML = "<p style='opacity:0.6; font-style: italic;'>No past customer records available.</p>"; return; }
@@ -2177,7 +2235,10 @@
     window.openCustomerDetail = (encodedName) => {
       const customerName = decodeURIComponent(encodedName); document.getElementById('directoryListView').style.display = "none"; const detailView = document.getElementById('customerDetailView'); detailView.style.display = "block";
       let ticketsToProcess = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase() === customerName.toLowerCase());
-      if (currentUserDoc && currentUserDoc.role === "barber") { const myFirstName = currentUserDoc.name.split(' ')[0].toLowerCase(); ticketsToProcess = ticketsToProcess.filter(t => t.assignedBarber && t.assignedBarber.toLowerCase() === myFirstName); }
+      if (currentUserDoc && currentUserDoc.role === "barber") { 
+        ticketsToProcess = ticketsToProcess.filter(t => (t.assignedBarberId && t.assignedBarberId === auth.currentUser.uid) || 
+                                                        (t.assignedBarber && t.assignedBarber.toLowerCase().includes(currentUserDoc.name.toLowerCase()))); 
+      }
       ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp); const phoneNum = ticketsToProcess[0]?.customerPhone || 'Not Provided'; const hasPhone = phoneNum && phoneNum !== 'Not Provided' && phoneNum.trim() !== '';
       let html = `<h3 style="color: var(--accent-gold); margin-bottom: 5px;">History for: ${customerName}</h3><p style="opacity: 0.8; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>${hasPhone ? `<a href="tel:${phoneNum}" style="display:inline-block; background:#28a745; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold; margin-bottom:15px;">📞 Call ${customerName}</a>` : ''}<p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>`;
       ticketsToProcess.forEach(t => { const dateStr = new Date(t.timestamp).toLocaleString(); html += `<div class="ticket" style="border-left-color: #28a745;"><div class="ticket-details" style="margin-bottom: 5px;">Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)} ${t.isFree ? '(FREE)' : ''}<br>Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || (t.isFree ? 'Free Service' : 'Pending')}</strong><br>Date & Time: ${dateStr}<br>Ticket Status: <span style="color: #ffc107;">${t.status.toUpperCase()}</span></div></div>`; });
@@ -2200,7 +2261,7 @@
       try { if (activeBlacklistActionType === 'instant') { await addDoc(collection(db, "blacklist"), { name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime() }); playRingTone(); showToast(`${activeBlacklistCustomer} is instantly blacklisted!`); } else { await addDoc(collection(db, "blacklist_reports"), { customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name, feedback: reason, timestamp: new Date().getTime() }); playRingTone(); showToast("Blacklist report sent to Owner!"); } cancelBlacklistPage(); backToDirectoryList(); } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
     });
 
-    window.viewStaffSubmissionDetails = async (staffDataJson) => { const s = JSON.parse(decodeURIComponent(staffDataJson)); const detailsHtml = `<div style="text-align: center;"><img src="${s.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;"><h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase; word-break: break-word;">${s.name}</h4><span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()}</span></div><div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6; word-break: break-word;"><p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p><p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p><p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p><p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p></div>`; await customPopup('alert', detailsHtml); };
+    window.viewStaffSubmissionDetails = async (staffDataJson) => { const s = JSON.parse(decodeURIComponent(staffDataJson)); const detailsHtml = `<div style="text-align: center;"><img src="${s.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;"><h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase; word-break: break-word;">${s.name}</h4><span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()} | ID: ${s.staffId || 'N/A'}</span></div><div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6; word-break: break-word;"><p style="margin: 0 0 8px 0;">🆔 <b>Unique Staff ID:</b> <strong style="color: var(--accent-gold);">${s.staffId || 'N/A'}</strong></p><p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p><p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p><p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p><p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p></div>`; await customPopup('alert', detailsHtml); };
 
     window.editService = async (sid, currentName, currentPrice) => {
       const newPriceStr = await customPopup('prompt', `Editing: <strong>${currentName}</strong><br>Current Price: GHS ${currentPrice}<br><br>Enter new price:`, currentPrice);
@@ -2253,7 +2314,7 @@
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info">
                   <img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 50px; height: 50px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;">
                   <div>
-                    <div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">👁️ View Info</span></div>
+                    <div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">[ID: ${u.staffId || 'N/A'}] 👁️ View Info</span></div>
                     <div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div>
                     <div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div>
                   </div>
@@ -2279,9 +2340,12 @@
                 </div>
               </div>`; 
           }
-          if (u.isApproved && u.role !== "owner") { activeHtml += `<div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center; gap: 10px;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 40px; height: 40px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;"><div style="min-width: 0;"><strong style="color: var(--text-color); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.name}</strong> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()}</span></div></div><button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Fire / Remove</button></div>`; }
+          if (u.isApproved && u.role !== "owner") { 
+            activeHtml += `<div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center; gap: 10px;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 40px; height: 40px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;"><div style="min-width: 0;"><strong style="color: var(--text-color); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.name}</strong> <span style="font-size: 10px; color: var(--accent-gold);">ID: ${u.staffId || 'N/A'}</span> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()}</span></div></div><button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Fire / Remove</button></div>`; 
+          }
         });
-        document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml; document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='opacity:0.6;'>No active staff found.</p>" : activeHtml;
+        document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml; 
+        document.getElementById('activeStaffList').innerHTML = activeHtml === "" ? "<p style='opacity:0.6;'>No active staff found.</p>" : activeHtml;
       });
 
       onSnapshot(collection(db, "staff_reports"), (snapshot) => {
@@ -2379,11 +2443,15 @@
         cachedBarbersList = []; 
         snapshot.forEach((bDoc) => { 
           const b = bDoc.data(); 
-          const firstName = b.name.split(' ')[0];
+          const bUid = bDoc.id;
+          const fullName = b.name;
+          const sId = b.staffId || bUid.substring(0, 5).toUpperCase();
           const isOff = b.isAvailable === false;
           cachedBarbersList.push({ 
-            name: firstName, 
-            label: isOff ? `${firstName} (Off Duty 🔴)` : `${firstName} (On Duty 🟢)`,
+            uid: bUid,
+            name: fullName, 
+            staffId: sId,
+            label: isOff ? `${fullName} [ID: ${sId}] (Off Duty 🔴)` : `${fullName} [ID: ${sId}] (On Duty 🟢)`,
             isAvailable: !isOff
           }); 
         }); 
@@ -2395,17 +2463,18 @@
       sendBtn.addEventListener('click', async () => {
         const name = document.getElementById('custName').value.trim(); 
         const phone = document.getElementById('custPhone').value.trim(); 
-        const barber = selectedIntakeBarber;
+        const barberUid = selectedIntakeBarberId;
+        const barberDisplayName = selectedIntakeBarberName;
         
         const selectedCheckboxes = document.querySelectorAll('.sec-service-checkbox:checked');
         if (selectedCheckboxes.length === 0) {
           return await customPopup('alert', "Please select at least one service for the customer.");
         }
-        if (!name || !barber) {
+        if (!name || !barberUid) {
           return await customPopup('alert', "Please fill out customer name and assign a barber.");
         }
-        if (activeBusyBarbers.has(barber.toLowerCase())) { 
-          return await customPopup('alert', `⚠️ Barber ${barber} is currently busy with an active cut or pending review and cannot be assigned.`); 
+        if (activeBusyBarbers.has(barberUid)) { 
+          return await customPopup('alert', `⚠️ Barber ${barberDisplayName} is currently busy with an active cut or pending review and cannot be assigned.`); 
         }
 
         const blacklistSnap = await getDocs(collection(db, "blacklist")); let isBanned = false; blacklistSnap.forEach(bDoc => { if (bDoc.data().name === name.toLowerCase()) { isBanned = true; } });
@@ -2441,13 +2510,14 @@
             isFree: sPrice === 0,
             freeReason: freeReason || null,
             ownerFreeApproval: sPrice === 0 ? 'pending' : null,
-            assignedBarber: barber, 
+            assignedBarberId: barberUid,
+            assignedBarber: barberDisplayName, 
             status: "pending_acceptance", 
             timestamp: new Date().getTime() 
           });
           
           playRingTone(); 
-          sendSystemNotification("🎟️ New Ticket Assigned", `${ticketNumber} for ${name} assigned to Barber ${barber}`);
+          sendSystemNotification("🎟️ New Ticket Assigned", `${ticketNumber} for ${name} assigned to Barber ${barberDisplayName}`);
 
           document.getElementById('custName').value = ""; 
           document.getElementById('custPhone').value = ""; 
@@ -2457,7 +2527,8 @@
           selectedCheckboxes.forEach(cb => cb.checked = false);
           updateCalculatedTotal();
 
-          selectedIntakeBarber = ""; 
+          selectedIntakeBarberId = ""; 
+          selectedIntakeBarberName = "";
           document.getElementById('barberNameText').innerText = "Select Barber..."; 
           
           showToast(sPrice === 0 ? "Free service ticket issued & sent to owner/barber!" : "Ticket issued & sent for barber review!");
@@ -2504,10 +2575,11 @@
           const isOwner = currentUserDoc && currentUserDoc.role === "owner"; 
           const isSec = currentUserDoc && currentUserDoc.role === "secretary"; 
           const isBarber = currentUserDoc && currentUserDoc.role === "barber";
-          const myFirstName = currentUserDoc && currentUserDoc.name ? currentUserDoc.name.split(' ')[0].toLowerCase() : ""; 
-          const ticketBarber = ticket.assignedBarber ? ticket.assignedBarber.trim().toLowerCase() : "";
+          
+          const isAssignedToMe = (ticket.assignedBarberId && ticket.assignedBarberId === auth.currentUser.uid) ||
+                                (ticket.assignedBarber && ticket.assignedBarber.toLowerCase().includes((currentUserDoc ? currentUserDoc.name : '').toLowerCase()));
 
-          if (isBarber && ticketBarber !== myFirstName) {
+          if (isBarber && !isAssignedToMe) {
             return;
           }
 
@@ -2521,14 +2593,13 @@
             let actionButton = ""; let statusColor = "#ffc107"; 
 
             if (!isOwner) {
-              if (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
-              else if (ticket.status === "in_progress" && (isBarber && ticketBarber === myFirstName)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #555, #333); border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
+              if (ticket.status === "pending_acceptance" && isBarber && isAssignedToMe) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
+              else if (ticket.status === "in_progress" && (isBarber && isAssignedToMe)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #555, #333); border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
               else if (ticket.status === "completed" && isSec) {
                 if (ticket.isFree) {
                   statusColor = "#ffc107";
                   actionButton = ""; 
                 } else {
-                  /* FIX 2 APPLIED: Escape single quotes and double quotes for safe inline attributes */
                   const safeCustName = (ticket.customerName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                   const safeServiceName = (ticket.serviceName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                   actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${safeCustName}', '${safeServiceName}', ${ticket.price})">COLLECT PAYMENT</button>`;
@@ -2542,7 +2613,7 @@
               }
             }
 
-            const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== ''; const isClickableForBarber = (ticket.status === "pending_acceptance" && isBarber && ticketBarber === myFirstName);
+            const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== ''; const isClickableForBarber = (ticket.status === "pending_acceptance" && isBarber && isAssignedToMe);
 
             html += `
               <div class="ticket" style="${ticket.status === 'pending_denial' || ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ticket.isFree ? 'border-left-color: #ffc107;' : ''}">
@@ -2556,7 +2627,7 @@
                     ${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} ${ticket.isFree ? '(FREE)' : ''} <br>
                     Assigned to: <strong>${ticket.assignedBarber}</strong>
                     ${ticket.isFree ? `<br><span style="color:#ffc107;">Reason: "${ticket.freeReason}"</span>` : ''}
-                    ${ticket.status === 'pending_acceptance' && isBarber && ticketBarber === myFirstName ? '<br><span style="color: var(--accent-gold); font-weight: bold;">🔍 Tap here to review details & accept/deny</span>' : ''}
+                    ${ticket.status === 'pending_acceptance' && isBarber && isAssignedToMe ? '<br><span style="color: var(--accent-gold); font-weight: bold;">🔍 Tap here to review details & accept/deny</span>' : ''}
                     ${ticket.denyReason ? `<br><span style="color: #ff4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}
                   </div>
                 </div>
@@ -2588,10 +2659,10 @@
         snapshot.forEach((docSnap) => {
           const ticket = docSnap.data();
           if (ticket.status === "paid" || (ticket.isFree && ticket.ownerFreeApproval === 'approved')) {
-            /* FIX 1 APPLIED: Safe existence check on assignedBarber to prevent TypeError */
             if (barberNameFilter) { 
-              const firstName = barberNameFilter.split(' ')[0].toLowerCase(); 
-              if (!ticket.assignedBarber || ticket.assignedBarber.toLowerCase() !== firstName) return; 
+              const isMatch = (ticket.assignedBarberId && ticket.assignedBarberId === auth.currentUser.uid) ||
+                              (ticket.assignedBarber && ticket.assignedBarber.toLowerCase().includes(barberNameFilter.toLowerCase()));
+              if (!isMatch) return; 
             }
             const time = ticket.timestamp; const sName = ticket.serviceName || "General Service"; const sPrice = Number(ticket.price) || 0;
             if (time >= startOfToday) { todayVal += sPrice; todayCuts++; if(!todayServiceMap[sName]) todayServiceMap[sName] = { count: 0, total: 0 }; todayServiceMap[sName].count++; todayServiceMap[sName].total += sPrice; }
