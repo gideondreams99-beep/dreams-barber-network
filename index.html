@@ -858,10 +858,78 @@
     </div>
   </div>
 
+  <!-- 🚀 INCLUDE CUSTOM DATABASE SDK HERE -->
+  <script src="mini-firestore-sdk.js"></script>
+
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    // ============================================================
+    // 1. CONNECT TO YOUR CUSTOM CLOUD DATABASE
+    // ============================================================
+    const db = new CustomFirestore('wss://saloon-db-server.onrender.com', 'SALOON_CLIENT_KEY_123');
+
+    // ============================================================
+    // 2. FIREBASE COMPATIBILITY ADAPTER 
+    // ============================================================
+    window.collection = (dbInstance, collectionName) => dbInstance.collection(collectionName);
+    
+    window.doc = (dbInstance, colOrDoc, docId) => {
+      if (typeof colOrDoc === 'string' && docId) return dbInstance.collection(colOrDoc).doc(docId);
+      if (colOrDoc && colOrDoc.doc) return colOrDoc.doc(docId);
+      return dbInstance.collection(colOrDoc).doc(docId);
+    };
+
+    window.addDoc = async (colRef, data) => {
+      const docRef = colRef.doc();
+      await docRef.set(data);
+      return docRef;
+    };
+
+    window.setDoc = async (docRef, data, options) => docRef.set(data, options);
+    window.updateDoc = async (docRef, data) => docRef.set(data, { merge: true });
+    window.deleteDoc = async (docRef) => docRef.delete();
+
+    window.getDocs = async (queryOrCol) => {
+      const results = await queryOrCol.get();
+      return {
+        size: results.length,
+        forEach: (cb) => results.forEach(docData => cb({ id: docData.id, data: () => docData })) 
+      };
+    };
+
+    window.getDoc = async (docRef) => {
+      const results = await docRef.sdk.collection(docRef.collectionName).get();
+      const found = results.find(d => d.id === docRef.id);
+      return {
+        exists: () => !!found,
+        data: () => found || {},
+        id: docRef.id
+      };
+    };
+
+    window.onSnapshot = (queryOrCol, callback) => {
+      return queryOrCol.onSnapshot((docs) => {
+        const snapshot = {
+          docChanges: () => docs.map(d => ({ type: 'added', doc: { id: d.id, data: () => d } })),
+          forEach: (cb) => docs.forEach(d => cb({ id: d.id, data: () => d }))
+        };
+        callback(snapshot);
+      });
+    };
+
+    window.query = (colRef, ...constraints) => {
+      let q = colRef;
+      constraints.forEach(c => {
+        if (c && c.type === 'where') q = q.where(c.field, c.op, c.val);
+      });
+      return q;
+    };
+
+    window.where = (field, op, val) => ({ type: 'where', field, op, val });
+    window.orderBy = () => ({ type: 'orderBy' }); // Sorting handled safely client-side
+    window.limit = () => ({ type: 'limit' }); 
 
     document.addEventListener('scroll', (e) => {
       if (e.target && e.target.classList) {
@@ -1118,9 +1186,6 @@
     const app = initializeApp(firebaseConfig); 
     const auth = getAuth(app); 
     const provider = new GoogleAuthProvider();
-    const db = initializeFirestore(app, {
-      localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
-    });
 
     let currentUserDoc = null; let allPaidTicketsCache = []; let activePaymentTicketId = null; let activeReassignTicketId = null; let activeBlacklistCustomer = null; let activeBlacklistActionType = null; let shopPaymentConfig = { name: "SJ'S SALOON", number: "0240000000", ownerPhone: "" };
     let selectedSetupRole = "barber"; let selectedSetupCountry = ""; let selectedSetupIdType = ""; let selectedEditCountry = "Ghana"; let selectedEditIdType = "National ID / Ghana Card"; 
