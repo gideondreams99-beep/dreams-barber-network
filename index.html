@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#121212">
   <style>
-    /* SYSTEM DEFAULT THEME (AUTOMATIC LIGHT & DARK MODE SUPPORT) */
+    /* SYSTEM DEFAULT THEME */
     :root {
       color-scheme: light dark;
       --bg-color: #121212;
@@ -50,7 +50,6 @@
       transition: scrollbar-color 0.3s ease;
     }
 
-    /* SLEEK AUTO-HIDING SCROLLBAR DESIGN */
     ::-webkit-scrollbar {
       width: 4px;
       height: 4px;
@@ -74,7 +73,6 @@
       scrollbar-color: var(--accent-gold) transparent;
     }
 
-    /* LOCK BODY PREVENT OVER-SCROLL BOUNCE */
     html, body {
       height: 100%;
       height: 100dvh;
@@ -99,7 +97,6 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* MAIN INNER SCROLLABLE VIEW CONTAINER */
     #appViewContainer {
       flex: 1;
       min-height: 0;
@@ -117,7 +114,6 @@
       scroll-behavior: smooth;
     }
 
-    /* TOP HEADER & HAMBURGER MENU */
     #topHeader {
       position: fixed; top: 0; left: 0; width: 100%; height: 60px;
       background: var(--panel-bg); border-bottom: 1px solid var(--panel-border);
@@ -133,7 +129,6 @@
       color: var(--accent-gold); font-size: 28px; cursor: pointer; padding: 0; box-shadow: none;
     }
     
-    /* SLIDE-OUT SIDEBAR MENU CSS */
     #sidebarOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 99998;
@@ -186,27 +181,10 @@
       background: #222;
     }
     
-    /* VIEWS - HIDDEN BY DEFAULT */
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
     #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 480px; text-align: left; }
     #dashboard { text-align: center; }
 
-    #userName { margin: 5px 0 0 0; letter-spacing: 1px; }
-    #userRole {
-      background: var(--panel-bg);
-      display: inline-block;
-      padding: 4px 14px;
-      border-radius: 20px;
-      margin-top: 8px;
-      color: var(--accent-gold);
-      font-weight: bold;
-      font-size: 11px;
-      letter-spacing: 1px;
-      border: 1px solid var(--panel-border);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    /* PANELS */
     .panel {
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
@@ -234,7 +212,6 @@
     }
     input:focus, textarea:focus { outline: none; border-color: var(--accent-gold); }
     
-    /* CUSTOM SELECTOR DROPDOWN BUTTONS */
     .custom-select-box {
       width: 100%; padding: 14px; margin-bottom: 20px;
       background-color: var(--input-bg); color: var(--input-text);
@@ -245,7 +222,6 @@
 
     .btn-submit { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%; }
     
-    /* TICKETS & LISTS */
     .ticket, .list-item {
       background: var(--panel-bg);
       padding: 16px; border-radius: 10px; margin-bottom: 15px;
@@ -271,29 +247,9 @@
     .btn-finish { background: linear-gradient(145deg, #555, #333); color: #fff; border-color: #666; }
     .btn-pay { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
 
-    /* DASHBOARD NOTIFICATION CARDS */
-    .notice-card {
-      background: var(--panel-bg); border: 1px solid var(--accent-gold);
-      border-left: 5px solid var(--accent-gold); border-radius: 10px; padding: 12px 15px; margin-bottom: 10px;
-      text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      max-width: 100%;
-      overflow: hidden;
-      word-break: break-word;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-    .notice-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    }
-    .notice-card h5 { margin: 0 0 5px 0; color: var(--accent-gold); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-    .notice-card p { margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.4; word-break: break-word; }
-
-    /* ANALYTICS */
     #analyticsPanel { border-color: #145523; }
     #analyticsPanel h3 { color: #28a745; border-color: #145523; margin-bottom: 20px; }
     
-    /* DAILY / WEEKLY / MONTHLY STATS GRID */
     .stats-grid { display: flex; justify-content: space-between; gap: 6px; width: 100%; max-width: 100%; overflow: hidden; }
     .stat-box { flex: 1; min-width: 0; background: rgba(0,0,0,0.1); padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #145523; overflow: hidden; }
     .stat-box p { opacity: 0.7; font-size: 10px; text-transform: uppercase; margin: 0 0 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -335,7 +291,7 @@
     .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
     .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
 
-    /* WHATSAPP STYLE CHAT INTERFACE */
+    /* CHAT */
     #chatPage { padding: 0 !important; border: none !important; background: var(--wa-chat-bg) !important; height: calc(100vh - 100px); flex-direction: column; border-radius: 12px; overflow: hidden; }
     .wa-header { background: var(--wa-header-bg); color: #ffffff; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
     .wa-header-info { display: flex; align-items: center; gap: 12px; }
@@ -351,7 +307,6 @@
     .wa-input-field { flex: 1; padding: 12px 16px; border-radius: 24px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); margin-bottom: 0 !important; font-size: 15px; }
     .wa-send-btn { width: 45px; height: 45px; border-radius: 50%; background: #128c7e; color: #ffffff; border: none; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
 
-    /* EYE-CATCHING CONFIRMATION TOAST */
     #toastNotification {
       position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150px);
       background: linear-gradient(145deg, #113518, #07190a); color: #28a745; border: 2px solid #28a745; padding: 14px 28px; border-radius: 35px;
@@ -363,7 +318,6 @@
     }
     #toastNotification.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
-    /* CUSTOM POPUP MODAL & DROPDOWN PICKER */
     #customModalOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
@@ -387,11 +341,9 @@
     .dropdown-option-item.selected .radio-circle { border-color: var(--accent-gold); background: var(--accent-gold); }
     .dropdown-option-item.selected .radio-circle::after { content: ''; width: 8px; height: 8px; background: #111; border-radius: 50%; }
 
-    /* FULLSCREEN NATIVE GALLERY IMAGE VIEWER */
     #fullscreenImageViewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000; z-index: 200000; display: none; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; }
     #fullscreenImageViewer.show { display: flex; }
 
-    /* JUMPING ANIMATED LOGIN SCREEN CENTERED */
     @keyframes jumpBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
     .jumping-logo-container { display: inline-block; animation: jumpBounce 2s infinite ease-in-out; margin-bottom: 15px; }
     .login-welcome-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; box-sizing: border-box; margin-top: 10px; margin-bottom: 40px; }
@@ -399,18 +351,15 @@
 </head>
 <body>
 
-  <!-- TOP HEADER (Always visible when logged in) -->
   <div id="topHeader">
     <button id="mainMenuBtn" onclick="openSidebar()">☰</button>
     <h1 id="mainAppTitle">SJ'S SALOON</h1>
   </div>
 
-  <!-- SLIDE-OUT HAMBURGER SIDEBAR MENU -->
   <div id="sidebarOverlay" onclick="closeSidebar()"></div>
   <div id="sidebarMenu">
     <button onclick="closeSidebar()" style="background: none; border: none; color: white; font-size: 24px; position: absolute; top: 15px; right: 15px; box-shadow: none; padding: 0;">✕</button>
     
-    <!-- Sidebar User Profile Summary -->
     <div style="text-align: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 15px; margin-bottom: 10px; margin-top: 10px;">
       <img id="sidebarUserPic" src="" class="avatar" style="width: 80px; height: 80px;" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;">
       <h4 id="sidebarUserName" style="margin: 5px 0 0 0; color: var(--accent-gold); letter-spacing: 1px; word-break: break-word;">Name</h4>
@@ -440,10 +389,8 @@
     </div>
   </div>
 
-  <!-- WRAPPER FOR SCROLLABLE INNER APP VIEWS -->
   <div id="appViewContainer">
 
-    <!-- JUMPING ANIMATED LOGIN SCREEN CENTERED -->
     <div id="loginWelcomeView" class="login-welcome-box" style="display: none;">
       <div class="jumping-logo-container">
         <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px; color: var(--accent-gold);">SJ'S SALOON</h1>
@@ -456,7 +403,7 @@
       </button>
 
       <div style="border-top: 1px solid var(--panel-border); margin: 20px 0; padding-top: 20px;">
-        <p style="font-size: 13px; opacity: 0.8; margin-bottom: 12px;">Sign in or register with Email & Password (ideal for iCloud/Email credentials):</p>
+        <p style="font-size: 13px; opacity: 0.8; margin-bottom: 12px;">Sign in or register with Email & Password:</p>
         <input type="email" id="authEmailInput" placeholder="Email address..." autocomplete="email" style="margin-bottom: 10px;">
         <input type="password" id="authPasswordInput" placeholder="Password (min 6 characters)..." autocomplete="current-password" style="margin-bottom: 15px;">
         <div style="display: flex; gap: 10px;">
@@ -472,7 +419,7 @@
 
     <p id="statusText" style="opacity: 0.8; font-weight: bold; margin-top: 40px; display: none; font-size: 16px; color: var(--accent-gold); letter-spacing: 1px;">Loading... ⏳</p>
 
-    <!-- SETUP PROFILE VIEW (SEPARATED FIRST NAME & SURNAME) -->
+    <!-- SETUP PROFILE VIEW -->
     <div id="setupView" class="panel">
       <h3>Complete Your Profile & ID Verification</h3>
       <p style="opacity: 0.8; font-size: 14px; text-align: center; margin-bottom: 20px;">Provide your First Name, Surname, select your role and country, and enter a valid government-issued ID for verification.</p>
@@ -521,7 +468,7 @@
       <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
     </div>
 
-    <!-- EDIT PROFILE VIEW (SEPARATED FIRST NAME & SURNAME) -->
+    <!-- EDIT PROFILE VIEW -->
     <div id="editProfileView" class="panel" style="border-color: #4285F4;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
       <h3 style="color: #4285F4;" id="editProfileTitle">Edit My Profile & ID Credentials</h3>
@@ -555,19 +502,20 @@
       <button id="submitEditProfileBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Save & Update Profile</button>
     </div>
 
-    <!-- DEDICATED OWNER PAGES -->
+    <!-- OWNER STAFF MANAGEMENT PAGE -->
     <div id="ownerStaffPage" class="panel" style="border-color: #4285F4;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: #4285F4;">Staff Management</h3>
       <h4 style="margin-top: 0;">Pending Staff Approvals & Updates</h4>
       <div id="approvalList"></div>
       <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Active Staff Management</h4>
-      <p style="opacity: 0.8; font-size: 13px; margin-top: 0;">Remove/Fire staff members to revoke their access to the shop app.</p>
+      <p style="opacity: 0.8; font-size: 13px; margin-top: 0;">Manage active staff, request profile updates, or remove members.</p>
       <div id="activeStaffList"></div>
       <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">🚨 Staff Reports & Complaints</h4>
       <div id="staffReportsList"><p style="opacity: 0.6; font-style: italic; font-size: 13px;">No staff reports submitted.</p></div>
     </div>
 
+    <!-- OWNER SERVICES & PRICES PAGE -->
     <div id="ownerServicesPage" class="panel" style="border-color: #4285F4;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: #4285F4;">Services & Prices</h3>
@@ -581,6 +529,7 @@
       <div id="servicesList"></div>
     </div>
 
+    <!-- OWNER BLACKLIST PAGE -->
     <div id="ownerBlacklistPage" class="panel" style="border-color: #ff4444;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: #ff4444;">Customer Blacklist Management</h3>
@@ -590,7 +539,7 @@
       <div id="blacklistList"></div>
     </div>
 
-    <!-- DEDICATED TEAM CHAT PAGE -->
+    <!-- CHAT PAGE -->
     <div id="chatPage" style="display: none;">
       <div class="wa-header">
         <div class="wa-header-info">
@@ -613,7 +562,7 @@
       </div>
     </div>
 
-    <!-- DEDICATED ANNOUNCEMENTS PAGE -->
+    <!-- ANNOUNCEMENTS PAGE -->
     <div id="announcementsPage" class="panel" style="border-color: #ffc107;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: #ffc107;">📢 Announcements & Instructions</h3>
@@ -627,17 +576,17 @@
       </div>
     </div>
 
-    <!-- APP AI ASSISTANT PAGE -->
+    <!-- AI ASSISTANT PAGE -->
     <div id="aiAssistantPage" class="panel" style="border-color: #4285F4;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: #4285F4;">🤖 App AI Assistant</h3>
-      <p style="opacity: 0.8; font-size: 13px; text-align: center; margin-bottom: 15px;">Ask any questions about how SJ'S SALOON works, workflows, or troubleshooting!</p>
+      <p style="opacity: 0.8; font-size: 13px; text-align: center; margin-bottom: 15px;">Ask questions about how SJ'S SALOON works or troubleshoot features!</p>
       
       <div id="aiChatBox" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 15px; height: 260px; overflow-y: auto; margin-bottom: 15px; text-align: left; -webkit-overflow-scrolling: touch;">
         <div style="margin-bottom: 12px;">
           <span style="font-size: 11px; color: #4285F4;">SJ'S AI Assistant</span><br>
           <div style="display: inline-block; background: var(--panel-bg); color: var(--text-color); padding: 8px 12px; border-radius: 8px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">
-            Hello! I am your SJ'S SALOON AI assistant. Ask me anything about issuing tickets, free service approvals, reporting staff, or collecting payments!
+            Hello! I am your SJ'S SALOON AI assistant. Ask me anything about issuing tickets, free service approvals, reporting staff, or updating profiles!
           </div>
         </div>
       </div>
@@ -645,7 +594,7 @@
       <div style="display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap;">
         <button onclick="askAiQuickPrompt('How do free services work?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Free Services?</button>
         <button onclick="askAiQuickPrompt('How do I issue a ticket?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Issue Ticket?</button>
-        <button onclick="askAiQuickPrompt('How do I report staff?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Report Staff?</button>
+        <button onclick="askAiQuickPrompt('How do off duty barbers work?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Off Duty Barbers?</button>
       </div>
 
       <div class="flex-row">
@@ -654,26 +603,20 @@
       </div>
     </div>
 
-    <!-- UNIVERSAL SETTINGS PAGE -->
+    <!-- SETTINGS PAGE -->
     <div id="settingsPage" class="panel" style="border-color: var(--accent-gold);">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
       
-      <div id="deviceNotificationPanel" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
-        <h4 style="color: var(--accent-gold); margin-top: 0;">🔔 Device Notification Panel</h4>
-        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Enable native device system alerts in your phone's notification bar for new chat messages, tickets, and announcements.</p>
-        <button onclick="requestNotificationPermission()" style="background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; width: 100%;">Enable Device Notifications</button>
-      </div>
-
       <div id="ownerUpdateBroadcastBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #4285F4; margin-bottom: 20px;">
         <h4 style="color: #4285F4; margin-top: 0;">🚀 Broadcast App Update to Everyone</h4>
-        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Trigger an instant pop-up on all barbers' and secretaries' phones asking them to refresh the app.</p>
+        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Trigger a pop-up on all connected devices displaying new features and prompting a seamless app update.</p>
         <button onclick="broadcastGlobalUpdate()" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Broadcast Update Alert</button>
       </div>
 
       <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
         <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment & Owner Contact Details</h4>
-        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name/number and your direct phone number for staff calls.</p>
+        <p style="opacity: 0.8; font-size: 13px; margin-bottom: 12px;">Provide your MoMo account name/number and direct phone number for staff calls.</p>
         <label>MoMo / Merchant Account Name</label>
         <input type="text" id="ownerMomoNameSet" placeholder="e.g. John Doe / SJ'S SALOON">
         <label>MoMo / Merchant Phone Number</label>
@@ -708,7 +651,7 @@
       </div>
     </div>
 
-    <!-- DEDICATED PAYMENT PAGE VIEW -->
+    <!-- PAYMENT PAGE -->
     <div id="paymentPage" class="panel" style="border-color: #28a745;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
       <h3 style="color: #28a745;">Checkout & Payment</h3>
@@ -727,7 +670,7 @@
       <button class="pay-btn pay-telecel" onclick="processPayment('Telecel Cash')">🟠 Telecel Cash</button>
     </div>
 
-    <!-- DEDICATED BLACKLIST PAGE VIEW -->
+    <!-- BLACKLIST PAGE -->
     <div id="blacklistPage" class="panel" style="border-color: #ff4444;">
       <button onclick="cancelBlacklistPage()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Go Back</button>
       <h3 style="color: #ff4444;" id="blacklistPageTitle">Blacklist Customer</h3>
@@ -739,7 +682,7 @@
       <button id="blPageSubmitBtn" class="btn-submit" style="background: #ff4444; border-color: #ff4444;">Submit Blacklist</button>
     </div>
 
-    <!-- DEDICATED CUSTOMER HISTORY DIRECTORY PAGE -->
+    <!-- CUSTOMER DIRECTORY PAGE -->
     <div id="customerDirectoryPage" class="panel">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 id="directoryPageTitle" style="color: var(--accent-gold);">Customer Records</h3>
@@ -753,7 +696,7 @@
       </div>
     </div>
 
-    <!-- DEDICATED PAST MONTHLY REPORTS PAGE -->
+    <!-- MONTHLY REPORTS PAGE -->
     <div id="monthlyReportPage" class="panel" style="border-color: var(--accent-gold);">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: var(--accent-gold); margin-bottom: 20px; font-size: 18px;" id="reportPageTitle">MONTH YEAR REPORT</h3>
@@ -777,21 +720,30 @@
 
     <!-- MAIN DASHBOARD -->
     <div id="dashboard">
-      <!-- CALL OWNER QUICK BUTTON (BARBERS & SECRETARIES) -->
+      <!-- OWNER PROFILE UPDATE ALERT BANNER FOR BARBERS/SECRETARIES -->
+      <div id="profileUpdateRequestCard" style="display: none; background: rgba(255, 68, 68, 0.15); border: 2px solid #ff4444; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: left; box-shadow: 0 4px 12px rgba(255,68,68,0.2);">
+        <h4 style="color: #ff4444; margin: 0 0 6px 0; text-transform: uppercase; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+          ⚠️ PROFILE UPDATE REQUESTED
+        </h4>
+        <p style="margin: 0 0 12px 0; font-size: 13px; opacity: 0.9; line-height: 1.4;">
+          The Shop Owner has requested that you review and update your profile information and government ID details.
+        </p>
+        <button onclick="openEditProfile()" style="width: 100%; background: #ff4444; color: white; border-color: #ff4444; font-size: 13px; padding: 10px;">
+          ✏️ Update Profile Now
+        </button>
+      </div>
+
+      <!-- CALL OWNER QUICK BUTTON -->
       <div id="dashboardCallOwnerContainer" style="display: none; margin-bottom: 15px;">
         <a id="dashboardCallOwnerLink" href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 1px solid #2a6bcc; box-shadow: 0 4px 10px rgba(0,0,0,0.2); word-break: break-word;">
           📞 Call Shop Owner Now
         </a>
       </div>
 
-      <!-- REAL-TIME DASHBOARD NOTIFICATION BANNER / ACTIVITY FEED -->
-      <div id="dashboardNotificationBox" style="display: none; margin-bottom: 15px;"></div>
-
       <!-- SECRETARY FRONT DESK PANEL -->
       <div id="secretaryPanel" class="panel" style="display: none; margin-top: 0;">
         <h3>Front Desk Intake</h3>
         
-        <!-- SHOP & SECRETARY STATUS CONTROLS -->
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
           <button id="toggleShopBtn" onclick="toggleShopStatus()" style="flex: 1; background: #28a745; border-color: #28a745; font-size: 13px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🔓 Shop OPEN</button>
           <button id="toggleSecAwayBtn" onclick="toggleSecStatus()" style="flex: 1; background: #1a4b8c; border-color: #2a6bcc; font-size: 13px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🟢 I am HERE</button>
@@ -808,19 +760,17 @@
         <label>Customer Phone Number (Optional)</label>
         <input type="tel" id="custPhone" placeholder="Enter phone number (optional)..." autocomplete="off">
 
-        <!-- MULTI-SERVICE SELECTOR CONTAINER -->
         <label>Select Services (Multi-Select Allowed)</label>
         <div id="secretaryServicesContainer" style="background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; padding: 10px; margin-bottom: 15px; max-height: 180px; overflow-y: auto; -webkit-overflow-scrolling: touch;">
           <p style="opacity: 0.6; font-style: italic; font-size: 13px; margin: 0;">Loading services...</p>
         </div>
 
-        <!-- AUTO-CALCULATED TOTAL DISPLAY -->
-        <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent-gold); padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: space-between; display: flex; justify-content: space-between; align-items: center;">
+        <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent-gold); padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
           <span style="font-weight: bold; color: var(--text-color);">Total Amount to Pay:</span>
           <span style="font-size: 18px; font-weight: bold; color: var(--accent-gold);">GHS <span id="intakeCalculatedTotal">0.00</span></span>
         </div>
 
-        <label>Assign To Barber (Full Name & Unique ID)</label>
+        <label>Assign To Barber (On Duty Barbers Only)</label>
         <div id="barberNameSelectBtn" class="custom-select-box" onclick="openPickerModal('barberName')">
           <span id="barberNameText">Select Barber...</span><span style="color: var(--accent-gold);">▼</span>
         </div>
@@ -880,9 +830,9 @@
       </div>
     </div>
 
-  </div> <!-- END SCROLLABLE VIEW CONTAINER -->
+  </div>
 
-  <!-- FULLSCREEN NATIVE GALLERY IMAGE VIEWER MODAL -->
+  <!-- FULLSCREEN IMAGE VIEWER MODAL -->
   <div id="fullscreenImageViewer">
     <div style="position: absolute; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.8); box-sizing: border-box; z-index: 200001;">
       <button onclick="closeFullscreenViewer()" style="background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; padding: 0; box-shadow: none; text-transform: none;">←</button>
@@ -913,7 +863,6 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, getDocs, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // AUTO-HIDE SCROLLBAR LISTENER
     document.addEventListener('scroll', (e) => {
       if (e.target && e.target.classList) {
         e.target.classList.add('is-scrolling');
@@ -924,32 +873,13 @@
       }
     }, true);
 
-    const CURRENT_APP_VERSION = "1.0.4";
+    const CURRENT_APP_VERSION = "1.0.5";
     window.DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23222222'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' font-size='50'>🧔‍♂️</text></svg>";
 
     let isClosingModalProgrammatically = false;
 
-    window.requestNotificationPermission = async () => {
-      if (!("Notification" in window)) {
-        await customPopup('alert', "Device Notifications are not supported by this browser.");
-        return;
-      }
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-          showToast("Device Notification Panel enabled!");
-          sendSystemNotification("SJ'S SALOON", "Device notifications are active and ready!");
-          const panel = document.getElementById('deviceNotificationPanel');
-          if (panel) panel.style.display = "none";
-        } else {
-          await customPopup('alert', "Notification permission was denied. You can enable it in your browser site settings.");
-        }
-      } catch (e) {
-        console.log("Notification request error:", e);
-      }
-    };
-
-    function sendSystemNotification(title, body) {
+    // NATIVE DEVICE NOTIFICATIONS WITH DEEP LINK TARGET
+    function sendSystemNotification(title, body, targetView = 'dashboard') {
       if ("Notification" in window && Notification.permission === "granted") {
         try {
           if (navigator.serviceWorker && navigator.serviceWorker.ready) {
@@ -959,14 +889,23 @@
                 icon: window.DEFAULT_AVATAR,
                 vibrate: [200, 100, 200],
                 tag: 'sjs-saloon-notification',
-                renotify: true
+                renotify: true,
+                data: { targetView: targetView }
               });
             });
           } else {
-            new Notification(title, {
+            const notif = new Notification(title, {
               body: body,
-              icon: window.DEFAULT_AVATAR
+              icon: window.DEFAULT_AVATAR,
+              data: { targetView: targetView }
             });
+            notif.onclick = function(event) {
+              event.preventDefault();
+              window.focus();
+              if (targetView && typeof window.navigateToView === 'function') {
+                window.navigateToView(targetView);
+              }
+            };
           }
         } catch(e) {
           console.log("System notification error:", e);
@@ -974,9 +913,14 @@
       }
     }
 
-    function playRingTone() {}
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.targetView) {
+          window.focus();
+          navigateToView(event.data.targetView);
+        }
+      });
 
-    if ('serviceWorker' in navigator) { 
       window.addEventListener('load', () => { 
         navigator.serviceWorker.register('/sw.js').then(reg => {
           reg.update();
@@ -991,7 +935,6 @@
                   localStorage.setItem('pre_update_view', currentActiveViewId);
                 }
 
-                playRingTone();
                 await customPopup(
                   'alert', 
                   "📲 <b>New Version Ready!</b><br><br>The app has downloaded new updates. Tap <b>OK</b> to restart and apply."
@@ -1035,7 +978,6 @@
       }
     };
 
-    // --- SIDEBAR MENU LOGIC ---
     window.openSidebar = () => {
       document.getElementById('sidebarMenu').classList.add('show');
       document.getElementById('sidebarOverlay').classList.add('show');
@@ -1054,7 +996,6 @@
       }
     };
 
-    // --- CENTRAL NAVIGATION & HARDWARE/DEVICE BACK BUTTON CONTROLLER ---
     const ALL_APP_VIEWS = [
       'loginWelcomeView', 'setupView', 'pendingView', 'editProfileView',
       'ownerStaffPage', 'ownerServicesPage', 'ownerBlacklistPage',
@@ -1167,10 +1108,10 @@
     window.triggerInstall = async () => {
       const ua = navigator.userAgent.toLowerCase(); const isIOS = /iphone|ipad|ipod/.test(ua); const isAndroid = /android/.test(ua); const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       if (isStandalone) { return await customPopup('alert', "✨ <b>SJ'S SALOON</b> is already installed and running in full-screen mode on your device!"); }
-      if (isIOS) { await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share button</b> (square with an up arrow) at the bottom or top of your Safari browser.<br>2. Scroll down the menu options and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>'Add'</b> in the top right corner to instantly install!"); } 
+      if (isIOS) { await customPopup('alert', "📲 <b>How to Install on iPhone / iPad:</b><br><br>1. Tap the <b>Share button</b> at the bottom or top of Safari.<br>2. Scroll down and tap <b>'Add to Home Screen'</b>.<br>3. Tap <b>'Add'</b> in the top right corner."); } 
       else if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { showToast("App installed successfully!"); const installBox = document.getElementById('installAppContainer'); if (installBox) installBox.style.display = 'none'; const welcomeInstallBtn = document.getElementById('welcomeInstallBtn'); if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none'; } deferredPrompt = null; } 
-      else if (isAndroid) { await customPopup('alert', "🤖 <b>How to Install on Android:</b><br><br>1. Tap the browser menu <b>(three vertical dots ⋮)</b> in the top right corner.<br>2. Select <b>'Install app'</b> or <b>'Add to Home screen'</b>.<br>3. Confirm by tapping <b>'Install'</b>."); } 
-      else { await customPopup('alert', "💻 <b>How to Install on Desktop:</b><br><br>1. Look at the right side of your browser address bar.<br>2. Click the <b>Install icon</b> (a monitor with a downward arrow) or open your browser menu (⋮) and click <b>Install</b>."); }
+      else if (isAndroid) { await customPopup('alert', "🤖 <b>How to Install on Android:</b><br><br>1. Tap the browser menu <b>(three vertical dots ⋮)</b>.<br>2. Select <b>'Install app'</b> or <b>'Add to Home screen'</b>.<br>3. Confirm by tapping <b>'Install'</b>."); } 
+      else { await customPopup('alert', "💻 <b>How to Install on Desktop:</b><br><br>1. Click the <b>Install icon</b> in your address bar or browser menu.<br>2. Click <b>Install</b>."); }
     };
 
     const firebaseConfig = { apiKey: "AIzaSyD0YvP-aj1a_ReSpYlOuyS0FM6WlbrP7aI", authDomain: "sjs-saloon.firebaseapp.com", projectId: "sjs-saloon", storageBucket: "sjs-saloon.firebasestorage.app", messagingSenderId: "346208182886", appId: "1:346208182886:web:0766d465a0c628bd5c03a7" };
@@ -1186,10 +1127,13 @@
     let selectedIntakeBarberId = ""; let selectedIntakeBarberName = ""; 
     let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
 
+    // AUTOMATIC APP UPDATE PROMPT WITH DETAILED CHANGELOG / RELEASE NOTES
     function startGlobalUpdateListener() {
       onSnapshot(doc(db, "shop_config", "app_version"), async (docSnap) => {
         if (docSnap.exists()) {
-          const serverVersion = docSnap.data().version;
+          const data = docSnap.data();
+          const serverVersion = data.version;
+          const releaseNotes = data.notes || "Performance improvements, enhanced notification handling, and general fixes.";
           const hasPrompted = localStorage.getItem('prompted_ver_' + serverVersion);
 
           if (serverVersion && serverVersion !== CURRENT_APP_VERSION && !hasPrompted) {
@@ -1199,12 +1143,14 @@
               localStorage.setItem('pre_update_view', currentActiveViewId);
             }
 
-            playRingTone();
-            sendSystemNotification("🚀 SJ'S SALOON Update", "A new version of the app is ready!");
+            sendSystemNotification("🚀 SJ'S SALOON Update", `Version ${serverVersion} is now available!`, 'dashboard');
             
             await customPopup(
               'alert', 
-              "🚀 <b>New App Update Available!</b><br><br>A new update for SJ'S SALOON has been released. Click <b>OK</b> to update automatically now."
+              `🚀 <b>New App Update Available! (v${serverVersion})</b><br><br>` +
+              `<b>What's New in this Update:</b><br>` +
+              `<div style="background:var(--input-bg); padding:10px; border-radius:8px; border:1px solid var(--panel-border); font-size:13px; text-align:left; margin-top:8px; margin-bottom:12px;">${releaseNotes}</div>` +
+              `Tap <b>OK</b> to update and restart the app automatically now.`
             );
 
             if ('caches' in window) {
@@ -1228,12 +1174,16 @@
     }
 
     window.broadcastGlobalUpdate = async () => {
-      const newVersionStr = await customPopup('prompt', "Enter New Version Number to broadcast to all devices:", "e.g. 1.0.5");
+      const newVersionStr = await customPopup('prompt', "Enter New Version Number to broadcast:", "e.g. 1.0.6");
       if (!newVersionStr || !newVersionStr.trim()) return;
+
+      const releaseNotes = await customPopup('prompt', "Enter Release Notes / Details for this Update:", "e.g. Added off-duty barber filter and native push links...");
+      if (releaseNotes === null) return;
 
       try {
         await setDoc(doc(db, "shop_config", "app_version"), {
           version: newVersionStr.trim(),
+          notes: releaseNotes.trim() || "General performance enhancements and bug fixes.",
           updatedAt: new Date().getTime(),
           updatedBy: currentUserDoc.name
         }, { merge: true });
@@ -1299,24 +1249,66 @@
       input.style.display = "none"; buttonContainer.style.display = "none"; msg.innerHTML = ""; dropdownList.style.display = "block";
       let options = []; let currentValue = "";
 
-      if (pickerType === 'role') { title.innerText = "Select Your Role"; currentValue = selectedSetupRole; let ownerExists = false; try { const userSnapshots = await getDocs(collection(db, "users")); userSnapshots.forEach(docSnap => { if (docSnap.data().role === 'owner') { ownerExists = true; } }); } catch(e) {} options = [ { label: "Barber", value: "barber" }, { label: "Secretary", value: "secretary" } ]; if (!ownerExists) { options.push({ label: "Shop Owner", value: "owner" }); } } 
-      else if (pickerType === 'country' || pickerType === 'editCountry') { title.innerText = "Select Country"; currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry; options = [ { label: "Ghana", value: "Ghana" }, { label: "Nigeria", value: "Nigeria" }, { label: "United States", value: "United States" }, { label: "United Kingdom", value: "United Kingdom" }, { label: "Canada", value: "Canada" }, { label: "South Africa", value: "South Africa" }, { label: "Kenya", value: "Kenya" }, { label: "Germany", value: "Germany" }, { label: "France", value: "France" }, { label: "Australia", value: "Australia" }, { label: "India", value: "India" }, { label: "Other Country", value: "Other" } ]; } 
-      else if (pickerType === 'idType' || pickerType === 'editIdType') { title.innerText = "Select Government ID Type"; currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType; const activeCountry = pickerType === 'idType' ? selectedSetupCountry : selectedEditCountry; if (activeCountry === "Ghana") { options = [ { label: "National ID / Ghana Card", value: "National ID / Ghana Card" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Voters ID", value: "Voters ID" } ]; } else if (activeCountry === "Nigeria") { options = [ { label: "National Identity Number (NIN)", value: "NIN" }, { label: "International Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Permanent Voter Card (PVC)", value: "PVC" } ]; } else { options = [ { label: "National Identity Card", value: "National ID" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" } ]; } } 
+      if (pickerType === 'role') { 
+        title.innerText = "Select Your Role"; 
+        currentValue = selectedSetupRole; 
+        let ownerExists = false; 
+        try { 
+          const userSnapshots = await getDocs(collection(db, "users")); 
+          userSnapshots.forEach(docSnap => { if (docSnap.data().role === 'owner') { ownerExists = true; } }); 
+        } catch(e) {} 
+        options = [ { label: "Barber", value: "barber" }, { label: "Secretary", value: "secretary" } ]; 
+        if (!ownerExists) { options.push({ label: "Shop Owner", value: "owner" }); } 
+      } 
+      else if (pickerType === 'country' || pickerType === 'editCountry') { 
+        title.innerText = "Select Country"; 
+        currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry; 
+        options = [ { label: "Ghana", value: "Ghana" }, { label: "Nigeria", value: "Nigeria" }, { label: "United States", value: "United States" }, { label: "United Kingdom", value: "United Kingdom" }, { label: "Canada", value: "Canada" }, { label: "South Africa", value: "South Africa" }, { label: "Kenya", value: "Kenya" }, { label: "Germany", value: "Germany" }, { label: "France", value: "France" }, { label: "Australia", value: "Australia" }, { label: "India", value: "India" }, { label: "Other Country", value: "Other" } ]; 
+      } 
+      else if (pickerType === 'idType' || pickerType === 'editIdType') { 
+        title.innerText = "Select Government ID Type"; 
+        currentValue = pickerType === 'idType' ? selectedSetupIdType : selectedEditIdType; 
+        const activeCountry = pickerType === 'idType' ? selectedSetupCountry : selectedEditCountry; 
+        if (activeCountry === "Ghana") { 
+          options = [ { label: "National ID / Ghana Card", value: "National ID / Ghana Card" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Voters ID", value: "Voters ID" } ]; 
+        } else if (activeCountry === "Nigeria") { 
+          options = [ { label: "National Identity Number (NIN)", value: "NIN" }, { label: "International Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" }, { label: "Permanent Voter Card (PVC)", value: "PVC" } ]; 
+        } else { 
+          options = [ { label: "National Identity Card", value: "National ID" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" } ]; 
+        } 
+      } 
+      // OFF DUTY BARBER FILTER FOR SECRETARY INTAKE
       else if (pickerType === 'barberName') { 
         title.innerText = "Assign To Barber"; 
         currentValue = selectedIntakeBarberId; 
-        options = cachedBarbersList.map(b => ({ label: b.label, value: b.uid })); 
+        const onDutyBarbers = cachedBarbersList.filter(b => b.isAvailable);
+        options = onDutyBarbers.map(b => ({ label: b.label, value: b.uid })); 
       } 
       else if (pickerType === 'reassignBarber') { 
         title.innerText = "Select Barber to Assign Again"; 
         currentValue = ""; 
-        options = cachedBarbersList.map(b => ({ label: b.label, value: b.uid })); 
+        const onDutyBarbers = cachedBarbersList.filter(b => b.isAvailable);
+        options = onDutyBarbers.map(b => ({ label: b.label, value: b.uid })); 
       }
-      else if (pickerType === 'reportMonth') { title.innerText = "Select Month to View"; currentValue = ""; const d = new Date(); for (let i = 0; i < 24; i++) { const m = new Date(d.getFullYear(), d.getMonth() - i, 1); const label = m.toLocaleString('default', { month: 'long', year: 'numeric' }); const value = `${m.getFullYear()}-${m.getMonth()}`; options.push({ label, value }); } }
+      else if (pickerType === 'reportMonth') { 
+        title.innerText = "Select Month to View"; 
+        currentValue = ""; 
+        const d = new Date(); 
+        for (let i = 0; i < 24; i++) { 
+          const m = new Date(d.getFullYear(), d.getMonth() - i, 1); 
+          const label = m.toLocaleString('default', { month: 'long', year: 'numeric' }); 
+          const value = `${m.getFullYear()}-${m.getMonth()}`; 
+          options.push({ label, value }); 
+        } 
+      }
 
       let html = "";
-      options.forEach(opt => { const isSelected = opt.value === currentValue; html += `<div class="dropdown-option-item ${isSelected ? 'selected' : ''}" onclick="selectPickerOption('${pickerType}', '${opt.value}', '${opt.label.replace(/'/g, "\\'")}')"><span>${opt.label}</span><div class="radio-circle"></div></div>`; });
-      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No available options right now.</p>" : html; overlay.classList.add('show');
+      options.forEach(opt => { 
+        const isSelected = opt.value === currentValue; 
+        html += `<div class="dropdown-option-item ${isSelected ? 'selected' : ''}" onclick="selectPickerOption('${pickerType}', '${opt.value}', '${opt.label.replace(/'/g, "\\'")}')"><span>${opt.label}</span><div class="radio-circle"></div></div>`; 
+      });
+      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No on-duty barbers available right now.</p>" : html; 
+      overlay.classList.add('show');
       history.pushState({ modal: 'picker' }, '');
     };
 
@@ -1348,7 +1340,6 @@
               status: "pending_acceptance", 
               denyReason: null 
             }); 
-            playRingTone(); 
             showToast(`Ticket reassigned to ${bName} for review!`); 
           } catch (err) { 
             await customPopup('alert', "Error reassigning ticket: " + err.message); 
@@ -1392,15 +1383,6 @@
       const reportDesc = document.getElementById('reportSectionDesc');
       const reportBtn = document.getElementById('openReportStaffBtn');
 
-      const notifPanel = document.getElementById('deviceNotificationPanel');
-      if (notifPanel) {
-        if ("Notification" in window && Notification.permission === "granted") {
-          notifPanel.style.display = "none";
-        } else {
-          notifPanel.style.display = "block";
-        }
-      }
-
       if (currentUserDoc && currentUserDoc.role === "owner") { 
         document.getElementById('ownerDangerZoneBox').style.display = "block"; 
         document.getElementById('ownerPaymentSettingsBox').style.display = "block"; 
@@ -1432,7 +1414,6 @@
       try { 
         await setDoc(doc(db, "shop_config", "payment"), { name, number, ownerPhone }, { merge: true }); 
         shopPaymentConfig = { name, number, ownerPhone }; 
-        playRingTone(); 
         showToast("Payment and contact details saved successfully!"); 
         updateCallOwnerButton();
       } catch (err) { await customPopup('alert', "Error saving settings: " + err.message); }
@@ -1461,7 +1442,9 @@
       if (q.includes("free service") || q.includes("free")) {
         answer = "🎁 <b>Free Services:</b> When an owner lists a service with 0 GHS price, the secretary enters a reason upon selection. The ticket goes straight to the barber's chair for acceptance. Once finished by the barber, it shows completed on the secretary's dashboard while awaiting owner review/approval!";
       } else if (q.includes("ticket") || q.includes("issue") || q.includes("front desk")) {
-        answer = "🎟️ <b>Issuing Tickets:</b> Secretaries use the Front Desk Intake panel to type customer names, select multiple services, and assign an available barber. Click 'Issue Ticket' to send it straight to the barber's queue.";
+        answer = "🎟️ <b>Issuing Tickets:</b> Secretaries use the Front Desk Intake panel to type customer names, select multiple services, and assign an on-duty barber. Click 'Issue Ticket' to send it straight to the barber's queue.";
+      } else if (q.includes("off duty") || q.includes("duty") || q.includes("tab off")) {
+        answer = "🔴 <b>Off Duty Barbers:</b> When a barber toggles 'OFF DUTY', they are automatically hidden from the Secretary's barber selection list so no tickets are assigned to them while away!";
       } else if (q.includes("report") || q.includes("complaint")) {
         answer = "🚨 <b>Staff Reports:</b> Staff members can report colleagues via their Settings menu. Owners can review all complaints in the Staff Management panel.";
       } else if (q.includes("payment") || q.includes("collect") || q.includes("momo")) {
@@ -1487,9 +1470,7 @@
             staffList.push({ label: `${u.name} [ID: ${u.staffId || 'N/A'}] (${u.role.toUpperCase()})`, value: u.name });
           }
         });
-      } catch(e) {
-        console.error(e);
-      }
+      } catch(e) { console.error(e); }
 
       if (staffList.length === 0) {
         return await customPopup('alert', `No active staff found to report.`);
@@ -1535,8 +1516,7 @@
             reason: reason.trim(),
             timestamp: new Date().getTime()
           });
-          playRingTone();
-          sendSystemNotification("SJ'S SALOON - Staff Report", `Report submitted against ${staffName}`);
+          sendSystemNotification("SJ'S SALOON - Staff Report", `Report submitted against ${staffName}`, 'ownerStaffPage');
           showToast(`Report submitted against ${staffName}!`);
         } catch(err) {
           await customPopup('alert', "Error submitting report: " + err.message);
@@ -1548,13 +1528,12 @@
 
     window.showToast = (message) => { let toast = document.getElementById('toastNotification'); if(!toast) { toast = document.createElement('div'); toast.id = 'toastNotification'; document.body.appendChild(toast); } toast.innerHTML = `<span style="font-size: 22px;">✅</span> ${message}`; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3500); };
 
-    /* EOD REPORT WITH BARBER SALES & UNIQUE ID BREAKDOWN */
     window.generateDailyReportAndSend = async (openTimeMs, closeTimeMs) => {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
       
       let totalVal = 0; let totalCuts = 0; let cancelledDenied = 0; let freeCuts = 0;
-      let barberMap = {}; // uid -> { name, staffId, cuts, revenue }
+      let barberMap = {};
 
       allPaidTicketsCache.forEach(t => {
         if (t.timestamp >= startOfToday) {
@@ -1568,12 +1547,7 @@
               const bInfo = cachedBarbersList.find(b => b.uid === bUid) || {};
               const displayName = bInfo.name || t.assignedBarber || "Unknown Barber";
               const staffId = bInfo.staffId || "N/A";
-              barberMap[bUid] = {
-                name: displayName,
-                staffId: staffId,
-                cuts: 0,
-                revenue: 0
-              };
+              barberMap[bUid] = { name: displayName, staffId: staffId, cuts: 0, revenue: 0 };
             }
             barberMap[bUid].cuts += 1;
             barberMap[bUid].revenue += priceVal;
@@ -1640,7 +1614,7 @@
           
           await generateDailyReportAndSend(openTime, closeTime);
           localStorage.removeItem('shopOpenTimestamp');
-          sendSystemNotification("SJ'S SALOON", "Shop is now CLOSED. End-of-Day report sent!");
+          sendSystemNotification("SJ'S SALOON", "Shop is now CLOSED. End-of-Day report sent!", 'chatPage');
           showToast("Shop closed! Detailed report sent to Owner.");
         } else {
           btn.innerText = "🔓 Shop OPEN";
@@ -1657,7 +1631,7 @@
             text: "🔓 The shop is now OPEN and ready for business!",
             timestamp: openTime
           });
-          sendSystemNotification("SJ'S SALOON", "Shop is now OPEN for business!");
+          sendSystemNotification("SJ'S SALOON", "Shop is now OPEN for business!", 'chatPage');
           showToast("Shop opened! Owner notified.");
         }
       } catch (e) {
@@ -1689,7 +1663,7 @@
           timestamp: new Date().getTime()
         });
 
-        sendSystemNotification("SJ'S SALOON", alertText);
+        sendSystemNotification("SJ'S SALOON", alertText, 'chatPage');
         showToast(newStatus === 'away' ? "Status: AWAY! Team notified." : "Status: HERE! Team notified.");
       } catch(e) {
         await customPopup('alert', "Error updating secretary status: " + e.message);
@@ -1840,7 +1814,6 @@
       }
     });
 
-    /* PROFILE SETUP WITH SEPARATED FIRST NAME & SURNAME */
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const user = auth.currentUser; 
       const role = selectedSetupRole; 
@@ -1851,12 +1824,8 @@
       const idNumber = document.getElementById('setupIdNumber').value.trim(); 
       const fileInput = document.getElementById('setupPhoto');
 
-      if (!firstName || !lastName) {
-        return await customPopup('alert', "Please enter both your First Name and Surname.");
-      }
-      if (!country) {
-        return await customPopup('alert', "Please select your country.");
-      }
+      if (!firstName || !lastName) { return await customPopup('alert', "Please enter both your First Name and Surname."); }
+      if (!country) { return await customPopup('alert', "Please select your country."); }
 
       const displayName = `${firstName} ${lastName}`;
 
@@ -1913,11 +1882,11 @@
           idType: isOwner ? 'Owner Sandbox' : idType, 
           idNumber: isOwner ? 'OWNER-PASS' : idNumber, 
           isApproved: isOwner, 
-          isAvailable: true, 
+          isAvailable: true,
+          profileUpdateRequested: false, 
           createdAt: new Date().getTime() 
         });
 
-        playRingTone(); 
         showToast(isOwner ? "Owner login successful!" : "Profile submitted successfully!"); 
         setTimeout(() => window.location.reload(), 1500);
       } catch (error) { 
@@ -1929,7 +1898,6 @@
       }
     });
 
-    /* EDIT PROFILE WITH SEPARATED FIRST NAME & SURNAME */
     window.openEditProfile = () => {
       navigateToView('editProfileView');
       
@@ -1965,12 +1933,8 @@
       const country = selectedEditCountry; 
       const fileInput = document.getElementById('editPhoto');
 
-      if (!firstName || !lastName) {
-        return await customPopup('alert', "Please enter both First Name and Surname.");
-      }
-      if (!country) {
-        return await customPopup('alert', "Please select your country.");
-      }
+      if (!firstName || !lastName) { return await customPopup('alert', "Please enter both First Name and Surname."); }
+      if (!country) { return await customPopup('alert', "Please select your country."); }
 
       const displayName = `${firstName} ${lastName}`;
       let idType = currentUserDoc.idType; 
@@ -2024,6 +1988,7 @@
           showToast("Profile updated successfully!"); 
         } else { 
           await updateDoc(doc(db, "users", user.uid), { 
+            profileUpdateRequested: false, 
             pendingUpdates: { 
               firstName: firstName,
               lastName: lastName,
@@ -2035,6 +2000,7 @@
               timestamp: new Date().getTime() 
             } 
           }); 
+          document.getElementById('profileUpdateRequestCard').style.display = "none";
           showToast("Profile updates submitted for owner approval!"); 
         }
         btn.innerText = "Save & Update Profile"; 
@@ -2078,8 +2044,7 @@
           `;
         });
         if (hasNewMessage) {
-          playRingTone();
-          sendSystemNotification(`💬 Chat from ${lastMsgSender}`, lastMsgText);
+          sendSystemNotification(`💬 Chat from ${lastMsgSender}`, lastMsgText, 'chatPage');
         }
         chatInitialized = true;
         const box = document.getElementById('chatMessagesBox');
@@ -2088,8 +2053,8 @@
       });
     }
 
-    document.getElementById('sendChatMessageBtn').addEventListener('click', async () => { const input = document.getElementById('chatInputMessage'); const text = input.value.trim(); if (!text) return; try { await addDoc(collection(db, "team_chat"), { senderId: auth.currentUser.uid, senderName: currentUserDoc.name, senderRole: currentUserDoc.role, text: text, timestamp: new Date().getTime() }); playRingTone(); input.value = ""; } catch (err) { await customPopup('alert', "Error sending message: " + err.message); } });
-    window.deleteChatMessage = async (msgId) => { if (await customPopup('confirm', "Delete this message?")) { try { await deleteDoc(doc(db, "team_chat", msgId)); playRingTone(); showToast("Message deleted"); } catch (err) { await customPopup('alert', "Error deleting message: " + err.message); } } };
+    document.getElementById('sendChatMessageBtn').addEventListener('click', async () => { const input = document.getElementById('chatInputMessage'); const text = input.value.trim(); if (!text) return; try { await addDoc(collection(db, "team_chat"), { senderId: auth.currentUser.uid, senderName: currentUserDoc.name, senderRole: currentUserDoc.role, text: text, timestamp: new Date().getTime() }); input.value = ""; } catch (err) { await customPopup('alert', "Error sending message: " + err.message); } });
+    window.deleteChatMessage = async (msgId) => { if (await customPopup('confirm', "Delete this message?")) { try { await deleteDoc(doc(db, "team_chat", msgId)); showToast("Message deleted"); } catch (err) { await customPopup('alert', "Error deleting message: " + err.message); } } };
 
     let announcementsInitialized = false;
     function startAnnouncementsListener() {
@@ -2104,22 +2069,40 @@
         });
         snapshot.forEach((docSnap) => { const ann = docSnap.data(); const annId = docSnap.id; const dateStr = new Date(ann.timestamp).toLocaleString(); const isOwner = currentUserDoc && currentUserDoc.role === "owner"; html += `<div class="list-item" style="border-left-color: #ffc107;"><div class="ticket-title" style="color: #ffc107;">📢 Announcement</div><div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">${ann.text}</div><div style="font-size: 11px; opacity: 0.7; text-align: right; margin-bottom: ${isOwner ? '10px' : '0'};">Posted by: <strong>${ann.author}</strong> | ${dateStr}</div>${isOwner ? `<button onclick="deleteAnnouncement('${annId}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; width: 100%;">Delete Announcement</button>` : ''}</div>`; });
         if (hasNewAnn) {
-          playRingTone();
-          sendSystemNotification("📢 New Shop Announcement", lastAnnText);
+          sendSystemNotification("📢 New Shop Announcement", lastAnnText, 'announcementsPage');
         }
         announcementsInitialized = true;
         document.getElementById('announcementsListContainer').innerHTML = html === "" ? "<p style='opacity:0.6;'>No announcements posted yet.</p>" : html;
       });
     }
 
-    document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => { const textarea = document.getElementById('announcementText'); const text = textarea.value.trim(); if (!text) return await customPopup('alert', "Please write an announcement."); try { await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() }); playRingTone(); sendSystemNotification("📢 Announcement Published", text); textarea.value = ""; showToast("Announcement published successfully!"); } catch (err) { await customPopup('alert', "Error publishing announcement: " + err.message); } });
-    window.deleteAnnouncement = async (annId) => { if (await customPopup('confirm', "Delete this announcement?")) { try { await deleteDoc(doc(db, "announcements", annId)); playRingTone(); showToast("Announcement deleted"); } catch (err) { await customPopup('alert', "Error deleting announcement: " + err.message); } } };
+    document.getElementById('publishAnnouncementBtn').addEventListener('click', async () => { const textarea = document.getElementById('announcementText'); const text = textarea.value.trim(); if (!text) return await customPopup('alert', "Please write an announcement."); try { await addDoc(collection(db, "announcements"), { text: text, author: currentUserDoc.name, timestamp: new Date().getTime() }); sendSystemNotification("📢 Announcement Published", text, 'announcementsPage'); textarea.value = ""; showToast("Announcement published successfully!"); } catch (err) { await customPopup('alert', "Error publishing announcement: " + err.message); } });
+    window.deleteAnnouncement = async (annId) => { if (await customPopup('confirm', "Delete this announcement?")) { try { await deleteDoc(doc(db, "announcements", annId)); showToast("Announcement deleted"); } catch (err) { await customPopup('alert', "Error deleting announcement: " + err.message); } } };
 
-    window.toggleAvailability = async () => { if (!currentUserDoc) return; const isCurrentlyOff = currentUserDoc.isAvailable === false; const newStatus = isCurrentlyOff ? true : false; const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You won't receive new tickets."); if (!confirmAction) return; try { await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); currentUserDoc.isAvailable = newStatus; const btn = document.getElementById('toggleAvailabilityBtn'); btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = !newStatus ? "#555" : "#28a745"; playRingTone(); showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴"); } catch (err) { await customPopup('alert', "Error updating status: " + err.message); } };
+    window.toggleAvailability = async () => { 
+      if (!currentUserDoc) return; 
+      const isCurrentlyOff = currentUserDoc.isAvailable === false; 
+      const newStatus = isCurrentlyOff ? true : false; 
+      const confirmAction = await customPopup('confirm', newStatus ? "Are you sure you want to go ON DUTY?" : "Are you sure you want to go OFF DUTY? You will be hidden from the Secretary's barber selection list."); 
+      if (!confirmAction) return; 
 
-    window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); playRingTone(); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
-    window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); playRingTone(); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
-    window.promptBarberDenyReason = async (ticketId) => { const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason..."); if (reason === null) return; if (!reason.trim()) { await customPopup('alert', "A reason is required to deny a customer."); return; } try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied", denyReason: reason.trim() }); playRingTone(); showToast("Customer denied and reason recorded."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+      try { 
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); 
+        currentUserDoc.isAvailable = newStatus; 
+        const btn = document.getElementById('toggleAvailabilityBtn'); 
+        btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; 
+        btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; 
+        btn.style.color = "white"; 
+        btn.style.borderColor = !newStatus ? "#555" : "#28a745"; 
+        showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴 (Hidden from Intake)"); 
+      } catch (err) { 
+        await customPopup('alert', "Error updating status: " + err.message); 
+      } 
+    };
+
+    window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.promptBarberDenyReason = async (ticketId) => { const reason = await customPopup('prompt', "Please provide a reason for denying this customer:", "Enter denial reason..."); if (reason === null) return; if (!reason.trim()) { await customPopup('alert', "A reason is required to deny a customer."); return; } try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied", denyReason: reason.trim() }); showToast("Customer denied and reason recorded."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
 
     window.approveFreeService = async (ticketId) => {
       try {
@@ -2127,7 +2110,6 @@
           ownerFreeApproval: 'approved',
           status: 'paid' 
         });
-        playRingTone();
         showToast("Free service approved by owner!");
       } catch(err) {
         await customPopup('alert', "Error approving free service: " + err.message);
@@ -2147,7 +2129,6 @@
           ownerFreeApproval: 'paid_forced',
           price: newPrice
         });
-        playRingTone();
         showToast("Ticket sent back! Customer/Secretary must now pay.");
       } catch(err) {
         await customPopup('alert', "Error forcing payment: " + err.message);
@@ -2178,7 +2159,7 @@
       history.pushState({ modal: 'reviewTicket' }, '');
     };
 
-    window.approveDenial = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied" }); playRingTone(); showToast("Denial approved and recorded."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
+    window.approveDenial = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "denied" }); showToast("Denial approved and recorded."); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.openReassignModal = (ticketId) => { activeReassignTicketId = ticketId; openPickerModal('reassignBarber'); };
 
     function updateCallOwnerButton() {
@@ -2239,129 +2220,16 @@
         btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = isOff ? "#555" : "#28a745";
         document.getElementById('barberControls').style.display = "block";
       }
-      updateCallOwnerButton();
-      startLiveQueue(); populateIntakeForm(); cacheAllTickets(); startDashboardNotifications(); startGlobalUpdateListener(); startServicesListener();
-    }
 
-    let dashboardNotifTimer = null;
-
-    function startDashboardNotifications() {
-      const notifBox = document.getElementById('dashboardNotificationBox');
-      
-      function showDashboardNotifContent(htmlContent) {
-        if (dashboardNotifTimer) clearTimeout(dashboardNotifTimer);
-        if (htmlContent && htmlContent.trim() !== "") {
-          notifBox.style.display = "block";
-          notifBox.innerHTML = htmlContent;
-          dashboardNotifTimer = setTimeout(() => {
-            notifBox.style.display = "none";
-          }, 8000);
-        } else {
-          notifBox.style.display = "none";
-        }
-      }
-
-      if (currentUserDoc && currentUserDoc.role === "owner") {
-        const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qChat, (snap) => { 
-          let chatNotice = ""; 
-          snap.forEach(d => { 
-            const m = d.data(); 
-            if (m.senderId !== auth.currentUser.uid) { 
-              chatNotice = `<div class="notice-card" onclick="openChatPage()"><h5>💬 New Team Message <span style="font-size:10px; color:var(--accent-gold);">Tap to view ➔</span></h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; 
-            } 
-          }); 
-          renderOwnerNotifications(chatNotice, null, null, null); 
-        });
-        
-        const qTickets = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qTickets, (snap) => { 
-          let ticketNotice = ""; 
-          snap.forEach(d => { 
-            const t = d.data(); 
-            if (t.status === "completed") { 
-              ticketNotice = `<div class="notice-card" style="border-color:#28a745;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>✂️ Cut Completed <span style="font-size:10px; color:#28a745;">View Queue ➔</span></h5><p><b>${t.assignedBarber}</b> completed cut for <b>${t.customerName}</b> (${t.serviceName})</p></div>`; 
-            } else if (t.status === "pending_acceptance") { 
-              ticketNotice = `<div class="notice-card" style="border-color:#4285F4;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎟️ Ticket Assigned <span style="font-size:10px; color:#4285F4;">View Queue ➔</span></h5><p>New ticket <b>${t.ticketNo || ''}</b> for <b>${t.customerName}</b> assigned to <b>${t.assignedBarber}</b></p></div>`; 
-            } 
-          }); 
-          renderOwnerNotifications(null, ticketNotice, null, null); 
-        });
-        
-        const qUsers = query(collection(db, "users"), where("isApproved", "==", false));
-        onSnapshot(qUsers, (snap) => { 
-          let approvalNotice = ""; 
-          if (snap.size > 0) { 
-            approvalNotice = `<div class="notice-card" style="border-color:#ffc107;" onclick="openOwnerPage('staff')"><h5>⚠️ Pending Staff Registration <span style="font-size:10px; color:#ffc107;">Manage Staff ➔</span></h5><p>You have <b>${snap.size} staff account(s)</b> waiting for verification.</p></div>`; 
-          } 
-          renderOwnerNotifications(null, null, approvalNotice, null); 
-        });
-        
-        const qFree = query(collection(db, "daily_tickets"), where("isFree", "==", true), where("ownerFreeApproval", "==", "pending"));
-        onSnapshot(qFree, (snap) => { 
-          let freeNotice = ""; 
-          if (snap.size > 0) { 
-            freeNotice = `<div class="notice-card" style="border-color:#ffc107;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎁 Pending Free Service Review <span style="font-size:10px; color:#ffc107;">Review ➔</span></h5><p>You have <b>${snap.size} free service request(s)</b> waiting for review.</p></div>`; 
-          } 
-          renderOwnerNotifications(null, null, null, freeNotice); 
-        });
-
-        let cachedChatN = "", cachedTicketN = "", cachedApproveN = "", cachedFreeN = "";
-        function renderOwnerNotifications(c, t, a, f) { 
-          if (c !== null) cachedChatN = c; if (t !== null) cachedTicketN = t; if (a !== null) cachedApproveN = a; if (f !== null) cachedFreeN = f; 
-          const combined = cachedApproveN + cachedTicketN + cachedFreeN + cachedChatN; 
-          showDashboardNotifContent(combined);
-        }
+      // PROFILE UPDATE REQUEST ALERT FOR STAFF
+      if (docData.role !== "owner" && docData.profileUpdateRequested) {
+        document.getElementById('profileUpdateRequestCard').style.display = "block";
       } else {
-        const qAnn = query(collection(db, "announcements"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qAnn, (snap) => { 
-          let annNotice = ""; 
-          snap.forEach(d => { 
-            const a = d.data(); 
-            annNotice = `<div class="notice-card" style="border-color:#ffc107;" onclick="openAnnouncementsPage()"><h5>📢 Announcement <span style="font-size:10px; color:#ffc107;">Read More ➔</span></h5><p>"${a.text}" <br><span style="font-size:10px; opacity:0.7;">By ${a.author}</span></p></div>`; 
-          }); 
-          renderStaffNotifs(annNotice, null, null); 
-        });
-        
-        const qChat = query(collection(db, "team_chat"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qChat, (snap) => { 
-          let chatNotice = ""; 
-          snap.forEach(d => { 
-            const m = d.data(); 
-            if (m.senderId !== auth.currentUser.uid) { 
-              chatNotice = `<div class="notice-card" style="border-color:#4285F4;" onclick="openChatPage()"><h5>💬 Team Chat <span style="font-size:10px; color:#4285F4;">Open Chat ➔</span></h5><p><b>${m.senderName} (${m.senderRole})</b>: "${m.text}"</p></div>`; 
-            } 
-          }); 
-          renderStaffNotifs(null, chatNotice, null); 
-        });
-
-        const qTicketsStaff = query(collection(db, "daily_tickets"), orderBy("timestamp", "desc"), limit(1));
-        onSnapshot(qTicketsStaff, (snap) => {
-          let ticketNotice = "";
-          snap.forEach(d => {
-            const t = d.data();
-            const isAssignedToMe = (t.assignedBarberId && t.assignedBarberId === auth.currentUser.uid) ||
-                                  (t.assignedBarber && t.assignedBarber.toLowerCase().includes((currentUserDoc ? currentUserDoc.name : '').toLowerCase()));
-            
-            if (currentUserDoc.role === "barber" && isAssignedToMe && t.status === "pending_acceptance") {
-              ticketNotice = `<div class="notice-card" style="border-color:var(--accent-gold);" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🎟️ New Ticket Assigned! <span style="font-size:10px; color:var(--accent-gold);">Review Cut ➔</span></h5><p>You have a new customer ticket <b>${t.ticketNo || ''} (${t.customerName})</b> waiting for review.</p></div>`;
-            } else if (currentUserDoc.role === "secretary" && t.status === "completed" && !t.isFree) {
-              ticketNotice = `<div class="notice-card" style="border-color:#28a745;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>✂️ Cut Finished! <span style="font-size:10px; color:#28a745;">Collect Pay ➔</span></h5><p><b>${t.assignedBarber}</b> finished <b>${t.customerName}</b>. Ready for payment!</p></div>`;
-            } else if (currentUserDoc.role === "secretary" && (t.status === "denied" || t.status === "pending_denial")) {
-              ticketNotice = `<div class="notice-card" style="border-color:#ff4444;" onclick="document.getElementById('queuePanel').scrollIntoView({behavior: 'smooth'})"><h5>🚨 Barber Denied Ticket <span style="font-size:10px; color:#ff4444;">Reassign ➔</span></h5><p><b>${t.assignedBarber}</b> denied <b>${t.customerName}</b>. Reason: "${t.denyReason || 'No reason'}"</p></div>`;
-            }
-          });
-          renderStaffNotifs(null, null, ticketNotice);
-        });
-
-        let cachedAnn = "", cachedChat = "", cachedTicket = "";
-        function renderStaffNotifs(a, c, t) {
-            if (a !== null) cachedAnn = a; 
-            if (c !== null) cachedChat = c;
-            if (t !== null) cachedTicket = t;
-            showDashboardNotifContent(cachedTicket + cachedAnn + cachedChat);
-        }
+        document.getElementById('profileUpdateRequestCard').style.display = "none";
       }
+
+      updateCallOwnerButton();
+      startLiveQueue(); populateIntakeForm(); cacheAllTickets(); startGlobalUpdateListener(); startServicesListener();
     }
 
     function cacheAllTickets() {
@@ -2477,7 +2345,7 @@
 
     document.getElementById('blPageSubmitBtn').addEventListener('click', async () => {
       const reason = document.getElementById('blPageReason').value.trim(); if (!reason) return await customPopup('alert', "Please provide a reason.");
-      try { if (activeBlacklistActionType === 'instant') { await addDoc(collection(db, "blacklist"), { name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime() }); playRingTone(); showToast(`${activeBlacklistCustomer} is instantly blacklisted!`); } else { await addDoc(collection(db, "blacklist_reports"), { customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name, feedback: reason, timestamp: new Date().getTime() }); playRingTone(); showToast("Blacklist report sent to Owner!"); } cancelBlacklistPage(); backToDirectoryList(); } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
+      try { if (activeBlacklistActionType === 'instant') { await addDoc(collection(db, "blacklist"), { name: activeBlacklistCustomer.toLowerCase(), reason: reason, createdAt: new Date().getTime() }); showToast(`${activeBlacklistCustomer} is instantly blacklisted!`); } else { await addDoc(collection(db, "blacklist_reports"), { customerName: activeBlacklistCustomer, reportedBy: currentUserDoc.name, feedback: reason, timestamp: new Date().getTime() }); showToast("Blacklist report sent to Owner!"); } cancelBlacklistPage(); backToDirectoryList(); } catch (err) { await customPopup('alert', "Action failed: " + err.message); }
     });
 
     window.viewStaffSubmissionDetails = async (staffDataJson) => { const s = JSON.parse(decodeURIComponent(staffDataJson)); const detailsHtml = `<div style="text-align: center;"><img src="${s.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent-gold); margin-bottom: 15px; object-fit: cover;"><h4 style="margin: 0; color: var(--accent-gold); font-size: 18px; text-transform: uppercase; word-break: break-word;">${s.name}</h4><span style="background: rgba(212,175,55,0.15); color: var(--accent-gold); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px; margin-bottom: 15px;">ROLE: ${s.role.toUpperCase()} | ID: ${s.staffId || 'N/A'}</span></div><div style="text-align: left; background: var(--input-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--panel-border); font-size: 14px; line-height: 1.6; word-break: break-word;"><p style="margin: 0 0 8px 0;">🆔 <b>Unique Staff ID:</b> <strong style="color: var(--accent-gold);">${s.staffId || 'N/A'}</strong></p><p style="margin: 0 0 8px 0;">📧 <b>Email / Phone:</b> ${s.email || 'N/A'}</p><p style="margin: 0 0 8px 0;">🌍 <b>Country:</b> ${s.country || 'N/A'}</p><p style="margin: 0 0 8px 0;">🪪 <b>Govt ID Type:</b> ${s.idType || 'N/A'}</p><p style="margin: 0;">🔢 <b>Govt ID Number:</b> <strong style="color: var(--accent-gold);">${s.idNumber || 'N/A'}</strong></p></div>`; await customPopup('alert', detailsHtml); };
@@ -2493,7 +2361,6 @@
 
       try {
         await updateDoc(doc(db, "services", sid), { price: newPrice });
-        playRingTone();
         showToast("Service price updated!");
       } catch (err) {
         await customPopup('alert', "Error updating service: " + err.message);
@@ -2522,6 +2389,7 @@
       });
     }
 
+    // OWNER STAFF MANAGEMENT WITH PROFILE UPDATE REQUEST ACTION
     function startAdminListeners() {
       onSnapshot(collection(db, "users"), (snapshot) => {
         let approvalHtml = ""; let activeHtml = "";
@@ -2560,7 +2428,23 @@
               </div>`; 
           }
           if (u.isApproved && u.role !== "owner") { 
-            activeHtml += `<div class="list-item" style="border-left-color: #28a745; display: flex; justify-content: space-between; align-items: center; gap: 10px;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 40px; height: 40px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;"><div style="min-width: 0;"><strong style="color: var(--text-color); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.name}</strong> <span style="font-size: 10px; color: var(--accent-gold);">ID: ${u.staffId || 'N/A'}</span> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()}</span></div></div><button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Fire / Remove</button></div>`; 
+            activeHtml += `
+              <div class="list-item" style="border-left-color: #28a745;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px;">
+                  <div style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info">
+                    <img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 40px; height: 40px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;">
+                    <div style="min-width: 0;">
+                      <strong style="color: var(--text-color); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.name}</strong> 
+                      <span style="font-size: 10px; color: var(--accent-gold);">ID: ${u.staffId || 'N/A'}</span> 👁️<br>
+                      <span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} ${u.profileUpdateRequested ? '⚠️ (Update Pending)' : ''}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button onclick="requestProfileUpdateFromStaff('${uid}', '${u.name.replace(/'/g, "\\'")}')" style="flex: 1; background: #4285F4; border:none; padding: 8px; font-size: 12px; border-radius: 6px; color: white; font-weight: bold;">📝 Request Profile Update</button>
+                  <button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 8px 12px; font-size: 12px; border-radius: 6px; color: white; font-weight: bold;">Fire / Remove</button>
+                </div>
+              </div>`; 
           }
         });
         document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml; 
@@ -2578,41 +2462,54 @@
       });
 
       onSnapshot(collection(db, "blacklist_reports"), (snapshot) => { let html = ""; snapshot.forEach((rDoc) => { const r = rDoc.data(); const dateStr = new Date(r.timestamp).toLocaleString(); html += `<div class="list-item" style="border-left-color: #ff4444;"><div class="ticket-title" style="color: #ff4444;">Customer: ${r.customerName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy}</strong><br>Feedback / Reason: <em>"${r.feedback}"</em><br>Date: ${dateStr}</div><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="confirmBlacklistFromReport('${rDoc.id}', '${r.customerName}')">Confirm & Add to Blacklist</button></div>`; }); document.getElementById('reportsList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No pending blacklist reports.</p>" : html; });
-      document.getElementById('addServiceBtn').addEventListener('click', async () => { const name = document.getElementById('newServiceName').value.trim(); const price = document.getElementById('newServicePrice').value; if (!name || price === "") return await customPopup('alert', "Enter both name and price (use 0 for free service)."); await addDoc(collection(db, "services"), { name, price: Number(price) }); playRingTone(); document.getElementById('newServiceName').value = ""; document.getElementById('newServicePrice').value = ""; showToast("Service added successfully!"); });
+      document.getElementById('addServiceBtn').addEventListener('click', async () => { const name = document.getElementById('newServiceName').value.trim(); const price = document.getElementById('newServicePrice').value; if (!name || price === "") return await customPopup('alert', "Enter both name and price (use 0 for free service)."); await addDoc(collection(db, "services"), { name, price: Number(price) }); document.getElementById('newServiceName').value = ""; document.getElementById('newServicePrice').value = ""; showToast("Service added successfully!"); });
 
       onSnapshot(collection(db, "blacklist"), (snapshot) => { let html = ""; snapshot.forEach((bDoc) => { const b = bDoc.data(); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-left-color: #ff4444;"><span style="color: #ff4444; font-weight: bold; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Unblock</button></div>`; }); document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html; });
     }
 
-    window.deleteStaffReport = async (reportId) => { try { await deleteDoc(doc(db, "staff_reports", reportId)); playRingTone(); showToast("Report dismissed"); } catch(e) {} };
-    window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); playRingTone(); sendSystemNotification("SJ'S SALOON", `Account for ${userName} has been APPROVED!`); showToast(`${userName} approved successfully!`); };
+    window.requestProfileUpdateFromStaff = async (uid, staffName) => {
+      const confirmAction = await customPopup('confirm', `Request <strong>${staffName}</strong> to update their profile and ID credentials?`);
+      if (!confirmAction) return;
+
+      try {
+        await updateDoc(doc(db, "users", uid), {
+          profileUpdateRequested: true
+        });
+        sendSystemNotification("SJ'S SALOON", `Owner requested ${staffName} to update profile details.`, 'ownerStaffPage');
+        showToast(`Profile update requested for ${staffName}!`);
+      } catch(err) {
+        await customPopup('alert', "Error sending request: " + err.message);
+      }
+    };
+
+    window.deleteStaffReport = async (reportId) => { try { await deleteDoc(doc(db, "staff_reports", reportId)); showToast("Report dismissed"); } catch(e) {} };
+    window.approveUser = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "User") : "User"; await updateDoc(userRef, { isApproved: true }); sendSystemNotification("SJ'S SALOON", `Account for ${userName} has been APPROVED!`, 'dashboard'); showToast(`${userName} approved successfully!`); };
     window.denyUser = async (uid) => {
       if (await customPopup('confirm', "Are you sure you want to deny and dismiss this staff account request?")) {
         try {
           await deleteDoc(doc(db, "users", uid));
-          playRingTone();
           showToast("Staff account request denied and dismissed.");
         } catch (err) {
           await customPopup('alert', "Error denying request: " + err.message);
         }
       }
     };
-    window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { firstName: p.firstName || "", lastName: p.lastName || "", name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); playRingTone(); showToast(`Profile updates approved for ${updatedName}!`); } };
+    window.approveProfileUpdate = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); if (snap.exists() && snap.data().pendingUpdates) { const p = snap.data().pendingUpdates; const updatedName = p.name || snap.data().name || "User"; await updateDoc(userRef, { firstName: p.firstName || "", lastName: p.lastName || "", name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL, pendingUpdates: null }); showToast(`Profile updates approved for ${updatedName}!`); } };
     window.denyProfileUpdate = async (uid) => {
       if (await customPopup('confirm', "Are you sure you want to deny and dismiss this profile update request?")) {
         try {
           await updateDoc(doc(db, "users", uid), { pendingUpdates: null });
-          playRingTone();
           showToast("Profile update request dismissed.");
         } catch (err) {
           await customPopup('alert', "Error dismissing update: " + err.message);
         }
       }
     };
-    window.fireStaff = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) { await deleteDoc(userRef); playRingTone(); showToast(`${userName} removed from the shop.`); } };
-    window.deleteService = async (sid) => { if (await customPopup('confirm', "Delete this service?")) { await deleteDoc(doc(db, "services", sid)); playRingTone(); } };
-    window.removeBlacklist = async (bid) => { if (await customPopup('confirm', "Unblock this customer?")) { await deleteDoc(doc(db, "blacklist", bid)); playRingTone(); showToast("Customer unblocked"); } };
-    window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); playRingTone(); showToast(`${customerName} added to blacklist!`); };
-    window.wipeShopHistory = async () => { const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here"); if (c1 !== 'DELETE') return; const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly."); if (!c2) return; try { const ticketSnaps = await getDocs(collection(db, "daily_tickets")); ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id))); const reportSnaps = await getDocs(collection(db, "blacklist_reports")); reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id))); playRingTone(); showToast("All customer data history wiped successfully."); } catch(e) { await customPopup('alert', "Error wiping data: " + e.message); } };
+    window.fireStaff = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) { await deleteDoc(userRef); showToast(`${userName} removed from the shop.`); } };
+    window.deleteService = async (sid) => { if (await customPopup('confirm', "Delete this service?")) { await deleteDoc(doc(db, "services", sid)); } };
+    window.removeBlacklist = async (bid) => { if (await customPopup('confirm', "Unblock this customer?")) { await deleteDoc(doc(db, "blacklist", bid)); showToast("Customer unblocked"); } };
+    window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); showToast(`${customerName} added to blacklist!`); };
+    window.wipeShopHistory = async () => { const c1 = await customPopup('prompt', "DANGER: Type 'DELETE' to confirm you want to wipe ALL customer data history.", "Type DELETE here"); if (c1 !== 'DELETE') return; const c2 = await customPopup('confirm', "Are you ABSOLUTELY sure? This deletes all completed tickets and reports instantly."); if (!c2) return; try { const ticketSnaps = await getDocs(collection(db, "daily_tickets")); ticketSnaps.forEach(d => deleteDoc(doc(db, "daily_tickets", d.id))); const reportSnaps = await getDocs(collection(db, "blacklist_reports")); reportSnaps.forEach(d => deleteDoc(doc(db, "blacklist_reports", d.id))); showToast("All customer data history wiped successfully."); } catch(e) { await customPopup('alert', "Error wiping data: " + e.message); } };
 
     function renderSecretaryMultiServiceList() {
       const container = document.getElementById('secretaryServicesContainer');
@@ -2690,7 +2587,7 @@
           return await customPopup('alert', "Please select at least one service for the customer.");
         }
         if (!name || !barberUid) {
-          return await customPopup('alert', "Please fill out customer name and assign a barber.");
+          return await customPopup('alert', "Please fill out customer name and assign an on-duty barber.");
         }
         if (activeBusyBarbers.has(barberUid)) { 
           return await customPopup('alert', `⚠️ Barber ${barberDisplayName} is currently busy with an active cut or pending review and cannot be assigned.`); 
@@ -2735,8 +2632,7 @@
             timestamp: new Date().getTime() 
           });
           
-          playRingTone(); 
-          sendSystemNotification("🎟️ New Ticket Assigned", `${ticketNumber} for ${name} assigned to Barber ${barberDisplayName}`);
+          sendSystemNotification("🎟️ New Ticket Assigned", `${ticketNumber} for ${name} assigned to Barber ${barberDisplayName}`, 'dashboard');
 
           document.getElementById('custName').value = ""; 
           document.getElementById('custPhone').value = ""; 
@@ -2769,7 +2665,7 @@
     window.processPayment = async (method) => {
       if (!activePaymentTicketId) return;
       if (method === "MTN MoMo" || method === "Telecel Cash") { document.getElementById('ownerRefBox').style.display = "block"; await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`); }
-      try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); playRingTone(); showToast(`Payment recorded as ${method}!`); backToDashboard(); activePaymentTicketId = null; } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
+      try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); showToast(`Payment recorded as ${method}!`); backToDashboard(); activePaymentTicketId = null; } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); }
     };
 
     let queueInitialized = false;
@@ -2857,8 +2753,7 @@
           }
         });
         if (hasNewTicketOrChange) {
-          playRingTone();
-          if (notifyText) sendSystemNotification("✂️ Live Queue Alert", notifyText);
+          if (notifyText) sendSystemNotification("✂️ Live Queue Alert", notifyText, 'dashboard');
         }
         queueInitialized = true;
         document.getElementById('queueList').innerHTML = html === "" ? "<p style='opacity:0.6; font-style: italic;'>No active customers in queue.</p>" : html;
@@ -2901,7 +2796,6 @@
       });
     }
 
-    // SWIPE GESTURE CONTROLS
     let touchStartX = 0;
     let touchEndX = 0;
 
