@@ -182,7 +182,7 @@
     }
     
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 480px; text-align: left; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage, #databaseInspectorPage { display: none; width: 100%; max-width: 480px; text-align: left; }
     #dashboard { text-align: center; }
 
     .panel {
@@ -204,13 +204,13 @@
     }
 
     label { font-size: 14px; opacity: 0.8; margin-bottom: 5px; display: block; font-weight: bold; }
-    input, textarea {
+    input, textarea, select {
       width: 100%; padding: 14px; margin-bottom: 20px;
       background-color: var(--input-bg); color: var(--input-text);
       border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; font-size: 16px;
       font-family: inherit;
     }
-    input:focus, textarea:focus { outline: none; border-color: var(--accent-gold); }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-gold); }
     
     .custom-select-box {
       width: 100%; padding: 14px; margin-bottom: 20px;
@@ -379,6 +379,7 @@
       <button class="sidebar-btn" onclick="openOwnerPage('staff'); closeSidebar();">👥 Staff Management</button>
       <button class="sidebar-btn" onclick="openOwnerPage('services'); closeSidebar();">✂️ Services & Pricing</button>
       <button class="sidebar-btn" onclick="openOwnerPage('blacklist'); closeSidebar();">🚫 Customer Blacklist</button>
+      <button class="sidebar-btn" onclick="openDatabaseInspector(); closeSidebar();">🗄️ Database Inspector</button>
     </div>
     
     <div class="sidebar-category">System</div>
@@ -391,7 +392,8 @@
 
   <div id="appViewContainer">
 
-    <div id="loginWelcomeView" class="login-welcome-box" style="display: none;">
+    <!-- FIXED: loginWelcomeView is visible by default so it doesn't stay blank on load -->
+    <div id="loginWelcomeView" class="login-welcome-box">
       <div class="jumping-logo-container">
         <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px; color: var(--accent-gold);">SJ'S SALOON</h1>
       </div>
@@ -537,6 +539,34 @@
       <div id="reportsList"></div>
       <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Active Customer Blacklist</h4>
       <div id="blacklistList"></div>
+    </div>
+
+    <!-- DATABASE INSPECTOR PAGE -->
+    <div id="databaseInspectorPage" class="panel" style="border-color: #d4af37; display: none;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <h3 style="color: var(--accent-gold);">🗄️ Database Inspector & Manager</h3>
+      <p style="opacity: 0.8; font-size: 13px; margin-bottom: 15px;">Select a database collection to view, inspect, or delete records.</p>
+      
+      <label>Select Collection</label>
+      <select id="inspectorCollectionSelect" onchange="loadCollectionDocuments()" class="custom-select-box" style="margin-bottom: 20px;">
+        <option value="users">users (Staff & Owners)</option>
+        <option value="daily_tickets">daily_tickets (Active & Past Tickets)</option>
+        <option value="services">services (Shop Services & Prices)</option>
+        <option value="team_chat">team_chat (Chat Messages)</option>
+        <option value="announcements">announcements (Shop Announcements)</option>
+        <option value="blacklist">blacklist (Blocked Customers)</option>
+        <option value="staff_reports">staff_reports (Staff Complaints)</option>
+        <option value="blacklist_reports">blacklist_reports (Customer Reports)</option>
+      </select>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; color: var(--accent-gold); font-size: 14px;">Documents in Collection:</h4>
+        <button onclick="loadCollectionDocuments()" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">🔄 Refresh</button>
+      </div>
+
+      <div id="inspectorDocumentsList" style="max-height: 400px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; -webkit-overflow-scrolling: touch;">
+        <p style="opacity: 0.6; font-style: italic; font-size: 13px;">Select a collection above to load documents.</p>
+      </div>
     </div>
 
     <!-- CHAT PAGE -->
@@ -1021,6 +1051,12 @@
     window.addEventListener('DOMContentLoaded', () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
       if (isStandalone) { const installBox = document.getElementById('installAppContainer'); if (installBox) installBox.style.display = 'none'; const welcomeInstallBtn = document.getElementById('welcomeInstallBtn'); if (welcomeInstallBtn) welcomeInstallBtn.style.display = 'none'; }
+      
+      // Safety fallback check on load
+      if (!auth.currentUser && currentActiveViewId === 'loginWelcomeView') {
+        navigateToView('loginWelcomeView', false);
+      }
+
       document.addEventListener('click', (e) => { if (e.target.tagName === 'IMG' && !e.target.closest('#fullscreenImageViewer')) { const src = e.target.src; if (src && !src.endsWith('undefined') && !src.includes('data:image/svg+xml')) { openFullscreenImageViewer(src, e.target.alt || e.target.title || "SJ'S SALOON PREVIEW"); } } });
     });
 
@@ -1066,7 +1102,7 @@
 
     const ALL_APP_VIEWS = [
       'loginWelcomeView', 'setupView', 'pendingView', 'editProfileView',
-      'ownerStaffPage', 'ownerServicesPage', 'ownerBlacklistPage',
+      'ownerStaffPage', 'ownerServicesPage', 'ownerBlacklistPage', 'databaseInspectorPage',
       'chatPage', 'announcementsPage', 'aiAssistantPage', 'settingsPage',
       'paymentPage', 'blacklistPage', 'customerDirectoryPage',
       'monthlyReportPage', 'dashboard'
@@ -1440,6 +1476,74 @@
       if (pageName === 'staff') navigateToView('ownerStaffPage');
       else if (pageName === 'services') navigateToView('ownerServicesPage');
       else if (pageName === 'blacklist') navigateToView('ownerBlacklistPage');
+    };
+
+    window.openDatabaseInspector = () => {
+      if (!currentUserDoc || currentUserDoc.role !== "owner") {
+        return customPopup('alert', "Access Denied: Only the Shop Owner can access the Database Inspector.");
+      }
+      navigateToView('databaseInspectorPage');
+      loadCollectionDocuments();
+    };
+
+    window.loadCollectionDocuments = async () => {
+      const colName = document.getElementById('inspectorCollectionSelect').value;
+      const listContainer = document.getElementById('inspectorDocumentsList');
+      listContainer.innerHTML = "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>Loading documents...</p>";
+
+      try {
+        const querySnapshot = await getDocs(collection(db, colName));
+        let html = "";
+        
+        querySnapshot.forEach((docItem) => {
+          const data = docItem.data();
+          const docId = docItem.id;
+          const jsonString = JSON.stringify(data, null, 2).replace(/"/g, '&quot;');
+          
+          html += `
+            <div class="list-item" style="border-left-color: var(--accent-gold); margin-bottom: 12px; padding: 12px;">
+              <div style="font-size: 12px; color: var(--accent-gold); font-family: monospace; margin-bottom: 6px; word-break: break-all;">
+                <strong>ID:</strong> ${docId}
+              </div>
+              <pre style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-color); overflow-x: auto; max-height: 120px; margin-bottom: 10px; text-align: left;">${jsonString}</pre>
+              <div style="display: flex; gap: 8px;">
+                <button onclick="inspectFullDocument('${colName}', '${docId}')" style="flex: 1; background: #4285F4; border:none; padding: 6px; font-size: 11px; border-radius: 4px; color: white;">👁️ View Full</button>
+                <button onclick="deleteDatabaseDocument('${colName}', '${docId}')" style="flex: 1; background: #ff4444; border:none; padding: 6px; font-size: 11px; border-radius: 4px; color: white; font-weight: bold;">🗑️ Delete Record</button>
+              </div>
+            </div>
+          `;
+        });
+
+        listContainer.innerHTML = html === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>Collection is empty.</p>" : html;
+      } catch (err) {
+        listContainer.innerHTML = `<p style='color: #ff4444; font-size: 13px;'>Error loading collection: ${err.message}</p>`;
+      }
+    };
+
+    window.inspectFullDocument = async (colName, docId) => {
+      try {
+        const docRef = doc(db, colName, docId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const prettyJson = JSON.stringify(docSnap.data(), null, 2);
+          await customPopup('alert', `📄 <b>Document: ${docId}</b><br><br><pre style="text-align:left; font-size:11px; max-height:300px; overflow-y:auto; background:var(--input-bg); padding:10px; border-radius:6px;">${prettyJson}</pre>`);
+        }
+      } catch(e) {
+        await customPopup('alert', "Error fetching document: " + e.message);
+      }
+    };
+
+    window.deleteDatabaseDocument = async (colName, docId) => {
+      const confirmDelete = await customPopup('confirm', `Are you sure you want to permanently delete document <b>${docId}</b> from collection <b>${colName}</b>?`);
+      if (!confirmDelete) return;
+
+      try {
+        await deleteDoc(doc(db, colName, docId));
+        showToast(`Successfully deleted ${docId}!`);
+        loadCollectionDocuments();
+      } catch (err) {
+        await customPopup('alert', "Error deleting document: " + err.message);
+      }
     };
 
     window.openSettingsPage = () => {
@@ -2583,7 +2687,7 @@
       }
     };
 
-    // UPDATED FIRE STAFF ACTION: Marks user as unapproved so they must be re-approved anytime they sign in
+    // UPDATED FIRE STAFF ACTION: Marks user as unapproved so they must be re-approval anytime they sign in
     window.fireStaff = async (uid) => { 
       const userRef = doc(db, "users", uid); 
       const snap = await getDoc(userRef); 
