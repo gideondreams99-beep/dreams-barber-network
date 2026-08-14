@@ -2179,6 +2179,18 @@
         setTimeout(() => { Notification.requestPermission(); }, 3000);
       }
 
+      // REAL-TIME STATUS LISTENER: Automatically handles firing/unapproving while user is active
+      onSnapshot(doc(db, "users", user.uid), (userDocSnap) => {
+        if (userDocSnap.exists()) {
+          const freshData = userDocSnap.data();
+          currentUserDoc = freshData;
+          if (!freshData.isApproved && freshData.role !== "owner") {
+            navigateToView('pendingView');
+            return;
+          }
+        }
+      });
+
       const savedView = localStorage.getItem('pre_update_view');
       if (savedView && ALL_APP_VIEWS.includes(savedView)) {
         localStorage.removeItem('pre_update_view');
@@ -2389,7 +2401,7 @@
       });
     }
 
-    // OWNER STAFF MANAGEMENT WITH PROFILE UPDATE REQUEST ACTION
+    // OWNER STAFF MANAGEMENT WITH AUTOMATIC RE-APPROVAL ON FIRE
     function startAdminListeners() {
       onSnapshot(collection(db, "users"), (snapshot) => {
         let approvalHtml = ""; let activeHtml = "";
@@ -2505,7 +2517,25 @@
         }
       }
     };
-    window.fireStaff = async (uid) => { const userRef = doc(db, "users", uid); const snap = await getDoc(userRef); const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; if(await customPopup('confirm', `Are you sure you want to fire ${userName}?`)) { await deleteDoc(userRef); showToast(`${userName} removed from the shop.`); } };
+
+    // UPDATED FIRE STAFF ACTION: Marks user as unapproved so they must be re-approved anytime they sign in
+    window.fireStaff = async (uid) => { 
+      const userRef = doc(db, "users", uid); 
+      const snap = await getDoc(userRef); 
+      const userName = snap.exists() ? (snap.data().name || "Staff") : "Staff"; 
+      if (await customPopup('confirm', `Are you sure you want to fire ${userName}? This will revoke their access and automatically submit their account for your approval anytime they try to sign in.`)) { 
+        try {
+          await updateDoc(userRef, { 
+            isApproved: false, 
+            isAvailable: false 
+          }); 
+          showToast(`${userName} removed and submitted to pending approvals.`); 
+        } catch(err) {
+          await customPopup('alert', "Error firing staff member: " + err.message);
+        }
+      } 
+    };
+
     window.deleteService = async (sid) => { if (await customPopup('confirm', "Delete this service?")) { await deleteDoc(doc(db, "services", sid)); } };
     window.removeBlacklist = async (bid) => { if (await customPopup('confirm', "Unblock this customer?")) { await deleteDoc(doc(db, "blacklist", bid)); showToast("Customer unblocked"); } };
     window.confirmBlacklistFromReport = async (reportId, customerName) => { await addDoc(collection(db, "blacklist"), { name: customerName.toLowerCase(), reason: "Reported by staff", createdAt: new Date().getTime() }); await deleteDoc(doc(db, "blacklist_reports", reportId)); showToast(`${customerName} added to blacklist!`); };
