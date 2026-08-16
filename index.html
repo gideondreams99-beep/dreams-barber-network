@@ -330,7 +330,8 @@
       word-break: break-word; -webkit-overflow-scrolling: touch;
     }
     #customModalOverlay.show #customModalBox { transform: scale(1); }
-    #customModalTitle { margin-top: 0; color: var(--accent-gold); letter-spacing: 1px; font-size: 18px; text-transform: uppercase; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 15px; }
+    #customModalHeader { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 15px; }
+    #customModalTitle { margin: 0; color: var(--accent-gold); letter-spacing: 1px; font-size: 18px; text-transform: uppercase; }
     #customModalMessage { opacity: 0.9; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; word-break: break-word; }
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
 
@@ -799,16 +800,17 @@
           <span style="font-size: 18px; font-weight: bold; color: var(--accent-gold);">GHS <span id="intakeCalculatedTotal">0.00</span></span>
         </div>
 
-        <label>Assign To Barber (On Duty Barbers Only)</label>
+        <label>Assign To Barber (On Duty & Not Busy Barbers Only)</label>
         <div id="barberNameSelectBtn" class="custom-select-box" onclick="openPickerModal('barberName')">
           <span id="barberNameText">Select Barber...</span><span style="color: var(--accent-gold);">▼</span>
         </div>
         <button id="sendBtn" class="btn-submit">Issue Ticket & Send to Chair</button>
       </div>
 
-      <!-- BARBER AVAILABILITY TOGGLE -->
+      <!-- BARBER AVAILABILITY & BUSY TOGGLES -->
       <div id="barberControls" style="display: none; margin-top: 0; margin-bottom: 15px;">
-        <button id="toggleAvailabilityBtn" onclick="toggleAvailability()" style="width: 100%; font-size: 14px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;"></button>
+        <button id="toggleAvailabilityBtn" onclick="toggleAvailability()" style="width: 100%; font-size: 14px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px;"></button>
+        <button id="toggleBusyBtn" onclick="toggleBusyStatus()" style="width: 100%; font-size: 14px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;"></button>
       </div>
 
       <!-- LIVE SHOP QUEUE -->
@@ -873,10 +875,14 @@
     </div>
   </div>
 
-  <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML -->
+  <!-- CUSTOM MODAL POPUP & DROPDOWN PICKER HTML WITH BACK BUTTON -->
   <div id="customModalOverlay">
     <div id="customModalBox" onclick="event.stopPropagation()">
-      <h3 id="customModalTitle">Notice</h3>
+      <div id="customModalHeader">
+        <button onclick="closePickerModal(); if(activePopupResolve){activePopupResolve(null); activePopupResolve=null;}" style="background: none; border: none; color: var(--accent-gold); font-size: 14px; cursor: pointer; padding: 4px 8px; box-shadow: none; border: 1px solid var(--panel-border); border-radius: 6px;">⬅ Back</button>
+        <h3 id="customModalTitle" style="margin: 0; border: none; padding: 0;">Notice</h3>
+        <div style="width: 50px;"></div>
+      </div>
       <p id="customModalMessage">Message</p>
       <input type="text" id="customModalInput" autocomplete="off">
       <div id="customDropdownList"></div>
@@ -1279,6 +1285,10 @@
       const overlay = document.getElementById('customModalOverlay');
       if (overlay.classList.contains('show')) {
         overlay.classList.remove('show');
+        if (activePopupResolve) {
+          activePopupResolve(null);
+          activePopupResolve = null;
+        }
         if (history.state && history.state.modal) {
           isClosingModalProgrammatically = true;
           history.back();
@@ -1319,18 +1329,18 @@
           options = [ { label: "National Identity Card", value: "National ID" }, { label: "Passport", value: "Passport" }, { label: "Drivers License", value: "Drivers License" } ]; 
         } 
       } 
-      // OFF DUTY BARBER FILTER FOR SECRETARY INTAKE
+      // ON DUTY AND NOT BUSY BARBERS ONLY FOR SECRETARY INTAKE
       else if (pickerType === 'barberName') { 
         title.innerText = "Assign To Barber"; 
         currentValue = selectedIntakeBarberId; 
-        const onDutyBarbers = cachedBarbersList.filter(b => b.isAvailable);
-        options = onDutyBarbers.map(b => ({ label: b.label, value: b.uid })); 
+        const availableBarbers = cachedBarbersList.filter(b => b.isAvailable && !b.isBusy);
+        options = availableBarbers.map(b => ({ label: b.label, value: b.uid })); 
       } 
       else if (pickerType === 'reassignBarber') { 
         title.innerText = "Select Barber to Assign Again"; 
         currentValue = ""; 
-        const onDutyBarbers = cachedBarbersList.filter(b => b.isAvailable);
-        options = onDutyBarbers.map(b => ({ label: b.label, value: b.uid })); 
+        const availableBarbers = cachedBarbersList.filter(b => b.isAvailable && !b.isBusy);
+        options = availableBarbers.map(b => ({ label: b.label, value: b.uid })); 
       }
       else if (pickerType === 'reportMonth') { 
         title.innerText = "Select Month to View"; 
@@ -1349,7 +1359,7 @@
         const isSelected = opt.value === currentValue; 
         html += `<div class="dropdown-option-item ${isSelected ? 'selected' : ''}" onclick="selectPickerOption('${pickerType}', '${opt.value}', '${opt.label.replace(/'/g, "\\'")}')"><span>${opt.label}</span><div class="radio-circle"></div></div>`; 
       });
-      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No on-duty barbers available right now.</p>" : html; 
+      dropdownList.innerHTML = html === "" ? "<p style='opacity:0.6; text-align:center; padding: 15px;'>No available/idle barbers right now.</p>" : html; 
       overlay.classList.add('show');
       history.pushState({ modal: 'picker' }, '');
     };
@@ -1555,6 +1565,8 @@
         answer = "🎟️ <b>Issuing Tickets:</b> Secretaries use the Front Desk Intake panel to type customer names, select multiple services, and assign an on-duty barber. Click 'Issue Ticket' to send it straight to the barber's queue.";
       } else if (q.includes("off duty") || q.includes("duty") || q.includes("tab off")) {
         answer = "🔴 <b>Off Duty Barbers:</b> When a barber toggles 'OFF DUTY', they are automatically hidden from the Secretary's barber selection list so no tickets are assigned to them while away!";
+      } else if (q.includes("busy") || q.includes("im busy")) {
+        answer = "🔴 <b>I'm Busy:</b> When a barber toggles 'I'M BUSY', it alerts everyone and locks the secretary intake for that specific barber even if their chair is empty!";
       } else if (q.includes("report") || q.includes("complaint")) {
         answer = "🚨 <b>Staff Reports:</b> Staff members can report colleagues via their Settings menu. Owners can review all complaints in the Staff Management panel.";
       } else if (q.includes("payment") || q.includes("collect") || q.includes("momo")) {
@@ -1993,6 +2005,7 @@
           idNumber: isOwner ? 'OWNER-PASS' : idNumber, 
           isApproved: isOwner, 
           isAvailable: true,
+          isBusy: false,
           profileUpdateRequested: false, 
           createdAt: new Date().getTime() 
         });
@@ -2199,16 +2212,63 @@
       try { 
         await updateDoc(doc(db, "users", auth.currentUser.uid), { isAvailable: newStatus }); 
         currentUserDoc.isAvailable = newStatus; 
-        const btn = document.getElementById('toggleAvailabilityBtn'); 
-        btn.innerText = !newStatus ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; 
-        btn.style.background = !newStatus ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; 
-        btn.style.color = "white"; 
-        btn.style.borderColor = !newStatus ? "#555" : "#28a745"; 
+        updateAvailabilityButtonUI();
         showToast(newStatus ? "You are now ON DUTY 🟢" : "You are now OFF DUTY 🔴 (Hidden from Intake)"); 
       } catch (err) { 
         await customPopup('alert', "Error updating status: " + err.message); 
       } 
     };
+
+    function updateAvailabilityButtonUI() {
+      const isOff = currentUserDoc && currentUserDoc.isAvailable === false; 
+      const btn = document.getElementById('toggleAvailabilityBtn');
+      if (!btn) return;
+      btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; 
+      btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; 
+      btn.style.color = "white"; 
+      btn.style.borderColor = isOff ? "#555" : "#28a745";
+    }
+
+    window.toggleBusyStatus = async () => {
+      if (!currentUserDoc) return;
+      const isCurrentlyBusy = currentUserDoc.isBusy === true;
+      const newBusy = !isCurrentlyBusy;
+      const confirmAction = await customPopup('confirm', newBusy ? "Mark yourself as BUSY? Secretaries will not be able to assign tickets to you even if your chair is empty." : "Mark yourself as not busy / available for tickets?");
+      if (!confirmAction) return;
+
+      try {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { isBusy: newBusy });
+        currentUserDoc.isBusy = newBusy;
+        
+        const alertText = newBusy 
+          ? `🔴 Barber Status Alert: ${currentUserDoc.name} is now BUSY.`
+          : `🟢 Barber Status Alert: ${currentUserDoc.name} is no longer busy.`;
+
+        await addDoc(collection(db, "team_chat"), {
+          senderId: auth.currentUser.uid,
+          senderName: currentUserDoc.name + " (Barber)",
+          senderRole: "barber",
+          text: alertText,
+          timestamp: new Date().getTime()
+        });
+
+        sendSystemNotification("SJ'S SALOON", alertText, 'dashboard');
+        updateBusyButtonUI();
+        showToast(newBusy ? "Status: BUSY 🔴 (Intake locked for you)" : "Status: NOT BUSY 🟢");
+      } catch(err) {
+        await customPopup('alert', "Error updating busy status: " + err.message);
+      }
+    };
+
+    function updateBusyButtonUI() {
+      const btn = document.getElementById('toggleBusyBtn');
+      if (!btn) return;
+      const isBusy = currentUserDoc && currentUserDoc.isBusy === true;
+      btn.innerText = isBusy ? "🔴 I'M BUSY (Tap to clear)" : "🟢 I'M NOT BUSY (Tap to mark Busy)";
+      btn.style.background = isBusy ? "linear-gradient(145deg, #8c1a1a, #420a0a)" : "linear-gradient(145deg, #333, #111)";
+      btn.style.color = isBusy ? "white" : "var(--accent-gold)";
+      btn.style.borderColor = isBusy ? "#cc2a2a" : "#555";
+    }
 
     window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
     window.acceptTicket = async (ticketId) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: "in_progress" }); showToast("Customer accepted! Cut is now in progress."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
@@ -2298,6 +2358,10 @@
             navigateToView('pendingView');
             return;
           }
+          if (currentUserDoc.role === "barber") {
+            updateAvailabilityButtonUI();
+            updateBusyButtonUI();
+          }
         }
       });
 
@@ -2338,8 +2402,8 @@
         sidebarSettingsBtn.innerText = "⚙️ Settings";
         document.getElementById('analyticsPanel').style.display = "block"; document.getElementById('analyticsTitle').innerText = "My Work History";
         startAnalyticsTracker(docData.name);
-        const isOff = docData.isAvailable === false; const btn = document.getElementById('toggleAvailabilityBtn');
-        btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = isOff ? "#555" : "#28a745";
+        updateAvailabilityButtonUI();
+        updateBusyButtonUI();
         document.getElementById('barberControls').style.display = "block";
       }
 
@@ -2637,7 +2701,8 @@
         try {
           await updateDoc(userRef, { 
             isApproved: false, 
-            isAvailable: false 
+            isAvailable: false,
+            isBusy: false
           }); 
           showToast(`${userName} removed and submitted to pending approvals.`); 
         } catch(err) {
@@ -2703,12 +2768,19 @@
           const fullName = b.name;
           const sId = b.staffId || bUid.substring(0, 5).toUpperCase();
           const isOff = b.isAvailable === false;
+          const isBusy = b.isBusy === true;
+          
+          let statusLabel = "On Duty 🟢";
+          if (isOff) statusLabel = "Off Duty 🔴";
+          else if (isBusy) statusLabel = "Busy 🔴";
+
           cachedBarbersList.push({ 
             uid: bUid,
             name: fullName, 
             staffId: sId,
-            label: isOff ? `${fullName} [ID: ${sId}] (Off Duty 🔴)` : `${fullName} [ID: ${sId}] (On Duty 🟢)`,
-            isAvailable: !isOff
+            label: `${fullName} [ID: ${sId}] (${statusLabel})`,
+            isAvailable: !isOff,
+            isBusy: isBusy
           }); 
         }); 
       });
@@ -2727,8 +2799,14 @@
           return await customPopup('alert', "Please select at least one service for the customer.");
         }
         if (!name || !barberUid) {
-          return await customPopup('alert', "Please fill out customer name and assign an on-duty barber.");
+          return await customPopup('alert', "Please fill out customer name and assign an available barber.");
         }
+        
+        const targetBarberInfo = cachedBarbersList.find(b => b.uid === barberUid);
+        if (targetBarberInfo && targetBarberInfo.isBusy) {
+          return await customPopup('alert', `⚠️ Barber ${barberDisplayName} is currently marked as BUSY and cannot take new tickets right now.`);
+        }
+
         if (activeBusyBarbers.has(barberUid)) { 
           return await customPopup('alert', `⚠️ Barber ${barberDisplayName} is currently busy with an active cut or pending review and cannot be assigned.`); 
         }
