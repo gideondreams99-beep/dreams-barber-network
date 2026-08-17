@@ -63,7 +63,7 @@
     html, body { height: 100%; height: 100dvh; width: 100vw; overflow: hidden; margin: 0; padding: 0; position: fixed; top: 0; left: 0; }
     body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; transition: background 0.3s ease, color 0.3s ease; }
 
-    #appViewContainer { flex: 1; min-height: 0; width: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; padding: 15px; padding-top: 75px; padding-bottom: 120px; box-sizing: border-box; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+    #appViewContainer { flex: 1; min-height: 0; width: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; padding: 15px; padding-top: 75px; padding-bottom: 160px; box-sizing: border-box; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
     #topHeader { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: var(--panel-bg); border-bottom: 1px solid var(--panel-border); display: none; align-items: center; justify-content: center; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backdrop-filter: blur(10px); }
     #mainAppTitle { margin: 0; letter-spacing: 3px; text-transform: uppercase; color: var(--accent-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.2); font-size: 20px; font-weight: 800; }
     #mainMenuBtn { position: absolute; left: 15px; top: 12px; background: none; border: none; color: var(--accent-gold); font-size: 28px; cursor: pointer; padding: 0; box-shadow: none; }
@@ -94,7 +94,7 @@
     #dashboard { text-align: center; }
 
     /* HIGH-END LUXURY PANEL DESIGN */
-    .panel { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; margin-top: 15px; text-align: left; box-shadow: 0 12px 35px rgba(0,0,0,0.35); width: 100%; max-width: 100%; box-sizing: border-box; backdrop-filter: blur(12px); position: relative; overflow: hidden; }
+    .panel { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; margin-top: 15px; margin-bottom: 40px; text-align: left; box-shadow: 0 12px 35px rgba(0,0,0,0.35); width: 100%; max-width: 100%; box-sizing: border-box; backdrop-filter: blur(12px); position: relative; overflow: hidden; }
     .panel::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, var(--accent-gold), transparent); opacity: 0.6; }
     .panel h3 { margin-top: 0; color: var(--accent-gold); text-align: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; font-size: 17px; font-weight: 800; }
 
@@ -448,7 +448,7 @@
     </div>
 
     <!-- SETTINGS PAGE -->
-    <div id="settingsPage" class="panel" style="border-color: var(--accent-gold);">
+    <div id="settingsPage" class="panel" style="border-color: var(--accent-gold); margin-bottom: 60px;">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
 
@@ -1628,8 +1628,8 @@
 
     async function reasonCheck(freeReason) { if (!freeReason || !freeReason.trim()) { await customPopup('alert', "A reason is required for free services."); return false; } return true; }
 
-    window.openPaymentPage = (ticketId, custName, serviceName, price) => { activePaymentTicketId = ticketId; document.getElementById('payCustName').innerText = custName; document.getElementById('payServiceName').innerText = serviceName; document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2); document.getElementById('displayOwnerPayName').innerText = shopPaymentConfig.name; document.getElementById('displayOwnerPayNum').innerText = shopPaymentConfig.number; document.getElementById('ownerRefBox').style.display = "none"; navigateToView('paymentPage'); };
-    window.processPayment = async (method) => { if (!activePaymentTicketId) return; if (method === "MTN MoMo" || method === "Telecel Cash") { document.getElementById('ownerRefBox').style.display = "block"; await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${shopPaymentConfig.name} (${shopPaymentConfig.number})</strong><br><br>Click OK once confirmed.`); } try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); showToast(`Payment recorded as ${method}!`); backToDashboard(); activePaymentTicketId = null; } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); } };
+    window.openPaymentPage = (ticketId, custName, serviceName, price) => { activePaymentTicketId = ticketId; document.getElementById('payCustName').innerText = custName; document.getElementById('payServiceName').innerText = serviceName; document.getElementById('payAmount').innerText = "GHS " + Number(price).toFixed(2); document.getElementById('displayOwnerPayName').innerText = shopPaymentConfig.name || "SJ'S SALOON"; document.getElementById('displayOwnerPayNum').innerText = shopPaymentConfig.number || "0240000000"; document.getElementById('ownerRefBox').style.display = "none"; navigateToView('paymentPage'); };
+    window.processPayment = async (method) => { if (!activePaymentTicketId) return; if (method === "MTN MoMo" || method === "Telecel Cash") { document.getElementById('ownerRefBox').style.display = "block"; const payName = shopPaymentConfig.name || "SJ'S SALOON"; const payNum = shopPaymentConfig.number || "0240000000"; await customPopup('alert', `📱 Please collect transfer using MoMo Account:<br><strong>${payName} (${payNum})</strong><br><br>Click OK once confirmed.`); } try { await updateDoc(doc(db, "daily_tickets", activePaymentTicketId), { status: "paid", paymentMethod: method }); showToast(`Payment recorded as ${method}!`); backToDashboard(); activePaymentTicketId = null; } catch (error) { await customPopup('alert', "Error updating payment: " + error.message); } };
 
     let queueInitialized = false;
     function startLiveQueue() {
