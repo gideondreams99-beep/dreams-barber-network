@@ -12,12 +12,12 @@
       color-scheme: light dark;
       --bg-color: #121212;
       --text-color: #e0e0e0;
-      --panel-bg: linear-gradient(145deg, #222, #181818);
-      --panel-border: #333;
-      --card-bg: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-      --input-bg: #111;
+      --panel-bg: linear-gradient(145deg, #1e1e24, #141418);
+      --panel-border: rgba(212, 175, 55, 0.25);
+      --card-bg: linear-gradient(145deg, #25252b, #17171c);
+      --input-bg: #0e0e11;
       --input-text: #ffffff;
-      --input-border: #444;
+      --input-border: #33333d;
       --accent-gold: #d4af37;
       --wa-header-bg: #075e54;
       --wa-chat-bg: #0b141a;
@@ -27,14 +27,14 @@
 
     @media (prefers-color-scheme: light) {
       :root {
-        --bg-color: #f4f4f6;
+        --bg-color: #f0f0f3;
         --text-color: #1c1c1e;
-        --panel-bg: linear-gradient(145deg, #ffffff, #eaeaea);
-        --panel-border: #d1d1d6;
-        --card-bg: linear-gradient(145deg, #ffffff, #f9f9f9);
+        --panel-bg: linear-gradient(145deg, #ffffff, #f4f4f6);
+        --panel-border: rgba(184, 151, 40, 0.3);
+        --card-bg: linear-gradient(145deg, #ffffff, #fafafa);
         --input-bg: #ffffff;
         --input-text: #000000;
-        --input-border: #c7c7cc;
+        --input-border: #d1d1d6;
         --accent-gold: #b89728;
         --wa-header-bg: #008069;
         --wa-chat-bg: #efeae2;
@@ -64,117 +64,120 @@
     body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg-color); color: var(--text-color); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; transition: background 0.3s ease, color 0.3s ease; }
 
     #appViewContainer { flex: 1; min-height: 0; width: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; padding: 15px; padding-top: 75px; padding-bottom: 120px; box-sizing: border-box; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
-    #topHeader { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: var(--panel-bg); border-bottom: 1px solid var(--panel-border); display: none; align-items: center; justify-content: center; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-    #mainAppTitle { margin: 0; letter-spacing: 3px; text-transform: uppercase; color: var(--accent-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.2); font-size: 20px; }
+    #topHeader { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: var(--panel-bg); border-bottom: 1px solid var(--panel-border); display: none; align-items: center; justify-content: center; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); backdrop-filter: blur(10px); }
+    #mainAppTitle { margin: 0; letter-spacing: 3px; text-transform: uppercase; color: var(--accent-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.2); font-size: 20px; font-weight: 800; }
     #mainMenuBtn { position: absolute; left: 15px; top: 12px; background: none; border: none; color: var(--accent-gold); font-size: 28px; cursor: pointer; padding: 0; box-shadow: none; }
     
-    #sidebarOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 99998; display: none; opacity: 0; transition: opacity 0.3s; }
+    #sidebarOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 99998; display: none; opacity: 0; transition: opacity 0.3s; }
     #sidebarOverlay.show { display: block; opacity: 1; }
-    #sidebarMenu { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background: var(--panel-bg); z-index: 99999; transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 4px 0 15px rgba(0,0,0,0.5); overflow-y: auto; padding: 25px 20px; text-align: left; border-right: 1px solid var(--panel-border); box-sizing: border-box; -webkit-overflow-scrolling: touch; }
+    #sidebarMenu { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background: var(--panel-bg); z-index: 99999; transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 6px 0 25px rgba(0,0,0,0.6); overflow-y: auto; padding: 25px 20px; text-align: left; border-right: 1px solid var(--panel-border); box-sizing: border-box; -webkit-overflow-scrolling: touch; }
     #sidebarMenu.show { left: 0; }
     
-    .sidebar-btn { width: 100%; text-align: left; padding: 14px 15px; margin-bottom: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-radius: 8px; color: var(--text-color); font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: none; display: flex; align-items: center; gap: 10px; position: relative; }
-    .sidebar-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
-    .sidebar-category { font-size: 11px; opacity: 0.6; text-transform: uppercase; margin: 25px 0 10px 5px; font-weight: bold; color: var(--accent-gold); letter-spacing: 1px; }
+    .sidebar-btn { width: 100%; text-align: left; padding: 14px 16px; margin-bottom: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); border-radius: 10px; color: var(--text-color); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: none; display: flex; align-items: center; gap: 12px; position: relative; }
+    .sidebar-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(212,175,55,0.08); transform: translateX(3px); }
+    .sidebar-category { font-size: 11px; opacity: 0.7; text-transform: uppercase; margin: 25px 0 10px 5px; font-weight: 800; color: var(--accent-gold); letter-spacing: 1.5px; }
 
     /* NOTIFICATION BADGE CSS */
-    .nav-badge { background: #ff4444; color: white; border-radius: 12px; padding: 2px 7px; font-size: 11px; font-weight: bold; margin-left: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: none; border: 1px solid #cc0000; text-align: center; min-width: 22px; }
+    .nav-badge { background: #ff4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: bold; margin-left: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: none; border: 1px solid #cc0000; text-align: center; min-width: 22px; }
 
-    button { padding: 12px 20px; font-size: 15px; font-weight: bold; background: linear-gradient(145deg, #333, #111); color: var(--accent-gold); border: 1px solid #555; border-radius: 8px; cursor: pointer; box-shadow: 3px 3px 8px rgba(0,0,0,0.3); text-transform: uppercase; letter-spacing: 1px; }
-    button:active { box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5); }
+    button { padding: 12px 20px; font-size: 15px; font-weight: bold; background: linear-gradient(145deg, #2c2c35, #18181f); color: var(--accent-gold); border: 1px solid var(--panel-border); border-radius: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease; }
+    button:hover { border-color: var(--accent-gold); filter: brightness(1.1); }
+    button:active { transform: scale(0.98); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5); }
     
-    #loginBtn { background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc; }
-    #emailLoginBtn { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
+    #loginBtn { background: linear-gradient(145deg, #1e5ab6, #0d3275); color: white; border-color: #3b82f6; }
+    #emailLoginBtn { background: linear-gradient(145deg, #22c55e, #15803d); color: white; border-color: #22c55e; }
 
-    img.avatar { border-radius: 50%; width: 70px; height: 70px; border: 2px solid var(--accent-gold); margin-bottom: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); object-fit: cover; background: #222; }
+    img.avatar { border-radius: 50%; width: 75px; height: 75px; border: 2px solid var(--accent-gold); margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); object-fit: cover; background: #222; }
     
     #dashboard, #setupView, #pendingView, #customerDirectoryPage, #paymentPage, #blacklistPage, #editProfileView, 
-    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #databaseInspectorPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 480px; text-align: left; }
+    #ownerStaffPage, #ownerServicesPage, #ownerBlacklistPage, #databaseInspectorPage, #settingsPage, #chatPage, #announcementsPage, #monthlyReportPage, #aiAssistantPage { display: none; width: 100%; max-width: 500px; text-align: left; }
     #dashboard { text-align: center; }
 
-    .panel { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 20px; margin-top: 15px; text-align: left; box-shadow: 0 8px 16px rgba(0,0,0,0.2); width: 100%; max-width: 100%; box-sizing: border-box; }
-    .panel h3 { margin-top: 0; color: var(--accent-gold); text-align: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; text-transform: uppercase; letter-spacing: 2px; font-size: 16px; }
+    /* HIGH-END LUXURY PANEL DESIGN */
+    .panel { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 24px; margin-top: 15px; text-align: left; box-shadow: 0 12px 35px rgba(0,0,0,0.35); width: 100%; max-width: 100%; box-sizing: border-box; backdrop-filter: blur(12px); position: relative; overflow: hidden; }
+    .panel::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, var(--accent-gold), transparent); opacity: 0.6; }
+    .panel h3 { margin-top: 0; color: var(--accent-gold); text-align: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; font-size: 17px; font-weight: 800; }
 
-    label { font-size: 14px; opacity: 0.8; margin-bottom: 5px; display: block; font-weight: bold; }
-    input, textarea, select { width: 100%; padding: 14px; margin-bottom: 20px; background-color: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-gold); }
+    label { font-size: 13px; opacity: 0.85; margin-bottom: 6px; display: block; font-weight: 700; letter-spacing: 0.5px; }
+    input, textarea, select { width: 100%; padding: 14px 16px; margin-bottom: 20px; background-color: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 10px; box-sizing: border-box; font-size: 15px; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
     
-    .custom-select-box { width: 100%; padding: 14px; margin-bottom: 20px; background-color: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .custom-select-box { width: 100%; padding: 14px 16px; margin-bottom: 20px; background-color: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 10px; box-sizing: border-box; font-size: 15px; font-family: inherit; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: border-color 0.2s; }
     .custom-select-box:hover { border-color: var(--accent-gold); }
-    .btn-submit { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%; }
+    .btn-submit { background: linear-gradient(145deg, #16a34a, #15803d); color: white; border-color: #22c55e; width: 100%; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3); }
     
-    .ticket, .list-item { background: var(--panel-bg); padding: 16px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid var(--accent-gold); box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-left-width: 4px; max-width: 100%; overflow: hidden; word-break: break-word; }
-    .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .ticket-number { font-size: 16px; font-weight: bold; color: var(--accent-gold); background: var(--input-bg); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--panel-border); }
-    .ticket-title { font-size: 16px; font-weight: bold; color: var(--text-color); text-transform: uppercase; letter-spacing: 1px; word-break: break-word; }
-    .ticket-details { font-size: 14px; opacity: 0.8; margin-bottom: 12px; line-height: 1.4; word-break: break-word; }
+    .ticket, .list-item { background: var(--card-bg); padding: 18px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--accent-gold); box-shadow: 0 6px 20px rgba(0,0,0,0.25); border: 1px solid var(--panel-border); border-left-width: 5px; max-width: 100%; overflow: hidden; word-break: break-word; }
+    .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .ticket-number { font-size: 15px; font-weight: 800; color: var(--accent-gold); background: var(--input-bg); padding: 4px 12px; border-radius: 8px; border: 1px solid var(--panel-border); }
+    .ticket-title { font-size: 16px; font-weight: 800; color: var(--text-color); text-transform: uppercase; letter-spacing: 1px; word-break: break-word; }
+    .ticket-details { font-size: 14px; opacity: 0.85; margin-bottom: 12px; line-height: 1.5; word-break: break-word; }
     
-    .status-badge { font-size: 11px; padding: 5px 10px; border-radius: 12px; background: linear-gradient(145deg, #ffc107, #b28704); color: #111; font-weight: bold; display: inline-block; margin-bottom: 12px; }
+    .status-badge { font-size: 11px; padding: 6px 12px; border-radius: 14px; background: linear-gradient(145deg, #eab308, #ca8a04); color: #111; font-weight: 800; display: inline-block; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     
-    .btn-action { width: 100%; padding: 12px; font-size: 14px; margin-top: 5px; }
-    .btn-finish { background: linear-gradient(145deg, #555, #333); color: #fff; border-color: #666; }
-    .btn-pay { background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; }
+    .btn-action { width: 100%; padding: 12px; font-size: 14px; margin-top: 6px; border-radius: 8px; }
+    .btn-finish { background: linear-gradient(145deg, #4b5563, #374151); color: #fff; border-color: #6b7280; }
+    .btn-pay { background: linear-gradient(145deg, #16a34a, #15803d); color: white; border-color: #22c55e; }
 
-    #analyticsPanel { border-color: #145523; }
-    #analyticsPanel h3 { color: #28a745; border-color: #145523; margin-bottom: 20px; }
+    #analyticsPanel { border-color: #15803d; }
+    #analyticsPanel h3 { color: #22c55e; border-color: rgba(34, 197, 94, 0.25); margin-bottom: 20px; }
     
-    .stats-grid { display: flex; justify-content: space-between; gap: 6px; width: 100%; max-width: 100%; overflow: hidden; }
-    .stat-box { flex: 1; min-width: 0; background: rgba(0,0,0,0.1); padding: 10px 4px; border-radius: 8px; text-align: center; border: 1px solid #145523; overflow: hidden; }
-    .stat-box p { opacity: 0.7; font-size: 10px; text-transform: uppercase; margin: 0 0 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .stat-box .money { margin: 0; color: #28a745; font-size: 12px; font-weight: bold; word-break: break-all; overflow-wrap: break-word; }
-    .stat-box .cuts { margin: 4px 0 0 0; opacity: 0.8; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .stats-grid { display: flex; justify-content: space-between; gap: 8px; width: 100%; max-width: 100%; overflow: hidden; }
+    .stat-box { flex: 1; min-width: 0; background: rgba(0,0,0,0.2); padding: 12px 6px; border-radius: 10px; text-align: center; border: 1px solid rgba(34, 197, 94, 0.3); overflow: hidden; box-shadow: inset 0 2px 6px rgba(0,0,0,0.2); }
+    .stat-box p { opacity: 0.75; font-size: 10px; text-transform: uppercase; margin: 0 0 6px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; letter-spacing: 0.5px; }
+    .stat-box .money { margin: 0; color: #22c55e; font-size: 13px; font-weight: 800; word-break: break-all; overflow-wrap: break-word; }
+    .stat-box .cuts { margin: 6px 0 0 0; opacity: 0.85; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 
-    .service-breakdown-box { background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 12px; margin-top: 15px; text-align: left; max-width: 100%; }
-    .service-breakdown-box h4 { margin: 0 0 8px 0; color: var(--accent-gold); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--panel-border); padding-bottom: 5px; }
+    .service-breakdown-box { background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px 14px; margin-top: 15px; text-align: left; max-width: 100%; }
+    .service-breakdown-box h4 { margin: 0 0 10px 0; color: var(--accent-gold); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--panel-border); padding-bottom: 6px; font-weight: 800; }
     .scrollable-breakdown-container { max-height: 180px; overflow-y: auto; padding-right: 4px; -webkit-overflow-scrolling: touch; }
-    .breakdown-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; opacity: 0.9; margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; min-width: 0; }
+    .breakdown-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; opacity: 0.9; margin-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px; min-width: 0; }
     .breakdown-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .breakdown-row strong { flex-shrink: 0; word-break: break-all; max-width: 55%; text-align: right; }
+    .breakdown-row strong { flex-shrink: 0; word-break: break-all; max-width: 55%; text-align: right; font-weight: 700; }
     .breakdown-row:last-child { border-bottom: none; padding-bottom: 0; }
     
-    .flex-row { display: flex; gap: 10px; margin-bottom: 15px; max-width: 100%; }
+    .flex-row { display: flex; gap: 12px; margin-bottom: 20px; max-width: 100%; }
     .flex-row input { margin-bottom: 0; min-width: 0; }
     
-    #customerHistoryBox { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; margin-bottom: 15px; font-size: 13px; opacity: 0.9; max-height: 140px; overflow-y: auto; text-align: left; box-shadow: inset 0 2px 6px rgba(0,0,0,0.5); word-break: break-word; -webkit-overflow-scrolling: touch; }
-    .clickable-customer { cursor: pointer; transition: 0.2s; border-left: 3px solid #28a745; background: var(--panel-bg); }
-    .clickable-customer:hover { background: rgba(40,167,69,0.1); opacity: 1; }
+    #customerHistoryBox { background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 13px; opacity: 0.95; max-height: 150px; overflow-y: auto; text-align: left; box-shadow: inset 0 2px 8px rgba(0,0,0,0.6); word-break: break-word; -webkit-overflow-scrolling: touch; }
+    .clickable-customer { cursor: pointer; transition: 0.2s; border-left: 4px solid #22c55e; background: var(--card-bg); }
+    .clickable-customer:hover { background: rgba(34,197,94,0.12); opacity: 1; transform: translateX(2px); }
 
-    .pay-btn { width: 100%; padding: 15px; margin-bottom: 12px; font-size: 16px; font-weight: bold; border-radius: 8px; border: 1px solid #555; cursor: pointer; text-transform: uppercase; }
-    .pay-cash { background: #28a745; color: white; border-color: #28a745; }
-    .pay-momo { background: #ffc107; color: black; border-color: #ffc107; }
-    .pay-telecel { background: #e65c00; color: white; border-color: #e65c00; }
+    .pay-btn { width: 100%; padding: 16px; margin-bottom: 12px; font-size: 15px; font-weight: 800; border-radius: 10px; border: 1px solid #555; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+    .pay-cash { background: #16a34a; color: white; border-color: #16a34a; }
+    .pay-momo { background: #eab308; color: black; border-color: #eab308; }
+    .pay-telecel { background: #f97316; color: white; border-color: #f97316; }
 
     /* CHAT */
-    #chatPage { padding: 0 !important; border: none !important; background: var(--wa-chat-bg) !important; height: calc(100vh - 100px); flex-direction: column; border-radius: 12px; overflow: hidden; }
-    .wa-header { background: var(--wa-header-bg); color: #ffffff; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    #chatPage { padding: 0 !important; border: none !important; background: var(--wa-chat-bg) !important; height: calc(100vh - 100px); flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.4); }
+    .wa-header { background: var(--wa-header-bg); color: #ffffff; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
     .wa-header-info { display: flex; align-items: center; gap: 12px; }
-    .wa-avatar { width: 40px; height: 40px; border-radius: 50%; background: #ffffff; color: var(--wa-header-bg); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
-    .wa-title { font-weight: bold; font-size: 16px; margin: 0; }
+    .wa-avatar { width: 42px; height: 42px; border-radius: 50%; background: #ffffff; color: var(--wa-header-bg); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+    .wa-title { font-weight: 800; font-size: 16px; margin: 0; }
     .wa-subtitle { font-size: 11px; opacity: 0.85; margin: 0; }
-    .wa-chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; }
-    .wa-bubble { max-width: 80%; padding: 8px 12px; font-size: 14px; line-height: 1.4; position: relative; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-    .wa-bubble-sent { align-self: flex-end; background: var(--wa-bubble-sent); color: #111; border-radius: 12px 12px 0px 12px; text-align: left; }
-    .wa-bubble-recv { align-self: flex-start; background: var(--wa-bubble-recv); color: var(--text-color); border-radius: 12px 12px 12px 0px; text-align: left; }
-    .wa-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; font-size: 10px; opacity: 0.75; }
-    .wa-input-bar { background: var(--panel-bg); padding: 10px 12px; display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--panel-border); }
-    .wa-input-field { flex: 1; padding: 12px 16px; border-radius: 24px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); margin-bottom: 0 !important; font-size: 15px; }
-    .wa-send-btn { width: 45px; height: 45px; border-radius: 50%; background: #128c7e; color: #ffffff; border: none; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+    .wa-chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
+    .wa-bubble { max-width: 80%; padding: 10px 14px; font-size: 14px; line-height: 1.4; position: relative; word-break: break-word; box-shadow: 0 2px 5px rgba(0,0,0,0.25); }
+    .wa-bubble-sent { align-self: flex-end; background: var(--wa-bubble-sent); color: #111; border-radius: 14px 14px 0px 14px; text-align: left; font-weight: 500; }
+    .wa-bubble-recv { align-self: flex-start; background: var(--wa-bubble-recv); color: var(--text-color); border-radius: 14px 14px 14px 0px; text-align: left; }
+    .wa-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 5px; font-size: 10px; opacity: 0.75; }
+    .wa-input-bar { background: var(--panel-bg); padding: 12px 15px; display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--panel-border); }
+    .wa-input-field { flex: 1; padding: 12px 18px; border-radius: 24px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--input-text); margin-bottom: 0 !important; font-size: 15px; }
+    .wa-send-btn { width: 45px; height: 45px; border-radius: 50%; background: #128c7e; color: #ffffff; border: none; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
 
-    #toastNotification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150px); background: linear-gradient(145deg, #113518, #07190a); color: #28a745; border: 2px solid #28a745; padding: 14px 28px; border-radius: 35px; font-weight: bold; font-size: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 999999; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 12px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; pointer-events: none; max-width: 90%; text-align: center; word-break: break-word; }
+    #toastNotification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150px); background: linear-gradient(145deg, #14532d, #052e16); color: #22c55e; border: 2px solid #22c55e; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 999999; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 12px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; pointer-events: none; max-width: 90%; text-align: center; word-break: break-word; }
     #toastNotification.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
-    #customModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; padding: 15px; }
+    #customModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; padding: 15px; }
     #customModalOverlay.show { display: flex; opacity: 1; }
-    #customModalBox { background: var(--panel-bg); border: 1px solid var(--accent-gold); border-radius: 16px; padding: 25px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 85vh; overflow-y: auto; word-break: break-word; -webkit-overflow-scrolling: touch; }
+    #customModalBox { background: var(--panel-bg); border: 1px solid var(--accent-gold); border-radius: 18px; padding: 25px; width: 100%; max-width: 390px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.6); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 85vh; overflow-y: auto; word-break: break-word; -webkit-overflow-scrolling: touch; }
     #customModalOverlay.show #customModalBox { transform: scale(1); }
     #customModalHeader { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 15px; }
-    #customModalTitle { margin: 0; color: var(--accent-gold); letter-spacing: 1px; font-size: 18px; text-transform: uppercase; }
-    #customModalMessage { opacity: 0.9; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; word-break: break-word; }
+    #customModalTitle { margin: 0; color: var(--accent-gold); letter-spacing: 1px; font-size: 18px; text-transform: uppercase; font-weight: 800; }
+    #customModalMessage { opacity: 0.95; font-size: 15px; margin-bottom: 20px; line-height: 1.5; text-align: left; word-break: break-word; }
     #customModalInput { margin-bottom: 0; display: none; text-align: center; }
 
     #customDropdownList { display: none; max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 15px; -webkit-overflow-scrolling: touch; }
-    .dropdown-option-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--panel-border); cursor: pointer; font-size: 15px; word-break: break-word; }
-    .dropdown-option-item:hover { background: rgba(212, 175, 55, 0.1); color: var(--accent-gold); }
+    .dropdown-option-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--panel-border); cursor: pointer; font-size: 15px; word-break: break-word; font-weight: 500; transition: background 0.2s; }
+    .dropdown-option-item:hover { background: rgba(212, 175, 55, 0.12); color: var(--accent-gold); }
     .radio-circle { width: 18px; height: 18px; border: 2px solid #888; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px; }
     .dropdown-option-item.selected .radio-circle { border-color: var(--accent-gold); background: var(--accent-gold); }
     .dropdown-option-item.selected .radio-circle::after { content: ''; width: 8px; height: 8px; background: #111; border-radius: 50%; }
@@ -182,9 +185,18 @@
     #fullscreenImageViewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000; z-index: 200000; display: none; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; }
     #fullscreenImageViewer.show { display: flex; }
 
-    @keyframes jumpBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-    .jumping-logo-container { display: inline-block; animation: jumpBounce 2s infinite ease-in-out; margin-bottom: 15px; }
-    .login-welcome-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; padding: 30px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; box-sizing: border-box; margin-top: 10px; margin-bottom: 40px; }
+    /* SLIDING LIVE ANIMATION FOR SJ'S SALOON */
+    @keyframes slideLeftRight {
+      0%, 100% { transform: translateX(-20px); }
+      50% { transform: translateX(20px); }
+    }
+    .sliding-logo-container {
+      display: inline-block;
+      animation: slideLeftRight 4s infinite ease-in-out;
+      margin-bottom: 15px;
+    }
+
+    .login-welcome-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 35px 22px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); width: 100%; max-width: 420px; box-sizing: border-box; margin-top: 10px; margin-bottom: 40px; backdrop-filter: blur(12px); }
   </style>
 </head>
 <body>
@@ -198,11 +210,11 @@
   <div id="sidebarMenu">
     <button onclick="closeSidebar()" style="background: none; border: none; color: white; font-size: 24px; position: absolute; top: 15px; right: 15px; box-shadow: none; padding: 0;">✕</button>
     
-    <div style="text-align: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 15px; margin-bottom: 10px; margin-top: 10px;">
-      <img id="sidebarUserPic" src="" class="avatar" style="width: 80px; height: 80px;" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;">
-      <h4 id="sidebarUserName" style="margin: 5px 0 0 0; color: var(--accent-gold); letter-spacing: 1px; word-break: break-word;">Name</h4>
-      <p id="sidebarUserRole" style="margin: 5px 0 0 0; font-size: 11px; opacity: 0.8; text-transform: uppercase; font-weight: bold;">Role</p>
-      <span id="sidebarStaffIdBadge" style="font-size: 10px; color: var(--accent-gold); background: rgba(212,175,55,0.15); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--panel-border); display: inline-block; margin-top: 4px;">ID: --</span>
+    <div style="text-align: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 20px; margin-bottom: 12px; margin-top: 10px;">
+      <img id="sidebarUserPic" src="" class="avatar" style="width: 85px; height: 85px;" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;">
+      <h4 id="sidebarUserName" style="margin: 8px 0 0 0; color: var(--accent-gold); letter-spacing: 1px; word-break: break-word; font-size: 16px; font-weight: 800;">Name</h4>
+      <p id="sidebarUserRole" style="margin: 5px 0 0 0; font-size: 11px; opacity: 0.85; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Role</p>
+      <span id="sidebarStaffIdBadge" style="font-size: 10px; color: var(--accent-gold); background: rgba(212,175,55,0.15); padding: 3px 10px; border-radius: 12px; border: 1px solid var(--panel-border); display: inline-block; margin-top: 6px; font-weight: 700;">ID: --</span>
     </div>
     
     <div class="sidebar-category">Main Navigation</div>
@@ -229,26 +241,26 @@
   </div>
 
   <div id="appViewContainer">
-    <!-- Rest of UI remains unchanged, preserving all modals, boxes, and views -->
+    <!-- LOGIN & WELCOME VIEW WITH LIVE SLIDING LOGO -->
     <div id="loginWelcomeView" class="login-welcome-box" style="display: none;">
-      <div class="jumping-logo-container">
-        <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px; color: var(--accent-gold);">SJ'S SALOON</h1>
+      <div class="sliding-logo-container">
+        <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px; color: var(--accent-gold); font-weight: 900; text-shadow: 0 4px 15px rgba(212,175,55,0.3);">SJ'S SALOON</h1>
       </div>
-      <p style="opacity: 0.8; font-size: 15px; margin-bottom: 25px; line-height: 1.5;">Welcome to the premier digital workstation for professional barbering and front-desk management.</p>
-      <button id="loginBtn" style="width: 100%; padding: 16px; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+      <p style="opacity: 0.85; font-size: 15px; margin-bottom: 25px; line-height: 1.5; font-weight: 500;">Welcome to the premier digital workstation for professional barbering and front-desk management.</p>
+      <button id="loginBtn" style="width: 100%; padding: 16px; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 12px;">
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.25 3.36-7.27 7.72-7.27c2.14 0 4.05.74 5.55 2.14l2.05-2.05C18.75 3.1 15.89 2 12.72 2C6.8 2 2 6.8 2 12.72s4.8 10.72 10.72 10.72c6.2 0 10.3-4.36 10.3-10.48c0-.72-.08-1.42-.19-2.06z"/></svg>
         Sign in with Google
       </button>
       <div style="border-top: 1px solid var(--panel-border); margin: 20px 0; padding-top: 20px;">
-        <p style="font-size: 13px; opacity: 0.8; margin-bottom: 12px;">Sign in or register with Email & Password:</p>
+        <p style="font-size: 13px; opacity: 0.8; margin-bottom: 12px; font-weight: 600;">Sign in or register with Email & Password:</p>
         <input type="email" id="authEmailInput" placeholder="Email address..." autocomplete="email" style="margin-bottom: 10px;">
         <input type="password" id="authPasswordInput" placeholder="Password (min 6 characters)..." autocomplete="current-password" style="margin-bottom: 15px;">
         <div style="display: flex; gap: 10px;">
           <button id="emailLoginBtn" style="flex: 1; padding: 14px; font-size: 14px;">Sign In</button>
-          <button id="emailRegisterBtn" style="flex: 1; padding: 14px; font-size: 14px; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;">Register</button>
+          <button id="emailRegisterBtn" style="flex: 1; padding: 14px; font-size: 14px; background: linear-gradient(145deg, #1e5ab6, #0d3275); color: white; border-color: #3b82f6;">Register</button>
         </div>
       </div>
-      <button id="welcomeInstallBtn" onclick="triggerInstall()" style="width: 100%; padding: 14px; font-size: 14px; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px;">
+      <button id="welcomeInstallBtn" onclick="triggerInstall()" style="width: 100%; padding: 14px; font-size: 14px; background: linear-gradient(145deg, #16a34a, #15803d); color: white; border-color: #22c55e; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px;">
         📲 Install App on Device
       </button>
 
@@ -286,22 +298,22 @@
       <label>Upload Profile Picture (Optional)</label>
       <input type="file" id="setupPhoto" accept="image/*">
       <button id="saveProfileBtn" class="btn-submit">Submit Profile & ID for Approval</button>
-      <button id="setupLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 15px;">Log Out</button>
+      <button id="setupLogoutBtn" style="background-color: #ef4444; border-color: #ef4444; width: 100%; margin-top: 15px; color: white;">Log Out</button>
     </div>
 
     <!-- PENDING APPROVAL VIEW -->
     <div id="pendingView" class="panel" style="text-align: center;">
-      <h3 style="color: #ffc107;">Profile Pending Approval</h3>
+      <h3 style="color: #eab308;">Profile Pending Approval</h3>
       <p style="opacity: 0.9;">Your profile and government ID credentials have been submitted.</p>
       <p style="opacity: 0.8; font-size: 14px;">Please wait for the Shop Owner to verify your ID and approve your account.</p>
       <p style="opacity: 0.8; font-size: 12px; margin-top: 20px; color: var(--accent-gold);">Your screen will automatically update when approved.</p>
-      <button id="pendingLogoutBtn" style="background-color: #ff4444; width: 100%; margin-top: 20px;">Log Out</button>
+      <button id="pendingLogoutBtn" style="background-color: #ef4444; border-color: #ef4444; width: 100%; margin-top: 20px; color: white;">Log Out</button>
     </div>
 
     <!-- EDIT PROFILE VIEW -->
-    <div id="editProfileView" class="panel" style="border-color: #4285F4;">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
-      <h3 style="color: #4285F4;" id="editProfileTitle">Edit My Profile & ID Credentials</h3>
+    <div id="editProfileView" class="panel" style="border-color: #3b82f6;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Cancel & Return</button>
+      <h3 style="color: #3b82f6;" id="editProfileTitle">Edit My Profile & ID Credentials</h3>
       <p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;" id="editProfileSubtitle">Owners update instantly. Staff updates require owner approval.</p>
       <div class="flex-row" style="margin-bottom: 0;">
         <div style="flex: 1;"><label>First Name</label><input type="text" id="editFirstName" placeholder="First Name" style="margin-bottom: 20px;"></div>
@@ -321,13 +333,13 @@
       </div>
       <label>Upload New Profile Picture (Optional)</label>
       <input type="file" id="editPhoto" accept="image/*">
-      <button id="submitEditProfileBtn" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Save & Update Profile</button>
+      <button id="submitEditProfileBtn" class="btn-submit" style="background: linear-gradient(145deg, #3b82f6, #1d4ed8); border-color: #3b82f6;">Save & Update Profile</button>
     </div>
 
     <!-- OWNER STAFF MANAGEMENT PAGE -->
-    <div id="ownerStaffPage" class="panel" style="border-color: #4285F4;">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-      <h3 style="color: #4285F4;">Staff Management</h3>
+    <div id="ownerStaffPage" class="panel" style="border-color: #3b82f6;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <h3 style="color: #3b82f6;">Staff Management</h3>
       <h4 style="margin-top: 0;">Pending Staff Approvals & Updates</h4>
       <div id="approvalList"></div>
       <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Active Staff Management</h4>
@@ -337,23 +349,23 @@
     </div>
 
     <!-- OWNER SERVICES & PRICES PAGE -->
-    <div id="ownerServicesPage" class="panel" style="border-color: #4285F4;">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-      <h3 style="color: #4285F4;">Services & Prices</h3>
+    <div id="ownerServicesPage" class="panel" style="border-color: #3b82f6;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <h3 style="color: #3b82f6;">Services & Prices</h3>
       <h4 style="margin-top: 0;">Add New Service (Set Price to 0 for Free)</h4>
       <div class="flex-row">
         <input type="text" id="newServiceName" placeholder="Service (e.g. Dye)">
         <input type="number" id="newServicePrice" placeholder="Price (0 for Free)">
       </div>
-      <button id="addServiceBtn" style="background: #4285F4; border-color: #4285F4; width: 100%; margin-bottom: 20px;">Add Service</button>
+      <button id="addServiceBtn" style="background: linear-gradient(145deg, #3b82f6, #1d4ed8); border-color: #3b82f6; width: 100%; margin-bottom: 20px; color: white;">Add Service</button>
       <h4 style="margin-top: 20px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Existing Services</h4>
       <div id="servicesList"></div>
     </div>
 
     <!-- OWNER BLACKLIST PAGE -->
-    <div id="ownerBlacklistPage" class="panel" style="border-color: #ff4444;">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-      <h3 style="color: #ff4444;">Customer Blacklist Management</h3>
+    <div id="ownerBlacklistPage" class="panel" style="border-color: #ef4444;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <h3 style="color: #ef4444;">Customer Blacklist Management</h3>
       <h4 style="margin-top: 0;">Pending Blacklist Reports</h4>
       <div id="reportsList"></div>
       <h4 style="margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px;">Active Customer Blacklist</h4>
@@ -361,25 +373,18 @@
     </div>
 
     <!-- DATABASE INSPECTOR PAGE -->
-    <div id="databaseInspectorPage" class="panel" style="border-color: #d4af37; display: none;">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+    <div id="databaseInspectorPage" class="panel" style="border-color: var(--accent-gold); display: none;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: var(--accent-gold);">🗄️ Database Inspector & Manager</h3>
       <label>Select Collection</label>
-      <select id="inspectorCollectionSelect" onchange="loadCollectionDocuments()" class="custom-select-box" style="margin-bottom: 20px;">
-        <option value="users">users</option>
-        <option value="daily_tickets">daily_tickets</option>
-        <option value="services">services</option>
-        <option value="team_chat">team_chat</option>
-        <option value="announcements">announcements</option>
-        <option value="blacklist">blacklist</option>
-        <option value="staff_reports">staff_reports</option>
-        <option value="blacklist_reports">blacklist_reports</option>
-      </select>
+      <div id="inspectorCollectionSelectBtn" class="custom-select-box" onclick="openPickerModal('dbCollection')" style="margin-bottom: 20px;">
+        <span id="inspectorCollectionText">👥 users</span><span style="color: var(--accent-gold);">▼</span>
+      </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h4 style="margin: 0; color: var(--accent-gold); font-size: 14px;">Documents in Collection:</h4>
-        <button onclick="loadCollectionDocuments()" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">🔄 Refresh</button>
+        <button onclick="loadCollectionDocuments()" style="background: #27272a; color: var(--accent-gold); font-size: 11px; padding: 6px 12px; border-radius: 6px; box-shadow:none;">🔄 Refresh</button>
       </div>
-      <div id="inspectorDocumentsList" style="max-height: 400px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; -webkit-overflow-scrolling: touch;"></div>
+      <div id="inspectorDocumentsList" style="max-height: 400px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; -webkit-overflow-scrolling: touch;"></div>
     </div>
 
     <!-- CHAT PAGE -->
@@ -406,13 +411,13 @@
     </div>
 
     <!-- ANNOUNCEMENTS PAGE -->
-    <div id="announcementsPage" class="panel" style="border-color: #ffc107;">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-      <h3 style="color: #ffc107;">📢 Announcements & Instructions</h3>
-      <div id="ownerAnnouncementCreator" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ffc107; margin-bottom: 20px;">
-        <h4 style="color: #ffc107; margin-top: 0;">Publish Announcement (Owner Only)</h4>
+    <div id="announcementsPage" class="panel" style="border-color: #eab308;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <h3 style="color: #eab308;">📢 Announcements & Instructions</h3>
+      <div id="ownerAnnouncementCreator" style="display: none; background: var(--input-bg); padding: 16px; border-radius: 10px; border: 1px solid #eab308; margin-bottom: 20px;">
+        <h4 style="color: #eab308; margin-top: 0;">Publish Announcement (Owner Only)</h4>
         <textarea id="announcementText" rows="3" placeholder="Enter instructions or announcements for staff..."></textarea>
-        <button id="publishAnnouncementBtn" class="btn-submit" style="background: #ffc107; color: #111; border-color: #ffc107; font-weight: bold;">Post Announcement</button>
+        <button id="publishAnnouncementBtn" class="btn-submit" style="background: #eab308; color: #111; border-color: #eab308; font-weight: 800;">Post Announcement</button>
       </div>
       <div id="announcementsListContainer">
         <p style="opacity: 0.6; font-style: italic;">Loading announcements...</p>
@@ -420,34 +425,34 @@
     </div>
 
     <!-- AI ASSISTANT PAGE -->
-    <div id="aiAssistantPage" class="panel" style="border-color: #4285F4;">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
-      <h3 style="color: #4285F4;">🤖 App AI Assistant</h3>
-      <div id="aiChatBox" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px; padding: 15px; height: 260px; overflow-y: auto; margin-bottom: 15px; text-align: left; -webkit-overflow-scrolling: touch;">
+    <div id="aiAssistantPage" class="panel" style="border-color: #3b82f6;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <h3 style="color: #3b82f6;">🤖 App AI Assistant</h3>
+      <div id="aiChatBox" style="background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 10px; padding: 15px; height: 260px; overflow-y: auto; margin-bottom: 15px; text-align: left; -webkit-overflow-scrolling: touch;">
         <div style="margin-bottom: 12px;">
-          <span style="font-size: 11px; color: #4285F4;">SJ'S SALOON AI Assistant</span><br>
-          <div style="display: inline-block; background: var(--panel-bg); color: var(--text-color); padding: 8px 12px; border-radius: 8px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">
+          <span style="font-size: 11px; color: #3b82f6; font-weight: bold;">SJ'S SALOON AI Assistant</span><br>
+          <div style="display: inline-block; background: var(--card-bg); color: var(--text-color); padding: 10px 14px; border-radius: 10px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 4px; border: 1px solid var(--panel-border);">
             Hello! Ask me anything about issuing tickets, free service approvals, reporting staff, or app rules!
           </div>
         </div>
       </div>
       <div style="display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap;">
-        <button onclick="askAiQuickPrompt('How do free services work?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Free Services?</button>
-        <button onclick="askAiQuickPrompt('How do I issue a ticket?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Issue Ticket?</button>
-        <button onclick="askAiQuickPrompt('How do off duty barbers work?')" style="background: #333; color: var(--accent-gold); font-size: 11px; padding: 6px 10px; border-radius: 6px; box-shadow:none;">💡 Off Duty Barbers?</button>
+        <button onclick="askAiQuickPrompt('How do free services work?')" style="background: #27272a; color: var(--accent-gold); font-size: 11px; padding: 6px 12px; border-radius: 6px; box-shadow:none;">💡 Free Services?</button>
+        <button onclick="askAiQuickPrompt('How do I issue a ticket?')" style="background: #27272a; color: var(--accent-gold); font-size: 11px; padding: 6px 12px; border-radius: 6px; box-shadow:none;">💡 Issue Ticket?</button>
+        <button onclick="askAiQuickPrompt('How do off duty barbers work?')" style="background: #27272a; color: var(--accent-gold); font-size: 11px; padding: 6px 12px; border-radius: 6px; box-shadow:none;">💡 Off Duty Barbers?</button>
       </div>
       <div class="flex-row">
         <input type="text" id="aiQueryInput" placeholder="Ask a question..." autocomplete="off" style="margin-bottom: 0;">
-        <button id="sendAiQueryBtn" style="background: #4285F4; border-color: #4285F4; width: 120px;">Ask AI</button>
+        <button id="sendAiQueryBtn" style="background: linear-gradient(145deg, #3b82f6, #1d4ed8); border-color: #3b82f6; width: 120px; color: white;">Ask AI</button>
       </div>
     </div>
 
     <!-- SETTINGS PAGE -->
     <div id="settingsPage" class="panel" style="border-color: var(--accent-gold);">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
 
-      <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
+      <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
         <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment & Owner Contact</h4>
         <label>MoMo Account Name</label>
         <input type="text" id="ownerMomoNameSet" placeholder="e.g. John Doe">
@@ -455,43 +460,43 @@
         <input type="tel" id="ownerMomoNumberSet" placeholder="e.g. 0240000000">
         <label>Direct Owner Phone</label>
         <input type="tel" id="ownerDirectPhoneSet" placeholder="e.g. 0241234567">
-        <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: bold;">Save Details</button>
+        <button onclick="saveOwnerPaymentSettings()" class="btn-submit" style="background: var(--accent-gold); color: #111; border-color: var(--accent-gold); font-weight: 800;">Save Details</button>
       </div>
 
-      <div id="staffReportContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px; display: none;">
-        <h4 id="reportSectionTitle" style="color: #ff4444; margin-top: 0;">🚨 Report Staff Member</h4>
-        <button id="openReportStaffBtn" onclick="openReportStaffModal()" style="background: #ff4444; border-color: #ff4444; width: 100%; color: white;">Report Staff</button>
+      <div id="staffReportContainer" style="background: var(--input-bg); padding: 16px; border-radius: 10px; border: 1px solid #ef4444; margin-bottom: 20px; display: none;">
+        <h4 id="reportSectionTitle" style="color: #ef4444; margin-top: 0;">🚨 Report Staff Member</h4>
+        <button id="openReportStaffBtn" onclick="openReportStaffModal()" style="background: #ef4444; border-color: #ef4444; width: 100%; color: white;">Report Staff</button>
       </div>
 
-      <div id="installAppContainer" style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
+      <div id="installAppContainer" style="background: var(--input-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--accent-gold); margin-bottom: 20px;">
         <h4 style="color: var(--accent-gold); margin-top: 0;">📱 Install App on Phone</h4>
-        <button onclick="triggerInstall()" style="background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; width: 100%;">Install App Now</button>
+        <button onclick="triggerInstall()" style="background: linear-gradient(145deg, #16a34a, #15803d); color: white; border-color: #22c55e; width: 100%;">Install App Now</button>
       </div>
 
-      <div id="ownerDangerZoneBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #ff4444; margin-bottom: 20px;">
-        <h4 style="color: #ff4444; margin-top: 0;">⚠️ Owner Danger Zone</h4>
-        <button onclick="wipeShopHistory()" style="background: #8c1a1a; border-color: #ff4444; width: 100%; color: white;">Wipe All Shop Data History</button>
+      <div id="ownerDangerZoneBox" style="display: none; background: var(--input-bg); padding: 16px; border-radius: 10px; border: 1px solid #ef4444; margin-bottom: 20px;">
+        <h4 style="color: #ef4444; margin-top: 0;">⚠️ Owner Danger Zone</h4>
+        <button onclick="wipeShopHistory()" style="background: #991b1b; border-color: #ef4444; width: 100%; color: white;">Wipe All Shop Data History</button>
       </div>
 
-      <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--panel-border);">
+      <div style="background: var(--input-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--panel-border);">
         <h4 style="color: var(--accent-gold); margin-top: 0;">🔒 Account Controls</h4>
-        <button id="settingsLogoutBtn" style="background: linear-gradient(145deg, #444, #222); color: white; border-color: #555; width: 100%; margin-bottom: 15px;">Log Out</button>
-        <button id="settingsDeleteAccountBtn" onclick="deleteMyAccount()" style="background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a; width: 100%;">Delete My Account</button>
+        <button id="settingsLogoutBtn" style="background: linear-gradient(145deg, #374151, #1f2937); color: white; border-color: #4b5563; width: 100%; margin-bottom: 15px;">Log Out</button>
+        <button id="settingsDeleteAccountBtn" onclick="deleteMyAccount()" style="background: linear-gradient(145deg, #991b1b, #450a0a); color: white; border-color: #dc2626; width: 100%;">Delete My Account</button>
       </div>
     </div>
 
     <!-- PAYMENT PAGE -->
-    <div id="paymentPage" class="panel" style="border-color: #28a745;">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Return</button>
-      <h3 style="color: #28a745;">Checkout & Payment</h3>
-      <div id="paymentInfoBox" style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left; word-break: break-word;">
-        <p style="margin: 0 0 5px 0; opacity: 0.8;">Customer: <strong id="payCustName" style="color: var(--text-color);">--</strong></p>
-        <p style="margin: 0 0 5px 0; opacity: 0.8;">Service: <strong id="payServiceName" style="color: var(--text-color);">--</strong></p>
-        <p style="margin: 0; opacity: 0.8;">Amount Due: <strong id="payAmount" style="color: #28a745; font-size: 18px;">GHS 0.00</strong></p>
+    <div id="paymentPage" class="panel" style="border-color: #16a34a;">
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Cancel & Return</button>
+      <h3 style="color: #16a34a;">Checkout & Payment</h3>
+      <div id="paymentInfoBox" style="background: var(--input-bg); padding: 16px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left; word-break: break-word;">
+        <p style="margin: 0 0 6px 0; opacity: 0.85;">Customer: <strong id="payCustName" style="color: var(--text-color);">--</strong></p>
+        <p style="margin: 0 0 6px 0; opacity: 0.85;">Service: <strong id="payServiceName" style="color: var(--text-color);">--</strong></p>
+        <p style="margin: 0; opacity: 0.85;">Amount Due: <strong id="payAmount" style="color: #22c55e; font-size: 18px;">GHS 0.00</strong></p>
       </div>
-      <div id="ownerRefBox" style="display: none; background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; word-break: break-word;">
-        <strong style="color: #ffc107;">📱 OWNER PAYMENT REFERENCE:</strong>
-        <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Please send funds to:<br>Name: <strong id="displayOwnerPayName" style="color: var(--accent-gold); font-size: 16px;">--</strong><br>Number: <strong id="displayOwnerPayNum" style="color: var(--accent-gold); font-size: 16px; word-break: break-all;">--</strong></p>
+      <div id="ownerRefBox" style="display: none; background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308; padding: 16px; border-radius: 10px; margin-bottom: 20px; text-align: left; word-break: break-word;">
+        <strong style="color: #eab308;">📱 OWNER PAYMENT REFERENCE:</strong>
+        <p style="margin: 6px 0 0 0; opacity: 0.95; font-size: 14px;">Please send funds to:<br>Name: <strong id="displayOwnerPayName" style="color: var(--accent-gold); font-size: 16px;">--</strong><br>Number: <strong id="displayOwnerPayNum" style="color: var(--accent-gold); font-size: 16px; word-break: break-all;">--</strong></p>
       </div>
       <button class="pay-btn pay-cash" onclick="processPayment('Cash')">💵 Cash Payment</button>
       <button class="pay-btn pay-momo" onclick="processPayment('MTN MoMo')">📱 MTN MoMo</button>
@@ -499,31 +504,31 @@
     </div>
 
     <!-- BLACKLIST PAGE -->
-    <div id="blacklistPage" class="panel" style="border-color: #ff4444;">
-      <button onclick="cancelBlacklistPage()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Cancel & Go Back</button>
-      <h3 style="color: #ff4444;" id="blacklistPageTitle">Blacklist Customer</h3>
-      <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left;">
-        <p style="margin: 0; opacity: 0.8;">Target Customer: <strong id="blPageCustName" style="color: var(--text-color); font-size: 18px;">--</strong></p>
+    <div id="blacklistPage" class="panel" style="border-color: #ef4444;">
+      <button onclick="cancelBlacklistPage()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Cancel & Go Back</button>
+      <h3 style="color: #ef4444;" id="blacklistPageTitle">Blacklist Customer</h3>
+      <div style="background: var(--input-bg); padding: 16px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--panel-border); text-align: left;">
+        <p style="margin: 0; opacity: 0.85;">Target Customer: <strong id="blPageCustName" style="color: var(--text-color); font-size: 18px;">--</strong></p>
       </div>
       <label>Reason for Blacklist / Report:</label>
       <textarea id="blPageReason" rows="4" placeholder="Enter detailed reason here..."></textarea>
-      <button id="blPageSubmitBtn" class="btn-submit" style="background: #ff4444; border-color: #ff4444;">Submit Blacklist</button>
+      <button id="blPageSubmitBtn" class="btn-submit" style="background: #ef4444; border-color: #ef4444;">Submit Blacklist</button>
     </div>
 
     <!-- CUSTOMER DIRECTORY PAGE -->
     <div id="customerDirectoryPage" class="panel">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 id="directoryPageTitle" style="color: var(--accent-gold);">Customer Records</h3>
       <div id="directoryListView"><div id="directoryCustomerList"></div></div>
       <div id="customerDetailView" style="display: none;">
-        <button onclick="backToDirectoryList()" style="margin-bottom: 15px; background: #222; border:1px solid #555; color:var(--accent-gold); padding: 8px 15px; border-radius:6px; font-size: 12px;">⬅ Back to Customer List</button>
+        <button onclick="backToDirectoryList()" style="margin-bottom: 15px; background: #27272a; border:1px solid #52525b; color:var(--accent-gold); padding: 8px 16px; border-radius:8px; font-size: 12px;">⬅ Back to Customer List</button>
         <div id="customerDetailContent"></div>
       </div>
     </div>
 
     <!-- MONTHLY REPORTS PAGE -->
     <div id="monthlyReportPage" class="panel" style="border-color: var(--accent-gold);">
-      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
+      <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #374151; border:none; color:#fff; padding: 10px 20px; border-radius:8px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 style="color: var(--accent-gold); margin-bottom: 20px; font-size: 18px;" id="reportPageTitle">MONTH YEAR REPORT</h3>
       <div class="stats-grid" style="margin-bottom: 20px;">
         <div class="stat-box"><p>Total Revenue</p><h2 class="money">GHS <span id="reportTotalRev">0.00</span></h2></div>
@@ -538,15 +543,15 @@
     <!-- MAIN DASHBOARD -->
     <div id="dashboard">
       <!-- OWNER PROFILE UPDATE ALERT BANNER FOR BARBERS/SECRETARIES -->
-      <div id="profileUpdateRequestCard" style="display: none; background: rgba(255, 68, 68, 0.15); border: 2px solid #ff4444; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: left;">
-        <h4 style="color: #ff4444; margin: 0 0 6px 0; font-size: 14px;">⚠️ PROFILE UPDATE REQUESTED</h4>
+      <div id="profileUpdateRequestCard" style="display: none; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; border-radius: 14px; padding: 16px; margin-bottom: 15px; text-align: left;">
+        <h4 style="color: #ef4444; margin: 0 0 6px 0; font-size: 14px;">⚠️ PROFILE UPDATE REQUESTED</h4>
         <p style="margin: 0 0 12px 0; font-size: 13px; opacity: 0.9;">The Shop Owner has requested you review and update your profile and ID.</p>
-        <button onclick="openEditProfile()" style="width: 100%; background: #ff4444; color: white; border-color: #ff4444; font-size: 13px; padding: 10px;">✏️ Update Profile Now</button>
+        <button onclick="openEditProfile()" style="width: 100%; background: #ef4444; color: white; border-color: #ef4444; font-size: 13px; padding: 12px;">✏️ Update Profile Now</button>
       </div>
 
       <!-- CALL OWNER QUICK BUTTON -->
       <div id="dashboardCallOwnerContainer" style="display: none; margin-bottom: 15px;">
-        <a id="dashboardCallOwnerLink" href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 1px solid #2a6bcc; box-shadow: 0 4px 10px rgba(0,0,0,0.2); word-break: break-word;">
+        <a id="dashboardCallOwnerLink" href="#" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg, #1e5ab6, #0d3275); color: white; padding: 14px; border-radius: 10px; text-decoration: none; font-weight: 800; border: 1px solid #3b82f6; box-shadow: 0 4px 15px rgba(0,0,0,0.3); word-break: break-word;">
           📞 Call Shop Owner Now
         </a>
       </div>
@@ -555,20 +560,20 @@
       <div id="secretaryPanel" class="panel" style="display: none; margin-top: 0;">
         <h3>Front Desk Intake</h3>
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-          <button id="toggleShopBtn" onclick="toggleShopStatus()" style="flex: 1; background: #28a745; border-color: #28a745; font-size: 13px; padding: 10px;">🔓 Shop OPEN</button>
-          <button id="toggleSecAwayBtn" onclick="toggleSecStatus()" style="flex: 1; background: #1a4b8c; border-color: #2a6bcc; font-size: 13px; padding: 10px;">🟢 I am HERE</button>
+          <button id="toggleShopBtn" onclick="toggleShopStatus()" style="flex: 1; background: #16a34a; border-color: #22c55e; font-size: 13px; padding: 12px;">🔓 Shop OPEN</button>
+          <button id="toggleSecAwayBtn" onclick="toggleSecStatus()" style="flex: 1; background: #1e5ab6; border-color: #3b82f6; font-size: 13px; padding: 12px;">🟢 I am HERE</button>
         </div>
         <label>Customer Full Name</label>
         <input type="text" id="custName" placeholder="Start typing name..." autocomplete="off" style="margin-bottom: 10px;">
         <div id="customerHistoryBox" style="display: none;"><div id="historyContent">No history found.</div></div>
-        <div id="intakeCustomerStats" style="color: #28a745; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; text-align: left;"></div>
+        <div id="intakeCustomerStats" style="color: #22c55e; font-size: 13px; font-weight: bold; margin-bottom: 15px; display: none; text-align: left;"></div>
         <label>Customer Phone Number (Optional)</label>
         <input type="tel" id="custPhone" placeholder="Enter phone number (optional)..." autocomplete="off">
         <label>Select Services (Multi-Select Allowed)</label>
-        <div id="secretaryServicesContainer" style="background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; padding: 10px; margin-bottom: 15px; max-height: 180px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
-        <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent-gold); padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div id="secretaryServicesContainer" style="background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px; padding: 12px; margin-bottom: 15px; max-height: 180px; overflow-y: auto; -webkit-overflow-scrolling: touch;"></div>
+        <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent-gold); padding: 14px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
           <span style="font-weight: bold; color: var(--text-color);">Total Amount to Pay:</span>
-          <span style="font-size: 18px; font-weight: bold; color: var(--accent-gold);">GHS <span id="intakeCalculatedTotal">0.00</span></span>
+          <span style="font-size: 18px; font-weight: 800; color: var(--accent-gold);">GHS <span id="intakeCalculatedTotal">0.00</span></span>
         </div>
         <label>Assign To Barber (On Duty & Not Busy Barbers Only)</label>
         <div id="barberNameSelectBtn" class="custom-select-box" onclick="openPickerModal('barberName')">
@@ -579,13 +584,13 @@
 
       <!-- BARBER AVAILABILITY & BUSY TOGGLES -->
       <div id="barberControls" style="display: none; margin-top: 0; margin-bottom: 15px;">
-        <button id="toggleAvailabilityBtn" onclick="toggleAvailability()" style="width: 100%; font-size: 14px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px;"></button>
-        <button id="toggleBusyBtn" onclick="toggleBusyStatus()" style="width: 100%; font-size: 14px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;"></button>
+        <button id="toggleAvailabilityBtn" onclick="toggleAvailability()" style="width: 100%; font-size: 14px; padding: 14px; border-radius: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px;"></button>
+        <button id="toggleBusyBtn" onclick="toggleBusyStatus()" style="width: 100%; font-size: 14px; padding: 14px; border-radius: 10px; font-weight: 800; cursor: pointer;"></button>
       </div>
 
       <!-- LIVE SHOP QUEUE -->
       <div id="queuePanel" class="panel" style="display: none; margin-top: 0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; margin-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 12px; margin-bottom: 15px;">
           <h3 style="margin: 0; border: none; padding: 0;">Live Shop Queue</h3>
           <span id="queueCountBadge" class="status-badge" style="margin: 0; background: var(--accent-gold); color: #111;">0 Active</span>
         </div>
@@ -610,11 +615,11 @@
           <h4>📊 This Month's Service Breakdown</h4>
           <div class="scrollable-breakdown-container"><div id="monthServiceBreakdownList"></div></div>
         </div>
-        <button onclick="openPickerModal('reportMonth')" style="width: 100%; margin-top: 15px; padding: 14px; background: linear-gradient(145deg, #333, #111); color: var(--accent-gold); border: 1px solid var(--accent-gold); font-size: 14px;">
+        <button onclick="openPickerModal('reportMonth')" style="width: 100%; margin-top: 15px; padding: 14px; background: linear-gradient(145deg, #27272a, #18181b); color: var(--accent-gold); border: 1px solid var(--accent-gold); font-size: 14px; border-radius: 10px;">
           📅 View Past Monthly Reports
         </button>
         <div id="ownerDailyDeniedSection" style="display: none; margin-top: 25px; border-top: 1px solid var(--panel-border); padding-top: 15px; text-align: left;">
-          <h4 style="color: #ff4444; margin-top: 0; text-transform: uppercase; font-size: 14px;">📋 Daily Report: Denied / Rejected Tickets</h4>
+          <h4 style="color: #ef4444; margin-top: 0; text-transform: uppercase; font-size: 14px;">📋 Daily Report: Denied / Rejected Tickets</h4>
           <div class="scrollable-breakdown-container" style="max-height: 220px;">
             <div id="ownerDailyDeniedList"></div>
           </div>
@@ -626,9 +631,9 @@
 
   <!-- FULLSCREEN IMAGE VIEWER MODAL -->
   <div id="fullscreenImageViewer">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.8); box-sizing: border-box; z-index: 200001;">
+    <div style="position: absolute; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.85); box-sizing: border-box; z-index: 200001;">
       <button onclick="closeFullscreenViewer()" style="background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; padding: 0; box-shadow: none;">←</button>
-      <span id="fullscreenImageTitle" style="color: #fff; font-size: 14px; opacity: 0.85;">SJ'S SALOON Preview</span>
+      <span id="fullscreenImageTitle" style="color: #fff; font-size: 14px; opacity: 0.85; font-weight: 600;">SJ'S SALOON Preview</span>
       <div style="width: 26px;"></div>
     </div>
     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 60px 10px 20px 10px; box-sizing: border-box;">
@@ -640,7 +645,7 @@
   <div id="customModalOverlay">
     <div id="customModalBox" onclick="event.stopPropagation()">
       <div id="customModalHeader">
-        <button onclick="closePickerModal(); if(activePopupResolve){activePopupResolve(null); activePopupResolve=null;}" style="background: none; border: none; color: var(--accent-gold); font-size: 14px; cursor: pointer; padding: 4px 8px; box-shadow: none; border: 1px solid var(--panel-border); border-radius: 6px;">⬅ Back</button>
+        <button onclick="closePickerModal(); if(activePopupResolve){activePopupResolve(null); activePopupResolve=null;}" style="background: none; border: none; color: var(--accent-gold); font-size: 13px; cursor: pointer; padding: 6px 12px; box-shadow: none; border: 1px solid var(--panel-border); border-radius: 8px; font-weight: 700;">⬅ Back</button>
         <h3 id="customModalTitle" style="margin: 0; border: none; padding: 0;">Notice</h3>
         <div style="width: 50px;"></div>
       </div>
@@ -648,7 +653,7 @@
       <input type="text" id="customModalInput" autocomplete="off">
       <div id="customDropdownList"></div>
       <div id="customModalButtons" style="display: flex; gap: 10px; margin-top: 25px;">
-        <button id="customModalCancel" style="flex: 1; background: #333; border: 1px solid #555; color: white;">Cancel</button>
+        <button id="customModalCancel" style="flex: 1; background: #374151; border: 1px solid #4b5563; color: white;">Cancel</button>
         <button id="customModalConfirm" style="flex: 1;" class="btn-submit">OK</button>
       </div>
     </div>
@@ -675,7 +680,7 @@
       }
     }, true);
 
-    const CURRENT_APP_VERSION = "1.0.6";
+    const CURRENT_APP_VERSION = "1.0.8";
     window.DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23222222'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' font-size='50'>🧔‍♂️</text></svg>";
 
     let isClosingModalProgrammatically = false;
@@ -685,6 +690,7 @@
     let lastReadAnnTime = parseInt(localStorage.getItem('sjs_lastReadAnn')) || 0;
     let unreadChatCount = 0;
     let unreadAnnCount = 0;
+    let selectedDbCollection = "users";
 
     function updateBadge(id, count) {
       const badge = document.getElementById(id);
@@ -886,8 +892,8 @@
         input.value = ""; input.style.display = "none"; dropdownList.style.display = "none"; cancelBtn.style.display = "block"; buttonContainer.style.display = "flex"; msg.innerHTML = message;
         
         if (type === 'alert') { title.innerText = "System Notice"; title.style.color = "var(--accent-gold)"; cancelBtn.style.display = "none"; confirmBtn.innerText = "OK"; confirmBtn.style.background = "linear-gradient(145deg, #d4af37, #997d20)"; confirmBtn.style.borderColor = "#997d20"; confirmBtn.style.color = "#111"; } 
-        else if (type === 'confirm') { title.innerText = "Confirm Action"; title.style.color = "#ffc107"; confirmBtn.innerText = "Yes, Proceed"; confirmBtn.style.background = "linear-gradient(145deg, #ff4444, #cc0000)"; confirmBtn.style.borderColor = "#cc0000"; confirmBtn.style.color = "#fff"; } 
-        else if (type === 'prompt') { title.innerText = "Input Required"; title.style.color = "#4285F4"; input.style.display = "block"; input.placeholder = placeholder; confirmBtn.innerText = "Submit"; confirmBtn.style.background = "linear-gradient(145deg, #4285F4, #1a4b8c)"; confirmBtn.style.borderColor = "#1a4b8c"; confirmBtn.style.color = "#fff"; setTimeout(() => input.focus(), 100); }
+        else if (type === 'confirm') { title.innerText = "Confirm Action"; title.style.color = "#eab308"; confirmBtn.innerText = "Yes, Proceed"; confirmBtn.style.background = "linear-gradient(145deg, #ef4444, #991b1b)"; confirmBtn.style.borderColor = "#991b1b"; confirmBtn.style.color = "#fff"; } 
+        else if (type === 'prompt') { title.innerText = "Input Required"; title.style.color = "#3b82f6"; input.style.display = "block"; input.placeholder = placeholder; confirmBtn.innerText = "Submit"; confirmBtn.style.background = "linear-gradient(145deg, #3b82f6, #1d4ed8)"; confirmBtn.style.borderColor = "#1d4ed8"; confirmBtn.style.color = "#fff"; setTimeout(() => input.focus(), 100); }
         
         overlay.classList.add('show'); history.pushState({ modal: 'popup' }, '');
         activePopupResolve = (val) => { activePopupResolve = null; resolve(val); };
@@ -934,6 +940,19 @@
         const availableBarbers = cachedBarbersList.filter(b => b.isAvailable && !b.isBusy);
         options = availableBarbers.map(b => ({ label: b.label, value: b.uid })); 
       }
+      else if (pickerType === 'dbCollection') { 
+        title.innerText = "Select Database Collection"; currentValue = selectedDbCollection; 
+        options = [ 
+          { label: "👥 users", value: "users" }, 
+          { label: "🎟️ daily_tickets", value: "daily_tickets" }, 
+          { label: "✂️ services", value: "services" }, 
+          { label: "💬 team_chat", value: "team_chat" }, 
+          { label: "📢 announcements", value: "announcements" }, 
+          { label: "🚫 blacklist", value: "blacklist" }, 
+          { label: "🚨 staff_reports", value: "staff_reports" }, 
+          { label: "📋 blacklist_reports", value: "blacklist_reports" } 
+        ]; 
+      }
       else if (pickerType === 'reportMonth') { 
         title.innerText = "Select Month to View"; currentValue = ""; const d = new Date(); 
         for (let i = 0; i < 24; i++) { const m = new Date(d.getFullYear(), d.getMonth() - i, 1); const label = m.toLocaleString('default', { month: 'long', year: 'numeric' }); const value = `${m.getFullYear()}-${m.getMonth()}`; options.push({ label, value }); } 
@@ -956,6 +975,11 @@
         selectedIntakeBarberId = val; const matched = cachedBarbersList.find(b => b.uid === val); selectedIntakeBarberName = matched ? matched.name : label;
         document.getElementById('barberNameText').innerText = matched ? `${matched.name} [${matched.staffId}]` : label; 
       } 
+      else if (pickerType === 'dbCollection') {
+        selectedDbCollection = val;
+        document.getElementById('inspectorCollectionText').innerText = label;
+        loadCollectionDocuments();
+      }
       else if (pickerType === 'reportMonth') { const parts = val.split('-'); generateMonthlyReport(parseInt(parts[0]), parseInt(parts[1]), label); }
       else if (pickerType === 'reassignBarber') { 
         if (activeReassignTicketId) { 
@@ -998,18 +1022,18 @@
     window.openDatabaseInspector = () => { if (!currentUserDoc || currentUserDoc.role !== "owner") { return customPopup('alert', "Access Denied: Only the Shop Owner can access the Database Inspector."); } navigateToView('databaseInspectorPage'); loadCollectionDocuments(); };
 
     window.loadCollectionDocuments = async () => {
-      const colName = document.getElementById('inspectorCollectionSelect').value; const listContainer = document.getElementById('inspectorDocumentsList'); listContainer.innerHTML = "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>Loading documents...</p>";
+      const colName = selectedDbCollection; const listContainer = document.getElementById('inspectorDocumentsList'); listContainer.innerHTML = "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>Loading documents...</p>";
       try {
         const querySnapshot = await getDocs(collection(db, colName)); let html = "";
         querySnapshot.forEach((docItem) => {
           const data = docItem.data(); const docId = docItem.id; const jsonString = JSON.stringify(data, null, 2).replace(/"/g, '&quot;');
-          html += `<div class="list-item" style="border-left-color: var(--accent-gold); margin-bottom: 12px; padding: 12px;"><div style="font-size: 12px; color: var(--accent-gold); font-family: monospace; margin-bottom: 6px; word-break: break-all;"><strong>ID:</strong> ${docId}</div><pre style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-color); overflow-x: auto; max-height: 120px; margin-bottom: 10px; text-align: left;">${jsonString}</pre><div style="display: flex; gap: 8px;"><button onclick="inspectFullDocument('${colName}', '${docId}')" style="flex: 1; background: #4285F4; border:none; padding: 6px; font-size: 11px; border-radius: 4px; color: white;">👁️ View Full</button><button onclick="deleteDatabaseDocument('${colName}', '${docId}')" style="flex: 1; background: #ff4444; border:none; padding: 6px; font-size: 11px; border-radius: 4px; color: white; font-weight: bold;">🗑️ Delete</button></div></div>`;
+          html += `<div class="list-item" style="border-left-color: var(--accent-gold); margin-bottom: 12px; padding: 12px;"><div style="font-size: 12px; color: var(--accent-gold); font-family: monospace; margin-bottom: 6px; word-break: break-all;"><strong>ID:</strong> ${docId}</div><pre style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-color); overflow-x: auto; max-height: 120px; margin-bottom: 10px; text-align: left;">${jsonString}</pre><div style="display: flex; gap: 8px;"><button onclick="inspectFullDocument('${colName}', '${docId}')" style="flex: 1; background: #3b82f6; border:none; padding: 6px; font-size: 11px; border-radius: 6px; color: white;">👁️ View Full</button><button onclick="deleteDatabaseDocument('${colName}', '${docId}')" style="flex: 1; background: #ef4444; border:none; padding: 6px; font-size: 11px; border-radius: 6px; color: white; font-weight: bold;">🗑️ Delete</button></div></div>`;
         });
         listContainer.innerHTML = html === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>Collection is empty.</p>" : html;
-      } catch (err) { listContainer.innerHTML = `<p style='color: #ff4444; font-size: 13px;'>Error loading collection: ${err.message}</p>`; }
+      } catch (err) { listContainer.innerHTML = `<p style='color: #ef4444; font-size: 13px;'>Error loading collection: ${err.message}</p>`; }
     };
 
-    window.inspectFullDocument = async (colName, docId) => { try { const docRef = doc(db, colName, docId); const docSnap = await getDoc(docRef); if (docSnap.exists()) { const prettyJson = JSON.stringify(docSnap.data(), null, 2); await customPopup('alert', `📄 <b>Document: ${docId}</b><br><br><pre style="text-align:left; font-size:11px; max-height:300px; overflow-y:auto; background:var(--input-bg); padding:10px; border-radius:6px;">${prettyJson}</pre>`); } } catch(e) { await customPopup('alert', "Error fetching document: " + e.message); } };
+    window.inspectFullDocument = async (colName, docId) => { try { const docRef = doc(db, colName, docId); const docSnap = await getDoc(docRef); if (docSnap.exists()) { const prettyJson = JSON.stringify(docSnap.data(), null, 2); await customPopup('alert', `📄 <b>Document: ${docId}</b><br><br><pre style="text-align:left; font-size:11px; max-height:300px; overflow-y:auto; background:var(--input-bg); padding:10px; border-radius:8px;">${prettyJson}</pre>`); } } catch(e) { await customPopup('alert', "Error fetching document: " + e.message); } };
     window.deleteDatabaseDocument = async (colName, docId) => { const confirmDelete = await customPopup('confirm', `Are you sure you want to permanently delete document <b>${docId}</b> from collection <b>${colName}</b>?`); if (!confirmDelete) return; try { await deleteDoc(doc(db, colName, docId)); showToast(`Successfully deleted ${docId}!`); loadCollectionDocuments(); } catch (err) { await customPopup('alert', "Error deleting document: " + err.message); } };
 
     window.openSettingsPage = () => {
@@ -1038,7 +1062,7 @@
     window.processAiQuery = () => {
       const input = document.getElementById('aiQueryInput'); const q = input.value.trim().toLowerCase(); if (!q) return;
       const box = document.getElementById('aiChatBox');
-      const userHtml = `<div style="margin-bottom: 12px; text-align: right;"><span style="font-size: 11px; color: var(--accent-gold);">You</span><br><div style="display: inline-block; background: #4285F4; color: #fff; padding: 8px 12px; border-radius: 8px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 2px;">${input.value}</div></div>`;
+      const userHtml = `<div style="margin-bottom: 12px; text-align: right;"><span style="font-size: 11px; color: var(--accent-gold);">You</span><br><div style="display: inline-block; background: #3b82f6; color: #fff; padding: 10px 14px; border-radius: 10px; max-width: 80%; word-break: break-word; text-align: left; margin-top: 4px;">${input.value}</div></div>`;
       box.innerHTML += userHtml;
       let answer = "I'm not completely sure about that. You can check the announcements or team chat for more details!";
       if (q.includes("free")) { answer = "🎁 <b>Free Services:</b> When an owner lists a service with 0 GHS price, the secretary enters a reason upon selection. The ticket goes straight to the barber's chair for acceptance. Once finished, it shows completed awaiting owner approval!"; } 
@@ -1048,7 +1072,7 @@
       else if (q.includes("report")) { answer = "🚨 <b>Staff Reports:</b> Staff members can report colleagues via their Settings menu. Owners can review all complaints in the Staff Management panel."; } 
       else if (q.includes("payment")) { answer = "💳 <b>Collecting Payments:</b> Once a barber finishes a cut, secretaries can click 'Collect Payment' on the ticket to process Cash, MoMo, or Telecel Cash."; } 
       else if (q.includes("owner") || q.includes("call")) { answer = "📞 <b>Calling Owner:</b> Barbers and secretaries can tap the 'Call Shop Owner Now' button directly on their dashboard to quickly place a call."; }
-      const aiHtml = `<div style="margin-bottom: 12px; text-align: left;"><span style="font-size: 11px; color: #4285F4;">SJ'S SALOON AI Assistant</span><br><div style="display: inline-block; background: var(--panel-bg); color: var(--text-color); padding: 8px 12px; border-radius: 8px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 2px; border: 1px solid var(--panel-border);">${answer}</div></div>`;
+      const aiHtml = `<div style="margin-bottom: 12px; text-align: left;"><span style="font-size: 11px; color: #3b82f6; font-weight: bold;">SJ'S SALOON AI Assistant</span><br><div style="display: inline-block; background: var(--card-bg); color: var(--text-color); padding: 10px 14px; border-radius: 10px; max-width: 90%; word-break: break-word; text-align: left; margin-top: 4px; border: 1px solid var(--panel-border);">${answer}</div></div>`;
       box.innerHTML += aiHtml; input.value = ""; box.scrollTop = box.scrollHeight;
     };
 
@@ -1058,7 +1082,7 @@
       if (staffList.length === 0) return await customPopup('alert', `No active staff found to report.`);
 
       const overlay = document.getElementById('customModalOverlay'); const title = document.getElementById('customModalTitle'); const msg = document.getElementById('customModalMessage'); const input = document.getElementById('customModalInput'); const dropdownList = document.getElementById('customDropdownList'); const buttonContainer = document.getElementById('customModalButtons');
-      input.style.display = "none"; buttonContainer.style.display = "none"; msg.innerHTML = ""; dropdownList.style.display = "block"; title.innerText = "Select Staff to Report"; title.style.color = "#ff4444";
+      input.style.display = "none"; buttonContainer.style.display = "none"; msg.innerHTML = ""; dropdownList.style.display = "block"; title.innerText = "Select Staff to Report"; title.style.color = "#ef4444";
       let html = ""; staffList.forEach(staff => { html += `<div class="dropdown-option-item" onclick="promptStaffReportReason('${staff.value.replace(/'/g, "\\'")}')"><span>${staff.label}</span><div class="radio-circle"></div></div>`; });
       dropdownList.innerHTML = html; overlay.classList.add('show'); history.pushState({ modal: 'reportStaff' }, '');
     };
@@ -1102,12 +1126,12 @@
       if (!confirmAction) return;
       try {
         if (isCurrentlyOpen) {
-          btn.innerText = "🔒 Shop CLOSED"; btn.style.background = "#8c1a1a"; btn.style.borderColor = "#cc2a2a";
+          btn.innerText = "🔒 Shop CLOSED"; btn.style.background = "#991b1b"; btn.style.borderColor = "#ef4444";
           const closeTime = Date.now(); const openTime = parseInt(localStorage.getItem('shopOpenTimestamp')) || closeTime;
           await addDoc(collection(db, "team_chat"), { senderId: auth.currentUser.uid, senderName: currentUserDoc.name + " (Front Desk)", senderRole: "secretary", text: "🔒 The shop is now CLOSED. Generating daily barber sales & work report...", timestamp: closeTime });
           await generateDailyReportAndSend(openTime, closeTime); localStorage.removeItem('shopOpenTimestamp'); sendSystemNotification("SJ'S SALOON", "Shop is now CLOSED. End-of-Day report sent!", 'chatPage'); showToast("Shop closed! Detailed report sent to Owner.");
         } else {
-          btn.innerText = "🔓 Shop OPEN"; btn.style.background = "#28a745"; btn.style.borderColor = "#28a745";
+          btn.innerText = "🔓 Shop OPEN"; btn.style.background = "#16a34a"; btn.style.borderColor = "#22c55e";
           const openTime = Date.now(); localStorage.setItem('shopOpenTimestamp', openTime);
           await addDoc(collection(db, "team_chat"), { senderId: auth.currentUser.uid, senderName: currentUserDoc.name + " (Front Desk)", senderRole: "secretary", text: "🔓 The shop is now OPEN and ready for business!", timestamp: openTime });
           sendSystemNotification("SJ'S SALOON", "Shop is now OPEN for business!", 'chatPage'); showToast("Shop opened! Owner notified.");
@@ -1129,7 +1153,7 @@
       onSnapshot(doc(db, "shop_config", "secretary_status"), (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data(); const btn = document.getElementById('toggleSecAwayBtn');
-          if (btn) { if (data.status === 'away') { btn.innerText = "🔴 I am AWAY"; btn.style.background = "#ff4444"; btn.style.borderColor = "#ff4444"; } else { btn.innerText = "🟢 I am HERE"; btn.style.background = "#1a4b8c"; btn.style.borderColor = "#2a6bcc"; } }
+          if (btn) { if (data.status === 'away') { btn.innerText = "🔴 I am AWAY"; btn.style.background = "#ef4444"; btn.style.borderColor = "#ef4444"; } else { btn.innerText = "🟢 I am HERE"; btn.style.background = "#1e5ab6"; btn.style.borderColor = "#3b82f6"; } }
         }
       });
     }
@@ -1171,18 +1195,15 @@
               currentUserDoc = userDocSnap.data();
               
               if (currentUserDoc.isApproved) { 
-                // Initialize the app fully if not done already
                 if (!isAppInitialized) {
                   isAppInitialized = true;
                   loadAppUI(user, currentUserDoc); 
                 } else {
-                  // If already initialized but stuck on pendingView (just got approved), push them to the dashboard automatically
                   if (currentActiveViewId === 'pendingView') {
                       navigateToView('dashboard');
                       showToast("Your account has been approved!");
                   }
                   
-                  // Minor UI state refreshes that can happen in the background
                   if (currentUserDoc.role === "barber") { updateAvailabilityButtonUI(); updateBusyButtonUI(); }
                   if (currentUserDoc.role !== "owner" && currentUserDoc.profileUpdateRequested) { 
                     document.getElementById('profileUpdateRequestCard').style.display = "block"; 
@@ -1191,7 +1212,6 @@
                   }
                 }
               } else { 
-                // If fired or simply unapproved, push them here
                 navigateToView('pendingView'); 
               }
             }
@@ -1288,7 +1308,7 @@
         snapshot.forEach((docSnap) => {
           const msg = docSnap.data(); const msgId = docSnap.id; const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const isMe = msg.senderId === auth.currentUser.uid; const isOwner = currentUserDoc && currentUserDoc.role === "owner"; const canDelete = isMe || isOwner;
-          html += `<div class="wa-bubble ${isMe ? 'wa-bubble-sent' : 'wa-bubble-recv'}"><div style="font-size: 11px; font-weight: bold; color: ${isMe ? '#111' : 'var(--accent-gold)'}; margin-bottom: 2px;">${msg.senderName} (${msg.senderRole.toUpperCase()})</div><div style="font-size: 14px;">${msg.text}</div><div class="wa-meta"><span>${timeStr}</span>${canDelete ? `<span onclick="deleteChatMessage('${msgId}')" style="color: #ff4444; cursor: pointer; font-weight: bold; text-decoration: underline;">Delete</span>` : ''}</div></div>`;
+          html += `<div class="wa-bubble ${isMe ? 'wa-bubble-sent' : 'wa-bubble-recv'}"><div style="font-size: 11px; font-weight: bold; color: ${isMe ? '#111' : 'var(--accent-gold)'}; margin-bottom: 2px;">${msg.senderName} (${msg.senderRole.toUpperCase()})</div><div style="font-size: 14px;">${msg.text}</div><div class="wa-meta"><span>${timeStr}</span>${canDelete ? `<span onclick="deleteChatMessage('${msgId}')" style="color: #ef4444; cursor: pointer; font-weight: bold; text-decoration: underline;">Delete</span>` : ''}</div></div>`;
         });
         
         if (hasNewMessage && currentActiveViewId !== 'chatPage') {
@@ -1329,7 +1349,7 @@
         
         if (!announcementsInitialized) updateBadge('badgeAnn', unreadAnnCount);
 
-        snapshot.forEach((docSnap) => { const ann = docSnap.data(); const annId = docSnap.id; const dateStr = new Date(ann.timestamp).toLocaleString(); const isOwner = currentUserDoc && currentUserDoc.role === "owner"; html += `<div class="list-item" style="border-left-color: #ffc107;"><div class="ticket-title" style="color: #ffc107;">📢 Announcement</div><div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">${ann.text}</div><div style="font-size: 11px; opacity: 0.7; text-align: right; margin-bottom: ${isOwner ? '10px' : '0'};">Posted by: <strong>${ann.author}</strong> | ${dateStr}</div>${isOwner ? `<button onclick="deleteAnnouncement('${annId}')" style="background: #ff4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 4px; color: white; width: 100%;">Delete Announcement</button>` : ''}</div>`; });
+        snapshot.forEach((docSnap) => { const ann = docSnap.data(); const annId = docSnap.id; const dateStr = new Date(ann.timestamp).toLocaleString(); const isOwner = currentUserDoc && currentUserDoc.role === "owner"; html += `<div class="list-item" style="border-left-color: #eab308;"><div class="ticket-title" style="color: #eab308;">📢 Announcement</div><div class="ticket-details" style="color: var(--text-color); font-size: 15px; margin-top: 5px; margin-bottom: 10px;">${ann.text}</div><div style="font-size: 11px; opacity: 0.7; text-align: right; margin-bottom: ${isOwner ? '10px' : '0'};">Posted by: <strong>${ann.author}</strong> | ${dateStr}</div>${isOwner ? `<button onclick="deleteAnnouncement('${annId}')" style="background: #ef4444; border:none; padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%;">Delete Announcement</button>` : ''}</div>`; });
         
         if (hasNewAnn && currentActiveViewId !== 'announcementsPage') {
           sendSystemNotification("📢 New Shop Announcement", lastAnnText, 'announcementsPage');
@@ -1352,7 +1372,7 @@
 
     function updateAvailabilityButtonUI() {
       const isOff = currentUserDoc && currentUserDoc.isAvailable === false; const btn = document.getElementById('toggleAvailabilityBtn'); if (!btn) return;
-      btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = isOff ? "linear-gradient(145deg, #444, #222)" : "linear-gradient(145deg, #28a745, #145523)"; btn.style.color = "white"; btn.style.borderColor = isOff ? "#555" : "#28a745";
+      btn.innerText = isOff ? "🔴 OFF DUTY (Tap to turn ON)" : "🟢 ON DUTY (Tap to turn OFF)"; btn.style.background = isOff ? "linear-gradient(145deg, #374151, #1f2937)" : "linear-gradient(145deg, #16a34a, #15803d)"; btn.style.color = "white"; btn.style.borderColor = isOff ? "#4b5563" : "#22c55e";
     }
 
     window.toggleBusyStatus = async () => {
@@ -1369,7 +1389,7 @@
 
     function updateBusyButtonUI() {
       const btn = document.getElementById('toggleBusyBtn'); if (!btn) return; const isBusy = currentUserDoc && currentUserDoc.isBusy === true;
-      btn.innerText = isBusy ? "🔴 I'M BUSY (Tap to clear)" : "🟢 I'M NOT BUSY (Tap to mark Busy)"; btn.style.background = isBusy ? "linear-gradient(145deg, #8c1a1a, #420a0a)" : "linear-gradient(145deg, #333, #111)"; btn.style.color = isBusy ? "white" : "var(--accent-gold)"; btn.style.borderColor = isBusy ? "#cc2a2a" : "#555";
+      btn.innerText = isBusy ? "🔴 I'M BUSY (Tap to clear)" : "🟢 I'M NOT BUSY (Tap to mark Busy)"; btn.style.background = isBusy ? "linear-gradient(145deg, #991b1b, #450a0a)" : "linear-gradient(145deg, #27272a, #18181b)"; btn.style.color = isBusy ? "white" : "var(--accent-gold)"; btn.style.borderColor = isBusy ? "#dc2626" : "#52525b";
     }
 
     window.updateTicketStatus = async (ticketId, newStatus) => { try { await updateDoc(doc(db, "daily_tickets", ticketId), { status: newStatus }); if(newStatus === 'completed') showToast("Cut marked as completed!"); if(newStatus === 'cancelled') showToast("Ticket dismissed."); closePickerModal(); } catch (error) { await customPopup('alert', "Action failed: " + error.message); } };
@@ -1381,8 +1401,8 @@
 
     window.openTicketReviewModal = (ticketId) => {
       const t = ticketsMapCache.get(ticketId); if (!t) return; let freeInfoHtml = "";
-      if (t.isFree) { freeInfoHtml = `<p style="margin: 0 0 8px 0; color: #ffc107;">🎁 <b>Free Service Reason:</b> ${t.freeReason || 'None'}</p><p style="margin: 0 0 8px 0; font-size:13px; color: ${t.ownerFreeApproval === 'approved' ? '#28a745' : '#ffc107'};"><b>Owner Approval Status:</b> ${(t.ownerFreeApproval || 'pending').toUpperCase()}</p>`; }
-      const reviewHtml = `<div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6; word-break: break-word;"><p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p><p style="margin: 0 0 8px 0;">👤 <b>Customer Name:</b> ${t.customerName}</p><p style="margin: 0 0 8px 0;">📞 <b>Phone:</b> ${t.customerPhone || 'Not Provided'}</p><p style="margin: 0 0 8px 0;">✂️ <b>Service Requested:</b> ${t.serviceName}</p><p style="margin: 0 0 8px 0; color: #28a745; font-weight: bold; word-break: break-all;">💰 Price: GHS ${t.price.toFixed(2)}</p>${freeInfoHtml}</div><div style="display: flex; gap: 10px; margin-top: 20px;"><button onclick="acceptTicket('${ticketId}')" class="btn-submit" style="flex: 1; background: #28a745; border-color: #28a745;">✅ Accept Cut</button><button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #8c1a1a; color: white; border-color: #cc2a2a;">❌ Deny</button></div>`;
+      if (t.isFree) { freeInfoHtml = `<p style="margin: 0 0 8px 0; color: #eab308;">🎁 <b>Free Service Reason:</b> ${t.freeReason || 'None'}</p><p style="margin: 0 0 8px 0; font-size:13px; color: ${t.ownerFreeApproval === 'approved' ? '#22c55e' : '#eab308'};"><b>Owner Approval Status:</b> ${(t.ownerFreeApproval || 'pending').toUpperCase()}</p>`; }
+      const reviewHtml = `<div style="text-align: left; background: var(--input-bg); padding: 18px; border-radius: 12px; border: 1px solid var(--panel-border); font-size: 15px; line-height: 1.6; word-break: break-word;"><p style="margin: 0 0 8px 0; color: var(--accent-gold); font-weight: bold; font-size: 16px;">🎟️ ${t.ticketNo || 'Ticket'}</p><p style="margin: 0 0 8px 0;">👤 <b>Customer Name:</b> ${t.customerName}</p><p style="margin: 0 0 8px 0;">📞 <b>Phone:</b> ${t.customerPhone || 'Not Provided'}</p><p style="margin: 0 0 8px 0;">✂️ <b>Service Requested:</b> ${t.serviceName}</p><p style="margin: 0 0 8px 0; color: #22c55e; font-weight: bold; word-break: break-all;">💰 Price: GHS ${t.price.toFixed(2)}</p>${freeInfoHtml}</div><div style="display: flex; gap: 10px; margin-top: 20px;"><button onclick="acceptTicket('${ticketId}')" class="btn-submit" style="flex: 1; background: #16a34a; border-color: #22c55e;">✅ Accept Cut</button><button onclick="promptBarberDenyReason('${ticketId}')" style="flex: 1; background: #991b1b; color: white; border-color: #ef4444;">❌ Deny</button></div>`;
       const overlay = document.getElementById('customModalOverlay'); document.getElementById('customModalTitle').innerText = "Review Customer & Service"; document.getElementById('customModalMessage').innerHTML = reviewHtml; document.getElementById('customModalInput').style.display = "none"; document.getElementById('customDropdownList').style.display = "none"; document.getElementById('customModalButtons').style.display = "none"; overlay.classList.add('show'); history.pushState({ modal: 'reviewTicket' }, '');
     };
 
@@ -1423,7 +1443,6 @@
 
       updateCallOwnerButton(); startLiveQueue(); populateIntakeForm(); cacheAllTickets(); startGlobalUpdateListener(); startServicesListener();
       
-      // FIRE ONCE THE APP LOAD IS FULLY COMPLETED
       startChatListener();
       startAnnouncementsListener();
     }
@@ -1474,7 +1493,7 @@
       if (customerKeys.length === 0) { listContainer.innerHTML = "<p style='opacity:0.6; font-style: italic;'>No past customer records available.</p>"; return; }
       customerKeys.forEach(key => {
         const cust = customerMap[key]; cust.visits.sort((a, b) => b.timestamp - a.timestamp); const lastVisit = new Date(cust.visits[0].timestamp).toLocaleDateString(); const hasPhone = cust.phone && cust.phone !== 'Not Provided' && cust.phone.trim() !== '';
-        html += `<div class="list-item clickable-customer"><div onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')"><div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; opacity: 0.7;">(${cust.phone})</span></div><div class="ticket-details" style="margin-bottom: 8px;">Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>Tap to view full service history & report options ➡</div></div>${hasPhone ? `<a href="tel:${cust.phone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 14px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold;">📞 Call Customer</a>` : ''}</div>`;
+        html += `<div class="list-item clickable-customer"><div onclick="openCustomerDetail('${encodeURIComponent(cust.displayName)}')"><div class="ticket-title">👤 ${cust.displayName} <span style="font-size: 12px; opacity: 0.7;">(${cust.phone})</span></div><div class="ticket-details" style="margin-bottom: 8px;">Total Visits: <strong>${cust.visits.length}</strong> | Last Visit: <strong>${lastVisit}</strong><br>Tap to view full service history & report options ➡</div></div>${hasPhone ? `<a href="tel:${cust.phone}" style="display:inline-block; background:#16a34a; color:#fff; padding:6px 14px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold;">📞 Call Customer</a>` : ''}</div>`;
       });
       listContainer.innerHTML = html;
     }
@@ -1484,10 +1503,10 @@
       let ticketsToProcess = allPaidTicketsCache.filter(t => t.customerName && t.customerName.toLowerCase() === customerName.toLowerCase());
       if (currentUserDoc && currentUserDoc.role === "barber") { ticketsToProcess = ticketsToProcess.filter(t => (t.assignedBarberId && t.assignedBarberId === auth.currentUser.uid) || (t.assignedBarber && t.assignedBarber.toLowerCase().includes(currentUserDoc.name.toLowerCase()))); }
       ticketsToProcess.sort((a, b) => b.timestamp - a.timestamp); const phoneNum = ticketsToProcess[0]?.customerPhone || 'Not Provided'; const hasPhone = phoneNum && phoneNum !== 'Not Provided' && phoneNum.trim() !== '';
-      let html = `<h3 style="color: var(--accent-gold); margin-bottom: 5px;">History for: ${customerName}</h3><p style="opacity: 0.8; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>${hasPhone ? `<a href="tel:${phoneNum}" style="display:inline-block; background:#28a745; color:#fff; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:bold; margin-bottom:15px;">📞 Call ${customerName}</a>` : ''}<p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>`;
-      ticketsToProcess.forEach(t => { const dateStr = new Date(t.timestamp).toLocaleString(); html += `<div class="ticket" style="border-left-color: #28a745;"><div class="ticket-details" style="margin-bottom: 5px;">Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)} ${t.isFree ? '(FREE)' : ''}<br>Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || (t.isFree ? 'Free Service' : 'Pending')}</strong><br>Date & Time: ${dateStr}<br>Ticket Status: <span style="color: #ffc107;">${t.status.toUpperCase()}</span></div></div>`; });
+      let html = `<h3 style="color: var(--accent-gold); margin-bottom: 5px;">History for: ${customerName}</h3><p style="opacity: 0.8; font-size: 13px; margin-bottom: 5px;">Phone: <strong>${phoneNum}</strong></p>${hasPhone ? `<a href="tel:${phoneNum}" style="display:inline-block; background:#16a34a; color:#fff; padding:8px 16px; border-radius:8px; text-decoration:none; font-size:14px; font-weight:bold; margin-bottom:15px;">📞 Call ${customerName}</a>` : ''}<p style="opacity: 0.8; font-size: 13px; margin-bottom: 20px;">Total Recorded Visits: ${ticketsToProcess.length}</p>`;
+      ticketsToProcess.forEach(t => { const dateStr = new Date(t.timestamp).toLocaleString(); html += `<div class="ticket" style="border-left-color: #16a34a;"><div class="ticket-details" style="margin-bottom: 5px;">Service: <strong>${t.serviceName}</strong> - GHS ${t.price.toFixed(2)} ${t.isFree ? '(FREE)' : ''}<br>Barber: <strong>${t.assignedBarber}</strong> | Payment: <strong>${t.paymentMethod || (t.isFree ? 'Free Service' : 'Pending')}</strong><br>Date & Time: ${dateStr}<br>Ticket Status: <span style="color: #eab308;">${t.status.toUpperCase()}</span></div></div>`; });
       const encoded = encodeURIComponent(customerName);
-      if (currentUserDoc && currentUserDoc.role === "owner") { html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'instant')">Blacklist ${customerName} Instantly</button>`; } else { html += `<button class="btn-action" style="background: #ff4444; border-color: #ff4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'report')">Report ${customerName} for Blacklist</button>`; }
+      if (currentUserDoc && currentUserDoc.role === "owner") { html += `<button class="btn-action" style="background: #ef4444; border-color: #ef4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'instant')">Blacklist ${customerName} Instantly</button>`; } else { html += `<button class="btn-action" style="background: #ef4444; border-color: #ef4444; margin-top: 20px;" onclick="openBlacklistUI('${encoded}', 'report')">Report ${customerName} for Blacklist</button>`; }
       document.getElementById('customerDetailContent').innerHTML = html;
     };
 
@@ -1511,7 +1530,7 @@
     function startServicesListener() {
       onSnapshot(collection(db, "services"), (snapshot) => { 
         let html = ""; cachedServicesList = []; 
-        snapshot.forEach((sDoc) => { const s = sDoc.data(); cachedServicesList.push({ id: sDoc.id, ...s }); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px;"><span style="color: var(--text-color); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.name} - GHS ${s.price} ${s.price === 0 ? '(FREE)' : ''}</span><div style="display: flex; gap: 8px; flex-shrink: 0;"><button onclick="editService('${sDoc.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})" style="background: #4285F4; border:none; padding: 5px 12px; font-size: 12px; border-radius: 4px; color: white;">Edit</button><button onclick="deleteService('${sDoc.id}')" style="background: #ff4444; border:none; padding: 5px 12px; font-size: 12px; border-radius: 4px; color: white;">Delete</button></div></div>`; }); 
+        snapshot.forEach((sDoc) => { const s = sDoc.data(); cachedServicesList.push({ id: sDoc.id, ...s }); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px;"><span style="color: var(--text-color); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.name} - GHS ${s.price} ${s.price === 0 ? '(FREE)' : ''}</span><div style="display: flex; gap: 8px; flex-shrink: 0;"><button onclick="editService('${sDoc.id}', '${s.name.replace(/'/g, "\\'")}', ${s.price})" style="background: #3b82f6; border:none; padding: 5px 12px; font-size: 12px; border-radius: 6px; color: white;">Edit</button><button onclick="deleteService('${sDoc.id}')" style="background: #ef4444; border:none; padding: 5px 12px; font-size: 12px; border-radius: 6px; color: white;">Delete</button></div></div>`; }); 
         const servicesListEl = document.getElementById('servicesList'); if (servicesListEl) servicesListEl.innerHTML = html; renderSecretaryMultiServiceList();
       });
     }
@@ -1526,15 +1545,15 @@
           
           if (!u.isApproved) { 
             pendingStaffCount++;
-            approvalHtml += `<div class="list-item" style="border-left-color: #ffc107;"><div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info"><img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 50px; height: 50px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;"><div><div class="ticket-title">${u.name} <span style="font-size: 11px; color: #ffc107;">[ID: ${u.staffId || 'N/A'}] 👁️ View Info</span></div><div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div><div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div></div></div><div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1;" onclick="approveUser('${uid}')">Approve</button><button class="btn-action" style="flex: 1; background: #ff4444; border-color: #ff4444; color: white;" onclick="denyUser('${uid}')">Deny / Dismiss</button></div></div>`; 
+            approvalHtml += `<div class="list-item" style="border-left-color: #eab308;"><div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view full staff info"><img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 50px; height: 50px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;"><div><div class="ticket-title">${u.name} <span style="font-size: 11px; color: #eab308;">[ID: ${u.staffId || 'N/A'}] 👁️ View Info</span></div><div class="ticket-details" style="margin-bottom: 2px;">Role: <strong>${u.role.toUpperCase()}</strong> | Country: <strong>${u.country || 'N/A'}</strong></div><div class="ticket-details" style="margin-bottom: 0; color: var(--accent-gold);">ID: ${u.idType || 'ID'} (${u.idNumber || 'N/A'})</div></div></div><div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1;" onclick="approveUser('${uid}')">Approve</button><button class="btn-action" style="flex: 1; background: #ef4444; border-color: #ef4444; color: white;" onclick="denyUser('${uid}')">Deny / Dismiss</button></div></div>`; 
           } 
           else if (u.pendingUpdates) { 
             pendingStaffCount++;
             const p = u.pendingUpdates; const updateStaffObj = encodeURIComponent(JSON.stringify({ ...u, name: p.name, country: p.country, idType: p.idType, idNumber: p.idNumber, photoURL: p.photoURL || u.photoURL })); 
-            approvalHtml += `<div class="list-item" style="border-left-color: #4285F4;"><div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info"><div class="ticket-title" style="color: #4285F4;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #4285F4;">👁️ Review Info</span></div><div class="ticket-details" style="margin-bottom: 10px;">New Name: <strong>${p.name}</strong><br>New Country: <strong>${p.country}</strong><br>New ID: <strong>${p.idType}</strong> (${p.idNumber})</div></div><div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: #4285F4; border-color: #4285F4;" onclick="approveProfileUpdate('${uid}')">Approve</button><button class="btn-action" style="flex: 1; background: #ff4444; border-color: #ff4444; color: white;" onclick="denyProfileUpdate('${uid}')">Deny / Dismiss</button></div></div>`; 
+            approvalHtml += `<div class="list-item" style="border-left-color: #3b82f6;"><div style="cursor: pointer;" onclick="viewStaffSubmissionDetails('${updateStaffObj}')" title="Click to view full staff update info"><div class="ticket-title" style="color: #3b82f6;">✏️ Profile Update Request: ${u.name} <span style="font-size: 11px; color: #3b82f6;">👁️ Review Info</span></div><div class="ticket-details" style="margin-bottom: 10px;">New Name: <strong>${p.name}</strong><br>New Country: <strong>${p.country}</strong><br>New ID: <strong>${p.idType}</strong> (${p.idNumber})</div></div><div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: #3b82f6; border-color: #3b82f6;" onclick="approveProfileUpdate('${uid}')">Approve</button><button class="btn-action" style="flex: 1; background: #ef4444; border-color: #ef4444; color: white;" onclick="denyProfileUpdate('${uid}')">Deny / Dismiss</button></div></div>`; 
           }
           if (u.isApproved && u.role !== "owner") { 
-            activeHtml += `<div class="list-item" style="border-left-color: #28a745;"><div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 40px; height: 40px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;"><div style="min-width: 0;"><strong style="color: var(--text-color); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.name}</strong> <span style="font-size: 10px; color: var(--accent-gold);">ID: ${u.staffId || 'N/A'}</span> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} ${u.profileUpdateRequested ? '⚠️ (Update Pending)' : ''}</span></div></div></div><div style="display: flex; gap: 8px;"><button onclick="requestProfileUpdateFromStaff('${uid}', '${u.name.replace(/'/g, "\\'")}')" style="flex: 1; background: #4285F4; border:none; padding: 8px; font-size: 12px; border-radius: 6px; color: white; font-weight: bold;">📝 Request Profile Update</button><button onclick="fireStaff('${uid}')" style="background: #ff4444; border:none; padding: 8px 12px; font-size: 12px; border-radius: 6px; color: white; font-weight: bold;">Fire / Remove</button></div></div>`; 
+            activeHtml += `<div class="list-item" style="border-left-color: #16a34a;"><div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px;"><div style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0;" onclick="viewStaffSubmissionDetails('${encodedStaff}')" title="Click to view staff info"><img src="${u.photoURL || window.DEFAULT_AVATAR}" onerror="this.onerror=null; this.src=window.DEFAULT_AVATAR;" style="width: 40px; height: 40px; margin: 0; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--accent-gold); object-fit: cover;"><div style="min-width: 0;"><strong style="color: var(--text-color); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${u.name}</strong> <span style="font-size: 10px; color: var(--accent-gold);">ID: ${u.staffId || 'N/A'}</span> 👁️<br><span style="font-size: 11px; opacity: 0.7;">Role: ${u.role.toUpperCase()} ${u.profileUpdateRequested ? '⚠️ (Update Pending)' : ''}</span></div></div></div><div style="display: flex; gap: 8px;"><button onclick="requestProfileUpdateFromStaff('${uid}', '${u.name.replace(/'/g, "\\'")}')" style="flex: 1; background: #3b82f6; border:none; padding: 8px; font-size: 12px; border-radius: 6px; color: white; font-weight: bold;">📝 Request Profile Update</button><button onclick="fireStaff('${uid}')" style="background: #ef4444; border:none; padding: 8px 12px; font-size: 12px; border-radius: 6px; color: white; font-weight: bold;">Fire / Remove</button></div></div>`; 
           }
         });
         document.getElementById('approvalList').innerHTML = approvalHtml === "" ? "<p style='opacity:0.6;'>No pending approvals or updates.</p>" : approvalHtml; 
@@ -1543,10 +1562,10 @@
         if (currentActiveViewId !== 'ownerStaffPage') { updateBadge('badgeStaff', pendingStaffCount); } else { updateBadge('badgeStaff', 0); }
       });
 
-      onSnapshot(collection(db, "staff_reports"), (snapshot) => { let html = ""; snapshot.forEach((docSnap) => { const r = docSnap.data(); const dateStr = new Date(r.timestamp).toLocaleString(); html += `<div class="list-item" style="border-left-color: #ff4444;"><div class="ticket-title" style="color: #ff4444;">Reported Staff: ${r.staffName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy} (${r.reporterRole})</strong><br>Reason: <em>"${r.reason}"</em><br>Date: ${dateStr}</div><button class="btn-action" style="background: #333; color: #fff; border: 1px solid #555;" onclick="deleteStaffReport('${docSnap.id}')">Dismiss Report</button></div>`; }); document.getElementById('staffReportsList').innerHTML = html === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No staff reports submitted.</p>" : html; });
-      onSnapshot(collection(db, "blacklist_reports"), (snapshot) => { let pendingReportCount = snapshot.size; if (currentActiveViewId !== 'ownerBlacklistPage') { updateBadge('badgeBlacklist', pendingReportCount); } else { updateBadge('badgeBlacklist', 0); } let html = ""; snapshot.forEach((rDoc) => { const r = rDoc.data(); const dateStr = new Date(r.timestamp).toLocaleString(); html += `<div class="list-item" style="border-left-color: #ff4444;"><div class="ticket-title" style="color: #ff4444;">Customer: ${r.customerName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy}</strong><br>Feedback / Reason: <em>"${r.feedback}"</em><br>Date: ${dateStr}</div><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="confirmBlacklistFromReport('${rDoc.id}', '${r.customerName}')">Confirm & Add to Blacklist</button></div>`; }); document.getElementById('reportsList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No pending blacklist reports.</p>" : html; });
+      onSnapshot(collection(db, "staff_reports"), (snapshot) => { let html = ""; snapshot.forEach((docSnap) => { const r = docSnap.data(); const dateStr = new Date(r.timestamp).toLocaleString(); html += `<div class="list-item" style="border-left-color: #ef4444;"><div class="ticket-title" style="color: #ef4444;">Reported Staff: ${r.staffName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy} (${r.reporterRole})</strong><br>Reason: <em>"${r.reason}"</em><br>Date: ${dateStr}</div><button class="btn-action" style="background: #374151; color: #fff; border: 1px solid #4b5563;" onclick="deleteStaffReport('${docSnap.id}')">Dismiss Report</button></div>`; }); document.getElementById('staffReportsList').innerHTML = html === "" ? "<p style='opacity: 0.6; font-style: italic; font-size: 13px;'>No staff reports submitted.</p>" : html; });
+      onSnapshot(collection(db, "blacklist_reports"), (snapshot) => { let pendingReportCount = snapshot.size; if (currentActiveViewId !== 'ownerBlacklistPage') { updateBadge('badgeBlacklist', pendingReportCount); } else { updateBadge('badgeBlacklist', 0); } let html = ""; snapshot.forEach((rDoc) => { const r = rDoc.data(); const dateStr = new Date(r.timestamp).toLocaleString(); html += `<div class="list-item" style="border-left-color: #ef4444;"><div class="ticket-title" style="color: #ef4444;">Customer: ${r.customerName}</div><div class="ticket-details">Reported By: <strong>${r.reportedBy}</strong><br>Feedback / Reason: <em>"${r.feedback}"</em><br>Date: ${dateStr}</div><button class="btn-action btn-submit" style="background: #ef4444; border-color: #ef4444;" onclick="confirmBlacklistFromReport('${rDoc.id}', '${r.customerName}')">Confirm & Add to Blacklist</button></div>`; }); document.getElementById('reportsList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No pending blacklist reports.</p>" : html; });
       document.getElementById('addServiceBtn').addEventListener('click', async () => { const name = document.getElementById('newServiceName').value.trim(); const price = document.getElementById('newServicePrice').value; if (!name || price === "") return await customPopup('alert', "Enter both name and price (use 0 for free service)."); await addDoc(collection(db, "services"), { name, price: Number(price) }); document.getElementById('newServiceName').value = ""; document.getElementById('newServicePrice').value = ""; showToast("Service added successfully!"); });
-      onSnapshot(collection(db, "blacklist"), (snapshot) => { let html = ""; snapshot.forEach((bDoc) => { const b = bDoc.data(); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-left-color: #ff4444;"><span style="color: #ff4444; font-weight: bold; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #333; border:none; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: white; flex-shrink: 0;">Unblock</button></div>`; }); document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html; });
+      onSnapshot(collection(db, "blacklist"), (snapshot) => { let html = ""; snapshot.forEach((bDoc) => { const b = bDoc.data(); html += `<div class="list-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-left-color: #ef4444;"><span style="color: #ef4444; font-weight: bold; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🚫 ${b.name.toUpperCase()} <span style="font-size:11px; opacity:0.7; font-weight:normal;">(${b.reason || 'No reason provided'})</span></span><button onclick="removeBlacklist('${bDoc.id}')" style="background: #374151; border:none; padding: 5px 10px; font-size: 12px; border-radius: 6px; color: white; flex-shrink: 0;">Unblock</button></div>`; }); document.getElementById('blacklistList').innerHTML = html === "" ? "<p style='opacity:0.6;'>No blacklisted customers.</p>" : html; });
     }
 
     window.requestProfileUpdateFromStaff = async (uid, staffName) => { const confirmAction = await customPopup('confirm', `Request <strong>${staffName}</strong> to update their profile and ID credentials?`); if (!confirmAction) return; try { await updateDoc(doc(db, "users", uid), { profileUpdateRequested: true }); sendSystemNotification("SJ'S SALOON", `Owner requested ${staffName} to update profile details.`, 'ownerStaffPage'); showToast(`Profile update requested for ${staffName}!`); } catch(err) { await customPopup('alert', "Error sending request: " + err.message); } };
@@ -1565,7 +1584,7 @@
       const container = document.getElementById('secretaryServicesContainer'); if (!container) return;
       if (cachedServicesList.length === 0) { container.innerHTML = "<p style='opacity: 0.6; font-style: italic; font-size: 13px; margin: 0;'>No services found in shop settings.</p>"; updateCalculatedTotal(); return; }
       let html = "";
-      cachedServicesList.forEach((s) => { const cleanName = String(s.name).replace(/"/g, '&quot;'); html += `<label style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; margin-bottom: 6px; background: var(--panel-bg); border-radius: 6px; cursor: pointer; border: 1px solid var(--panel-border);"><div style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" class="sec-service-checkbox" data-name="${cleanName}" data-price="${s.price}" style="width: 18px; height: 18px; accent-color: var(--accent-gold);"><span style="font-size: 14px; font-weight: bold; color: var(--text-color);">${s.name} ${s.price === 0 ? '(FREE)' : ''}</span></div><span style="font-size: 14px; font-weight: bold; color: var(--accent-gold);">GHS ${Number(s.price).toFixed(2)}</span></label>`; });
+      cachedServicesList.forEach((s) => { const cleanName = String(s.name).replace(/"/g, '&quot;'); html += `<label style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; margin-bottom: 6px; background: var(--card-bg); border-radius: 8px; cursor: pointer; border: 1px solid var(--panel-border);"><div style="display: flex; align-items: center; gap: 10px;"><input type="checkbox" class="sec-service-checkbox" data-name="${cleanName}" data-price="${s.price}" style="width: 18px; height: 18px; accent-color: var(--accent-gold);"><span style="font-size: 14px; font-weight: bold; color: var(--text-color);">${s.name} ${s.price === 0 ? '(FREE)' : ''}</span></div><span style="font-size: 14px; font-weight: bold; color: var(--accent-gold);">GHS ${Number(s.price).toFixed(2)}</span></label>`; });
       container.innerHTML = html; const checkboxes = container.querySelectorAll('.sec-service-checkbox'); checkboxes.forEach(box => { box.addEventListener('change', updateCalculatedTotal); }); updateCalculatedTotal();
     }
     window.updateCalculatedTotal = () => { const checkboxes = document.querySelectorAll('.sec-service-checkbox'); let total = 0; checkboxes.forEach(cb => { if (cb.checked) { total += parseFloat(cb.getAttribute('data-price') || 0); } }); const display = document.getElementById('intakeCalculatedTotal'); if (display) display.innerText = total.toFixed(2); };
@@ -1633,23 +1652,23 @@
 
           if (isBarber && !isAssignedToMe) return;
 
-          if ((ticket.status === "denied" || ticket.status === "pending_denial") && ticket.timestamp >= startOfToday) { const timeStr = new Date(ticket.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); dailyDeniedHtml += `<div class="list-item" style="border-left-color: #ff4444; margin-bottom: 10px; padding: 12px;"><div style="font-size: 14px; font-weight: bold; color: #ff4444; word-break: break-word;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div><div style="font-size: 13px; opacity: 0.8; margin-top: 4px; word-break: break-word;">Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>Status: <strong>${ticket.status.toUpperCase().replace('_', ' ')}</strong><br>Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason'}"</em><br><span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span></div></div>`; }
+          if ((ticket.status === "denied" || ticket.status === "pending_denial") && ticket.timestamp >= startOfToday) { const timeStr = new Date(ticket.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); dailyDeniedHtml += `<div class="list-item" style="border-left-color: #ef4444; margin-bottom: 10px; padding: 12px;"><div style="font-size: 14px; font-weight: bold; color: #ef4444; word-break: break-word;">Ticket: ${ticket.ticketNo || '--'} | ${ticket.customerName}</div><div style="font-size: 13px; opacity: 0.8; margin-top: 4px; word-break: break-word;">Assigned Barber: <strong>${ticket.assignedBarber}</strong><br>Status: <strong>${ticket.status.toUpperCase().replace('_', ' ')}</strong><br>Reason for Denial: <em style="color: var(--text-color);">"${ticket.denyReason || 'No reason'}"</em><br><span style="font-size: 11px; opacity: 0.6;">Time: ${timeStr}</span></div></div>`; }
           if (ticket.status === "pending_acceptance" || ticket.status === "in_progress" || ticket.status === "completed" || ticket.status === "pending_denial") { activeQueueCount++; }
 
           if (ticket.status !== "paid" && ticket.status !== "cancelled") {
-            let actionButton = ""; let statusColor = "#ffc107"; 
+            let actionButton = ""; let statusColor = "#eab308"; 
             if (!isOwner) {
-              if (ticket.status === "pending_acceptance" && isBarber && isAssignedToMe) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #28a745, #145523); border-color: #28a745;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #8c1a1a, #420a0a); color: white; border-color: #cc2a2a;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
-              else if (ticket.status === "in_progress" && (isBarber && isAssignedToMe)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #555, #333); border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
-              else if (ticket.status === "completed" && isSec) { if (ticket.isFree) { statusColor = "#ffc107"; actionButton = ""; } else { const safeCustName = (ticket.customerName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); const safeServiceName = (ticket.serviceName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${safeCustName}', '${safeServiceName}', ${ticket.price})">COLLECT PAYMENT</button>`; } }
-              else if (ticket.status === "pending_denial" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"><button class="btn-action btn-submit" style="background: #1a4b8c; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button><button class="btn-action btn-submit" style="background: #ff4444; border-color: #ff4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button></div>`; }
-              else if (ticket.status === "denied" && isSec) { statusColor = "#ff4444"; actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1a4b8c, #0a2342); color: white; border-color: #2a6bcc;" onclick="openReassignModal('${ticketId}')">Assign Again</button><button class="btn-action" style="flex: 1; background: #444; color: #fff; border-color: #666;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button></div>`; }
+              if (ticket.status === "pending_acceptance" && isBarber && isAssignedToMe) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-submit" style="flex: 1; background: linear-gradient(145deg, #16a34a, #15803d); border-color: #22c55e;" onclick="acceptTicket('${ticketId}')">ACCEPT</button><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #991b1b, #450a0a); color: white; border-color: #ef4444;" onclick="promptBarberDenyReason('${ticketId}')">DENY</button></div>`; }
+              else if (ticket.status === "in_progress" && (isBarber && isAssignedToMe)) { actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action btn-finish" style="flex: 1; background: linear-gradient(145deg, #4b5563, #374151); border-color: #6b7280;" onclick="updateTicketStatus('${ticketId}', 'completed')">FINISH CUT</button></div>`; } 
+              else if (ticket.status === "completed" && isSec) { if (ticket.isFree) { statusColor = "#eab308"; actionButton = ""; } else { const safeCustName = (ticket.customerName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); const safeServiceName = (ticket.serviceName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); actionButton = `<button class="btn-action btn-pay" onclick="openPaymentPage('${ticketId}', '${safeCustName}', '${safeServiceName}', ${ticket.price})">COLLECT PAYMENT</button>`; } }
+              else if (ticket.status === "pending_denial" && isSec) { statusColor = "#ef4444"; actionButton = `<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;"><button class="btn-action btn-submit" style="background: #1e5ab6; border-color: #3b82f6;" onclick="openReassignModal('${ticketId}')">Assign Again (Same/Different Barber)</button><button class="btn-action btn-submit" style="background: #ef4444; border-color: #ef4444;" onclick="approveDenial('${ticketId}')">Approve Denial & Record</button></div>`; }
+              else if (ticket.status === "denied" && isSec) { statusColor = "#ef4444"; actionButton = `<div style="display: flex; gap: 8px;"><button class="btn-action" style="flex: 1; background: linear-gradient(145deg, #1e5ab6, #0d3275); color: white; border-color: #3b82f6;" onclick="openReassignModal('${ticketId}')">Assign Again</button><button class="btn-action" style="flex: 1; background: #374151; color: #fff; border-color: #4b5563;" onclick="updateTicketStatus('${ticketId}', 'cancelled')">Dismiss</button></div>`; }
             } else {
-              if (ticket.isFree && ticket.ownerFreeApproval === 'pending') { actionButton = `<div style="background: rgba(255,193,7,0.15); padding: 10px; border-radius: 6px; border: 1px solid #ffc107; margin-top:5px; word-break: break-word;"><p style="margin:0 0 5px 0; font-size:12px; color:#ffc107;">🎁 Free Reason: "${ticket.freeReason || 'None'}" (${ticket.status === 'completed' ? 'Completed by Barber' : 'In Progress'})</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#28a745; border-color:#28a745; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ff4444; border-color:#ff4444; font-size:12px;" onclick="forcePaymentService('${ticketId}')">Customer/Secretary must pay</button></div></div>`; }
+              if (ticket.isFree && ticket.ownerFreeApproval === 'pending') { actionButton = `<div style="background: rgba(234,179,8,0.15); padding: 12px; border-radius: 8px; border: 1px solid #eab308; margin-top:5px; word-break: break-word;"><p style="margin:0 0 6px 0; font-size:12px; color:#eab308; font-weight: bold;">🎁 Free Reason: "${ticket.freeReason || 'None'}" (${ticket.status === 'completed' ? 'Completed by Barber' : 'In Progress'})</p><div style="display:flex; gap:6px;"><button class="btn-action" style="background:#16a34a; border-color:#22c55e; font-size:12px;" onclick="approveFreeService('${ticketId}')">Approve Free</button><button class="btn-action" style="background:#ef4444; border-color:#ef4444; font-size:12px;" onclick="forcePaymentService('${ticketId}')">Customer/Secretary must pay</button></div></div>`; }
             }
 
             const hasPhone = ticket.customerPhone && ticket.customerPhone !== 'Not Provided' && ticket.customerPhone.trim() !== ''; const isClickableForBarber = (ticket.status === "pending_acceptance" && isBarber && isAssignedToMe);
-            html += `<div class="ticket" style="${ticket.status === 'pending_denial' || ticket.status === 'denied' ? 'border-left-color: #ff4444;' : ticket.isFree ? 'border-left-color: #ffc107;' : ''}"><div ${isClickableForBarber ? `onclick="openTicketReviewModal('${ticketId}')"` : ''} style="${isClickableForBarber ? 'cursor: pointer;' : ''}"><div class="ticket-header"><span class="ticket-number">${ticket.ticketNo || '--'}</span><span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.isFree && ticket.status === 'completed' ? 'COMPLETED (FREE)' : ticket.isFree ? 'FREE SERVICE' : ticket.status.toUpperCase().replace('_', ' ')}</span></div><div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div><div class="ticket-details" style="margin-bottom: 10px;">${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} ${ticket.isFree ? '(FREE)' : ''} <br>Assigned to: <strong>${ticket.assignedBarber}</strong>${ticket.isFree ? `<br><span style="color:#ffc107;">Reason: "${ticket.freeReason}"</span>` : ''}${ticket.status === 'pending_acceptance' && isBarber && isAssignedToMe ? '<br><span style="color: var(--accent-gold); font-weight: bold;">🔍 Tap here to review details & accept/deny</span>' : ''}${ticket.denyReason ? `<br><span style="color: #ff4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}</div></div>${hasPhone && !isOwner ? `<a href="tel:${ticket.customerPhone}" style="display:inline-block; background:#28a745; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold; margin-bottom:8px;">📞 Call Customer</a>` : ''}${actionButton}</div>`;
+            html += `<div class="ticket" style="${ticket.status === 'pending_denial' || ticket.status === 'denied' ? 'border-left-color: #ef4444;' : ticket.isFree ? 'border-left-color: #eab308;' : ''}"><div ${isClickableForBarber ? `onclick="openTicketReviewModal('${ticketId}')"` : ''} style="${isClickableForBarber ? 'cursor: pointer;' : ''}"><div class="ticket-header"><span class="ticket-number">${ticket.ticketNo || '--'}</span><span class="status-badge" style="background: ${statusColor}; color: ${ticket.status === 'pending_denial' || ticket.status === 'denied' ? '#fff' : '#111'};">${ticket.isFree && ticket.status === 'completed' ? 'COMPLETED (FREE)' : ticket.isFree ? 'FREE SERVICE' : ticket.status.toUpperCase().replace('_', ' ')}</span></div><div class="ticket-title">${ticket.customerName} <span style="font-size: 12px; opacity: 0.7;">(${ticket.customerPhone || 'No Phone'})</span></div><div class="ticket-details" style="margin-bottom: 10px;">${ticket.serviceName} - GHS ${ticket.price.toFixed(2)} ${ticket.isFree ? '(FREE)' : ''} <br>Assigned to: <strong>${ticket.assignedBarber}</strong>${ticket.isFree ? `<br><span style="color:#eab308;">Reason: "${ticket.freeReason}"</span>` : ''}${ticket.status === 'pending_acceptance' && isBarber && isAssignedToMe ? '<br><span style="color: var(--accent-gold); font-weight: bold;">🔍 Tap here to review details & accept/deny</span>' : ''}${ticket.denyReason ? `<br><span style="color: #ef4444; font-weight: bold;">Denial Reason: "${ticket.denyReason}"</span>` : ''}</div></div>${hasPhone && !isOwner ? `<a href="tel:${ticket.customerPhone}" style="display:inline-block; background:#16a34a; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:bold; margin-bottom:8px;">📞 Call Customer</a>` : ''}${actionButton}</div>`;
           }
         });
         
