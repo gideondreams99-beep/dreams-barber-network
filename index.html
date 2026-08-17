@@ -229,7 +229,7 @@
   </div>
 
   <div id="appViewContainer">
-    <!-- Sign In / Login Welcome View with Added Copyright Tag -->
+    <!-- Rest of UI remains unchanged, preserving all modals, boxes, and views -->
     <div id="loginWelcomeView" class="login-welcome-box" style="display: none;">
       <div class="jumping-logo-container">
         <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px; color: var(--accent-gold);">SJ'S SALOON</h1>
@@ -251,6 +251,8 @@
       <button id="welcomeInstallBtn" onclick="triggerInstall()" style="width: 100%; padding: 14px; font-size: 14px; background: linear-gradient(145deg, #28a745, #145523); color: white; border-color: #28a745; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px;">
         📲 Install App on Device
       </button>
+
+      <!-- Copyright Tag added inside the sign-in / welcome page box -->
       <div style="margin-top: 25px; text-align: center; font-size: 10px; opacity: 0.6; border-top: 1px solid var(--panel-border); padding-top: 16px; letter-spacing: 1.5px; text-transform: uppercase; font-family: inherit;">
         &copy; 2026 <strong style="color: var(--accent-gold);">SJ'S SALOON Group Inc.</strong><br><span style="font-size: 9px; opacity: 0.75; letter-spacing: 1px; display: inline-block; margin-top: 4px;">All Rights Reserved</span>
       </div>
@@ -444,11 +446,6 @@
     <div id="settingsPage" class="panel" style="border-color: var(--accent-gold);">
       <button onclick="backToDashboard()" style="margin-bottom: 20px; background: #444; border:none; color:#fff; padding: 10px 20px; border-radius:6px; font-size: 14px;">⬅ Back to Dashboard</button>
       <h3 id="settingsPageHeading" style="color: var(--accent-gold);">Settings</h3>
-      
-      <div id="ownerUpdateBroadcastBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid #4285F4; margin-bottom: 20px;">
-        <h4 style="color: #4285F4; margin-top: 0;">🚀 Broadcast App Update to Everyone</h4>
-        <button onclick="broadcastGlobalUpdate()" class="btn-submit" style="background: #4285F4; border-color: #4285F4;">Broadcast Update Alert</button>
-      </div>
 
       <div id="ownerPaymentSettingsBox" style="display: none; background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-gold); margin-bottom: 20px; text-align: left;">
         <h4 style="color: var(--accent-gold); margin-top: 0;">💳 Digital Payment & Owner Contact</h4>
@@ -746,10 +743,9 @@
             const newWorker = reg.installing;
             newWorker.addEventListener('statechange', async () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                if (localStorage.getItem('sw_update_prompted')) return;
-                localStorage.setItem('sw_update_prompted', 'true');
                 if (currentActiveViewId) localStorage.setItem('pre_update_view', currentActiveViewId);
-                await customPopup('alert', "📲 <b>New Version Ready!</b><br><br>The app has downloaded new updates. Tap <b>OK</b> to restart and apply.");
+                if ('caches' in window) { try { const cacheKeys = await caches.keys(); await Promise.all(cacheKeys.map(key => caches.delete(key))); } catch(e) {} }
+                if ('serviceWorker' in navigator) { const registrations = await navigator.serviceWorker.getRegistrations(); for (let registration of registrations) { await registration.unregister(); } }
                 window.location.reload(true);
               }
             });
@@ -866,27 +862,14 @@
     let selectedIntakeBarberId = ""; let selectedIntakeBarberName = ""; 
     let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
 
+    // Automatic background version check & refresh (no manual broadcast button)
     function startGlobalUpdateListener() {
       onSnapshot(doc(db, "shop_config", "app_version"), async (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           const serverVersion = data.version;
-          const releaseNotes = data.notes || "Performance improvements, enhanced notification handling, and general fixes.";
-          const hasPrompted = localStorage.getItem('prompted_ver_' + serverVersion);
-
-          if (serverVersion && serverVersion !== CURRENT_APP_VERSION && !hasPrompted) {
-            localStorage.setItem('prompted_ver_' + serverVersion, 'true');
+          if (serverVersion && serverVersion !== CURRENT_APP_VERSION) {
             if (currentActiveViewId) { localStorage.setItem('pre_update_view', currentActiveViewId); }
-            sendSystemNotification("🚀 SJ'S SALOON Update", `Version ${serverVersion} is now available!`, 'dashboard');
-            
-            await customPopup(
-              'alert', 
-              `🚀 <b>New App Update Available! (v${serverVersion})</b><br><br>` +
-              `<b>What's New in this Update:</b><br>` +
-              `<div style="background:var(--input-bg); padding:10px; border-radius:8px; border:1px solid var(--panel-border); font-size:13px; text-align:left; margin-top:8px; margin-bottom:12px;">${releaseNotes}</div>` +
-              `Tap <b>OK</b> to update and restart the app automatically now.`
-            );
-
             if ('caches' in window) { try { const cacheKeys = await caches.keys(); await Promise.all(cacheKeys.map(key => caches.delete(key))); } catch(e) {} }
             if ('serviceWorker' in navigator) { const registrations = await navigator.serviceWorker.getRegistrations(); for (let registration of registrations) { await registration.unregister(); } }
             window.location.reload(true);
@@ -894,18 +877,6 @@
         }
       });
     }
-
-    window.broadcastGlobalUpdate = async () => {
-      const newVersionStr = await customPopup('prompt', "Enter New Version Number to broadcast:", "e.g. 1.0.7");
-      if (!newVersionStr || !newVersionStr.trim()) return;
-      const releaseNotes = await customPopup('prompt', "Enter Release Notes / Details for this Update:", "e.g. Added unread notification badges...");
-      if (releaseNotes === null) return;
-
-      try {
-        await setDoc(doc(db, "shop_config", "app_version"), { version: newVersionStr.trim(), notes: releaseNotes.trim() || "General performance enhancements and bug fixes.", updatedAt: new Date().getTime(), updatedBy: currentUserDoc.name }, { merge: true });
-        showToast("Update broadcast sent to all online devices!");
-      } catch(err) { await customPopup('alert', "Error broadcasting update: " + err.message); }
-    };
 
     let activePopupResolve = null;
     window.customPopup = function(type, message, placeholder = "Enter details...") {
@@ -1041,9 +1012,9 @@
     window.openSettingsPage = () => {
       const staffReportContainer = document.getElementById('staffReportContainer'); const reportTitle = document.getElementById('reportSectionTitle'); const reportBtn = document.getElementById('openReportStaffBtn');
       if (currentUserDoc && currentUserDoc.role === "owner") { 
-        document.getElementById('ownerDangerZoneBox').style.display = "block"; document.getElementById('ownerPaymentSettingsBox').style.display = "block"; document.getElementById('ownerUpdateBroadcastBox').style.display = "block"; document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name; document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number; document.getElementById('ownerDirectPhoneSet').value = shopPaymentConfig.ownerPhone || ""; document.getElementById('settingsPageHeading').innerText = "Settings & Payment"; staffReportContainer.style.display = "none";
+        document.getElementById('ownerDangerZoneBox').style.display = "block"; document.getElementById('ownerPaymentSettingsBox').style.display = "block"; document.getElementById('ownerMomoNameSet').value = shopPaymentConfig.name; document.getElementById('ownerMomoNumberSet').value = shopPaymentConfig.number; document.getElementById('ownerDirectPhoneSet').value = shopPaymentConfig.ownerPhone || ""; document.getElementById('settingsPageHeading').innerText = "Settings & Payment"; staffReportContainer.style.display = "none";
       } else { 
-        document.getElementById('ownerDangerZoneBox').style.display = "none"; document.getElementById('ownerPaymentSettingsBox').style.display = "none"; document.getElementById('ownerUpdateBroadcastBox').style.display = "none"; document.getElementById('settingsPageHeading').innerText = "Settings"; staffReportContainer.style.display = "block"; reportTitle.innerText = "🚨 Report Staff Member"; reportBtn.innerText = "Report Staff";
+        document.getElementById('ownerDangerZoneBox').style.display = "none"; document.getElementById('ownerPaymentSettingsBox').style.display = "none"; document.getElementById('settingsPageHeading').innerText = "Settings"; staffReportContainer.style.display = "block"; reportTitle.innerText = "🚨 Report Staff Member"; reportBtn.innerText = "Report Staff";
       }
       navigateToView('settingsPage');
     };
