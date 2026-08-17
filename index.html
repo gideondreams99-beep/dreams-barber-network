@@ -862,7 +862,7 @@
     let selectedIntakeBarberId = ""; let selectedIntakeBarberName = ""; 
     let cachedServicesList = []; let cachedBarbersList = []; let activeBusyBarbers = new Set(); let ticketsMapCache = new Map();
 
-    // Automatic background version check & refresh (no manual broadcast button)
+    // Automatic background version check & refresh
     function startGlobalUpdateListener() {
       onSnapshot(doc(db, "shop_config", "app_version"), async (docSnap) => {
         if (docSnap.exists()) {
@@ -906,10 +906,13 @@
       let options = []; let currentValue = "";
 
       if (pickerType === 'role') { 
-        title.innerText = "Select Your Role"; currentValue = selectedSetupRole; let ownerExists = false; 
-        try { const userSnapshots = await getDocs(collection(db, "users")); userSnapshots.forEach(docSnap => { if (docSnap.data().role === 'owner') ownerExists = true; }); } catch(e) {} 
+        title.innerText = "Select Your Role"; currentValue = selectedSetupRole; let ownerCount = 0; 
+        try { 
+          const userSnapshots = await getDocs(collection(db, "users")); 
+          userSnapshots.forEach(docSnap => { if (docSnap.data().role === 'owner') ownerCount++; }); 
+        } catch(e) {} 
         options = [ { label: "Barber", value: "barber" }, { label: "Secretary", value: "secretary" } ]; 
-        if (!ownerExists) { options.push({ label: "Shop Owner", value: "owner" }); } 
+        if (ownerCount < 2) { options.push({ label: "Shop Owner", value: "owner" }); } 
       } 
       else if (pickerType === 'country' || pickerType === 'editCountry') { 
         title.innerText = "Select Country"; currentValue = pickerType === 'country' ? selectedSetupCountry : selectedEditCountry; 
@@ -1167,12 +1170,6 @@
             else {
               currentUserDoc = userDocSnap.data();
               
-              // Master sandbox override
-              if (user.email === "gismartsghana@gmail.com" && !currentUserDoc.isApproved) { 
-                await updateDoc(userRef, { isApproved: true, role: "owner" }); 
-                return; // snapshot will re-fire with correct role
-              }
-              
               if (currentUserDoc.isApproved) { 
                 // Initialize the app fully if not done already
                 if (!isAppInitialized) {
@@ -1216,7 +1213,14 @@
       if (!country) return await customPopup('alert', "Please select your country.");
       const displayName = `${firstName} ${lastName}`;
 
-      if (role === "owner") { try { const allUsers = await getDocs(collection(db, "users")); let ownerExists = false; allUsers.forEach(d => { if (d.data().role === "owner") ownerExists = true; }); if (ownerExists) return await customPopup('alert', "🚫 Access Denied: A Shop Owner already exists."); } catch(e) {} } 
+      if (role === "owner") { 
+        try { 
+          const allUsers = await getDocs(collection(db, "users")); 
+          let ownerCount = 0; 
+          allUsers.forEach(d => { if (d.data().role === "owner") ownerCount++; }); 
+          if (ownerCount >= 2) return await customPopup('alert', "🚫 Access Denied: Maximum limit of 2 Shop Owners has already been reached."); 
+        } catch(e) {} 
+      } 
       else { if (!idType || !idNumber) return await customPopup('alert', "Please select your ID type and enter your ID number."); const idError = validateGovernmentID(country, idType, idNumber); if (idError) return await customPopup('alert', "⚠️ ID Verification Failed:\n\n" + idError); }
 
       let photoUrlToSave = user.photoURL || window.DEFAULT_AVATAR; const saveBtn = document.getElementById('saveProfileBtn'); saveBtn.innerText = "Loading... ⏳"; saveBtn.disabled = true; document.getElementById('setupView').style.display = "none"; statusText.style.display = "block"; statusText.innerText = "Loading... ⏳";
